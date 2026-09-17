@@ -274,8 +274,12 @@ LIMIT 25;
 - **Find**: maximum active connections · maximum idle connections · **idle eviction / idle timeout**
 - **Why**: **Aurora now closes idle connections at 10 minutes.** If Informatica's pool holds them longer, it
   will hand taskflows connections that Aurora has already closed, and jobs will fail with confusing errors
-  (see 1.4). Standard guidance is that the pool's idle limit must be **comfortably shorter** than the
-  database's — target **5 minutes or less** against our 10-minute setting.
+  (see 1.4).
+- **Target: 5 minutes or less.** Note that **matching Aurora's 10 minutes exactly is not safe** — if both
+  sides expire at the same moment you get a race, where Aurora closes a connection at the instant the pool is
+  handing it to a taskflow. The pool must lose that race **deliberately, every time**, so it needs to give up
+  connections comfortably earlier. Phrase it to the team as *"the pool must always release a connection well
+  before Aurora does"*, not *"the pool must match Aurora."*
 - **Report back**: the three values above, per connection definition
 - **This is the one check where delay creates a *new* problem rather than prolonging the current one.**
 
@@ -297,6 +301,32 @@ Three specific questions:
 3. **Does the connector issue `DISCARD ALL` when returning a connection to the pool?** This sounds obscure but
    it decides whether **RDS Proxy is worth doing at all** — `DISCARD ALL` pins connections and removes
    essentially all of the benefit.
+
+#### Check 12 — Run one job in isolation and count its connections ⭐ *settles the central unknown*
+
+**Owner**: Praveen + Nidwika jointly · **Effort**: ~15 minutes · **Do this during the paused window**
+
+Do not wait on Informatica documentation or support to answer Check 9 question 1 — **measure it directly.**
+
+1. Get the instance quiet (schedules already paused — Step 1 of Part 3)
+2. Turn on `log_connections` / `log_disconnections` (Check 5)
+3. Trigger **one** ABC job, for **one** table
+4. Count the connections opened, and note how long each one lived
+
+**How to read the result:**
+
+| Connections observed | What it means | What follows |
+|---|---|---|
+| **~8** | Each mapping task opens its own connection — the structural fan-out in 1.7 is confirmed | WS4 is worth funding immediately |
+| **~1–2** | The Secure Agent is pooling well across tasks | The volume is coming from somewhere else — **redirect the investigation** to Check 10 and the cost-side causes |
+
+**This is the single unmeasured number in the whole analysis.** It is the difference between *"the framework
+is structurally heavy at our concurrency"* and *"the framework is fine and something else is wrong"* — and
+those lead to completely different plans. It also sizes the WS4 benefit before we commit any build effort to
+it.
+
+A useful extension while the instance is quiet: repeat with **two jobs**, then **five**, recording connections
+each time. That gives the per-job connection cost directly, which is what capacity planning needs.
 
 ### Application / ingestion teams — owner: all dev leads
 
@@ -450,27 +480,177 @@ connection startup parameters instead. The two workstreams need to be designed t
 
 **Owner**: ABC framework team · **Effort**: medium · **No new infrastructure required**
 
-Today each phase is several separate Informatica steps, each with its own Aurora round trip:
+> ### ⚠️ These stored procedures go in **Aurora PostgreSQL**, not Snowflake
+>
+> This is easy to misread, because the ABC material discusses Snowflake constantly. To be unambiguous:
+>
+> - The ABC control tables — `job_run_stats`, `batch_run_stats`, `job_rule_execution_log`,
+>   `balance_reconciliation_stats` — live in **Aurora**, which the ABC design calls the system of record for
+>   all of them. **Aurora is the database that fell over, so Aurora is where the round trips must be reduced.**
+> - The Snowflake-side ABC tables are a *different mechanism*: transient copies used during job load so the
+>   push-down math can run where the business data is. They are not the connection problem.
+>
+> **If we build Snowflake stored procedures instead, connection pressure on Aurora is completely unchanged.**
+
+#### What actually produces the saving
+
+**The stored procedure does not by itself reduce connections. Collapsing several Informatica tasks into one
+does. The procedure is what makes that collapse practical.**
+
+Today job preload is three separate IDMC mapping tasks. Each task is its own execution: it acquires a
+connection, runs its statements, releases it.
 
 ```
-  Today:   job preload    = 3 separate tasks,  ~6 round trips
-           job post load  = 5 separate tasks,  ~8 round trips
+  Today
+    task A → acquire → read job_metadata, read latest job_run_stats, insert job_run_stats → release
+    task B → acquire → read etl_data_ingestion_metadata, Zone1 lookups, insert source_window → release
+    task C → acquire → read job_rule_assignment, insert job_rule_execution_log rows        → release
 
-  Target:  job preload    = 1 call to a single Aurora function
-           job post load  = 1 call to a single Aurora function
+  Target
+    task   → acquire → CALL abc_job_preload(...)                                            → release
 ```
 
-That is roughly a **5–8× reduction in connections and round trips per job**, with **no change to what the
-framework does**.
+Without somewhere server-side to put the logic, the alternative is one very large Informatica mapping doing
+everything — harder to build and maintain, and depending on connector behaviour each read/write
+transformation may still take its own connection.
 
-It also fixes a correctness problem that exists today: if a job fails halfway through preload, it leaves
-**partially written control state** across three tables — which is precisely why ABC needs its elaborate
-preload-failure and postload-failure cleanup components. Doing each phase in **one transaction** makes those
-writes all-or-nothing, and the "stuck at status = Started" case that the ABC documentation describes stops
-being reachable through normal failure paths.
+**Two separate effects, and the second is the larger one:**
 
-**If we only do one long-term item, this is the one** — highest benefit per unit of effort, and entirely within
-our own control.
+1. **Fewer connection acquisitions** — three task invocations become one.
+2. **Shorter hold time** — this is what actually drives concurrent connection count:
+
+   ```
+   concurrent connections  =  arrival rate  ×  how long each connection is held
+   ```
+
+   Every statement is a separate network round trip, and the connection is held for all of them. One `CALL`
+   is one round trip; the database performs the operations internally at memory speed. Today the three
+   preload tasks are also separated by Informatica orchestration overhead — task scheduling, connection
+   acquisition, network latency — so the sequence is **stretched across seconds**. One call compresses it to
+   milliseconds. Cut hold time by 10× and the same throughput needs roughly a tenth of the concurrent
+   connections.
+
+#### The numbers, stated precisely
+
+An earlier draft of this plan said "5–8× fewer connections." That conflated two different quantities. The
+corrected figures:
+
+| Measure | Today | With procedures | Reduction |
+|---|---|---|---|
+| Connection **acquisitions** per job | ~8 | ~3 | **~2.5–3×** |
+| **Round trips** per job | ~15 | ~3 | **~5×** |
+
+The ~5× applies to round trips and therefore to hold time; the acquisition count falls by about 3×. Both
+matter, but they are different numbers. (~3 rather than ~1 because the `etl_data_ingestion_source_window`
+write happens mid-load and is harder to fold into either phase procedure.)
+
+#### What this does *not* do
+
+**A stored procedure caps nothing.** If 500 jobs run at once, we still get 500 concurrent connections — just
+held more briefly and acquired less often. WS4 makes each job cheaper; it does not put a ceiling on how many
+jobs can demand connections.
+
+That is the distinction between the two long-term items:
+
+- **WS4 (procedures)** — reduces the *coefficient*. Demand still grows with concurrency, just more slowly.
+- **WS5 (control-plane service)** — imposes a *hard ceiling*. Aurora connections become a number we choose.
+
+#### Does this cause locking problems under parallel execution?
+
+A fair objection, and worth answering before design review. **No — and it reduces lock contention rather than
+creating it.**
+
+**A stored procedure is not a lockable resource.** PostgreSQL does not lock or serialize concurrent
+executions of the same procedure. When 100 sessions call `abc_job_preload()` at once, there are 100
+independent executions, each in its own backend process with its own snapshot and its own local variables.
+They do not queue behind each other. (The one exception is `CREATE OR REPLACE FUNCTION`, which does take an
+exclusive lock — so **do not redeploy ABC procedures while batches are running.**)
+
+**Concurrent inserts into the same table do not block each other.** PostgreSQL uses MVCC: *readers never
+block writers, writers never block readers.* Each statement sees a snapshot rather than locking rows for
+reading.
+
+| Scenario | Conflict? |
+|---|---|
+| Job 101 inserts its `job_run_stats` row while Job 102 inserts its own | **No** — different rows |
+| Two jobs both reading `job_metadata` | **No** — readers never conflict |
+| A job reading `batch_run_stats` while batch post load updates it | **No** — the reader sees the pre-update snapshot |
+| Two transactions **updating the same row** | **Yes** — the second waits for the first to commit |
+
+ABC's preload pattern is overwhelmingly *"read config, insert my own new row"*, which is close to the best
+case for concurrency. Auto-increment keys are fine too — PostgreSQL sequences are built for concurrency and
+`nextval()` never waits.
+
+**Why contention goes down, not up**: lock contention is driven by how *long* locks are held. Consolidating
+three tasks spread across seconds into one call lasting milliseconds means fewer overlapping transactions at
+any instant.
+
+**The honest trade-off**: today each task is likely its own auto-committed transaction — three short
+transactions, releasing locks between each. With one procedure in one transaction, all locks are held from
+the first statement until COMMIT, so the set held *simultaneously* is wider even though the duration is much
+shorter. Net effect is positive, but it introduces **deadlock risk** if different code paths touch the same
+tables in different orders. The mitigation is a design rule (below), and it is trivially enforceable in one
+procedure — as opposed to impossible to enforce across scattered mappings.
+
+**What genuinely does contend**, today and with procedures alike: **relation extension** (many sessions
+inserting into one table briefly serialise on extending its physical file — this is `Lock:extend` in the
+wait-event table in Check 6, and it is already a current suspect), and **same-row updates** (batch post load
+updating the single `batch_run_stats` row, which runs once per batch rather than per job, so low risk).
+
+#### A pre-existing race the procedures would let us fix
+
+Because PostgreSQL does not serialise automatically, anything that *must* be serialised has to ask for it
+explicitly. That is an opportunity, not a burden.
+
+ABC's batch preload logic reads the batch's latest `batch_run_stats` row, checks its status, decides New vs
+Restart, then inserts. **If two triggers for the same batch fire concurrently, both can read "latest =
+Completed", both decide "New", and both insert** — producing two parallel runs of the same batch with
+different `execution_run_id`s.
+
+What prevents this today is only the scheduler-level prerequisite check — which the ABC design states is
+**explicitly skipped for Restart, Rerun, Zone1-Rerun, History, Catchup and First-Time-Incremental.** For any
+manually triggered run there is no database-level protection at all.
+
+Inside a procedure this closes cleanly:
+
+```sql
+PERFORM pg_advisory_xact_lock(p_batch_id);
+-- now safely: read latest run, decide New vs Restart, insert
+```
+
+This serialises **only concurrent preloads of the same batch**, which is exactly what must be serialised.
+Preloads for *different* batches never interact, because the lock key is the batch ID. The point is that we
+are not choosing between "locked" and "unlocked" — we are choosing **precisely what to serialise**, and today
+there is no place to make that choice.
+
+**This race is worth raising with the ABC team regardless of whether we adopt stored procedures.**
+
+#### Design rules for the ABC team
+
+1. Keep each procedure short — no external calls, no waits, no Snowflake round trips inside it
+2. Touch tables in a **consistent order** in every procedure (deadlock prevention)
+3. Use `pg_advisory_xact_lock(batch_id)` only where a genuine race exists — the batch preload decision above
+4. Do **not** use table-level `LOCK TABLE` — far too coarse, and it would create the very problem we are avoiding
+5. Keep the default `READ COMMITTED` isolation unless something specific demands otherwise
+6. Never redeploy procedures while batches are running
+
+#### The correctness bonus
+
+This also fixes a problem that exists today: if a job fails halfway through preload, it leaves **partially
+written control state** across three tables — which is precisely why ABC needs its elaborate preload-failure
+and postload-failure cleanup components. Doing each phase in **one transaction** makes those writes
+all-or-nothing, and the "stuck at status = Started" case the ABC documentation describes stops being
+reachable through normal failure paths.
+
+#### One dependency before committing effort
+
+**How much WS4 wins depends on a measurement nobody has taken yet** (Check 12). If the Secure Agent already
+pools connections well across task executions, those 8 task boundaries may already reuse 1–2 connections and
+the acquisition saving largely evaporates — though the hold-time saving survives either way. **Run Check 12
+first.**
+
+**Subject to that measurement, if we only do one long-term item, this is the one** — highest benefit per unit
+of effort, and entirely within our own control.
 
 ### WS5 — A control-plane service between taskflows and Aurora
 
@@ -565,9 +745,13 @@ deliverables slipping.
 | 11 | Step 5 — concurrency ceiling | Nidwika + scheduling |
 | 12 | Step 6 — controlled, team-by-team resumption | All |
 | 13 | Check 5 — connection-rate logging | Praveen |
-| 14 | Check 8 — concurrency numbers | Nidwika |
-| 15 | Check 9 — connector behaviour (3 questions) | Prateek |
-| 16 | Check 11 — indexes on control tables | ABC DDL owner |
+| 14 | **Check 12 — single-job connection count** ⭐ | Praveen + Nidwika |
+| 15 | Check 8 — concurrency numbers | Nidwika |
+| 16 | Check 9 — connector behaviour (3 questions) | Prateek |
+| 17 | Check 11 — indexes on control tables | ABC DDL owner |
+
+**Check 12 is worth pulling forward** into the paused window in Part 3 Step 1 — the instance is quiet then,
+which is exactly what the measurement needs, and the result determines how much effort WS4 deserves.
 
 ### Parallel workstreams
 
@@ -609,8 +793,15 @@ deliverables slipping.
 >    what the CPU is actually doing. Nobody has yet looked at what the database is executing.
 > 3. **Nidwika / Prateek** — **Informatica's connection pool idle-eviction setting**. Aurora now closes idle
 >    connections after 10 minutes. If the pool holds them longer, it will hand taskflows connections Aurora has
->    already closed and jobs will fail with confusing errors. **This may already be live**, so it is the most
->    urgent item on the Informatica side.
+>    already closed and jobs will fail with confusing errors. Note that **matching 10 minutes exactly is not
+>    safe either** — the pool needs to release connections comfortably earlier, so please target **5 minutes or
+>    less**. **This may already be live**, so it is the most urgent item on the Informatica side.
+>
+> **One measurement that would settle a lot**, and takes about 15 minutes during the paused window: with
+> connection logging on and the instance quiet, trigger **a single ABC job** and count the connections it
+> opens. If it is around 8, each mapping task is taking its own connection and the volume is structural. If it
+> is 1–2, the Secure Agent is pooling well and we should look elsewhere entirely. Right now we are reasoning
+> about this number rather than measuring it.
 >
 > **On the connection volume itself.** Working through the ABC framework design, each job touches Aurora at
 > roughly 8–10 separate points, each a separate task, and each domain runs its own copy of the ABC components
@@ -637,6 +828,25 @@ deliverables slipping.
 
 ---
 
+## Separate issue found while writing this plan
+
+**A concurrency race in ABC's batch preload**, unrelated to the current outage and worth raising with the ABC
+team on its own merits.
+
+Batch preload reads the batch's latest `batch_run_stats` row, checks its status, decides New vs Restart, then
+inserts. **If two triggers for the same batch fire concurrently, both can read "latest = Completed", both
+decide "New", and both insert** — producing two parallel runs of the same batch with different
+`execution_run_id`s.
+
+The only thing preventing this today is the scheduler-level prerequisite check, which the ABC design states is
+**explicitly skipped for Restart, Rerun, Zone1-Rerun, History, Catchup and First-Time-Incremental.** For any
+manually triggered run there is no database-level protection.
+
+This is a pre-existing design gap, not something the changes in this plan introduce. WS4 would give us a clean
+place to close it (see the advisory-lock pattern there), but it should be assessed regardless.
+
+---
+
 ## Open questions we still need answered
 
 | # | Question | Who | Why it matters |
@@ -645,7 +855,7 @@ deliverables slipping.
 | 2 | Instance class and `max_connections` | Praveen | Sets the real ceiling and the connections-per-core ratio |
 | 3 | Connections opened **per second** | Praveen | Distinguishes "many connections" from "rapid churn" — different fixes |
 | 4 | Top wait events | Praveen | Discriminates between every candidate cause in one screen |
-| 5 | Connections per Informatica mapping task | Prateek | The unmeasured multiplier in the arithmetic |
+| 5 | Connections per Informatica mapping task | Prateek — **or Check 12** | The unmeasured multiplier in the arithmetic; Check 12 answers it empirically in ~15 minutes |
 | 6 | Does the connector issue `DISCARD ALL`? | Prateek | Decides whether RDS Proxy is viable at all |
 | 7 | Informatica pool idle-eviction setting | Nidwika | A new failure mode may already be live |
 | 8 | Any non-IDMC consumers of this instance? | All dev leads | Entirely unassessed today |

@@ -635,8 +635,42 @@ in a single call and a single transaction**:
            job post load = 1 call to abc_job_postload(...)   → 1 connection
 ```
 
-That is roughly a **5–8× reduction in Aurora connections and round trips per job**, achieved without changing
-the framework's semantics.
+**These are Aurora (PostgreSQL) procedures, not Snowflake ones.** The control tables are Aurora's; the
+Snowflake-side ABC tables are transient copies used during job load and are not the connection problem.
+Building this in Snowflake would leave Aurora connection pressure unchanged.
+
+**The procedure is not itself the saving — collapsing several IDMC tasks into one is.** Each mapping task is
+its own execution that acquires a connection, runs its statements and releases it. The procedure is what
+makes the collapse practical; without a server-side home for the logic, the alternative is one very large
+Informatica mapping, which may still take a connection per read/write transformation.
+
+Two effects, the second larger:
+
+1. **Fewer acquisitions** — three task invocations become one.
+2. **Shorter hold time** — `concurrent connections = arrival rate × hold time`. Every statement is a round
+   trip, and today the tasks are additionally separated by IDMC orchestration overhead, stretching the
+   sequence across seconds. One `CALL` compresses it to milliseconds.
+
+**Corrected figures** (an earlier draft said "5–8× fewer connections", which conflated two quantities):
+
+| Measure | Today | With procedures | Reduction |
+|---|---|---|---|
+| Connection **acquisitions** per job | ~8 | ~3 | **~2.5–3×** |
+| **Round trips** per job | ~15 | ~3 | **~5×** |
+
+The ~5× applies to round trips and hence hold time; acquisitions fall by about 3×. (~3 rather than ~1 because
+the `etl_data_ingestion_source_window` write happens mid-load.)
+
+**This caps nothing.** 500 concurrent jobs still means 500 concurrent connections, just briefer and fewer.
+L2 reduces the coefficient; only L1 imposes a ceiling.
+
+**Concurrency is not a problem here.** PostgreSQL does not lock or serialise concurrent executions of the same
+procedure — each call runs in its own backend with its own snapshot. Under MVCC, readers never block writers
+and concurrent inserts of *different* rows do not conflict, which is overwhelmingly ABC's preload pattern.
+Contention falls rather than rises, because locks are held for milliseconds instead of across a
+multi-second task sequence. The real trade-off is a *wider* lock set held simultaneously within one
+transaction, so **touch tables in a consistent order** to avoid deadlocks. Genuine contention points —
+relation extension (`Lock:extend`, already B4 above) and same-row updates — exist today and are unaffected.
 
 It also fixes a correctness problem that is currently latent: today a failure midway through job preload
 leaves **partially written control state** across `job_run_stats`, `etl_data_ingestion_source_window` and
@@ -644,6 +678,18 @@ leaves **partially written control state** across `job_run_stats`, `etl_data_ing
 components described in §11. A single transaction per phase makes these writes atomic — the cleanup component
 becomes largely unnecessary, and the "stuck at `status = Started`" case (§4.2) stops being reachable through
 normal failure paths.
+
+**And it gives us a place to close a race that exists today.** Batch preload reads the latest
+`batch_run_stats` row, decides New vs Restart, and inserts. Two concurrent triggers for the same batch can
+both read "Completed", both decide "New", and both insert — two parallel runs of one batch. Today only the
+scheduler-level prerequisite prevents this, and §10 states that check is **skipped for Restart, Rerun,
+Zone1-Rerun, History, Catchup and FTI**. Inside a procedure, `PERFORM pg_advisory_xact_lock(p_batch_id)`
+serialises exactly the batches that must be serialised and nothing else. **Worth raising with the ABC team
+independently of whether L2 is adopted.**
+
+**Sizing caveat**: how much L2 wins depends on whether the Secure Agent already pools across task executions —
+the measurement in open question 5. If it pools well, the acquisition saving shrinks, though the hold-time
+saving survives. Measure before building.
 
 ### L3 — Make pooling a standard, not an incident response
 
@@ -727,7 +773,7 @@ them rather than precede them.
 | 12 | **Separate DB roles** per domain | Weeks | Medium | Enables budgets and attribution |
 | 13 | **Pooler** (RDS Proxy / PgBouncer), `DISCARD ALL` tested first | Weeks | Medium | Raises the ceiling substantially |
 | 14 | **Dedicated ABC Aurora** instance | Weeks | Medium | Blast-radius isolation |
-| 15 | **Stored procedures per phase** (L2) | Quarter | Medium | 5–8× fewer connections per job |
+| 15 | **Aurora stored procedures per phase** (L2) | Quarter | Medium | ~3× fewer connection acquisitions, ~5× fewer round trips per job |
 | 16 | **ABC control-plane service** (L1) | Quarter+ | High | Changes the slope, not the ceiling |
 
 Items 1–5 cost almost nothing and are the only ones that produce **evidence**. Everything after them is better
@@ -745,7 +791,7 @@ Answers to these would materially change the recommendations above.
 | 2 | **Instance class**, and is `max_connections` default or manually raised? | Sets the true ceiling and the connections-per-vCPU ratio (B3) |
 | 3 | **Connections opened per second** (not count) | Confirms or eliminates B1, the leading explanation for the flat CPU line |
 | 4 | **Top wait events** from Database Insights | Discriminates between every Group B scenario in one screen |
-| 5 | **Connections per IDMC mapping task** | The one unmeasured term in the A1 arithmetic |
+| 5 | **Connections per IDMC mapping task** | The one unmeasured term in the A1 arithmetic. Settle it empirically: run **one** job on a quiet instance with `log_connections` on and count. ~8 confirms per-task connections and the A1 fan-out; ~1–2 means the Secure Agent pools well and the volume originates elsewhere. Also sizes L2 |
 | 6 | **Does Informatica's PostgreSQL connector issue `DISCARD ALL`?** | Decides whether RDS Proxy is viable at all (2.2) |
 | 7 | **Informatica pool idle-eviction setting** | If > 10 min, a new failure mode is already live |
 | 8 | **Are there non-ABC consumers** of this instance? | A7 is entirely unassessed |
@@ -784,3 +830,7 @@ Answers to these would materially change the recommendations above.
 | 14 | [Informatica — Taskflow concurrency in IDMC CDI](https://knowledge.informatica.com/s/article/000190765?language=en_US) | Taskflow concurrency is a configurable ceiling (1.2) |
 | 15 | [PostgreSQL — client connection defaults](https://www.postgresql.org/docs/current/runtime-config-client.html) | `idle_session_timeout`; pooler warning (1.5) |
 | 16 | [PostgreSQL — monitoring stats / pg_stat_activity](https://www.postgresql.org/docs/current/monitoring-stats.html) | Wait events, `state`, column meanings (0.4) |
+| 17 | [PostgreSQL — Concurrency Control (MVCC)](https://www.postgresql.org/docs/current/mvcc.html) | Readers never block writers; concurrent procedure execution is not serialised (L2) |
+| 18 | [PostgreSQL — Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html) | Advisory locks; lock modes and conflicts (L2) |
+| 19 | [PostgreSQL Concurrency: Isolation and Locking — Dimitri Fontaine](https://tapoueh.org/blog/2018/07/postgresql-concurrency-isolation-and-locking/) | Isolation levels; when explicit locking is required (L2) |
+| 20 | [PostgreSQL Concurrency with MVCC — Heroku](https://devcenter.heroku.com/articles/postgresql-concurrency) | MVCC write-new-versions model (L2) |
