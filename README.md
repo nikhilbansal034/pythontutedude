@@ -67,7 +67,7 @@ enrichment), where the driving table alone sets the target dates.
 
 | File | What it is |
 |------|-----------|
-| `scd_scenario_matrix.md` | **Draft** scenario catalogue — which source/target combinations hit the problem, built under both readings of Q1, plus the eleven failure mechanisms and why each one breaks |
+| `scd_scenario_matrix.md` | **Draft** — which join combinations hit the problem and why, explained with worked data. Written to be shown to others, not just read by the team |
 | `scd_glossary.md` | Working definitions of the zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC doc leaves undefined. Each entry marked Confirmed / Inferred / Unknown |
 | `LM - GRS Teradata  MVP - Multiple_SCD_joins_Target_Eff_date_split - USI Morning-20260918_083847-Meeting Recording-en-US.vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
 | `scenario_screenshot.png` | The Excel mock-up shared on that call — day-1 and day-2 worked example for a two-table join on key `k1` |
