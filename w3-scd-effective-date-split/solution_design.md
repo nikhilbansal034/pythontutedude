@@ -1,9 +1,9 @@
 # W3 solution design — multi-source SCD2 effective-date split
 
-Status: **draft.** The problem catalogue is in `scd_scenario_matrix.md`; this file covers how it gets solved
-and the POC that proves it. Vocabulary is in `scd_glossary.md`.
+Status: **draft.** The problem catalogue is in `scenario_matrix.md`; this file covers how it gets solved
+and the POC that proves it. Vocabulary is in `glossary.md`.
 
-The runnable POC is `scd_poc_snowflake.sql`.
+The runnable POC is `poc_snowflake.sql`.
 
 ---
 
@@ -188,12 +188,12 @@ can wrap both mappings in one Snowflake transaction under pushdown is **unverifi
 
 ## 9. The POC
 
-`scd_poc_snowflake.sql` runs the whole thing against `LM_POC_DB.POC_SCHEMA`. Copy, paste, execute top to
+`poc_snowflake.sql` runs the whole thing against `LM_POC_DB.POC_SCHEMA`. Copy, paste, execute top to
 bottom. Every `EVIDENCE` block returns a result set to capture.
 
 ### Objects — what is real and what is illustrative
 
-Taken from `abc_framework_success_scenario.md`, names and columns as documented:
+Taken from `../w2-abc-framework/reference.md`, names and columns as documented:
 
 | Object | Note |
 |---|---|
@@ -300,7 +300,7 @@ it reports full pushdown.
 
 ## 12. Still open on the problem side
 
-Carried from `scd_scenario_matrix.md` §11 — these do not block the POC but do affect scope:
+Carried from `scenario_matrix.md` §11 — these do not block the POC but do affect scope:
 
 - Does a current-bucket read give one row per key, or all versions?
 - Can a source *remove* one of its own versions? If so, nothing in the delta will ever flag it.

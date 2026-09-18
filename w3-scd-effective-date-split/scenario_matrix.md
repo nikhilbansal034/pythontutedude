@@ -103,7 +103,7 @@ Collect every date either table mentions — **9-Sep, 10-Sep, 21-Sep** — and c
 Three target rows out of a two-row and a one-row table. **That is the problem.**
 
 **Decided**: the 9-Sep to 10-Sep row is **kept**, with `tbl1_value` blank — matching
-`scenario_screenshot.png`. We do not drop periods where one table has no value.
+`sources/scenario_screenshot.png`. We do not drop periods where one table has no value.
 
 ---
 
@@ -349,7 +349,7 @@ Numbering is kept stable — Q3 and Q7 are answered below rather than renumbered
 
 **Working assumption, not confirmed**: the problem is treated as sitting on the **Zone1 → Zone2** hop. The
 mechanics are identical wherever it sits, but the layer decides which engine runs the SQL and who owns the
-build — see the note in `scd_glossary.md`.
+build — see the note in `glossary.md`.
 
 **For the asset list**: deciding whether a table "keeps history" *for a particular target* needs to know which
 columns actually reach that target — per-mapping information, not something visible from the table itself.

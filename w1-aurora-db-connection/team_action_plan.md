@@ -7,9 +7,9 @@ does not happen again.
 plain-English explanation of the moving parts; skip it if you already know Aurora and IDMC well.
 
 **Related documents in this repo**
-- `Aurora_DB_Connection_Analysis.md` — the source-by-source record of the email thread
-- `Aurora_RootCause_Actions_LongTerm.md` — the full technical analysis behind this plan
-- `abc_framework_success_scenario.md` — how the ABC framework works
+- `connection_analysis.md` — the source-by-source record of the email thread
+- `rootcause_and_longterm_fix.md` — the full technical analysis behind this plan
+- `../w2-abc-framework/reference.md` — how the ABC framework works
 
 ---
 

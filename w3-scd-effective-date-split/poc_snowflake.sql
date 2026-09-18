@@ -6,7 +6,7 @@
 
    WHAT IS REAL AND WHAT IS ILLUSTRATIVE
    -------------------------------------
-   Taken from the ABC framework reference (abc_framework_success_scenario.md),
+   Taken from the ABC framework reference (../w2-abc-framework/reference.md),
    names and columns as documented:
      ETL_DATA_INGESTION_SOURCE_WINDOW  the per-source-table sourcing window,
                                        with its real column list
