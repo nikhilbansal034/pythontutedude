@@ -33,7 +33,7 @@ The alternative:
 > sources, then diff the rebuilt timeline against what the target holds.**
 
 Same output, fully set-based, and idempotent for free — re-running with no new data produces no changes,
-which the POC asserts as T11.
+which the POC asserts as T12.
 
 ---
 
@@ -112,20 +112,20 @@ a `D` + `I` pair. Comparing dates alone would silently keep the stale value.
 
 The natural instinct is one `MERGE` from stage into target. **It fails at runtime.**
 
-On Day 2, the stage holds these rows for K1:
+On Day 2, the stage holds these rows for BR001:
 
 ```
-D  (K1, 10-Sep, 21-Sep)        I  (K1, 10-Sep, 15-Sep)
-D  (K1, 21-Sep, high end)      I  (K1, 15-Sep, 21-Sep)
-                               I  (K1, 21-Sep, 22-Sep)
-                               I  (K1, 22-Sep, high end)
+D  (BR001, 10-Sep, 21-Sep)     I  (BR001, 10-Sep, 15-Sep)
+D  (BR001, 21-Sep, high end)   I  (BR001, 15-Sep, 21-Sep)
+                               I  (BR001, 21-Sep, 22-Sep)
+                               I  (BR001, 22-Sep, high end)
 ```
 
-The live target row `(K1, 10-Sep, 21-Sep)` matches **both** the `D` row and an `I` row on
-`(business_key, row_eff_dte)`. Snowflake's `ERROR_ON_NONDETERMINISTIC_MERGE` is `TRUE` by default, so the
+The live target row `(BR001, 10-Sep, 21-Sep)` matches **both** the `D` row and an `I` row on
+`(BROKER_ID, ROW_EFF_DTE)`. Snowflake's `ERROR_ON_NONDETERMINISTIC_MERGE` is `TRUE` by default, so the
 statement errors.
 
-Adding `row_exp_dte` to the join key fixes that case but not the one where a source corrects a value without
+Adding `ROW_EXP_DTE` to the join key fixes that case but not the one where a source corrects a value without
 moving its dates — there the `D` and `I` rows share key, eff *and* exp.
 
 Snowflake also has no `WHEN NOT MATCHED BY SOURCE` clause, so a MERGE cannot soft-delete rows that have
@@ -140,19 +140,21 @@ honest: this is not an upsert. It is closing one set of rows and appending a dif
 
 ```sql
 -- STEP 2 — soft-delete
-UPDATE TGT_TABLE
-SET IS_DEL = 'Y', AUDIT_UPD_TS = CURRENT_TIMESTAMP()
-FROM STG_TABLE S
-WHERE S.ACTION_FLAG = 'D' AND TGT_TABLE.TGT_SK = S.TGT_SK;
+UPDATE Z2_BROKER_PARTY_DIM
+SET IS_DEL = 'Y', AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+FROM STG_Z2_BROKER_PARTY_DIM S
+WHERE S.ACTION_FLAG = 'D'
+  AND Z2_BROKER_PARTY_DIM.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK;
 
 -- STEP 3 — insert
-INSERT INTO TGT_TABLE (...)
-SELECT SEQ_TGT_SK.NEXTVAL, ... FROM STG_TABLE WHERE ACTION_FLAG = 'I';
+INSERT INTO Z2_BROKER_PARTY_DIM (...)
+SELECT SEQ_BROKER_PARTY_DIM_SK.NEXTVAL, ...
+FROM STG_Z2_BROKER_PARTY_DIM WHERE ACTION_FLAG = 'I';
 ```
 
 **The `D` rows carry the target row's own surrogate key**, so the update matches on one column. Matching on
-`(business_key, row_eff_dte, row_exp_dte)` instead would also hit a row soft-deleted in an *earlier* run
-that happened to cover the same interval.
+`(BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE)` instead would also hit a row soft-deleted in an *earlier* run that
+happened to cover the same interval.
 
 ---
 
@@ -189,54 +191,76 @@ can wrap both mappings in one Snowflake transaction under pushdown is **unverifi
 `scd_poc_snowflake.sql` runs the whole thing against `LM_POC_DB.POC_SCHEMA`. Copy, paste, execute top to
 bottom. Every `EVIDENCE` block returns a result set to capture.
 
+### Objects — what is real and what is illustrative
+
+Taken from `abc_framework_success_scenario.md`, names and columns as documented:
+
+| Object | Note |
+|---|---|
+| `ETL_DATA_INGESTION_SOURCE_WINDOW` | The real per-source-table sourcing window, with its documented column list. **Per source table**, not one global watermark — each source carries its own start and end time and its own `JOB_STATUS` |
+| `GRS_UNIQUE_ID` | Zone1 record-identifier audit column |
+| `AUDIT_BATCH_ID` / `AUDIT_JOB_ID` | Snowflake stage and target audit columns. The documented quirk is honoured: they hold `EXECUTION_RUN_ID` and `JOB_RUN_ID`, **not** the metadata batch/job ids |
+| `AUDIT_CREATE_DATETIME` / `AUDIT_UPDATE_DATETIME` | Standard audit column names |
+| Stage behaviour | Truncate-and-reload every run, never upsert |
+
+Illustrative — shaped to the documented naming conventions, but the real object names are not in anything we
+hold, so **substitute before real use**: `Z1_BROKER_PARTY_HIST`, `Z1_BROKER_COMMISSION_HIST`,
+`Z2_BROKER_PARTY_DIM`, `STG_Z2_BROKER_PARTY_DIM`, and `GRS_REFINED_TIMESTAMP` (the ABC doc describes "an
+audit column present on every Zone1 target table marking when that row was last refined" but never spells
+the column name).
+
 ### Test data
 
-| Key | Purpose |
+Two Zone1 history-bucket tables, both SCD2, both contributing attributes to one Zone2 SCD2 dimension,
+joined on `BROKER_ID`.
+
+| Broker | Purpose |
 |---|---|
-| **K1** | The main scenario. Table 1 never changes on Day 2, yet three of its target rows get rewritten |
-| **K2** | Day 2 changes a column that never reaches the target. Must produce **no** target change at all |
-| **K3** | Never touched after Day 1. Must not be re-read or re-written |
+| **BR001** | The main scenario. The party table never changes on Day 2, yet three of its target rows get rewritten |
+| **BR002** | Day 2 changes a column that never reaches the target. Must produce **no** target change at all |
+| **BR003** | Never touched after Day 1. Must not be re-read or re-written |
 
 ### Expected results
 
-**After Day 1** — 5 target rows, all `is_del = 'N'`:
+**After Day 1** — 5 target rows, all `IS_DEL = 'N'`:
 
-| business_key | row_eff_dte | row_exp_dte | tbl1 | tbl2 |
+| BROKER_ID | ROW_EFF_DTE | ROW_EXP_DTE | BROKER_STATUS_CDE | COMMISSION_TIER_CDE |
 |---|---|---|---|---|
-| K1 | 2026-09-09 | 2026-09-10 | *(null)* | p |
-| K1 | 2026-09-10 | 2026-09-21 | a | p |
-| K1 | 2026-09-21 | 9999-12-31 | b | p |
-| K2 | 2026-09-05 | 9999-12-31 | m | n |
-| K3 | 2026-09-01 | 9999-12-31 | g | h |
+| BR001 | 2026-09-09 | 2026-09-10 | *(null)* | TIER1 |
+| BR001 | 2026-09-10 | 2026-09-21 | ACTIVE | TIER1 |
+| BR001 | 2026-09-21 | 9999-12-31 | SUSPEND | TIER1 |
+| BR002 | 2026-09-05 | 9999-12-31 | ACTIVE | TIER1 |
+| BR003 | 2026-09-01 | 9999-12-31 | ACTIVE | TIER1 |
 
-**Day 2 stage** — exactly 4 `I` and 2 `D`, all K1. Nothing for K2 or K3.
+**Day 2 stage** — exactly 4 `I` and 2 `D`, all BR001. Nothing for BR002 or BR003.
 
-**After Day 2** — K1 has 5 live rows and 2 superseded:
+**After Day 2** — BR001 has 5 live rows and 2 superseded:
 
-| business_key | row_eff_dte | row_exp_dte | tbl1 | tbl2 | is_del |
+| BROKER_ID | ROW_EFF_DTE | ROW_EXP_DTE | BROKER_STATUS_CDE | COMMISSION_TIER_CDE | IS_DEL |
 |---|---|---|---|---|---|
-| K1 | 2026-09-09 | 2026-09-10 | *(null)* | p | N |
-| K1 | 2026-09-10 | 2026-09-15 | a | p | N |
-| K1 | 2026-09-10 | 2026-09-21 | a | p | **Y** |
-| K1 | 2026-09-15 | 2026-09-21 | a | q | N |
-| K1 | 2026-09-21 | 2026-09-22 | b | q | N |
-| K1 | 2026-09-21 | 9999-12-31 | b | p | **Y** |
-| K1 | 2026-09-22 | 9999-12-31 | b | r | N |
+| BR001 | 2026-09-09 | 2026-09-10 | *(null)* | TIER1 | N |
+| BR001 | 2026-09-10 | 2026-09-15 | ACTIVE | TIER1 | N |
+| BR001 | 2026-09-10 | 2026-09-21 | ACTIVE | TIER1 | **Y** |
+| BR001 | 2026-09-15 | 2026-09-21 | ACTIVE | TIER2 | N |
+| BR001 | 2026-09-21 | 2026-09-22 | SUSPEND | TIER2 | N |
+| BR001 | 2026-09-21 | 9999-12-31 | SUSPEND | TIER1 | **Y** |
+| BR001 | 2026-09-22 | 9999-12-31 | SUSPEND | TIER3 | N |
 
-### The eleven assertions
+### The twelve assertions
 
 | | Checks |
 |---|---|
-| T1 / T2 | K1 has 5 live and 2 superseded rows |
-| T3 / T4 | K2 unchanged and never soft-deleted — **the collapse worked** |
-| T5 | K3 untouched |
-| T6 | K1's live timeline has no gaps or overlaps |
-| T7 | `business_key` + `row_eff_dte` is unique **among live rows** |
-| T8 | …and deliberately **not** unique across all rows — 2 duplicate pairs |
-| T9 / T10 | The 9-Sep row exists and carries no Table 1 value |
-| T11 | Re-running with no new data produces an **empty stage** — idempotence |
+| T01 / T02 | BR001 has 5 live and 2 superseded rows |
+| T03 / T04 | BR002 unchanged and never soft-deleted — **the collapse worked** |
+| T05 | BR003 untouched — it never entered the run's sourcing window |
+| T06 | BR001's live timeline has no gaps or overlaps |
+| T07 | `BROKER_ID` + `ROW_EFF_DTE` is unique **among live rows** |
+| T08 | …and deliberately **not** unique across all rows — 2 duplicate pairs |
+| T09 / T10 | The 09-Sep row exists and carries no `BROKER_STATUS_CDE` |
+| T11 | The Day 2 rows carry `AUDIT_BATCH_ID = 102`, so a run is traceable in the target |
+| T12 | A third run with no newly refined rows produces an **empty stage** — idempotence |
 
-T7 and T8 together are the important pair: they pin down the consequence that every consumer query and
+T07 and T08 together are the important pair: they pin down the consequence that every consumer query and
 every future merge has to filter on `is_del`.
 
 ---

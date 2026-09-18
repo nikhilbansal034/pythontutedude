@@ -68,7 +68,7 @@ enrichment), where the driving table alone sets the target dates.
 | File | What it is |
 |------|-----------|
 | `scd_solution_design.md` | **Draft** — how the problem gets solved: the three-step architecture, why a single MERGE fails, the IDMC components, and what the POC proves |
-| `scd_poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Builds the tables, loads Day 1 and Day 2, runs all three steps, and asserts eleven results |
+| `scd_poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header. Loads Day 1 and Day 2, runs all three steps, asserts twelve results |
 | `scd_scenario_matrix.md` | **Draft** — which join combinations hit the problem and why, explained with worked data. Written to be shown to others, not just read by the team |
 | *(deck, not in repo)* | Slide deck covering the same ground plus the IDMC solution design — [claude.ai/artifact/6PJkrypcJ7oZZTgUjV2cYE](https://claude.ai/artifact/6PJkrypcJ7oZZTgUjV2cYE). Private to its owner until shared |
 | `scd_glossary.md` | Working definitions of the zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC doc leaves undefined. Each entry marked Confirmed / Inferred / Unknown |
