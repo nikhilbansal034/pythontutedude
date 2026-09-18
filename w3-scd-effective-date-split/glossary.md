@@ -3,9 +3,9 @@
 Working definitions for the terms used in the SCD multi-source effective-date split work (W3). See
 `README.md` for the workstream index.
 
-**Confidence warning.** None of these terms are defined in `abc_framework_success_scenario.md` — the word
+**Confidence warning.** None of these terms are defined in `../w2-abc-framework/reference.md` — the word
 "bucket" does not appear in it at all. Everything here is assembled from the 2026-09-18 meeting transcript,
-`scenario_screenshot.png`, and cross-references in the ABC doc. Each entry is marked:
+`sources/scenario_screenshot.png`, and cross-references in the ABC doc. Each entry is marked:
 
 - **[Confirmed]** — stated directly in a source file, quoted below
 - **[Inferred]** — a reading consistent with the sources but not stated outright
@@ -163,5 +163,5 @@ dates, and the problem is wider than the transcript implies.
 ## Terms deliberately not defined here
 
 ABC framework vocabulary (`batch`, `job`, `execution_run_id`, the five phases, PDO, the Aurora/Snowflake
-split) is covered in `abc_framework_success_scenario.md` — see W2 in `README.md`. This file covers only the
+split) is covered in `../w2-abc-framework/reference.md` — see W2 in `README.md`. This file covers only the
 zone/bucket/source vocabulary that the ABC doc leaves undefined.

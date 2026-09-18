@@ -1,7 +1,7 @@
 # Dev Aurora saturation — causes, actions, and the long-term fix
 
-Companion to `Aurora_DB_Connection_Analysis.md` (the source-by-source record) and
-`abc_framework_success_scenario.md` (how the framework actually works).
+Companion to `connection_analysis.md` (the source-by-source record) and
+`../w2-abc-framework/reference.md` (how the framework actually works).
 
 This document answers three questions:
 
@@ -21,7 +21,7 @@ Instance: `grsdiai-hydration-aurora-postgress-db-development-i2` (Aurora Postgre
 
 This matters before any scenario list, because it changes which theories stay alive.
 
-`Aurora_DB_Connection_Analysis.md` §1 and §3 argue: connections fell ~4,490 → ~2,750, CPU stayed flat at
+`connection_analysis.md` §1 and §3 argue: connections fell ~4,490 → ~2,750, CPU stayed flat at
 99.6–99.7%, therefore **idle connections are not the cause and the CPU problem is separate**.
 
 **That inference is not safe.** CPU utilization is a *bounded, saturating* metric. Once demand exceeds
@@ -67,7 +67,7 @@ exclusive.
 This is the scenario the ABC design document makes unavoidable, and it is currently understated in the
 analysis doc (§5.1 says "four ABC subtaskflows"; the real figure is roughly double that).
 
-Walking `abc_framework_success_scenario.md` §11 phase by phase, **one job** touches Aurora at these points:
+Walking `../w2-abc-framework/reference.md` §11 phase by phase, **one job** touches Aurora at these points:
 
 | Phase | Aurora operations |
 |---|---|
@@ -807,8 +807,8 @@ Answers to these would materially change the recommendations above.
 | # | Source | Used for |
 |---|---|---|
 | 1 | `Re URGENT Alignment Required  Dev Aurora DB Connection Issue.msg` | The six-message thread, both CloudWatch screenshots |
-| 2 | `Aurora_DB_Connection_Analysis.md` | Prior analysis; §0 and 1.1 depart from it deliberately |
-| 3 | `abc_framework_success_scenario.md` | Framework mechanics, phase steps, table catalog, component copying |
+| 2 | `connection_analysis.md` | Prior analysis; §0 and 1.1 depart from it deliberately |
+| 3 | `../w2-abc-framework/reference.md` | Framework mechanics, phase steps, table catalog, component copying |
 
 ### External (checked 17 Sep 2026)
 
