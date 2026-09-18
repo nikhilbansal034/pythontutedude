@@ -14,7 +14,7 @@ work on one topic does not get confused with background from another.
 |----|-----------|--------|-------|
 | **W1** | Dev Aurora DB connection issue | Open — awaiting connection breakdown + Informatica pool review | 3 `.md`, 1 `.msg` |
 | **W2** | ABC framework reference | Reference / background | 1 `.md` |
-| **W3** | SCD multi-source effective-date split | **Active — current work** | 1 `.md`, 1 `.vtt`, 1 `.png` |
+| **W3** | SCD multi-source effective-date split | **Active — current work** | 3 `.md`, 1 `.sql`, 1 `.vtt`, 1 `.png` |
 
 ---
 
@@ -67,6 +67,10 @@ enrichment), where the driving table alone sets the target dates.
 
 | File | What it is |
 |------|-----------|
+| `scd_solution_design.md` | **Draft** — how the problem gets solved: the three-step architecture, why a single MERGE fails, the IDMC components, and what the POC proves |
+| `scd_poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header. Loads Day 1 and Day 2, runs all three steps, asserts twelve results |
+| `scd_scenario_matrix.md` | **Draft** — which join combinations hit the problem and why, explained with worked data. Written to be shown to others, not just read by the team |
+| *(deck, not in repo)* | Slide deck covering the same ground plus the IDMC solution design — [claude.ai/artifact/6PJkrypcJ7oZZTgUjV2cYE](https://claude.ai/artifact/6PJkrypcJ7oZZTgUjV2cYE). Private to its owner until shared |
 | `scd_glossary.md` | Working definitions of the zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC doc leaves undefined. Each entry marked Confirmed / Inferred / Unknown |
 | `LM - GRS Teradata  MVP - Multiple_SCD_joins_Target_Eff_date_split - USI Morning-20260918_083847-Meeting Recording-en-US.vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
 | `scenario_screenshot.png` | The Excel mock-up shared on that call — day-1 and day-2 worked example for a two-table join on key `k1` |
@@ -76,16 +80,23 @@ block, the top-right `b1`/`t1` rows, and the bottom `Zone1` notes are unrelated 
 
 ### Current stage
 
-Scoping. Enumerating the full permutation space of source/target SCD-type combinations to establish **which
-combinations actually hit this problem and which are already handled** by the existing pattern — before any
-solution design.
+Solution design drafted and a runnable POC written; **awaiting execution evidence** from a real Snowflake
+run before any of it is called proven.
 
-Not yet decided: inner vs. outer join semantics for the contributing tables, `is_del` semantics, the full
-list of affected assets (owned by Abhi).
+**Settled**: periods where one source has no value are kept with the missing side blank; superseded rows are
+soft-deleted and reinserted rather than updated in place; the load is three steps (build-and-diff → stage →
+soft-delete → insert) rather than a single MERGE.
 
-**Blocking question (Q1)**: whether a Zone1 *current bucket* read of a source table that is SCD2 in the SOR
-returns one row per business key, or all of the source's effective-dated versions. The answer changes which
-combinations hit the problem. See `scd_glossary.md`.
+**Working assumption, not confirmed**: the problem sits on the Zone1 → Zone2 hop. The mechanics are identical
+wherever it sits, but the layer decides which engine runs the SQL and who owns the build.
+
+**Open, in order of how much they change the design**: whether a SQL override this large still pushes down
+fully in IDMC (see `scd_solution_design.md` §11); whether a current-bucket read gives one row per key or all
+versions (`scd_glossary.md`); whether a source can *remove* one of its own versions; and whether load-timed
+tables may drive target dates — the team has confirmed such tables exist in Zone1, so that one is now a
+decision to take rather than a fact to establish.
+
+The full list of affected assets is owned by Abhi and not yet available.
 
 ---
 
