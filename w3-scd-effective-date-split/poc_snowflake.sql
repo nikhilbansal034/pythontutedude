@@ -38,6 +38,16 @@
      BR002  Day 2 changes a column that never reaches the target — must produce
             NO target change at all
      BR003  never touched after Day 1 — must not be re-read or re-written
+
+   Parts 0-8 cover those three. PART 9 is additive and runs afterwards under
+   new run ids, so evidence already captured for Parts 0-8 stays valid. It
+   exercises four harder variations of the same logic, each of which fails
+   SILENTLY under a plausible but wrong implementation:
+
+     BR004  the same value returns later, with a different one in between
+     BR005  a gap in cover with the same value either side
+     BR006  a value corrected without its dates moving
+     BR007  the same version arriving twice inside one window
 ============================================================================ */
 
 USE DATABASE LM_POC_DB;
@@ -620,3 +630,340 @@ SELECT 'T12 re-run with no newly refined rows produces an empty stage' AS TEST_N
        COUNT(*) AS ACTUAL, 0 AS EXPECTED,
        CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS RESULT
 FROM STG_Z2_BROKER_PARTY_DIM;
+
+
+/* ============================================================================
+   PART 9 — the harder variations of the collapse and the diff
+
+   Parts 0-8 prove the collapse only in its easiest form: BR002, where two
+   adjacent versions carry the same target value and no other version sits
+   between them. Four harder cases were never exercised. Each one below fails
+   silently under a plausible but wrong implementation, which is the point.
+
+     BR004  A -> B -> A.  The same status returns later, with a different one
+            in between. The two ACTIVE runs must stay separate.
+            Breaks if the collapse groups by value instead of by consecutive
+            run: party_clean would hold one ACTIVE version spanning the whole
+            range, that version would overlap the SUSPEND one, and the middle
+            interval would match both — a fan-out, not a missing row.
+
+     BR005  A gap in cover with the SAME value either side. The source stops
+            on 10-Apr and starts again on 20-Apr, ACTIVE both times.
+            The gap must survive the collapse and the target must carry no
+            status across it.
+            Breaks if the collapse only compares values: the two runs would
+            merge, 10-Apr and 20-Apr would disappear from the boundary set,
+            and the target would claim the broker was ACTIVE throughout.
+
+     BR006  A value corrected WITHOUT its dates moving. The target already
+            holds 01-May to high-end-date carrying ACTIVE; the source restates
+            the same row as SUSPEND.
+            Breaks if the diff joins on dates alone: old and new would match,
+            nothing would be staged, and the target would keep ACTIVE forever.
+            This is the case ROW_HASH exists for.
+
+     BR007  The same version arrives TWICE inside one window, restated at
+            14:00 after landing at 08:00.
+            Breaks if the per-(key, eff date) dedup is dropped: both copies
+            would survive, the interval would match both, and the target would
+            get two rows for one period.
+
+   This part is additive. It runs after Part 8 under new run ids and touches
+   no broker from Parts 0-8, so the evidence already captured stays valid.
+
+   Business dates use a different month per broker, purely so each one is easy
+   to pick out on screen.
+============================================================================ */
+
+
+/* ----------------------------------------------------------------------------
+   PART 9A — the four brokers arrive; run 104
+---------------------------------------------------------------------------- */
+
+INSERT INTO Z1_BROKER_PARTY_HIST
+    (GRS_UNIQUE_ID, BROKER_ID, BROKER_STATUS_CDE, BROKER_NAME_TXT,
+     ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP)
+VALUES
+    -- BR004 : ACTIVE, then SUSPEND, then ACTIVE again
+    ('UID-P-005','BR004','ACTIVE' ,'Delta Broking','2026-03-01'::DATE,'2026-03-10'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-P-006','BR004','SUSPEND','Delta Broking','2026-03-10'::DATE,'2026-03-20'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-P-007','BR004','ACTIVE' ,'Delta Broking','2026-03-20'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    -- BR005 : ACTIVE either side of a gap; nothing covers 10-Apr to 20-Apr
+    ('UID-P-008','BR005','ACTIVE' ,'Everest Ins'  ,'2026-04-01'::DATE,'2026-04-10'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-P-009','BR005','ACTIVE' ,'Everest Ins'  ,'2026-04-20'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    -- BR006 : one version, to be corrected in 9B without its dates moving
+    ('UID-P-010','BR006','ACTIVE' ,'Fairway Brk'  ,'2026-05-01'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    -- BR007 : the same version twice in one window; 14:00 restates 08:00
+    ('UID-P-011','BR007','ACTIVE' ,'Gale Broking' ,'2026-06-01'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-P-012','BR007','SUSPEND','Gale Broking' ,'2026-06-01'::DATE,'9999-12-31'::DATE,'2026-09-21 14:00:00'::TIMESTAMP_NTZ);
+
+INSERT INTO Z1_BROKER_COMMISSION_HIST
+    (GRS_UNIQUE_ID, BROKER_ID, COMMISSION_TIER_CDE, COMMISSION_NOTE_TXT,
+     ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP)
+VALUES
+    ('UID-C-007','BR004','TIER1','initial','2026-03-01'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-C-008','BR005','TIER1','initial','2026-04-01'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-C-009','BR006','TIER1','initial','2026-05-01'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ),
+    ('UID-C-010','BR007','TIER1','initial','2026-06-01'::DATE,'9999-12-31'::DATE,'2026-09-21 08:00:00'::TIMESTAMP_NTZ);
+
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+    (EXECUTION_RUN_ID, TARGET_BATCH_ID, TARGET_JOB_ID, TARGET_TABLE_NAME,
+     SOURCE_TABLE_NAME, JOB_RUN_ID, JOB_STATUS, SOURCING_START_TIME, SOURCING_END_TIME)
+VALUES
+    (104, 5001, 7001, 'Z2_BROKER_PARTY_DIM', 'Z1_BROKER_PARTY_HIST',      9104, 'Completed',
+     '2026-09-20 23:59:59'::TIMESTAMP_NTZ, '2026-09-21 23:59:59'::TIMESTAMP_NTZ),
+    (104, 5001, 7001, 'Z2_BROKER_PARTY_DIM', 'Z1_BROKER_COMMISSION_HIST', 9104, 'Completed',
+     '2026-09-20 23:59:59'::TIMESTAMP_NTZ, '2026-09-21 23:59:59'::TIMESTAMP_NTZ);
+
+-- EVIDENCE 8 — the four new brokers as they arrive.
+-- Note BR007 has two party rows with the same BROKER_ID and ROW_EFF_DTE.
+SELECT 'EV8 Z1_BROKER_PARTY_HIST (BR004-BR007)' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM Z1_BROKER_PARTY_HIST WHERE BROKER_ID >= 'BR004'
+ORDER BY BROKER_ID, ROW_EFF_DTE, GRS_REFINED_TIMESTAMP;
+
+SELECT 'EV8 Z1_BROKER_COMMISSION_HIST (BR004-BR007)' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM Z1_BROKER_COMMISSION_HIST WHERE BROKER_ID >= 'BR004'
+ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+
+INSERT INTO STG_Z2_BROKER_PARTY_DIM
+    (ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH, AUDIT_BATCH_ID, AUDIT_JOB_ID)
+SELECT ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH, AUDIT_BATCH_ID, AUDIT_JOB_ID
+FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+/* EVIDENCE 9 — expect 8 rows, all 'I', nothing for BR001-BR003.
+     BR004  3 rows : 01-Mar, 10-Mar, 20-Mar          (4 would mean a fan-out)
+     BR005  3 rows : 01-Apr, 10-Apr, 20-Apr          (1 would mean the gap was
+                                                      collapsed away)
+     BR006  1 row
+     BR007  1 row                                    (2 would mean the
+                                                      duplicate was not deduped) */
+SELECT 'EV9 STAGE (run 104)' AS EVIDENCE, ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID,
+       ROW_EFF_DTE, ROW_EXP_DTE, BROKER_STATUS_CDE, COMMISSION_TIER_CDE,
+       AUDIT_BATCH_ID, AUDIT_JOB_ID
+FROM STG_Z2_BROKER_PARTY_DIM ORDER BY BROKER_ID, ACTION_FLAG, ROW_EFF_DTE;
+
+SELECT 'EV9 counts (run 104)' AS EVIDENCE, BROKER_ID, ACTION_FLAG, COUNT(*) AS ROW_COUNT
+FROM STG_Z2_BROKER_PARTY_DIM GROUP BY BROKER_ID, ACTION_FLAG ORDER BY BROKER_ID, ACTION_FLAG;
+
+UPDATE Z2_BROKER_PARTY_DIM
+SET IS_DEL = 'Y',
+    AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
+FROM STG_Z2_BROKER_PARTY_DIM S
+WHERE S.ACTION_FLAG = 'D'
+  AND Z2_BROKER_PARTY_DIM.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK;
+
+INSERT INTO Z2_BROKER_PARTY_DIM
+    (BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+SELECT SEQ_BROKER_PARTY_DIM_SK.NEXTVAL, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, 'N', ROW_HASH,
+       AUDIT_BATCH_ID, AUDIT_JOB_ID,
+       CURRENT_TIMESTAMP()::TIMESTAMP_NTZ, CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
+FROM STG_Z2_BROKER_PARTY_DIM
+WHERE ACTION_FLAG = 'I';
+
+/* EVIDENCE 10 — the target for the four new brokers.
+   BR005's middle row is the one to look at: 10-Apr to 20-Apr with no status,
+   because the source covers no part of it. */
+SELECT 'EV10 Z2_BROKER_PARTY_DIM (BR004-BR007, after run 104)' AS EVIDENCE,
+       BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, AUDIT_BATCH_ID
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID >= 'BR004'
+ORDER BY BROKER_ID, ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
+
+
+/* ----------------------------------------------------------------------------
+   PART 9B — BR006's value is corrected in place; run 105
+
+   The source restates 01-May to high-end-date as SUSPEND. Neither date moves,
+   so the only thing separating the new row from the one already in the target
+   is its value.
+---------------------------------------------------------------------------- */
+
+UPDATE Z1_BROKER_PARTY_HIST
+SET BROKER_STATUS_CDE = 'SUSPEND',
+    GRS_REFINED_TIMESTAMP = '2026-09-22 08:00:00'::TIMESTAMP_NTZ
+WHERE BROKER_ID = 'BR006' AND ROW_EFF_DTE = '2026-05-01'::DATE;
+
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+    (EXECUTION_RUN_ID, TARGET_BATCH_ID, TARGET_JOB_ID, TARGET_TABLE_NAME,
+     SOURCE_TABLE_NAME, JOB_RUN_ID, JOB_STATUS, SOURCING_START_TIME, SOURCING_END_TIME)
+VALUES
+    (105, 5001, 7001, 'Z2_BROKER_PARTY_DIM', 'Z1_BROKER_PARTY_HIST',      9105, 'Completed',
+     '2026-09-21 23:59:59'::TIMESTAMP_NTZ, '2026-09-22 23:59:59'::TIMESTAMP_NTZ),
+    (105, 5001, 7001, 'Z2_BROKER_PARTY_DIM', 'Z1_BROKER_COMMISSION_HIST', 9105, 'Completed',
+     '2026-09-21 23:59:59'::TIMESTAMP_NTZ, '2026-09-22 23:59:59'::TIMESTAMP_NTZ);
+
+-- EVIDENCE 11 — the corrected row. Same dates as before, SUSPEND not ACTIVE.
+SELECT 'EV11 Z1_BROKER_PARTY_HIST (BR006 corrected)' AS EVIDENCE, BROKER_ID,
+       BROKER_STATUS_CDE, ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM Z1_BROKER_PARTY_HIST WHERE BROKER_ID = 'BR006';
+
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+
+INSERT INTO STG_Z2_BROKER_PARTY_DIM
+    (ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH, AUDIT_BATCH_ID, AUDIT_JOB_ID)
+SELECT ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH, AUDIT_BATCH_ID, AUDIT_JOB_ID
+FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+/* EVIDENCE 12 — expect exactly 2 rows, both BR006: one 'D' carrying the old
+   surrogate key, one 'I' carrying SUSPEND. Both show the SAME ROW_EFF_DTE and
+   ROW_EXP_DTE, which is the whole point — an empty stage here would mean the
+   correction was never noticed. */
+SELECT 'EV12 STAGE (run 105)' AS EVIDENCE, ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID,
+       ROW_EFF_DTE, ROW_EXP_DTE, BROKER_STATUS_CDE, COMMISSION_TIER_CDE,
+       AUDIT_BATCH_ID, AUDIT_JOB_ID
+FROM STG_Z2_BROKER_PARTY_DIM ORDER BY BROKER_ID, ACTION_FLAG, ROW_EFF_DTE;
+
+UPDATE Z2_BROKER_PARTY_DIM
+SET IS_DEL = 'Y',
+    AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
+FROM STG_Z2_BROKER_PARTY_DIM S
+WHERE S.ACTION_FLAG = 'D'
+  AND Z2_BROKER_PARTY_DIM.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK;
+
+INSERT INTO Z2_BROKER_PARTY_DIM
+    (BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+SELECT SEQ_BROKER_PARTY_DIM_SK.NEXTVAL, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, 'N', ROW_HASH,
+       AUDIT_BATCH_ID, AUDIT_JOB_ID,
+       CURRENT_TIMESTAMP()::TIMESTAMP_NTZ, CURRENT_TIMESTAMP()::TIMESTAMP_NTZ
+FROM STG_Z2_BROKER_PARTY_DIM
+WHERE ACTION_FLAG = 'I';
+
+/* EVIDENCE 13 — BR006 now holds two rows on identical dates: the ACTIVE one
+   retired under run 104, and the SUSPEND one written by run 105. */
+SELECT 'EV13 Z2_BROKER_PARTY_DIM (BR006, after run 105)' AS EVIDENCE,
+       BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, AUDIT_BATCH_ID
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR006'
+ORDER BY IS_DEL, BROKER_PARTY_DIM_SK;
+
+-- EVIDENCE 14 — the live timeline for all four new brokers
+SELECT 'EV14 Z2_BROKER_PARTY_DIM (BR004-BR007, live rows only)' AS EVIDENCE, BROKER_ID,
+       ROW_EFF_DTE, ROW_EXP_DTE, BROKER_STATUS_CDE, COMMISSION_TIER_CDE
+FROM Z2_BROKER_PARTY_DIM WHERE IS_DEL = 'N' AND BROKER_ID >= 'BR004'
+ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+
+/* ----------------------------------------------------------------------------
+   PART 9C — validation for the harder cases. Every row must read PASS.
+---------------------------------------------------------------------------- */
+
+SELECT 'T13 BR004 has 3 live rows - the repeated value was not merged' AS TEST_NAME,
+       COUNT(*) AS ACTUAL, 3 AS EXPECTED,
+       CASE WHEN COUNT(*) = 3 THEN 'PASS' ELSE 'FAIL' END AS RESULT
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR004' AND IS_DEL = 'N'
+
+UNION ALL SELECT 'T14 BR004 has 2 separate live ACTIVE rows', COUNT(*), 2,
+       CASE WHEN COUNT(*) = 2 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM
+WHERE BROKER_ID = 'BR004' AND IS_DEL = 'N' AND BROKER_STATUS_CDE = 'ACTIVE'
+
+UNION ALL SELECT 'T15 BR004 live timeline has no gaps or overlaps', COUNT(*), 0,
+       CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END
+FROM (
+    SELECT ROW_EXP_DTE, LEAD(ROW_EFF_DTE) OVER (ORDER BY ROW_EFF_DTE) AS NEXT_EFF
+    FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR004' AND IS_DEL = 'N'
+) g4 WHERE NEXT_EFF IS NOT NULL AND NEXT_EFF <> ROW_EXP_DTE
+
+UNION ALL SELECT 'T16 BR005 has 3 live rows - the gap survived the collapse', COUNT(*), 3,
+       CASE WHEN COUNT(*) = 3 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR005' AND IS_DEL = 'N'
+
+UNION ALL SELECT 'T17 BR005 10-Apr to 20-Apr carries no status', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM
+WHERE BROKER_ID = 'BR005' AND IS_DEL = 'N'
+  AND ROW_EFF_DTE = '2026-04-10'::DATE AND ROW_EXP_DTE = '2026-04-20'::DATE
+  AND BROKER_STATUS_CDE IS NULL
+
+UNION ALL SELECT 'T18 BR005 has 2 live ACTIVE rows - not merged across the gap', COUNT(*), 2,
+       CASE WHEN COUNT(*) = 2 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM
+WHERE BROKER_ID = 'BR005' AND IS_DEL = 'N' AND BROKER_STATUS_CDE = 'ACTIVE'
+
+UNION ALL SELECT 'T19 BR006 correction retired exactly 1 row', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR006' AND IS_DEL = 'Y'
+
+UNION ALL SELECT 'T20 BR006 has exactly 1 live row', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR006' AND IS_DEL = 'N'
+
+UNION ALL SELECT 'T21 BR006 live row carries the corrected value SUSPEND', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM
+WHERE BROKER_ID = 'BR006' AND IS_DEL = 'N' AND BROKER_STATUS_CDE = 'SUSPEND'
+
+UNION ALL SELECT 'T22 BR006 retired and live rows share the same dates', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM (
+    SELECT ROW_EFF_DTE, ROW_EXP_DTE
+    FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR006'
+    GROUP BY ROW_EFF_DTE, ROW_EXP_DTE
+    HAVING COUNT(*) = 2 AND COUNT(DISTINCT IS_DEL) = 2
+) c6
+
+UNION ALL SELECT 'T23 BR007 has 1 live row - the duplicate did not fan out', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID = 'BR007' AND IS_DEL = 'N'
+
+UNION ALL SELECT 'T24 BR007 live row is SUSPEND - the later copy won', COUNT(*), 1,
+       CASE WHEN COUNT(*) = 1 THEN 'PASS' ELSE 'FAIL' END
+FROM Z2_BROKER_PARTY_DIM
+WHERE BROKER_ID = 'BR007' AND IS_DEL = 'N' AND BROKER_STATUS_CDE = 'SUSPEND'
+
+UNION ALL SELECT 'T25 no duplicate key + eff date among live rows', COUNT(*), 0,
+       CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END
+FROM (
+    SELECT BROKER_ID, ROW_EFF_DTE FROM Z2_BROKER_PARTY_DIM WHERE IS_DEL = 'N'
+    GROUP BY BROKER_ID, ROW_EFF_DTE HAVING COUNT(*) > 1
+) d9
+
+ORDER BY 1;
+
+
+/* ----------------------------------------------------------------------------
+   PART 9D — idempotence again, now with all seven brokers in the target
+---------------------------------------------------------------------------- */
+
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+    (EXECUTION_RUN_ID, TARGET_BATCH_ID, TARGET_JOB_ID, TARGET_TABLE_NAME,
+     SOURCE_TABLE_NAME, JOB_RUN_ID, JOB_STATUS, SOURCING_START_TIME, SOURCING_END_TIME)
+VALUES
+    (106, 5001, 7001, 'Z2_BROKER_PARTY_DIM', 'Z1_BROKER_PARTY_HIST',      9106, 'Completed',
+     '2026-09-22 23:59:59'::TIMESTAMP_NTZ, '2026-09-23 23:59:59'::TIMESTAMP_NTZ),
+    (106, 5001, 7001, 'Z2_BROKER_PARTY_DIM', 'Z1_BROKER_COMMISSION_HIST', 9106, 'Completed',
+     '2026-09-22 23:59:59'::TIMESTAMP_NTZ, '2026-09-23 23:59:59'::TIMESTAMP_NTZ);
+
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+
+INSERT INTO STG_Z2_BROKER_PARTY_DIM
+    (ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH, AUDIT_BATCH_ID, AUDIT_JOB_ID)
+SELECT ACTION_FLAG, BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH, AUDIT_BATCH_ID, AUDIT_JOB_ID
+FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+SELECT 'T26 re-run over a quiet window is still empty with 7 brokers loaded' AS TEST_NAME,
+       COUNT(*) AS ACTUAL, 0 AS EXPECTED,
+       CASE WHEN COUNT(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS RESULT
+FROM STG_Z2_BROKER_PARTY_DIM;
+
+-- EVIDENCE 15 — the whole target, all seven brokers
+SELECT 'EV15 Z2_BROKER_PARTY_DIM (final, live rows only)' AS EVIDENCE, BROKER_ID,
+       ROW_EFF_DTE, ROW_EXP_DTE, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, AUDIT_BATCH_ID
+FROM Z2_BROKER_PARTY_DIM WHERE IS_DEL = 'N'
+ORDER BY BROKER_ID, ROW_EFF_DTE;
