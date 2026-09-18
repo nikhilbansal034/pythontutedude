@@ -309,6 +309,10 @@ Each removes cases rather than solving them. Worth putting to Nidhika before any
 2. **Treat load-timed tables as attributes only** — attach their values but don't let them create dates.
    Removes issue 7, but changes what the target means, so it needs business sign-off, not just ours. If the
    business can't accept it, we accept the mixed timeline and document it.
+   **Now live**: the team has confirmed Zone1 holds SCD2 tables built from sources that overwrite in place,
+   so this is a decision to take rather than a hypothetical. The earlier steer was to accept what the sources
+   give us; that is a reasonable answer, but it should be taken deliberately and written down for consumers,
+   because no query can recover the real change date afterwards.
 3. **Split `is_del` into two flags, or add a reason code.** Today the same flag means both "this row was
    replaced by a correction" and "this record was deleted at source". Downstream can't tell them apart.
 
@@ -322,18 +326,30 @@ Each removes cases rather than solving them. Worth putting to Nidhika before any
 |---|----------|-----------------|
 | Q1 | Does a current-bucket table keep history, or hold only the current value? | Whether current-bucket tables can cause the problem |
 | Q2 | Can a source *remove* a version, or only add and correct? | How serious issue 6 is |
-| Q3 | Does Zone1 build history-bucket tables for sources that overwrite in place? | Whether issue 7 is real |
 | Q4 | Is "current value only + current value only → Type 2 target" already a solved pattern? | Whether it stays in scope |
 | Q5 | Are Type 1 and Type 2 the only target types? | Whether §9 is complete |
 | Q6 | Do we need to handle a join returning many rows per key per date? | Probably a separate problem |
-| Q7 | Is joining to an already-built Zone2 table in scope? | Whether issue 8 needs designing |
 | Q8 | Can the framework's existing Phase-3 hash be reused for §7, or is a second one needed? | How §7 gets built |
+
+Numbering is kept stable — Q3 and Q7 are answered below rather than renumbered.
+
+**Answered since this was written**
+
+- **Q3 — yes.** The team confirms Zone1 holds SCD2 tables built from sources that overwrite in place. Issue 7
+  (clock mismatch) is therefore real, not hypothetical, and §10 option 2 becomes a decision to take.
+- **Q7 — out of scope.** Metadata defines the Zone1→Zone2 dependency, so a Zone2 table is never read before
+  the loads it depends on have completed. One thing worth confirming rather than designing for: when a Zone2
+  row is soft-deleted and rewritten, that `is_del` update needs to move the row's audit timestamp, or a
+  downstream Zone2 load's delta scan will not see it.
 
 **Settled so far**
 
 - Periods where one table has no value are **kept**, with the missing side blank (§3).
 - Superseded rows are marked `is_del = 'Y'` and new rows inserted; rows are not updated in place (§4).
-- Mixed business-timed and load-timed dates are accepted as a limitation, not designed around (§8, issue 7).
+
+**Working assumption, not confirmed**: the problem is treated as sitting on the **Zone1 → Zone2** hop. The
+mechanics are identical wherever it sits, but the layer decides which engine runs the SQL and who owns the
+build — see the note in `scd_glossary.md`.
 
 **For the asset list**: deciding whether a table "keeps history" *for a particular target* needs to know which
 columns actually reach that target — per-mapping information, not something visible from the table itself.
