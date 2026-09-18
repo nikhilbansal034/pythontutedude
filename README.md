@@ -71,13 +71,10 @@ enrichment — where the driving table alone sets the target dates.
 | `scenario_matrix.md` | Which join combinations hit the problem and why, explained with worked data. Written to be read cold by people outside the discussion |
 | `solution_design.md` | How it gets solved: the three-step architecture, why a single MERGE fails, the IDMC components, and what the POC proves |
 | `poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Loads Day 1 and Day 2, runs all three steps, asserts twelve results. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header |
+| `solution_deck.html` | The slide deck — 9 slides covering the problem, the worked Day 1 / Day 2 example, which join combinations break, and the solution architecture. Standalone single file: open it in a browser, no server and no build step. Speaker notes behind the toggle in the header; `Ctrl`/`Cmd`+`P` prints one slide per page |
 | `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
 | `sources/…vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
 | `sources/scenario_screenshot.png` | The Excel mock-up shared on that call — Day 1 and Day 2 worked example |
-
-Also: a slide deck covering the same ground plus the solution design —
-[claude.ai/artifact/6PJkrypcJ7oZZTgUjV2cYE](https://claude.ai/artifact/6PJkrypcJ7oZZTgUjV2cYE). Not in the
-repo, and private to its owner until shared.
 
 **Screenshot scope**: only the `Tbl1` / `Tbl2` blocks and the Day1/Day2 target blocks are in scope. The
 `Tbl3` block, the top-right `b1`/`t1` rows, and the bottom `Zone1` notes are unrelated scratch.
