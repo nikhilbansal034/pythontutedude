@@ -1,0 +1,2820 @@
+WEBVTT
+
+4a0fa565-1cad-47e4-8112-20d30c906613-0
+00:00:02.000 --> 00:00:02.880
+Start recording.
+
+f086669c-c6ec-4d70-92cb-f6f7c27d6e51-0
+00:00:03.120 --> 00:00:03.760
+OK, You start.
+
+37fee6b0-1ac8-4f56-a07a-52ba880cdb0a-0
+00:00:03.760 --> 00:00:04.520
+Yeah, Yeah, it started.
+
+7d081a85-ddc4-4c6c-8236-e770e0ead260-0
+00:00:05.000 --> 00:00:05.200
+Yeah.
+
+ab995d1f-df68-4227-bb71-60d4ed9167a0-0
+00:00:05.240 --> 00:00:06.400
+All right, let's go for it.
+
+e5c095d9-1ec2-46c4-8e2c-e4e01ab3d08b-0
+00:00:07.320 --> 00:00:11.516
+OK,
+so we are talking about a scenario where
+
+e5c095d9-1ec2-46c4-8e2c-e4e01ab3d08b-1
+00:00:11.516 --> 00:00:18.324
+there are multiple source objects, OK,
+Be it for the history data or for
+
+e5c095d9-1ec2-46c4-8e2c-e4e01ab3d08b-2
+00:00:18.324 --> 00:00:24.759
+incremental where the data is loaded into
+the history bucket tables.
+
+d407d4e9-2755-43ee-bbe7-966473b190a2-0
+00:00:25.920 --> 00:00:27.985
+OK,
+you know the difference between the
+
+d407d4e9-2755-43ee-bbe7-966473b190a2-1
+00:00:27.985 --> 00:00:30.360
+current bucket and the history bucket,
+right?
+
+58e24770-e088-47a7-bbe1-e4a24a3d156f-0
+00:00:30.560 --> 00:00:35.091
+Current bucket will reflect what is there
+in SOR whereas in history bucket any
+
+58e24770-e088-47a7-bbe1-e4a24a3d156f-1
+00:00:35.091 --> 00:00:39.680
+change that would have happened would
+come and get added as an appended record.
+
+764e1d7b-4da8-4390-887a-ef8cab64b521-0
+00:00:40.240 --> 00:00:41.320
+It won't overwrite it.
+
+d796ebff-115d-49da-8975-3f5f7543e802-0
+00:00:41.320 --> 00:00:47.011
+They are not merging the data rather they
+will append it Yeah but in in the in the
+
+d796ebff-115d-49da-8975-3f5f7543e802-1
+00:00:47.011 --> 00:00:50.920
+history bucket we would it would be a one
+time load yes.
+
+0b23bce3-3ee3-47f2-b980-ad0b445f4c38-0
+00:00:51.720 --> 00:00:55.880
+So there why is are we even talking about
+appended record?
+
+ccf3f702-8c67-432c-8c2e-4b07427b1716-0
+00:00:55.960 --> 00:00:59.560
+Because the day we execute the history,
+the history bucket.
+
+d051837b-79bc-45e5-86b6-eea2ad023cff-0
+00:00:59.640 --> 00:01:02.109
+Sorry, sorry,
+let me that's where I was asking about
+
+d051837b-79bc-45e5-86b6-eea2ad023cff-1
+00:01:02.109 --> 00:01:04.440
+the current bucket and history bucket
+difference.
+
+af821917-1d75-44bb-a65b-7e5c1977e455-0
+00:01:04.440 --> 00:01:11.708
+Are you aware of because in zone 1 you
+have current bucket and history bucket,
+
+af821917-1d75-44bb-a65b-7e5c1977e455-1
+00:01:11.708 --> 00:01:15.204
+OK,
+Within history you again have two
+
+af821917-1d75-44bb-a65b-7e5c1977e455-2
+00:01:15.204 --> 00:01:22.840
+subsections 1 is S4 specific history and
+the legacy which is the Teradata history.
+
+f59b307d-55a2-4a0c-a979-e7075a22e1a3-0
+00:01:24.280 --> 00:01:24.840
+OK, OK.
+
+e66d1f95-bba9-4a50-afe8-0d1fc7a1aa13-0
+00:01:25.840 --> 00:01:31.122
+This is how it is segregated, OK,
+But now but we are sorry, sorry,
+
+e66d1f95-bba9-4a50-afe8-0d1fc7a1aa13-1
+00:01:31.122 --> 00:01:35.223
+sorry Narika,
+but question legacy we in our history
+
+e66d1f95-bba9-4a50-afe8-0d1fc7a1aa13-2
+00:01:35.223 --> 00:01:39.560
+load we should be using the legacy 3D
+bucket now, Yes.
+
+2b297bc6-3a08-40bc-9bee-5032fb9d47c7-0
+00:01:39.680 --> 00:01:45.009
+And that's where before going to the
+scenario in the beginning, I mentioned,
+
+2b297bc6-3a08-40bc-9bee-5032fb9d47c7-1
+00:01:45.009 --> 00:01:48.401
+right,
+like this is something that will apply be
+
+2b297bc6-3a08-40bc-9bee-5032fb9d47c7-2
+00:01:48.401 --> 00:01:53.661
+it for the history only or even for the
+incrementals in both the scenarios,
+
+2b297bc6-3a08-40bc-9bee-5032fb9d47c7-3
+00:01:53.661 --> 00:01:55.600
+he will face this challenge.
+
+72d34a79-6b92-4785-a957-1766a049286b-0
+00:01:56.000 --> 00:01:56.800
+OK, OK.
+
+3dc9c0a0-4bb9-46b9-b500-429987a5453f-0
+00:01:59.560 --> 00:02:03.371
+And here I mean,
+based on all the joins and all that we
+
+3dc9c0a0-4bb9-46b9-b500-429987a5453f-1
+00:02:03.371 --> 00:02:07.658
+have done so far, right,
+what has happened is there would have
+
+3dc9c0a0-4bb9-46b9-b500-429987a5453f-2
+00:02:07.658 --> 00:02:09.360
+been a driving table, OK.
+
+9ff49e52-0edb-46d1-82a4-190547b21ecf-0
+00:02:09.880 --> 00:02:17.440
+And that was left joined with other
+tables to get your target data.
+
+4d86d83f-6267-4da3-976a-d21717df55dc-0
+00:02:18.880 --> 00:02:23.101
+So while doing this what happens we were
+taking the row effective and expiration
+
+4d86d83f-6267-4da3-976a-d21717df55dc-1
+00:02:23.101 --> 00:02:27.375
+dates like whatever changes have happened
+to the driving table that was giving us
+
+4d86d83f-6267-4da3-976a-d21717df55dc-2
+00:02:27.375 --> 00:02:30.920
+what should be the row effective and
+expiration date in the target.
+
+024dcde4-b25c-4a4b-bfbc-f35a6803b8be-0
+00:02:32.520 --> 00:02:36.347
+Because the left join with this table is
+only giving us additional attribute
+
+024dcde4-b25c-4a4b-bfbc-f35a6803b8be-1
+00:02:36.347 --> 00:02:39.280
+information to it and then we are loading
+into the target.
+
+1694942e-7006-46de-b55b-e1b5645b9238-0
+00:02:40.320 --> 00:02:46.316
+Whereas the scenario that we are going to
+talk about is it is not a left join,
+
+1694942e-7006-46de-b55b-e1b5645b9238-1
+00:02:46.316 --> 00:02:52.541
+rather it could be an inner join or full
+outer join sort of where both play equal
+
+1694942e-7006-46de-b55b-e1b5645b9238-2
+00:02:52.541 --> 00:02:56.640
+role in identifying the versions in the
+target table.
+
+d2ad6291-3d39-478c-9a12-89a961dcad7a-0
+00:03:04.640 --> 00:03:07.760
+OK, table Table 1 is the source table.
+
+d9f6c57f-646a-4c92-84b4-1256a5ff6b11-0
+00:03:08.840 --> 00:03:11.520
+Yeah,
+even driving table is also a source table.
+
+4b50254a-8c8c-4208-8cec-9a3b4d829e22-0
+00:03:11.960 --> 00:03:12.600
+OK, OK.
+
+d36bcf32-4562-48e2-b49b-8dbc72cd9960-0
+00:03:13.840 --> 00:03:17.160
+Driving table is a source table and
+you're joining with the table one.
+
+7cb296f6-1d27-4d9c-8d95-d2688ec0b67b-0
+00:03:17.680 --> 00:03:21.880
+At times it can also be a type list table
+or something else in the source itself.
+
+109c4cad-611a-4721-a9ce-fe6ca6d37aaf-0
+00:03:22.520 --> 00:03:22.760
+OK.
+
+88a9d125-45bb-4524-9922-8e2ded327c31-0
+00:03:23.160 --> 00:03:26.640
+When you do with the type list table,
+type list is like a reference data, right?
+
+1baea185-7d6e-4ec6-898c-26a268569132-0
+00:03:27.160 --> 00:03:30.872
+Those cases that will not drive your row
+effective dates in the target,
+
+1baea185-7d6e-4ec6-898c-26a268569132-1
+00:03:30.872 --> 00:03:35.100
+rather only the driving table changes is
+what you will use or what did I when was
+
+1baea185-7d6e-4ec6-898c-26a268569132-2
+00:03:35.100 --> 00:03:38.968
+it updated or what is the effectiveness
+of the record that will be used in
+
+1baea185-7d6e-4ec6-898c-26a268569132-3
+00:03:38.968 --> 00:03:42.320
+generating the row effective and
+expression dates in the target?
+
+c8dc4ce5-d9e3-4ac1-b81f-87c0f08904b0-0
+00:03:42.320 --> 00:03:43.360
+Yeah, yeah.
+
+268d994d-34d4-4b33-aeb6-ef63f96f6fde-0
+00:03:43.360 --> 00:03:48.128
+Whereas when we come to other scenarios,
+there are cases where you will have to
+
+268d994d-34d4-4b33-aeb6-ef63f96f6fde-1
+00:03:48.128 --> 00:03:51.525
+look at when did my driving table, I mean,
+in this case,
+
+268d994d-34d4-4b33-aeb6-ef63f96f6fde-2
+00:03:51.525 --> 00:03:55.399
+it's not like a driving table,
+Both are having equal preference.
+
+7c35502f-fb04-4f1a-8cba-d185372b6371-0
+00:03:55.720 --> 00:04:01.120
+OK, consider Table 2 and table three,
+got it.
+
+16c44680-60d7-44f9-816d-c2106e568999-0
+00:04:01.960 --> 00:04:04.280
+So both has almost equal preference.
+
+c88ab672-4538-450f-bb11-5fb967f78cca-0
+00:04:04.360 --> 00:04:09.219
+Any change in Table 2 or any change in
+Table 3 both should have the impact on
+
+c88ab672-4538-450f-bb11-5fb967f78cca-1
+00:04:09.219 --> 00:04:11.960
+the target version that we have
+maintained.
+
+535760a6-1aa9-4fe5-a6e2-2f21cd40214a-0
+00:04:11.960 --> 00:04:13.160
+Correct, Correct.
+
+5aa198cd-9727-46bc-b304-547f54fff61f-0
+00:04:13.240 --> 00:04:13.840
+OK, correct.
+
+1967cceb-195c-40f5-b7fe-6ef5bb95f416-0
+00:04:14.360 --> 00:04:16.640
+That is the scenario that we are talking
+about.
+
+123f5721-fbf9-4c31-9f90-2f8af73bf1ff-0
+00:04:18.920 --> 00:04:21.707
+So for this,
+how would we even generate those row
+
+123f5721-fbf9-4c31-9f90-2f8af73bf1ff-1
+00:04:21.707 --> 00:04:26.280
+effective and expiration dates is what I
+wanted to show you with an example here.
+
+bc8345b1-b4c2-4680-b043-6ab30bf5a574-0
+00:04:28.040 --> 00:04:32.000
+And we need Nikhil's help in getting that
+query built.
+
+234b9f4d-7189-48c1-baba-ab9cfedee447-0
+00:04:33.520 --> 00:04:37.615
+So this is a pattern that we are trying
+to implement, yes,
+
+234b9f4d-7189-48c1-baba-ab9cfedee447-1
+00:04:37.615 --> 00:04:42.960
+for all the assets where wherever we have
+join with multiple driving tables.
+
+9e986b4f-2a20-47b6-94b8-ba743a161ef5-0
+00:04:43.720 --> 00:04:46.400
+Second scenario is effectively multiple
+driving table.
+
+2441e158-8fe2-4837-b10d-0f0d661ea84c-0
+00:04:46.520 --> 00:04:49.520
+Do we have any assets who are have tables
+like that?
+
+af13051c-39e6-4fc1-a0dd-68cd2cd8afcf-0
+00:04:49.520 --> 00:04:50.960
+I think there would be some, yeah, yeah.
+
+c9856379-8f2d-4ce6-9dbd-46e8b077f0d8-0
+00:04:50.960 --> 00:04:55.689
+Currently,
+MVP team has one example where they are
+
+c9856379-8f2d-4ce6-9dbd-46e8b077f0d8-1
+00:04:55.689 --> 00:05:00.696
+building it,
+but Abhi has taken it as a point to give
+
+c9856379-8f2d-4ce6-9dbd-46e8b077f0d8-2
+00:05:00.696 --> 00:05:05.240
+us the list of what objects has those and
+where.
+
+3b90d84e-5fc7-459f-b71a-28bfcc33b966-0
+00:05:05.800 --> 00:05:08.414
+I mean,
+even though team might have earlier
+
+3b90d84e-5fc7-459f-b71a-28bfcc33b966-1
+00:05:08.414 --> 00:05:11.504
+provided multiple history table objects
+to be used,
+
+3b90d84e-5fc7-459f-b71a-28bfcc33b966-2
+00:05:11.504 --> 00:05:16.080
+he's going to revisit it and confirm
+whether we are really going to have it.
+
+291674fc-cf05-4cd4-9527-f41dc4ba4865-0
+00:05:16.400 --> 00:05:21.167
+If we are having multiple history tables,
+are all of those contributing to the
+
+291674fc-cf05-4cd4-9527-f41dc4ba4865-1
+00:05:21.167 --> 00:05:23.280
+effective date search changes here?
+
+9fb2ac04-f5ca-42fe-825b-bb5018f26f8a-0
+00:05:23.320 --> 00:05:29.028
+Or is it only one table that is
+contributing so that segregation of which
+
+9fb2ac04-f5ca-42fe-825b-bb5018f26f8a-1
+00:05:29.028 --> 00:05:35.200
+scenario applies to which target table is
+going to be provided by data modules?
+
+7ab566e3-06a0-4dd9-ac51-17ffc2a90381-0
+00:05:36.000 --> 00:05:39.960
+OK, OK, yeah.
+
+fefddc1e-555d-4a57-ade5-488fc2dda679-0
+00:05:40.320 --> 00:05:42.640
+Now let us get into the example.
+
+ffc4671f-bd2e-4251-97bb-a850f7d0016f-0
+00:05:42.640 --> 00:05:48.867
+But here table one,
+I'm just considering that you had changes
+
+ffc4671f-bd2e-4251-97bb-a850f7d0016f-1
+00:05:48.867 --> 00:05:56.400
+of two days received at once or maybe the
+first time when you are loading.
+
+90c81548-d43e-475b-922f-0a47988df5ca-0
+00:05:56.400 --> 00:06:01.466
+Also there is a possibility that he would
+have multiple entries for the same key
+
+90c81548-d43e-475b-922f-0a47988df5ca-1
+00:06:01.466 --> 00:06:02.280
+column right?
+
+fcf200d8-2b28-4a40-98ef-50054ae33a7c-0
+00:06:02.400 --> 00:06:05.400
+The versions source is storing them as
+type 2.
+
+c0f1ad53-e169-4871-872f-41ff5135b100-0
+00:06:05.840 --> 00:06:09.680
+This is how you could receive the records
+like this is a key.
+
+142dd243-6bfb-4ab0-b3fe-aed394878cfa-0
+00:06:09.800 --> 00:06:12.080
+I'm just saying on day one I received
+this data.
+
+62799025-169e-4c3e-9c50-5928faadefd9-0
+00:06:12.600 --> 00:06:18.707
+By that time I had two versions of that
+K1 key which is having value A during
+
+62799025-169e-4c3e-9c50-5928faadefd9-1
+00:06:18.707 --> 00:06:25.049
+10th September to 21st September and then
+I'm having value B which is valid from
+
+62799025-169e-4c3e-9c50-5928faadefd9-2
+00:06:25.049 --> 00:06:27.320
+21st September to higher day.
+
+55b8fc92-6a04-4be6-8231-261ff7929c02-0
+00:06:29.240 --> 00:06:37.247
+OK in Table 2 on day one,
+I had only one specific version for that
+
+55b8fc92-6a04-4be6-8231-261ff7929c02-1
+00:06:37.247 --> 00:06:39.040
+K1 got it here.
+
+e9954834-aebb-4487-94aa-83e15108ceb8-0
+00:06:39.040 --> 00:06:42.559
+Consider K1 is something that I can use
+to join these two tables OK, correct,
+
+e9954834-aebb-4487-94aa-83e15108ceb8-1
+00:06:42.559 --> 00:06:42.920
+correct.
+
+71b1b8d2-e8b8-4642-a821-dcba4d9a1e6f-0
+00:06:45.200 --> 00:06:53.880
+So OK Table 2 has value P and this value
+is valid from 9th September onwards.
+
+c827d966-c049-4e81-b826-787f792ad173-0
+00:06:55.600 --> 00:07:00.809
+OK so in target table I need to get this
+attribute value,
+
+c827d966-c049-4e81-b826-787f792ad173-1
+00:07:00.809 --> 00:07:05.120
+the nonkey value and this nonkey value as
+well.
+
+321b5b20-02bf-4c6f-842e-38af37939c60-0
+00:07:06.760 --> 00:07:12.120
+So I'm going to use both the tables to
+prepare my target table.
+
+aff50286-2b30-489e-95de-73068a8c28ea-0
+00:07:12.960 --> 00:07:14.360
+What will be in my target table?
+
+679e9652-b977-410b-8d78-138f35a5f5af-0
+00:07:14.360 --> 00:07:19.566
+I need to come up with the row effect 2
+and expiration dates with the non key
+
+679e9652-b977-410b-8d78-138f35a5f5af-1
+00:07:19.566 --> 00:07:24.840
+value from Table 1 and non key value from
+Table 2 as well for that key, right?
+
+db57f43a-cee3-4219-b58e-ff3d7ed37e01-0
+00:07:25.560 --> 00:07:33.624
+So yeah, when I load the data,
+what should be my data set in the target
+
+db57f43a-cee3-4219-b58e-ff3d7ed37e01-1
+00:07:33.624 --> 00:07:34.520
+day one?
+
+20ddae4c-5152-4404-8735-5efde8ae6f40-0
+00:07:34.520 --> 00:07:36.000
+What when I yeah, go ahead.
+
+19a35577-8eea-462f-aa13-4656b7bb4b35-0
+00:07:36.000 --> 00:07:38.560
+No, no, no, no, no, please,
+please continue.
+
+2421490b-8c4a-42c9-ad56-75c2dcc55f87-0
+00:07:38.760 --> 00:07:39.160
+I'm with you.
+
+8072e7b9-6143-4992-8d19-31b15fae9733-0
+00:07:40.280 --> 00:07:45.284
+Yeah, Day one when we load the records,
+when we look at these two combinations,
+
+8072e7b9-6143-4992-8d19-31b15fae9733-1
+00:07:45.284 --> 00:07:49.851
+what happens when I join this 10th
+September to 21st September with this
+
+8072e7b9-6143-4992-8d19-31b15fae9733-2
+00:07:49.851 --> 00:07:52.792
+record,
+I'm going to get this 9th September to
+
+8072e7b9-6143-4992-8d19-31b15fae9733-3
+00:07:52.792 --> 00:07:55.920
+high end date is the validity of this one,
+right?
+
+2d4186db-4145-45aa-b663-b187a73eca73-0
+00:07:56.640 --> 00:08:02.271
+Which means from 9th September when the
+value was P until 10th September,
+
+2d4186db-4145-45aa-b663-b187a73eca73-1
+00:08:02.271 --> 00:08:05.240
+there was no entry in table one, right?
+
+292270f0-b4e7-4b18-80dc-5b8a6d11143c-0
+00:08:05.840 --> 00:08:10.760
+So that is where if you see 9th September
+to 10th September now.
+
+1905ad40-819b-48fe-8e6f-16c86350f8f7-0
+00:08:10.760 --> 00:08:15.400
+Now one question, sorry Nidhika,
+I'm just asking as and when I it.
+
+b69098e2-5bc6-4cdc-8cd6-b69f68fab6c7-0
+00:08:15.400 --> 00:08:15.920
+Yeah, no worries.
+
+819e609c-31e2-4385-ae26-1dcb8bad36e6-0
+00:08:15.960 --> 00:08:17.440
+Yeah, go ahead.
+
+d5292121-1efa-42d1-8731-98f3c83c002f-0
+00:08:17.440 --> 00:08:22.977
+So now when we join these two tables,
+so we are getting we are in table one,
+
+d5292121-1efa-42d1-8731-98f3c83c002f-1
+00:08:22.977 --> 00:08:27.796
+we are getting 2 records,
+but we have to maintain history for both
+
+d5292121-1efa-42d1-8731-98f3c83c002f-2
+00:08:27.796 --> 00:08:31.320
+like we need to have both of them in the
+target.
+
+8b36dd9d-f1fa-413a-8f3b-ddc6d3b4b81d-0
+00:08:32.280 --> 00:08:34.400
+Yes, OK.
+
+b0ef36cd-e5df-4ead-81f6-ad7bcd0abec9-0
+00:08:36.560 --> 00:08:36.840
+OK.
+
+2c92925a-a3ca-473b-ba73-56474400d429-0
+00:08:37.200 --> 00:08:39.840
+So but basically then we have to versions,
+right?
+
+7e29edb7-3e67-4ffd-8c78-fde33b9bdac0-0
+00:08:40.120 --> 00:08:44.205
+For each of the version,
+we have to still get the data into the
+
+7e29edb7-3e67-4ffd-8c78-fde33b9bdac0-1
+00:08:44.205 --> 00:08:47.333
+target,
+but then the date should also be part of
+
+7e29edb7-3e67-4ffd-8c78-fde33b9bdac0-2
+00:08:47.333 --> 00:08:49.440
+the equation in the target table.
+
+02a9bd53-e6d4-41fa-b425-ce38e498d722-0
+00:08:49.480 --> 00:08:51.853
+Yeah,
+like K as a key under row effective date
+
+02a9bd53-e6d4-41fa-b425-ce38e498d722-1
+00:08:51.853 --> 00:08:53.520
+generally creates the uniqueness.
+
+cf62d310-0352-48b0-a4c9-34efe83793dc-0
+00:08:53.720 --> 00:08:54.080
+OK.
+
+d5e7abcc-99ae-49d3-a451-e16231809963-0
+00:08:54.520 --> 00:08:57.735
+But in this case, correct,
+you have K1 with 9th September,
+
+d5e7abcc-99ae-49d3-a451-e16231809963-1
+00:08:57.735 --> 00:09:01.331
+K1 with 10th September,
+K1 with 21st September, 3 different yeah,
+
+d5e7abcc-99ae-49d3-a451-e16231809963-2
+00:09:01.331 --> 00:09:02.040
+combinations.
+
+abdeb3db-87fe-4c43-8170-8f8e0fed7cb6-0
+00:09:03.880 --> 00:09:06.480
+So it will be like it is not a inner join.
+
+481bb4e0-c2c1-489e-9210-ec7ec2faa4cb-0
+00:09:06.480 --> 00:09:08.320
+Definitely it is a join.
+
+fb473263-0942-441f-8734-3e305fedd83e-0
+00:09:08.320 --> 00:09:11.960
+It's a outer join on K1 between 2 tables.
+
+51e56c80-3246-4ea8-8ca8-f700b6a394f3-0
+00:09:13.480 --> 00:09:15.520
+I mean, it can be inner join also, right?
+
+1a923a8b-6ddf-493a-af34-04160b0126e7-0
+00:09:16.600 --> 00:09:21.491
+Even when you do an inner join this
+record effectively meaning sorry, sorry,
+
+1a923a8b-6ddf-493a-af34-04160b0126e7-1
+00:09:21.491 --> 00:09:26.320
+sorry, I'm interrupting, you know,
+and you know, like stepping over issues.
+
+53073abd-860e-4a16-b045-7badc0961631-0
+00:09:26.760 --> 00:09:31.248
+But in in this case,
+Table 2 because it's only one record
+
+53073abd-860e-4a16-b045-7badc0961631-1
+00:09:31.248 --> 00:09:35.427
+which is effective for both the records
+of table one,
+
+53073abd-860e-4a16-b045-7badc0961631-2
+00:09:35.427 --> 00:09:41.773
+then this the join should be at the both
+and then the dates here should be in the
+
+53073abd-860e-4a16-b045-7badc0961631-3
+00:09:41.773 --> 00:09:48.120
+target table should be 9th September at
+to high end date because that's a record.
+
+5b41ee1b-5409-40b9-a3ae-7f1fa9685eb1-0
+00:09:48.120 --> 00:09:52.920
+We'll we should put the the larger value
+right in terms of date.
+
+6707e971-dd58-4fa4-b18b-cff559fcb53e-0
+00:09:54.600 --> 00:09:54.880
+Yeah.
+
+31009b92-b5a8-475d-8437-3edabb59d03a-0
+00:09:54.960 --> 00:10:02.384
+But if you see the table one values value
+A for this K1 is valid only between 10th
+
+31009b92-b5a8-475d-8437-3edabb59d03a-1
+00:10:02.384 --> 00:10:04.800
+September to 21st, 11 days.
+
+5d388fb1-f760-4498-bf49-abc4ed683df9-0
+00:10:05.720 --> 00:10:06.840
+Got it, Got your point.
+
+6ab7e4ac-30ee-484a-a203-c94062b47e91-0
+00:10:06.840 --> 00:10:07.080
+Yeah.
+
+ce119ac6-95f8-4231-aa46-27ead705dd7d-0
+00:10:07.080 --> 00:10:12.240
+OK, so that's where if you see this data,
+you'll get the idea of what is expected.
+
+8f011338-39e2-4173-a024-989db8a9e6f3-0
+00:10:12.240 --> 00:10:12.480
+Yeah.
+
+7fe93837-2460-444c-b41c-c680c38c63b7-0
+00:10:13.000 --> 00:10:16.513
+From 9th to 10th,
+I don't have anything from table one,
+
+7fe93837-2460-444c-b41c-c680c38c63b7-1
+00:10:16.513 --> 00:10:18.960
+but Table 2, it has the value as speed.
+
+1defccda-976b-43c1-8e1e-bbc24bbd5c15-0
+00:10:19.840 --> 00:10:20.280
+Got it.
+
+56d563b8-4b9c-4848-aa04-3ee16352822e-0
+00:10:20.840 --> 00:10:27.950
+Oh, so it'll it'll have two like go,
+go record by record, identify scenarios,
+
+56d563b8-4b9c-4848-aa04-3ee16352822e-1
+00:10:27.950 --> 00:10:30.320
+identify scenarios, right.
+
+a6dad6e6-c8e0-4b4c-91a7-683a5ce8cee5-0
+00:10:30.400 --> 00:10:34.169
+Like indirectly,
+first you are getting all the effective
+
+a6dad6e6-c8e0-4b4c-91a7-683a5ce8cee5-1
+00:10:34.169 --> 00:10:37.674
+dates from here and then you need to
+split like, OK,
+
+a6dad6e6-c8e0-4b4c-91a7-683a5ce8cee5-2
+00:10:37.674 --> 00:10:40.320
+this is from 9th September from Table 2.
+
+61872c82-c068-4f54-a869-df01bfb866e6-0
+00:10:40.320 --> 00:10:41.800
+It'll be a row by row operation.
+
+8543e991-512c-49bc-a2b5-30253582ecfe-0
+00:10:41.800 --> 00:10:45.480
+Then yeah, the join, the join that we do.
+
+1b5a781e-8270-40d1-8c17-534eb0e8f7c2-0
+00:10:46.320 --> 00:10:50.595
+I don't know if sequel can sequel,
+there is no sequel function which can
+
+1b5a781e-8270-40d1-8c17-534eb0e8f7c2-1
+00:10:50.595 --> 00:10:54.520
+create these scenarios like we have
+depicted exactly what I asked.
+
+b9f62d61-a181-40f7-a379-d5e8020f3119-0
+00:10:54.640 --> 00:10:57.780
+That's what it will be a cursor,
+cursor thing or you know,
+
+b9f62d61-a181-40f7-a379-d5e8020f3119-1
+00:10:57.780 --> 00:11:00.920
+record by record logic that there there
+is a way to do it.
+
+23ba8c10-73cc-477f-9ff8-1fba9e14ddcc-0
+00:11:02.160 --> 00:11:07.440
+You'll have to write like a multiple CTS,
+multiple CTS to be used.
+
+4e1f9760-32a9-4395-8005-996ae104c6f8-0
+00:11:07.440 --> 00:11:10.200
+Yeah, multiple CTS and window functions.
+
+4ef469e1-0e8d-476e-8c15-143bd2184876-0
+00:11:10.560 --> 00:11:11.960
+Yeah, multiple CTS.
+
+702c6d46-193d-4f93-9c22-e85f2f1ca017-0
+00:11:11.960 --> 00:11:15.353
+And also like once you do this again,
+the deduplication logic,
+
+702c6d46-193d-4f93-9c22-e85f2f1ca017-1
+00:11:15.353 --> 00:11:18.853
+whatever we are doing,
+even that has to be accounted for to make
+
+702c6d46-193d-4f93-9c22-e85f2f1ca017-2
+00:11:18.853 --> 00:11:23.216
+sure there are no duplicates immediately
+and then make sure we are consolidating
+
+702c6d46-193d-4f93-9c22-e85f2f1ca017-3
+00:11:23.216 --> 00:11:25.640
+the dates again if there are any
+duplicates.
+
+90e779ec-ec75-4817-b5c7-78b45ec96efb-0
+00:11:25.640 --> 00:11:28.737
+But like,
+suppose if this was also a for any reason,
+
+90e779ec-ec75-4817-b5c7-78b45ec96efb-1
+00:11:28.737 --> 00:11:32.828
+because sometimes the data here,
+right there can be some other column
+
+90e779ec-ec75-4817-b5c7-78b45ec96efb-2
+00:11:32.828 --> 00:11:36.160
+value which has changed and this did not
+change as such.
+
+c8601871-04df-4e63-91f1-da246c5208cf-0
+00:11:36.880 --> 00:11:37.960
+OK, got it.
+
+16e54af4-ef38-4231-b7c9-2a8aa6cb2e0d-0
+00:11:38.160 --> 00:11:38.360
+Yeah.
+
+3c6dcb78-6aae-4dfc-92d8-ba1df795681c-0
+00:11:38.360 --> 00:11:41.000
+This is what we need Nikhil to figure out
+basically.
+
+2ef448a8-0a72-4493-8695-1bf4dd0b9c90-0
+00:11:42.520 --> 00:11:46.635
+Now if it's like one time problem,
+if like you depicted,
+
+2ef448a8-0a72-4493-8695-1bf4dd0b9c90-1
+00:11:46.635 --> 00:11:52.194
+like if you if you create scenarios,
+then writing sequel should be easy once
+
+2ef448a8-0a72-4493-8695-1bf4dd0b9c90-2
+00:11:52.194 --> 00:11:56.020
+we understand the flow, sequel generation,
+you know,
+
+2ef448a8-0a72-4493-8695-1bf4dd0b9c90-3
+00:11:56.020 --> 00:12:00.280
+either we get window functions or CTS or
+we'll go into PL.
+
+79c8f374-cefa-437a-a7b4-8835fd96947a-0
+00:12:00.880 --> 00:12:02.120
+I mean, programming logic.
+
+f3aedaa5-db1f-4962-9755-245878279734-0
+00:12:03.520 --> 00:12:05.640
+Yeah, OK.
+
+34640767-3041-42af-893f-e86fc5928592-0
+00:12:05.920 --> 00:12:07.080
+Yeah, OK.
+
+6bb8a26b-cfb9-4493-978a-ed201cc6c383-0
+00:12:07.320 --> 00:12:12.227
+So with the data that we already had,
+this is how your data would look like on
+
+6bb8a26b-cfb9-4493-978a-ed201cc6c383-1
+00:12:12.227 --> 00:12:15.271
+day one,
+like 9th to 10th and nothing from table
+
+6bb8a26b-cfb9-4493-978a-ed201cc6c383-2
+00:12:15.271 --> 00:12:15.520
+one.
+
+44d1b8ab-5c20-4edb-892b-e8d368f3295f-0
+00:12:15.520 --> 00:12:17.960
+But you have from Table 2,
+this is what you have.
+
+bcef02dc-a6e6-43bd-830a-98302c4793da-0
+00:12:18.440 --> 00:12:21.080
+Then 10th to which date should we go?
+
+6c1b7222-c1a0-4bfc-9ff1-b3848e87afcf-0
+00:12:21.200 --> 00:12:24.640
+The immediate next date that we have is
+21st September, right?
+
+31705c09-172c-498c-9b5b-fce57d4c6b30-0
+00:12:25.000 --> 00:12:27.840
+So 10th to 21st September is what we are
+creating.
+
+6f98dfe6-c9d4-44fc-a91a-a88b2c455bbc-0
+00:12:28.160 --> 00:12:33.436
+So what is the value that is valid
+between 10th to 21st September from table
+
+6f98dfe6-c9d4-44fc-a91a-a88b2c455bbc-1
+00:12:33.436 --> 00:12:37.000
+one, it is A whereas in Table 2,
+it is feed, right?
+
+cce487b0-bab4-4cc1-b21c-5d46490b2a32-0
+00:12:37.600 --> 00:12:38.800
+So that's what we have here.
+
+23035253-e57c-4867-ab80-30853d73b002-0
+00:12:39.120 --> 00:12:42.200
+The next one is 21st September to high
+end date combination.
+
+745ef4b0-e53a-45c9-abb8-b5789affef4d-0
+00:12:42.600 --> 00:12:45.542
+So for this one,
+when we look at Table 2 again,
+
+745ef4b0-e53a-45c9-abb8-b5789affef4d-1
+00:12:45.542 --> 00:12:49.160
+it is just one single entry,
+it is P whereas here it is B.
+
+c1ab840a-6ad6-4f0b-9709-f5d305d26b67-0
+00:12:49.160 --> 00:12:51.080
+So B&amp;P is what we have here.
+
+a0ea2190-1413-4ab3-8f74-895b64adcfe4-0
+00:12:51.880 --> 00:12:52.080
+Got it.
+
+e8f2d4ef-e304-4264-a47a-7da0914c2b5e-0
+00:12:52.080 --> 00:12:55.497
+And for these records,
+when we insert on day one,
+
+e8f2d4ef-e304-4264-a47a-7da0914c2b5e-1
+00:12:55.497 --> 00:12:59.120
+the east delete flag in the table should
+be left as.
+
+f9801c96-b2ae-4710-a50b-e302f45b08d1-0
+00:12:59.120 --> 00:13:03.349
+So by default blank,
+blank or whatever team is following
+
+f9801c96-b2ae-4710-a50b-e302f45b08d1-1
+00:13:03.349 --> 00:13:06.837
+currently, that's what we have to go with,
+OK,
+
+f9801c96-b2ae-4710-a50b-e302f45b08d1-2
+00:13:06.837 --> 00:13:09.880
+We won't keep Y for any of these records.
+
+2a21ad9b-2d35-45dd-a6f3-aaefc8a7f885-0
+00:13:09.880 --> 00:13:12.400
+Is delete is like a soft delete marker of
+the record.
+
+d3b7a19a-c47c-4d8b-8598-a484bcc3c70e-0
+00:13:14.360 --> 00:13:18.785
+So what is the purpose of is delete like
+how we'll have to figure out how is
+
+d3b7a19a-c47c-4d8b-8598-a484bcc3c70e-1
+00:13:18.785 --> 00:13:21.200
+delete is populated in the current system.
+
+7c97a42a-f72d-441e-a4c9-bbad5dda61a7-0
+00:13:21.640 --> 00:13:22.120
+Yeah, yeah.
+
+950b7baf-cc1e-4887-8045-3ebe3e407d17-0
+00:13:22.400 --> 00:13:25.040
+In in what we what we have in our tables.
+
+3a31f172-20c1-4211-977d-823fa3b25842-0
+00:13:25.400 --> 00:13:28.080
+Yes,
+currently team is already implementing.
+
+e76045b8-632d-417f-8780-e5d186d97d81-0
+00:13:28.400 --> 00:13:32.200
+I'm not sure if they're defaulting it to
+in or they're leaving it as NULL.
+
+1f023c4b-61c4-43eb-9838-a5a55a17b7a5-0
+00:13:33.040 --> 00:13:37.715
+OK, OK, whatever is the current default,
+that is what we'll follow for all these
+
+1f023c4b-61c4-43eb-9838-a5a55a17b7a5-1
+00:13:37.715 --> 00:13:38.120
+tables.
+
+56c943c9-d33e-4462-b824-1c6efdb75e62-0
+00:13:39.240 --> 00:13:41.280
+Who has this logic implemented?
+
+8bfc4aae-7f6b-4de6-9d53-f74d9a41c07b-0
+00:13:41.280 --> 00:13:44.720
+It's the MVP team or it's the no,
+our MVP doesn't have.
+
+1a1ea5fd-21c8-4bfb-9e01-79559645614c-0
+00:13:44.800 --> 00:13:49.120
+They came up with this scenario asking
+how should we design it.
+
+8398cbd2-9013-4233-8749-27ba80d79788-0
+00:13:49.600 --> 00:13:50.920
+I will explain them as well.
+
+6d4aeae8-8623-4310-8df7-3e3f0844f8a0-0
+00:13:51.760 --> 00:13:52.120
+OK.
+
+166c0223-7099-4f1b-a61f-4da989836b2c-0
+00:13:52.600 --> 00:13:55.542
+But OK,
+if we can get help in expediting on
+
+166c0223-7099-4f1b-a61f-4da989836b2c-1
+00:13:55.542 --> 00:13:56.880
+creating this right?
+
+4fd43796-ffed-4e56-8790-d062034485d3-0
+00:13:56.880 --> 00:14:01.691
+Because Yeah, yeah,
+I would want to retain MVPT people on our
+
+4fd43796-ffed-4e56-8790-d062034485d3-1
+00:14:01.691 --> 00:14:04.640
+team if there's this much involvement.
+
+efb7ecf0-a523-40c6-b782-7415e8cf2e6c-0
+00:14:04.720 --> 00:14:08.160
+I mean, Ramnik is too good, man.
+
+a599fe66-2c91-40b1-bf51-31a74914b485-0
+00:14:08.320 --> 00:14:08.760
+Told me.
+
+fc1560fd-1f13-40d5-ba51-b251eba25c87-0
+00:14:08.840 --> 00:14:13.484
+At least the way she identifies problems
+or ask the questions,
+
+fc1560fd-1f13-40d5-ba51-b251eba25c87-1
+00:14:13.484 --> 00:14:16.360
+she puts her thought and that comes up.
+
+3089c3c0-bcb9-4c4e-b2a0-3e52291cfe7d-0
+00:14:16.360 --> 00:14:18.760
+OK, Sure.
+
+3e2d5d64-5628-465e-a118-13eb562d3a71-0
+00:14:18.840 --> 00:14:19.560
+Yeah, yeah, I done that.
+
+97d600a8-60a2-4ffa-86ec-b86df7356447-0
+00:14:19.560 --> 00:14:20.200
+Told me about that.
+
+7447a6b8-6d58-4ba3-a397-ad1db1fdf5da-0
+00:14:21.000 --> 00:14:21.160
+Yeah.
+
+83b44992-a434-43eb-a009-32c61e426e8f-0
+00:14:21.800 --> 00:14:27.080
+Now coming to this day 2 scenario.
+
+53038506-35aa-48ba-8f16-78884d90866a-0
+00:14:27.080 --> 00:14:27.360
+No.
+
+235eb80d-de31-4da0-83a3-072f5b3591b0-0
+00:14:28.600 --> 00:14:32.120
+OK,
+what happened on day one I had both the
+
+235eb80d-de31-4da0-83a3-072f5b3591b0-1
+00:14:32.120 --> 00:14:34.200
+tables with changes right?
+
+f4687d6c-863c-4550-ad5f-c00e63ed6cb9-0
+00:14:34.800 --> 00:14:41.600
+Day 2 it's really not necessary that I
+have a change, just a second.
+
+60a62ab5-897a-4d6e-9d78-dddfed3be253-0
+00:14:57.050 --> 00:15:01.255
+Yeah,
+on day 2 we have change only to the Table
+
+60a62ab5-897a-4d6e-9d78-dddfed3be253-1
+00:15:01.255 --> 00:15:02.570
+2, not Table 1.
+
+1d5809ef-804a-487f-b6f1-adc7c87f437d-0
+00:15:05.490 --> 00:15:10.570
+OK, so here what is happening,
+because the source is maintaining them as
+
+1d5809ef-804a-487f-b6f1-adc7c87f437d-1
+00:15:10.570 --> 00:15:14.120
+a SCD type 2,
+we are going to receive the changes.
+
+61867fe3-9ccc-4f45-bd6a-159c91240bdc-0
+00:15:14.120 --> 00:15:18.568
+Sometimes it can be just one single
+version or it can be multiple versions
+
+61867fe3-9ccc-4f45-bd6a-159c91240bdc-1
+00:15:18.568 --> 00:15:19.280
+also, right?
+
+654a53b6-f9f5-4891-a131-9ae610470169-0
+00:15:19.520 --> 00:15:23.463
+They're accounting for the worst case
+scenario where sometimes you may have to
+
+654a53b6-f9f5-4891-a131-9ae610470169-1
+00:15:23.463 --> 00:15:25.760
+load the data from source after a day or
+two.
+
+6dd60541-9acd-4739-988c-c147b0b34cbd-0
+00:15:27.920 --> 00:15:28.240
+OK.
+
+174ea048-25a0-438e-8e46-e3506e0bd859-0
+00:15:28.320 --> 00:15:34.178
+So that's why I have considered that we
+received multiple versions for that key
+
+174ea048-25a0-438e-8e46-e3506e0bd859-1
+00:15:34.178 --> 00:15:40.036
+on day 2 with the changes effective from
+9 September to 15 September 1 version,
+
+174ea048-25a0-438e-8e46-e3506e0bd859-2
+00:15:40.036 --> 00:15:45.967
+which is like whatever we had earlier,
+we are just expiring it because we have a
+
+174ea048-25a0-438e-8e46-e3506e0bd859-3
+00:15:45.967 --> 00:15:46.479
+change.
+
+f33f3be3-2e8b-428d-8fce-21a9a3b61180-0
+00:15:49.760 --> 00:15:54.654
+Then the reason this is expired is we
+have one more change which is created
+
+f33f3be3-2e8b-428d-8fce-21a9a3b61180-1
+00:15:54.654 --> 00:16:00.000
+with the value Q and then we had R like
+multiple changes happened on the same day.
+
+1f5a5642-28c8-4513-bfbc-caa54e0c1b44-0
+00:16:00.000 --> 00:16:05.865
+Like 2 changes earlier we had P but then
+they changed it to Q and then they
+
+1f5a5642-28c8-4513-bfbc-caa54e0c1b44-1
+00:16:05.865 --> 00:16:07.640
+changed it to R OK, OK.
+
+849f9f87-f1b5-43f8-9bd6-6da6d51d46d9-0
+00:16:07.920 --> 00:16:09.280
+This is scenario 2 basically.
+
+6d059480-2824-4025-8632-24f712a64810-0
+00:16:10.880 --> 00:16:13.692
+I mean,
+this is all for the same combinations
+
+6d059480-2824-4025-8632-24f712a64810-1
+00:16:13.692 --> 00:16:14.120
+itself.
+
+91c455f8-a41d-4314-a497-0d1f9b60ef41-0
+00:16:14.520 --> 00:16:16.160
+The first one we just took.
+
+fa9d8cfb-c378-4eb7-b07a-7b1fca1d4b71-0
+00:16:16.360 --> 00:16:18.520
+OK, how will my data look like, right?
+
+77273a71-7508-4aee-a08e-cd312e81cde8-0
+00:16:18.640 --> 00:16:18.880
+Yeah.
+
+ec9edd29-f1a1-4e4a-b519-7632528d25a2-0
+00:16:18.880 --> 00:16:23.560
+Now when yeah, this change happens,
+this is where the complexity arises, OK?
+
+2f7c79e7-5c59-4329-a9e6-adbc9a10bee5-0
+00:16:24.400 --> 00:16:28.640
+Like yesterday you already loaded this
+data into the target.
+
+d53445dd-a647-46c3-990e-d4f2f5de08bf-0
+00:16:29.240 --> 00:16:32.653
+OK,
+Today Table 1 is not going to have any
+
+d53445dd-a647-46c3-990e-d4f2f5de08bf-1
+00:16:32.653 --> 00:16:37.495
+additional changes for K1, however,
+so able to sorry, sorry,
+
+d53445dd-a647-46c3-990e-d4f2f5de08bf-2
+00:16:37.495 --> 00:16:39.479
+we got to break the flow.
+
+dc2efb4f-bf2f-4a0f-85ce-e82bc33bf55c-0
+00:16:39.520 --> 00:16:40.480
+Just one question.
+
+c6961316-2d03-4adf-be25-602b1e256d4d-0
+00:16:40.840 --> 00:16:44.400
+Row #29 is another scenario for Table 2,
+right?
+
+64a2e3fc-e9ca-4f29-9b62-0b586b3bfc46-0
+00:16:45.480 --> 00:16:45.680
+Yes.
+
+89c4abdb-11dc-4bf8-a805-9d6a062ba380-0
+00:16:46.880 --> 00:16:49.560
+And just the next day we are receiving
+updates.
+
+d3d9a051-8469-492d-9c34-b43fbb5615c7-0
+00:16:50.360 --> 00:16:53.360
+Yeah, but OK, OK, no, no next day.
+
+8885a4de-b608-4d0d-b378-b1c271f00ba5-0
+00:16:53.360 --> 00:17:00.284
+OK, we, we get so,
+So what I'm saying till row #27 if we
+
+8885a4de-b608-4d0d-b378-b1c271f00ba5-1
+00:17:00.284 --> 00:17:07.572
+execute that load on say 21st September,
+that's that's the,
+
+8885a4de-b608-4d0d-b378-b1c271f00ba5-2
+00:17:07.572 --> 00:17:15.711
+that's the picture day one,
+day one in column H is 21st September,
+
+8885a4de-b608-4d0d-b378-b1c271f00ba5-3
+00:17:15.711 --> 00:17:16.440
+right?
+
+7799ecbd-9323-4af1-a64b-8b0f6e50b56c-0
+00:17:16.520 --> 00:17:17.680
+That's what we are trying to say.
+
+d862331f-f4a5-470c-a3ae-327930011c9e-0
+00:17:18.120 --> 00:17:21.208
+OK,
+if you're talking about what day one
+
+d862331f-f4a5-470c-a3ae-327930011c9e-1
+00:17:21.208 --> 00:17:23.920
+means, consider 21st September also.
+
+0f3529ed-361f-4e38-8534-a0fa018b82c4-0
+00:17:24.200 --> 00:17:27.416
+But here then in that case,
+the dates I have provided might not
+
+0f3529ed-361f-4e38-8534-a0fa018b82c4-1
+00:17:27.416 --> 00:17:28.120
+exactly align.
+
+19342d8f-7f67-4837-b09c-f23260b6bad2-0
+00:17:28.120 --> 00:17:30.440
+Maybe I can just keep it that way here
+also.
+
+8d67524a-3373-4bfb-bd40-8d15849fc9e6-0
+00:17:30.440 --> 00:17:32.600
+No, no, no, update 21st.
+
+fd387bdd-747e-4ed4-99e8-8441835a973a-0
+00:17:33.840 --> 00:17:37.478
+I want to,
+I want to make sure that our scenarios
+
+fd387bdd-747e-4ed4-99e8-8441835a973a-1
+00:17:37.478 --> 00:17:39.080
+are separate scenario.
+
+3b2ba97d-d62d-4fd6-ad62-944dbf4f0f10-0
+00:17:39.080 --> 00:17:40.600
+Day one is a separate scenario.
+
+80222da5-20a5-4ac9-bccd-d13bf9694a92-0
+00:17:41.360 --> 00:17:45.480
+Day one does not add up to does not
+contribute to the situation in day 2.
+
+53376d50-90b1-4532-bd5d-b45083f613c9-0
+00:17:45.640 --> 00:17:47.640
+Or do you think that's the case?
+
+0c228f10-b5b8-4db6-b737-0c010e1565d8-0
+00:17:49.640 --> 00:17:51.880
+Day one does not contribute.
+
+fc4bb23a-e77b-4460-bddd-7b1b98c3ec6b-0
+00:17:51.880 --> 00:17:53.160
+It's the same thing, Pratik.
+
+f74f485c-f349-4a3c-afed-4474e235b05d-0
+00:17:53.160 --> 00:17:53.720
+It does.
+
+ae4f93c3-0ede-44f6-8f20-d6ed67a98ecd-0
+00:17:53.720 --> 00:17:55.360
+So it's the same key.
+
+ba9c06d1-3bdb-44f0-8971-a516685f8c66-0
+00:17:55.760 --> 00:17:56.960
+The rows are the same.
+
+a32f6c51-f3d4-4309-8c63-633aa2d7aa98-0
+00:17:56.960 --> 00:17:58.480
+It's the same keys.
+
+41a07fef-2703-4106-b799-6acf5d79291f-0
+00:17:59.240 --> 00:18:02.520
+So it's just that on day 2,
+you got some updates to the data.
+
+4b6fec12-4e34-4cb4-9cd9-80ddd75f441b-0
+00:18:02.920 --> 00:18:04.600
+It's just OK that you got new records.
+
+2e4e7d34-1a28-4556-95f2-aae6dff57fc5-0
+00:18:04.600 --> 00:18:06.120
+So got it, got it.
+
+4f0e91f6-9434-4826-89fd-fa0d1ff10647-0
+00:18:06.120 --> 00:18:09.200
+So day 2,
+we are building up what we had on day one.
+
+db5864d8-eb7a-4f84-96fe-883ae5e772b3-0
+00:18:11.280 --> 00:18:14.146
+Yes,
+Day 2 is basically new records coming for
+
+db5864d8-eb7a-4f84-96fe-883ae5e772b3-1
+00:18:14.146 --> 00:18:15.000
+the same keys.
+
+90799bed-d0ca-4d2b-ab94-5b7a889aa4b5-0
+00:18:15.360 --> 00:18:20.588
+So now we have to figure out how day one
+and day two data will be combined in the
+
+90799bed-d0ca-4d2b-ab94-5b7a889aa4b5-1
+00:18:20.588 --> 00:18:21.800
+final table for us.
+
+e95ff50d-4cff-415d-8ca6-ae2e566274c7-0
+00:18:23.840 --> 00:18:25.920
+Consider it's like incremental data,
+right?
+
+3629ef6b-4016-42c6-b25e-0c838c30d075-0
+00:18:26.200 --> 00:18:27.480
+Yeah, that is coming from SOS.
+
+1e2c4963-0787-4390-82ff-a0bc2497160f-0
+00:18:28.280 --> 00:18:32.604
+Yeah, first day you received this,
+the next day you are receiving additional
+
+1e2c4963-0787-4390-82ff-a0bc2497160f-1
+00:18:32.604 --> 00:18:36.760
+changes only for one of the table,
+not for the other table or maybe even.
+
+6981c126-bf22-4743-8410-b17e4f9c723a-0
+00:18:36.760 --> 00:18:37.840
+Yeah, this also can help.
+
+5df93639-c24c-402c-8cec-f8d79f9c3857-0
+00:18:38.200 --> 00:18:42.517
+But here I just mocked up for one
+scenario where you are receiving changes
+
+5df93639-c24c-402c-8cec-f8d79f9c3857-1
+00:18:42.517 --> 00:18:45.280
+only to Table 2,
+but not necessarily table one.
+
+9ca3960c-f40a-4988-baa0-5d58060f5756-0
+00:18:45.960 --> 00:18:49.320
+Now what happens this Table 2 is having
+multiple versions here.
+
+a385d3b2-f48c-429f-94ce-8274dc32fb0a-0
+00:18:50.080 --> 00:18:56.642
+But if you see the information here,
+this is a split from 9 September to 15
+
+a385d3b2-f48c-429f-94ce-8274dc32fb0a-1
+00:18:56.642 --> 00:19:02.600
+September and 15 September to 22nd
+September, 22nd to high end date.
+
+9c8b59a9-2cef-486b-8103-358e0c0ce804-0
+00:19:03.560 --> 00:19:08.997
+Now if you look at the data here,
+you have already loaded data for 9th
+
+9c8b59a9-2cef-486b-8103-358e0c0ce804-1
+00:19:08.997 --> 00:19:12.520
+September to 10th September and 10th to
+21st.
+
+5c4218c0-8944-46f5-82a2-050241ad132b-0
+00:19:12.720 --> 00:19:16.600
+Right now all of this has to get
+revisited.
+
+8a813516-3146-4590-9a92-5e78c87d4474-0
+00:19:17.400 --> 00:19:23.240
+The reason whatever you had for 9th
+September until 10th September, yes,
+
+8a813516-3146-4590-9a92-5e78c87d4474-1
+00:19:23.240 --> 00:19:25.800
+the information was still valid.
+
+76aa80c3-8fad-4c87-b53c-676e1a88d1ad-0
+00:19:26.080 --> 00:19:27.040
+So it is fine.
+
+dd71569a-b2ac-4791-9843-4deee1e56306-0
+00:19:28.160 --> 00:19:29.680
+You don't have to touch this record.
+
+c5cf4613-ac7d-4d2d-8e11-cb6da9a6470d-0
+00:19:30.360 --> 00:19:33.368
+Whereas if you see for here,
+based on this,
+
+c5cf4613-ac7d-4d2d-8e11-cb6da9a6470d-1
+00:19:33.368 --> 00:19:38.223
+what you would have created,
+9th September to 15th September is there,
+
+c5cf4613-ac7d-4d2d-8e11-cb6da9a6470d-2
+00:19:38.223 --> 00:19:40.480
+but 10th September record exists.
+
+0a095aa7-63a1-4937-be77-ca2628727796-0
+00:19:40.560 --> 00:19:42.560
+9th to 10th would be your first.
+
+98f2f297-bdb6-4b58-b028-e7379797d3e5-0
+00:19:42.560 --> 00:19:42.680
+Yeah.
+
+aad7a3bd-8f56-41c8-87f4-271661fe547a-0
+00:19:42.680 --> 00:19:44.640
+Combination then.
+
+10a81585-aedf-4a06-8c46-046b45d2c062-0
+00:19:44.640 --> 00:19:45.360
+No, I get it.
+
+c7ad1a03-214d-4933-9f0c-91dc14c5434b-0
+00:19:45.600 --> 00:19:46.160
+I understand.
+
+d0f33669-47f8-4f39-95e7-b66f3761032f-0
+00:19:46.160 --> 00:19:47.080
+Yeah, I get it.
+
+67f9143d-221e-4c7f-b443-64a17d21e875-0
+00:19:47.360 --> 00:19:48.600
+We'll have to go row by row.
+
+1f48342b-182a-4ae5-bca7-5aa3d639fc61-0
+00:19:48.600 --> 00:19:50.000
+But then this is a PL.
+
+5da6096e-1b02-4b5a-aab3-495a5f6a1231-0
+00:19:50.000 --> 00:19:50.760
+sequel operation.
+
+92deaa4d-199d-4ba3-bb11-1ca077af806c-0
+00:19:50.760 --> 00:19:55.652
+This is a row by row operation because
+for every combination we have to check
+
+92deaa4d-199d-4ba3-bb11-1ca077af806c-1
+00:19:55.652 --> 00:19:56.280
+table one.
+
+4406d7fd-6583-4f8e-a6f7-8cb1f78f208f-0
+00:19:56.280 --> 00:19:57.440
+How is Table 2?
+
+54e1c771-9934-4dd2-b516-2854e3c6ef2b-0
+00:19:57.800 --> 00:19:59.680
+Then we have to go to the target.
+
+6a0d3b88-b0a2-4692-88a2-255f60b53458-0
+00:19:59.680 --> 00:20:04.057
+Then we have to update those records in
+the target or modify the records in the
+
+6a0d3b88-b0a2-4692-88a2-255f60b53458-1
+00:20:04.057 --> 00:20:04.440
+target.
+
+878268b4-fbb9-4308-a09e-c51c2bcaf674-0
+00:20:05.640 --> 00:20:12.680
+It's a concern that is we want,
+but you too.
+
+6b54d3d6-29c5-47b9-b457-2cbc8da052c6-0
+00:20:13.760 --> 00:20:16.760
+Listen out one more thing please and then
+we will come to that.
+
+f2f561e4-9c1b-46df-8283-faa1a09b85cd-0
+00:20:17.000 --> 00:20:19.440
+Sorry, sorry to sorry, sorry,
+please go ahead.
+
+fa9cf1d5-18ff-4b32-bfd1-703a38eb8678-0
+00:20:19.840 --> 00:20:23.080
+Oh no, no, just,
+I mean whatever you are saying is correct.
+
+e068d934-3102-4cbb-bda8-9df8f1c09c9e-0
+00:20:23.080 --> 00:20:28.499
+It's just that the way we are thinking of
+designing it is instead of going and
+
+e068d934-3102-4cbb-bda8-9df8f1c09c9e-1
+00:20:28.499 --> 00:20:32.753
+updating that record,
+just soft delete those records if there
+
+e068d934-3102-4cbb-bda8-9df8f1c09c9e-2
+00:20:32.753 --> 00:20:34.400
+has been a change on it.
+
+2d87e773-fd48-47d0-ac81-e9a2c1f959d6-0
+00:20:35.200 --> 00:20:38.968
+Like if you see in this case even that I
+get it because sorry,
+
+2d87e773-fd48-47d0-ac81-e9a2c1f959d6-1
+00:20:38.968 --> 00:20:41.720
+sorry I'm interrupting,
+but I totally get it.
+
+a8c41fa4-7f38-4fbd-b726-c1c2771f5f9c-0
+00:20:42.000 --> 00:20:46.032
+Now we soft delete the old records and we
+insert the new record and that's why we
+
+a8c41fa4-7f38-4fbd-b726-c1c2771f5f9c-1
+00:20:46.032 --> 00:20:47.360
+have this is delete filter.
+
+bb53d5aa-254c-42cf-9f99-283be2b98430-0
+00:20:47.760 --> 00:20:47.880
+Yes.
+
+d1f25ff3-6d56-4a53-88ed-31d45bb263cd-0
+00:20:47.880 --> 00:20:52.739
+But I'm saying this will have a
+performance implication because now we
+
+d1f25ff3-6d56-4a53-88ed-31d45bb263cd-1
+00:20:52.739 --> 00:20:54.040
+will go row by row.
+
+7e09c433-c4d9-498c-ae12-98471d7fff2f-0
+00:20:54.040 --> 00:20:58.960
+We have to 1st identify which records
+have you know in the source have changed.
+
+cc37bad0-cbcd-42a0-9b97-30eb26b4b4ba-0
+00:20:59.480 --> 00:21:04.220
+We have to implement this using cursor
+based approach because I don't think it
+
+cc37bad0-cbcd-42a0-9b97-30eb26b4b4ba-1
+00:21:04.220 --> 00:21:08.960
+can be handled through you know like
+window operations or sequel operations or
+
+cc37bad0-cbcd-42a0-9b97-30eb26b4b4ba-2
+00:21:08.960 --> 00:21:09.200
+CTS.
+
+0e9a949d-4f2d-426e-a0ff-ec5c0168ffa3-0
+00:21:09.720 --> 00:21:15.250
+Because we are we are going row by row
+for every combination of target Table 1
+
+0e9a949d-4f2d-426e-a0ff-ec5c0168ffa3-1
+00:21:15.250 --> 00:21:18.820
+and Table 2 we have to identify,
+go to the target,
+
+0e9a949d-4f2d-426e-a0ff-ec5c0168ffa3-2
+00:21:18.820 --> 00:21:20.920
+make some updates then insert.
+
+f3c5f566-a3b7-4b96-a5d5-e0b6a0f7b69c-0
+00:21:21.200 --> 00:21:25.360
+So it's a row by row operation now and
+that will slow us down.
+
+4ebdf778-a90f-4573-8837-3f9c80561b93-0
+00:21:25.560 --> 00:21:29.252
+Performance implication will be there
+because there might be a performance
+
+4ebdf778-a90f-4573-8837-3f9c80561b93-1
+00:21:29.252 --> 00:21:31.861
+implication for this one, Pratik,
+which is OK, yeah,
+
+4ebdf778-a90f-4573-8837-3f9c80561b93-2
+00:21:31.861 --> 00:21:35.307
+let's figure out right what I, yeah,
+want with at the end of the day,
+
+4ebdf778-a90f-4573-8837-3f9c80561b93-3
+00:21:35.307 --> 00:21:37.080
+it has to be handled somehow in SQL.
+
+92c157d3-7407-468d-a4f2-897edd3de9d8-0
+00:21:37.080 --> 00:21:37.320
+Yeah, yeah.
+
+0307cda9-9105-4b79-b865-3f3c9fb17b1e-0
+00:21:37.320 --> 00:21:40.967
+No, no, no, I'm, I'm not not,
+I'm not pushing back on that front,
+
+0307cda9-9105-4b79-b865-3f3c9fb17b1e-1
+00:21:40.967 --> 00:21:41.520
+just that.
+
+329ec55c-6515-475a-879b-02f9781999d1-0
+00:21:41.800 --> 00:21:47.400
+And I think for this for cursors,
+the best approach is to write a procedure.
+
+68b25787-5f43-4593-9c23-b6ae37a948bd-0
+00:21:49.400 --> 00:21:54.470
+I am not really sure if we can do this in
+let's say if we can avoid procedure,
+
+68b25787-5f43-4593-9c23-b6ae37a948bd-1
+00:21:54.470 --> 00:21:58.000
+if we can have multiple options that'll
+that'll be OK.
+
+530cbfa2-ad50-4bf0-af0c-91ceeacef551-0
+00:21:58.440 --> 00:22:04.623
+Only we'll go with procedure if there is
+a significant gain of performance because
+
+530cbfa2-ad50-4bf0-af0c-91ceeacef551-1
+00:22:04.623 --> 00:22:08.200
+procedure logic is compiled that that's
+why we.
+
+274fb727-f91b-470a-ace0-809337a16a0c-0
+00:22:08.200 --> 00:22:11.362
+Yeah, I know,
+I know they they don't want stored proxy
+
+274fb727-f91b-470a-ace0-809337a16a0c-1
+00:22:11.362 --> 00:22:11.880
+in their.
+
+3c26d54f-8fe6-4783-a112-ed152254200f-0
+00:22:11.880 --> 00:22:14.200
+OK, yeah, OK, OK, OK.
+
+4cf98490-7c30-4c30-a774-e141971eb7d5-0
+00:22:17.360 --> 00:22:19.440
+Actually procedures would have been
+better.
+
+ae1dd43e-6f8e-401a-b5de-ada7bb572dfe-0
+00:22:19.440 --> 00:22:23.148
+These guys are putting taking their
+entire logic and putting it in
+
+ae1dd43e-6f8e-401a-b5de-ada7bb572dfe-1
+00:22:23.148 --> 00:22:24.920
+informatical in a flat pipeline.
+
+c4a45f53-350f-4d80-a568-364d28ee1c65-0
+00:22:24.920 --> 00:22:26.780
+Yeah,
+that is the worst kind of architecture
+
+c4a45f53-350f-4d80-a568-364d28ee1c65-1
+00:22:26.780 --> 00:22:27.400
+that I've seen.
+
+1ce06d2a-1116-443d-96de-cf088d48e43a-0
+00:22:27.880 --> 00:22:30.543
+Yeah,
+because whole point of using they should
+
+1ce06d2a-1116-443d-96de-cf088d48e43a-1
+00:22:30.543 --> 00:22:34.000
+have been procedures actually they should
+not have yes, IDM.
+
+7bf113ea-7ac3-49cf-81ff-ebff08c7b809-0
+00:22:34.000 --> 00:22:36.720
+So it should IDM they should have just
+been calling procedures.
+
+c4c0e889-8fdb-4691-9f38-448491e73385-0
+00:22:36.800 --> 00:22:39.160
+No sequel in there, but it is what it is.
+
+97f33e56-a838-4241-a091-a414aef9bef8-0
+00:22:40.440 --> 00:22:43.761
+The whole point of using a detailed tool
+is to make sure that you can see the
+
+97f33e56-a838-4241-a091-a414aef9bef8-1
+00:22:43.761 --> 00:22:44.400
+logic visually.
+
+e4b32c1e-5df9-4e97-8398-734677960de6-0
+00:22:44.600 --> 00:22:46.560
+Here the you are using that tool.
+
+e484705f-d342-4130-954e-3764fac4a774-0
+00:22:47.160 --> 00:22:52.080
+Basically, you are using, you know,
+fighter jet to kill mosquitoes.
+
+11c17455-90a0-4867-af4c-b8400fe064e5-0
+00:22:52.760 --> 00:22:53.360
+But it's fine.
+
+b0f756c7-6b6b-4424-813b-b8513e9968a3-0
+00:22:53.640 --> 00:22:53.880
+It is.
+
+0e05ecf9-f271-40f7-8926-c8ee9cd18723-0
+00:22:53.920 --> 00:22:54.040
+Yeah.
+
+aee9e9d0-0b8e-4f8d-8bcd-3f0490d5dc7c-0
+00:22:54.080 --> 00:22:54.640
+What it is.
+
+2f81b7b6-4d7b-4cb8-bf89-f926aaefc98c-0
+00:22:56.000 --> 00:22:58.120
+Sorry, Nidhika, but I understand.
+
+0f14684e-0154-43c1-b6ca-975fb1a9bffb-0
+00:22:58.120 --> 00:22:58.280
+Yeah.
+
+65db7ea8-6a97-4aea-b495-b854471d54f5-0
+00:22:58.280 --> 00:22:58.480
+Yeah.
+
+fb68dcb0-acc5-43ac-8a60-9d39d3077fb3-0
+00:22:58.680 --> 00:23:00.040
+If you want to explain, please do.
+
+949e276a-2b32-42ac-b23c-4a3d305d74e4-0
+00:23:00.480 --> 00:23:02.572
+I mean,
+because Nikhil has to understand this,
+
+949e276a-2b32-42ac-b23c-4a3d305d74e4-1
+00:23:02.572 --> 00:23:02.840
+right?
+
+46964a77-ad81-4d6d-ba6b-2f59acc4e445-0
+00:23:02.840 --> 00:23:03.680
+If he has to, right.
+
+d4af7277-8762-4f9a-9f0c-725ee79f0ce5-0
+00:23:03.720 --> 00:23:06.240
+So that's where I'm trying to Yeah, yeah,
+yeah.
+
+326cacdf-d5d2-41dd-b872-7ae743319973-0
+00:23:06.360 --> 00:23:08.800
+The thought here, yeah, yeah, yeah,
+please.
+
+cf5c6d5d-8e4c-47b1-8965-614533aa5db5-0
+00:23:08.880 --> 00:23:09.040
+Sorry.
+
+f8804d93-0173-4fc4-8e69-0b9869d1df70-0
+00:23:09.080 --> 00:23:12.141
+So yeah, Day 2,
+when you create this 9th to 10th,
+
+f8804d93-0173-4fc4-8e69-0b9869d1df70-1
+00:23:12.141 --> 00:23:17.040
+you're not going to add any new record
+because there has been no change to that
+
+f8804d93-0173-4fc4-8e69-0b9869d1df70-2
+00:23:17.040 --> 00:23:20.407
+particular version,
+whereas the 10th September to 21st
+
+f8804d93-0173-4fc4-8e69-0b9869d1df70-3
+00:23:20.407 --> 00:23:22.000
+September has to be split.
+
+f4c8231b-8496-4b28-a8e6-a102b7877d53-0
+00:23:22.000 --> 00:23:27.540
+Now the reason being here,
+the value of P is valid only until 15th
+
+f4c8231b-8496-4b28-a8e6-a102b7877d53-1
+00:23:27.540 --> 00:23:29.360
+September 15th, right.
+
+38d78706-0414-44e9-be52-8628f220b883-0
+00:23:29.720 --> 00:23:35.048
+So whatever we had from 10th to 21st,
+now we are going to create one for 10th
+
+38d78706-0414-44e9-be52-8628f220b883-1
+00:23:35.048 --> 00:23:38.600
+to 15th and 15th to 21st as two different
+versions.
+
+cbd91829-f05e-4342-b6af-1b6025d59979-0
+00:23:38.760 --> 00:23:43.043
+Reason being this data if we see the
+first one is valid with P value,
+
+cbd91829-f05e-4342-b6af-1b6025d59979-1
+00:23:43.043 --> 00:23:45.920
+the second one will have Q as the value
+in it.
+
+26d3ddc7-1821-4c1c-9e70-4140da05a912-0
+00:23:47.920 --> 00:23:48.280
+OK.
+
+3c3f53e9-cae0-4bd2-adf7-c55cdde428e1-0
+00:23:48.640 --> 00:23:53.829
+And again from 21st to 22nd,
+the reason is here Q is valid until 22nd
+
+3c3f53e9-cae0-4bd2-adf7-c55cdde428e1-1
+00:23:53.829 --> 00:23:57.240
+and then you have a different high end
+value.
+
+c72bf38b-08fd-4de5-be37-06b89e7ec8f5-0
+00:23:58.000 --> 00:24:00.040
+So you can't have this until high end.
+
+87aa63bb-48c0-488b-9bef-8b0de7b747b2-0
+00:24:00.040 --> 00:24:05.200
+You need to split that also from 21st to
+22nd and then 22nd to high end date.
+
+06372557-16dd-42eb-8118-d3cf4c5053cf-0
+00:24:06.160 --> 00:24:06.360
+Got it.
+
+a32e8b07-a971-4e91-982e-51ed35a72164-0
+00:24:07.200 --> 00:24:11.384
+So indirectly,
+the combinations here that we would see
+
+a32e8b07-a971-4e91-982e-51ed35a72164-1
+00:24:11.384 --> 00:24:14.200
+is these are all the pointers, right?
+
+e9e0a058-74d6-4140-af95-ccc928bbe96a-0
+00:24:17.280 --> 00:24:20.320
+These are the effective date combinations
+that will come out of it.
+
+d6551ce5-cc33-4273-b0af-7b15aae4956d-0
+00:24:25.600 --> 00:24:31.989
+Using this it we sort and see 9th
+September to 15th September is what we
+
+d6551ce5-cc33-4273-b0af-7b15aae4956d-1
+00:24:31.989 --> 00:24:38.905
+had, but 10th September is the next value,
+so 9th September to 10th September,
+
+d6551ce5-cc33-4273-b0af-7b15aae4956d-2
+00:24:38.905 --> 00:24:45.120
+then 10th September after that which is
+the next value 15th September.
+
+cbe708c6-91c4-410c-86b5-92b1a6605563-0
+00:24:45.120 --> 00:24:50.680
+So 10th to 15th, then 15th to 21st,
+21st to 22nd and then high end.
+
+7c0db14a-05ff-4fa9-b683-921b1c6d1397-0
+00:24:51.680 --> 00:24:51.880
+OK.
+
+0e28bf86-91af-4f90-a107-d4bdc6e140bc-0
+00:24:52.280 --> 00:24:57.272
+That's how it has to be formulated to
+come up with these dates and what value
+
+0e28bf86-91af-4f90-a107-d4bdc6e140bc-1
+00:24:57.272 --> 00:24:59.000
+should go in each of those.
+
+d3d04819-6b2b-481a-bd5e-24d3a52c672d-0
+00:24:59.840 --> 00:25:00.080
+Got it.
+
+cf96d3bc-20d7-44b0-b904-aabd8cd7265f-0
+00:25:01.480 --> 00:25:05.398
+And currently in the other scenario,
+right, which we discussed initially,
+
+cf96d3bc-20d7-44b0-b904-aabd8cd7265f-1
+00:25:05.398 --> 00:25:08.417
+like there is a driving table and left
+join with others,
+
+cf96d3bc-20d7-44b0-b904-aabd8cd7265f-2
+00:25:08.417 --> 00:25:12.706
+we were reading only the delta data of
+the driving table and all the data of the
+
+cf96d3bc-20d7-44b0-b904-aabd8cd7265f-3
+00:25:12.706 --> 00:25:16.731
+second table from the current bucket,
+whereas the delta data of the driving
+
+cf96d3bc-20d7-44b0-b904-aabd8cd7265f-4
+00:25:16.731 --> 00:25:18.320
+table from the history bucket.
+
+ba02d8b9-1fdc-47ce-8c7f-427af9ad0f7a-0
+00:25:18.320 --> 00:25:20.520
+That used to be our majority of the
+patterns.
+
+d75fdab5-e462-4c51-8667-e18f56a72589-0
+00:25:21.200 --> 00:25:25.040
+Or the second table would have been your
+zone 2 table, not the zone 1 table.
+
+80121c65-ab45-499b-9aab-d6d315164b0b-0
+00:25:25.560 --> 00:25:27.280
+That's how we were generating it.
+
+320505c8-2604-41f9-9f41-c7f5fa90126e-0
+00:25:27.560 --> 00:25:31.501
+But for this one,
+even though there is no change in table
+
+320505c8-2604-41f9-9f41-c7f5fa90126e-1
+00:25:31.501 --> 00:25:34.695
+one data,
+still we need to account for all the
+
+320505c8-2604-41f9-9f41-c7f5fa90126e-2
+00:25:34.695 --> 00:25:39.792
+records related to that key where we
+received a change in Table 2 and vice
+
+320505c8-2604-41f9-9f41-c7f5fa90126e-3
+00:25:39.792 --> 00:25:40.200
+versa.
+
+b827a9f6-e0a5-40a1-877a-f7418f612840-0
+00:25:45.920 --> 00:25:46.320
+OK.
+
+796f092d-d150-4f48-91bb-1a4284147ba3-0
+00:25:46.720 --> 00:25:49.902
+And yeah,
+when we are doing this now for the 10th
+
+796f092d-d150-4f48-91bb-1a4284147ba3-1
+00:25:49.902 --> 00:25:53.848
+September on day one,
+I already had an entry right This one I
+
+796f092d-d150-4f48-91bb-1a4284147ba3-2
+00:25:53.848 --> 00:25:56.839
+will have to mark it as is deleted on day
+two.
+
+ad76823f-3d7a-4ef9-83bf-dd99c6882b31-0
+00:25:58.320 --> 00:26:00.560
+Yeah, on day two, yes.
+
+e517a0c5-b407-4e78-8ff8-1f293388dc00-0
+00:26:01.600 --> 00:26:04.720
+So both of these two will have is delete
+flag.
+
+8af8fd34-c8ea-418e-b1e6-e7a5685ac680-0
+00:26:04.880 --> 00:26:05.160
+Why?
+
+48c95970-0b4c-4ef2-9b36-cbbebcdd8677-0
+00:26:05.960 --> 00:26:10.377
+The reason is 10th to 21st is no longer
+valid as it is being split into 10th to
+
+48c95970-0b4c-4ef2-9b36-cbbebcdd8677-1
+00:26:10.377 --> 00:26:14.739
+15th and 15th to 21st and this one is
+also no longer valid as there has been a
+
+48c95970-0b4c-4ef2-9b36-cbbebcdd8677-2
+00:26:14.739 --> 00:26:17.280
+change with the expiration date and this
+one.
+
+bcb7c3b7-3191-4b71-9ee8-08522ab860ac-0
+00:26:19.520 --> 00:26:26.216
+So so this I get it,
+this logic will be applied to every type
+
+bcb7c3b7-3191-4b71-9ee8-08522ab860ac-1
+00:26:26.216 --> 00:26:28.160
+to a CD table, no?
+
+0fbbcfe4-fec5-4fbd-870e-482af84da9ed-0
+00:26:28.840 --> 00:26:29.960
+That's where I was saying right?
+
+0db69b00-06cd-4f79-b4a9-0cbfa917e07e-0
+00:26:29.960 --> 00:26:35.543
+Like when you are having multiple source
+tables and both from the history bucket
+
+0db69b00-06cd-4f79-b4a9-0cbfa917e07e-1
+00:26:35.543 --> 00:26:40.437
+and both are contributing to the
+effective and expiration dates in the
+
+0db69b00-06cd-4f79-b4a9-0cbfa917e07e-2
+00:26:40.437 --> 00:26:40.920
+target.
+
+f8ecd5e5-2656-4f6d-afc0-3e4cdc78c947-0
+00:26:41.000 --> 00:26:44.360
+Only in that scenario we need to build
+this kind of logic.
+
+9115959f-987e-47a2-aee4-6277e8859427-0
+00:26:46.480 --> 00:26:51.068
+You may still have scenarios where
+multiple history bucket tables are used,
+
+9115959f-987e-47a2-aee4-6277e8859427-1
+00:26:51.068 --> 00:26:55.657
+or maybe 1 history bucket table is used
+and restore from the current bucket
+
+9115959f-987e-47a2-aee4-6277e8859427-2
+00:26:55.657 --> 00:26:56.079
+tables.
+
+3cf6f4b0-83bd-45e0-9dac-c740f09a212b-0
+00:26:56.920 --> 00:26:59.599
+In that case,
+mostly your driving table is going to
+
+3cf6f4b0-83bd-45e0-9dac-c740f09a212b-1
+00:26:59.599 --> 00:27:02.640
+define what should be your effective and
+expiration dates.
+
+d138e4b9-1c3d-467f-995e-a86fd5fea5ec-0
+00:27:04.240 --> 00:27:07.617
+No, no,
+here we are storing the history in the
+
+d138e4b9-1c3d-467f-995e-a86fd5fea5ec-1
+00:27:07.617 --> 00:27:08.120
+target.
+
+e17f3129-8a4f-4c6e-964b-d987ed0a48bd-0
+00:27:08.120 --> 00:27:13.600
+So that's a target 2 history type 2 SCD
+table, right?
+
+358a501e-ea07-4c72-8cc9-0e158a04bc17-0
+00:27:13.640 --> 00:27:17.574
+If the target table was type 1 SCD,
+then we did not have anything of this
+
+358a501e-ea07-4c72-8cc9-0e158a04bc17-1
+00:27:17.574 --> 00:27:17.840
+sort.
+
+4cee5fd0-1541-4b42-94b1-4a7eae4c7d68-0
+00:27:18.800 --> 00:27:19.360
+That is right.
+
+88065e29-53cb-4db8-905a-6d300f92905f-0
+00:27:20.440 --> 00:27:26.277
+So it I am trying to see I'm trying to
+cover that point that not all type 2 STD
+
+88065e29-53cb-4db8-905a-6d300f92905f-1
+00:27:26.277 --> 00:27:32.115
+tables will be there but certain type
+type 2 STD tables where we have scenarios
+
+88065e29-53cb-4db8-905a-6d300f92905f-2
+00:27:32.115 --> 00:27:37.880
+like we're driving tables as are as you
+mentioned only those tables will have.
+
+cb544212-2be4-48b6-8a32-0c74d342fa8c-0
+00:27:38.240 --> 00:27:42.209
+So it's this logic will this scenario
+complex scenario will not go for
+
+cb544212-2be4-48b6-8a32-0c74d342fa8c-1
+00:27:42.209 --> 00:27:43.160
+performance wise.
+
+b9cb341b-43e3-4be6-b8ba-678a0dd20c0e-0
+00:27:43.160 --> 00:27:46.053
+I'm trying to run in the mind that,
+you know, not all tables,
+
+b9cb341b-43e3-4be6-b8ba-678a0dd20c0e-1
+00:27:46.053 --> 00:27:49.600
+it's it'll be like very few tables which
+will have this scenario like this.
+
+35fe9256-cf81-4133-9783-63462cefaf71-0
+00:27:51.160 --> 00:27:51.840
+Yeah, that is right.
+
+90b02161-2fb9-40fd-ac22-c2a331b0bce0-0
+00:27:51.920 --> 00:27:53.440
+Very few tables should have this.
+
+8ea4c37b-0f94-4a52-ad21-30ed30eaf1b8-0
+00:27:53.440 --> 00:27:58.120
+That's where Abhi just message saying
+that he will validate and confirm on that.
+
+fae0d1b9-2216-4b66-9bd5-e2e3fbe53f28-0
+00:27:59.040 --> 00:27:59.280
+Yeah.
+
+c8571460-dd04-4690-8ab9-4e05a4a5c1d5-0
+00:27:59.560 --> 00:28:04.480
+OK, OK, OK, OK.
+
+4e13935c-8704-436d-bd09-0821a9cd4305-0
+00:28:04.480 --> 00:28:10.184
+But at least for this we need to come up
+with how the query can be formed so team
+
+4e13935c-8704-436d-bd09-0821a9cd4305-1
+00:28:10.184 --> 00:28:12.480
+can build it using that patterns.
+
+318f2de4-ce6e-4234-a942-8962744014af-0
+00:28:13.200 --> 00:28:14.200
+Yeah, yeah.
+
+237df855-393c-45d5-86bb-0b6270dd7229-0
+00:28:14.600 --> 00:28:19.480
+And this will be valid both for
+historical data in and incremental data.
+
+3a140389-6030-4a42-a748-09665a7580f4-0
+00:28:19.880 --> 00:28:20.320
+Yeah, no.
+
+357aacfa-7631-4781-a6fd-a38eecd104a6-0
+00:28:20.320 --> 00:28:24.549
+Even in history there could be such
+scenarios where multiple history tables
+
+357aacfa-7631-4781-a6fd-a38eecd104a6-1
+00:28:24.549 --> 00:28:29.168
+which are currently loaded as sed type 2
+or even 1 is type 1 and the other is type
+
+357aacfa-7631-4781-a6fd-a38eecd104a6-2
+00:28:29.168 --> 00:28:29.279
+2.
+
+d8d07726-2de7-4d31-8ca5-3bb25d2e4b27-0
+00:28:29.640 --> 00:28:34.329
+But both of them can contribute to the
+versions like that legacy history you're
+
+d8d07726-2de7-4d31-8ca5-3bb25d2e4b27-1
+00:28:34.329 --> 00:28:35.560
+talking about, right?
+
+80b8d164-cf3c-493b-b5a6-ba0db636e730-0
+00:28:35.920 --> 00:28:37.960
+Even there they may end up with scenarios.
+
+0630e536-166b-4f07-941f-b69a5156f8e1-0
+00:28:41.280 --> 00:28:42.720
+No, no, I get it.
+
+dfa65110-afa8-474d-8d5c-8d39c6b24366-0
+00:28:42.800 --> 00:28:45.451
+Yeah,
+Yesterday only I asked Nikhil to validate
+
+dfa65110-afa8-474d-8d5c-8d39c6b24366-1
+00:28:45.451 --> 00:28:47.440
+the queries with Sumantha's writing.
+
+8b9367b3-e411-489e-b595-6ca46d03fe7c-0
+00:28:47.800 --> 00:28:50.560
+So this goes this goes into that also.
+
+350b0b52-976a-4ddf-bd52-6d3ccca5296e-0
+00:28:53.720 --> 00:28:55.000
+And who figured this out?
+
+60cf19f2-8caf-4902-b2e9-6daa93214140-0
+00:28:55.000 --> 00:28:56.000
+Who figured this out?
+
+e1762385-8ca6-422e-a607-cd42e491d272-0
+00:28:56.240 --> 00:28:59.040
+Did you figure this out or did we like
+testing something?
+
+91cad0e1-8214-413f-9e00-5b5881eb19db-0
+00:28:59.040 --> 00:29:01.600
+Deepankar and Ramnik, they came to me.
+
+7fa474c9-53f5-4f81-a0f3-145d81c48469-0
+00:29:01.600 --> 00:29:03.714
+I mean,
+I won't know right until someone tells me
+
+7fa474c9-53f5-4f81-a0f3-145d81c48469-1
+00:29:03.714 --> 00:29:04.560
+this is what we are.
+
+0d92e2d9-8fed-4ad1-b0e9-9908bbe50ca9-0
+00:29:04.560 --> 00:29:04.680
+Yeah.
+
+03fc82f4-90e3-4116-ae3a-694a9da83596-0
+00:29:04.680 --> 00:29:04.920
+Having.
+
+97f5eaf0-d07c-4c22-a5e4-284e6a529449-0
+00:29:05.720 --> 00:29:06.040
+Yeah.
+
+21afd842-7aed-4dd7-97d8-ccd049a97edb-0
+00:29:06.280 --> 00:29:06.520
+Yeah.
+
+c2d38d4a-f0df-4ea2-95b1-8ea5c9de34e4-0
+00:29:06.520 --> 00:29:08.120
+So they came to me.
+
+bb56aeb1-4191-4941-b842-e42928af76fd-0
+00:29:08.120 --> 00:29:12.867
+But this is something we already knew
+that this scenario can happen because,
+
+bb56aeb1-4191-4941-b842-e42928af76fd-1
+00:29:12.867 --> 00:29:14.840
+yeah, Bogdan appraised this one.
+
+6d61424a-9ea7-47a7-b354-5a8253469c38-0
+00:29:14.840 --> 00:29:19.857
+So saying that you are going to have
+these kind of scenarios and they have
+
+6d61424a-9ea7-47a7-b354-5a8253469c38-1
+00:29:19.857 --> 00:29:25.210
+implemented this like Bogdan's team has
+implemented in AW WC, if I'm not wrong,
+
+6d61424a-9ea7-47a7-b354-5a8253469c38-2
+00:29:25.210 --> 00:29:29.224
+where the claimant,
+claimant data is being received in this
+
+6d61424a-9ea7-47a7-b354-5a8253469c38-3
+00:29:29.224 --> 00:29:29.760
+fashion.
+
+11e7b3ff-2efd-4802-9cec-e14eb522625b-0
+00:29:30.400 --> 00:29:35.160
+So they have to go and revisit and update
+the timelines.
+
+abeedcc2-e445-4246-a39c-b59159f7d485-0
+00:29:35.520 --> 00:29:37.800
+I mean,
+the effectiveness of the records with it.
+
+db77b22b-f3a7-4c9a-b52a-769f4ae9a253-0
+00:29:37.840 --> 00:29:38.080
+OK.
+
+0ebc4d09-3f3f-439e-a5e4-314687a9736d-0
+00:29:38.120 --> 00:29:38.240
+Yeah.
+
+39df329a-b7fb-4644-8410-d9aa5803a1fa-0
+00:29:39.880 --> 00:29:44.355
+So we were aware of it and now the
+pattern came up based on what MVP team
+
+39df329a-b7fb-4644-8410-d9aa5803a1fa-1
+00:29:44.355 --> 00:29:44.960
+was doing.
+
+9ce17a06-15de-4e53-8aaa-eabd319c3769-0
+00:29:44.960 --> 00:29:47.792
+So we have to solve it because even
+though we know,
+
+9ce17a06-15de-4e53-8aaa-eabd319c3769-1
+00:29:47.792 --> 00:29:50.680
+we don't know how the data model is
+changing, right?
+
+f323fb3b-24bd-4579-a2f4-1af361189038-0
+00:29:50.680 --> 00:29:54.960
+That's where we did not spend time on
+this until we have variables.
+
+904e3f62-f727-4ad0-84a9-3cc76a9b62e1-0
+00:29:56.840 --> 00:30:01.120
+OK, OK.
+
+6cb7eaef-c12b-49bf-b2cd-c9ef337776fb-0
+00:30:02.920 --> 00:30:03.160
+Yeah.
+
+8f0dff0a-0112-47bf-a8a9-5937adba6f24-0
+00:30:03.160 --> 00:30:07.072
+And Deepankar asked this primarily,
+I think he's doing the development of one
+
+8f0dff0a-0112-47bf-a8a9-5937adba6f24-1
+00:30:07.072 --> 00:30:09.480
+of the table where they're having these
+tables.
+
+a9a0180c-d767-4f1f-a2b9-2326141b6d9c-0
+00:30:09.480 --> 00:30:11.880
+So he asked for clarity how to join this.
+
+45de4cc0-c287-4997-a30f-c646988ad20c-0
+00:30:12.560 --> 00:30:14.080
+OK, OK, sure.
+
+1c04c6a2-0371-4814-a33b-d95608da725a-0
+00:30:14.120 --> 00:30:14.280
+OK.
+
+3a74aabe-4ba0-49bd-a59c-b0359c067a08-0
+00:30:14.840 --> 00:30:19.102
+With this being said, Pratik,
+we should also look at any history that
+
+3a74aabe-4ba0-49bd-a59c-b0359c067a08-1
+00:30:19.102 --> 00:30:20.320
+our team is loading.
+
+3ac0824b-7086-488f-9774-03813e5741f8-0
+00:30:20.480 --> 00:30:26.033
+Do they see this kind of scenario like
+multiple source tables with type 2
+
+3ac0824b-7086-488f-9774-03813e5741f8-1
+00:30:26.033 --> 00:30:28.360
+loading into one single target?
+
+61fe8a48-f7c4-4c90-b445-61eaef214c06-0
+00:30:28.680 --> 00:30:32.200
+And are those type 2 tables,
+both of them contributing to those dates?
+
+4ad05b5c-3693-43f0-a964-da3ea3b20e06-0
+00:30:33.240 --> 00:30:37.800
+OK, OK.
+
+6bbede2f-0c17-483a-84d5-ec9750556a31-0
+00:30:40.120 --> 00:30:40.360
+Yep.
+
+3b473020-b4c0-4414-a5e4-ceb73d71c17a-0
+00:30:44.080 --> 00:30:44.360
+Sure.
+
+d9841fe2-e20c-4c99-98d8-0293b2206e62-0
+00:30:44.560 --> 00:30:45.200
+Sure, Navika.
+
+ead86c2a-e34e-49f3-85a4-44811b2b9188-0
+00:30:45.440 --> 00:30:45.760
+Yeah.
+
+0ec26caa-31f4-4597-8c2b-00b6a1d0822b-0
+00:30:45.760 --> 00:30:47.600
+Because their query patterns will change
+now.
+
+dae95d8a-1404-4181-8659-c2a7591deb79-0
+00:30:48.200 --> 00:30:48.920
+Yeah, Yeah.
+
+861360fc-340a-4d39-890c-977e26bbfdb9-0
+00:30:48.920 --> 00:30:50.920
+And it's it's it's not simplistic.
+
+6987e18d-556e-4205-92ba-b98687b5a5ca-0
+00:30:51.320 --> 00:30:51.960
+It is.
+
+6ebfb62b-b3e8-40d6-a514-8f4594bf21e9-0
+00:30:52.360 --> 00:30:56.151
+It's a whole different level of logic
+that we'll have to write here in this
+
+6ebfb62b-b3e8-40d6-a514-8f4594bf21e9-1
+00:30:56.151 --> 00:30:57.000
+kind of scenario.
+
+198584a3-94d9-40a9-9ba7-7eb3b94ac546-0
+00:30:57.640 --> 00:30:57.960
+Yeah.
+
+1e50259c-6f7d-4f51-8951-1593555ed948-0
+00:30:58.320 --> 00:31:01.480
+And also right,
+like the way I was mentioning all these
+
+1e50259c-6f7d-4f51-8951-1593555ed948-1
+00:31:01.480 --> 00:31:05.713
+distinct combinations here again,
+once you get those combinations based on
+
+1e50259c-6f7d-4f51-8951-1593555ed948-2
+00:31:05.713 --> 00:31:08.760
+the values,
+because sometimes the other example I was
+
+1e50259c-6f7d-4f51-8951-1593555ed948-3
+00:31:08.760 --> 00:31:12.146
+showing you, right,
+maybe the non key that you have to take
+
+1e50259c-6f7d-4f51-8951-1593555ed948-4
+00:31:12.146 --> 00:31:13.840
+to the target is still intact.
+
+c50ff6a7-7816-4586-9d85-30cfc71c63da-0
+00:31:14.160 --> 00:31:15.960
+Only some other values have changed.
+
+0295807d-28de-491f-80dc-db623559392f-0
+00:31:16.680 --> 00:31:17.560
+In this case.
+
+697d7ed6-669d-45f8-b55e-e7ba5e0a13c6-0
+00:31:17.560 --> 00:31:23.660
+It is not a real split of this particular
+data if you look at what is needed into
+
+697d7ed6-669d-45f8-b55e-e7ba5e0a13c6-1
+00:31:23.660 --> 00:31:25.000
+our target, right?
+
+217791f5-65c5-48ef-a41a-5ef9b3acfc3e-0
+00:31:25.320 --> 00:31:29.760
+So all of those nuances also has to be
+accounted for while creating that query.
+
+5fada0f3-47b6-4e07-9546-f4d26e5328f4-0
+00:31:34.640 --> 00:31:37.390
+So deduplication,
+whatever we are doing currently on the
+
+5fada0f3-47b6-4e07-9546-f4d26e5328f4-1
+00:31:37.390 --> 00:31:40.720
+deduplication with the hash and all,
+all of that has to happen here.
+
+56364e0e-168f-4998-8d09-80231632efc0-0
+00:31:40.720 --> 00:31:46.397
+Like first pick up the columns that are
+needed on that perform deduplication and
+
+56364e0e-168f-4998-8d09-80231632efc0-1
+00:31:46.397 --> 00:31:52.074
+identify what versions are staying out
+and try to retain those versions and have
+
+56364e0e-168f-4998-8d09-80231632efc0-2
+00:31:52.074 --> 00:31:56.840
+the second table as well rechange the
+versions after reduplication.
+
+953d4ea9-40f0-4fae-abfd-a71d433d29f5-0
+00:31:57.240 --> 00:32:00.360
+Now come up with the distinct effective
+dates here.
+
+774641cc-28bf-40cb-913b-2b15b7a29ae7-0
+00:32:00.560 --> 00:32:02.922
+With that,
+build the expiration dates and try to
+
+774641cc-28bf-40cb-913b-2b15b7a29ae7-1
+00:32:02.922 --> 00:32:05.720
+identify what is the value that has to go
+into the table.
+
+f4f7eced-fb01-45fd-84c3-f9b7c74f9c95-0
+00:32:05.720 --> 00:32:10.960
+OK, OK, got it.
+
+5daee1bc-e868-435e-b5ce-8824c5880610-0
+00:32:12.000 --> 00:32:13.760
+I'll have Nikhil start on this.
+
+e40fe683-2552-4bb9-a152-f3da31fc7e47-0
+00:32:14.240 --> 00:32:14.760
+Yeah.
+
+52ec3776-4b5a-4bae-8a90-cdbd0e80be46-0
+00:32:15.200 --> 00:32:18.202
+And also one more complexity I want to
+explain,
+
+52ec3776-4b5a-4bae-8a90-cdbd0e80be46-1
+00:32:18.202 --> 00:32:22.893
+this is something that you may receive
+all the data on one single day also
+
+52ec3776-4b5a-4bae-8a90-cdbd0e80be46-2
+00:32:22.893 --> 00:32:25.520
+because there are multiple batches, right.
+
+8cfa9f1a-d5d7-4226-adc0-88da85e3db29-0
+00:32:25.760 --> 00:32:29.390
+Maybe in the first batch you received
+with 9th September to high end date,
+
+8cfa9f1a-d5d7-4226-adc0-88da85e3db29-1
+00:32:29.390 --> 00:32:32.440
+but in the second batch itself you
+received all these changes.
+
+9b7581e4-ecaa-489d-bc36-f113fac5be84-0
+00:32:32.760 --> 00:32:33.040
+OK.
+
+9f1744a8-e906-4b5c-a04d-6b45a628a9dc-0
+00:32:33.440 --> 00:32:37.930
+So there the way we are already
+considering for ETL for 9th September,
+
+9f1744a8-e906-4b5c-a04d-6b45a628a9dc-1
+00:32:37.930 --> 00:32:40.840
+we would consider this as the latest
+version.
+
+97f852b7-4831-4ca3-9aeb-452a654441df-0
+00:32:40.840 --> 00:32:45.047
+We don't we can ignore this in that case
+because there are two records for the
+
+97f852b7-4831-4ca3-9aeb-452a654441df-1
+00:32:45.047 --> 00:32:49.201
+same pro effective date when you are
+reading it at once at that time you take
+
+97f852b7-4831-4ca3-9aeb-452a654441df-2
+00:32:49.201 --> 00:32:50.479
+the latest record of it.
+
+84c9c03f-a76d-4b5a-918c-1c7389806d06-0
+00:32:54.960 --> 00:32:58.096
+Yeah, OK,
+See it will this thing now we'll we'll
+
+84c9c03f-a76d-4b5a-918c-1c7389806d06-1
+00:32:58.096 --> 00:32:59.760
+have to iterate over this.
+
+b0c3049f-79a0-4248-85be-7f6c03c354c6-0
+00:32:59.760 --> 00:33:03.080
+I don't think we'll be able to get this
+correct in the first go.
+
+2b1b0a65-ba54-47c8-b596-b6a963281d13-0
+00:33:03.440 --> 00:33:07.040
+We'll have to iterate over it and then
+multiple people will have to review this.
+
+b6e08a8c-92cd-4cdf-8007-f5519091eff7-0
+00:33:07.520 --> 00:33:07.880
+Yeah, yeah.
+
+af80732a-8a5a-49e0-8f9d-1f732cc6d478-0
+00:33:08.120 --> 00:33:11.755
+I think if Nikhil already has idea on the
+ETL,
+
+af80732a-8a5a-49e0-8f9d-1f732cc6d478-1
+00:33:11.755 --> 00:33:16.938
+if he has gone through those logics with
+Avasti or Gayatri so far,
+
+af80732a-8a5a-49e0-8f9d-1f732cc6d478-2
+00:33:16.938 --> 00:33:18.640
+then he will get that.
+
+f269bd6a-5201-4cfb-8b71-f859a37f5cca-0
+00:33:18.720 --> 00:33:19.640
+What I was saying here.
+
+6c6c26d2-c9fe-4dfe-9fbf-e38b54312131-0
+00:33:19.640 --> 00:33:22.489
+No, no, he'll this,
+this explanation is fine,
+
+6c6c26d2-c9fe-4dfe-9fbf-e38b54312131-1
+00:33:22.489 --> 00:33:26.763
+but the more permutations and
+combinations that we are talking about
+
+6c6c26d2-c9fe-4dfe-9fbf-e38b54312131-2
+00:33:26.763 --> 00:33:28.560
+that will build up over time.
+
+73df2c34-f208-49fe-8045-e77a549df086-0
+00:33:28.880 --> 00:33:29.040
+Yeah.
+
+f03c3bbd-2e25-406e-947c-1f85b50e74f8-0
+00:33:29.280 --> 00:33:29.520
+OK.
+
+8ed57187-2cc9-4bcd-956d-ed2cd370921d-0
+00:33:29.600 --> 00:33:34.697
+So everything he'll, you know,
+will not be able to solve everything in
+
+8ed57187-2cc9-4bcd-956d-ed2cd370921d-1
+00:33:34.697 --> 00:33:35.200
+one go.
+
+99850f4f-ae50-48d7-9b0c-84fceb19023f-0
+00:33:35.840 --> 00:33:41.800
+But yeah, but yeah, we'll, we'll see.
+
+b6242dc1-9794-459d-9149-20e67d341c4a-0
+00:33:41.800 --> 00:33:42.560
+We'll get started.
+
+e03443c0-14ed-4f70-89ba-53176af3d3f2-0
+00:33:42.560 --> 00:33:43.520
+Let's see how it goes.
+
+497b29ef-2d95-4046-8b35-b91d3dd90786-0
+00:33:44.040 --> 00:33:44.240
+Yeah.
+
+afb2e994-8a33-4a04-a61f-f20b537befc5-0
+00:33:44.440 --> 00:33:44.760
+OK.
+
+af200ab9-8c55-4377-bbfe-be74c5385c21-0
+00:33:45.640 --> 00:33:48.720
+Yeah, Yeah, OK.
+
+eb96a18d-7e58-4b6c-ad7f-80d6918ebdc6-0
+00:33:48.800 --> 00:33:49.120
+Sure.
+
+c7644c5d-7c24-4533-b5a3-2e9d7e67d46c-0
+00:33:49.400 --> 00:33:55.041
+I need to draft this so that I can,
+I may not give this whole detail to the
+
+c7644c5d-7c24-4533-b5a3-2e9d7e67d46c-1
+00:33:55.041 --> 00:33:56.600
+the history load pod.
+
+57339aa5-7fc8-4bdc-a276-2c0d3f64ca5d-0
+00:33:56.760 --> 00:33:58.320
+They'll not be able to grasp this.
+
+1767dbda-3d94-4e94-b879-5c6d9a4a5a10-0
+00:33:58.800 --> 00:34:02.171
+I'll just ask them about, you know,
+this scenario where we have, you know,
+
+1767dbda-3d94-4e94-b879-5c6d9a4a5a10-1
+00:34:02.171 --> 00:34:03.880
+2 driving tables or one driving table.
+
+780d09ec-25db-401a-bb44-1855c532e27f-0
+00:34:04.400 --> 00:34:08.727
+I'll just ask them to mark it,
+at least on those ones that are needed
+
+780d09ec-25db-401a-bb44-1855c532e27f-1
+00:34:08.727 --> 00:34:09.840
+for Helix for now.
+
+9998f590-d9f1-401a-b12d-13c3e1b38026-0
+00:34:09.840 --> 00:34:12.640
+Right from those, yeah, objects,
+whatever they have started.
+
+06c9459f-df3b-4305-aa0e-4b4d047bae94-0
+00:34:13.160 --> 00:34:14.440
+And then, yeah, check on it.
+
+e78a1907-3d49-436f-b87f-47b860a77e81-0
+00:34:15.000 --> 00:34:15.240
+Yeah.
+
+17e83494-289c-48fc-82c7-76c4a4c22a22-0
+00:34:15.240 --> 00:34:15.440
+Yeah.
+
+a6345cdc-ea96-471d-bfb4-f3568977ff01-0
+00:34:15.440 --> 00:34:17.080
+Because, you know,
+they'll not be able to solve it.
+
+0bff079b-3112-40a5-a423-d8c0a0761804-0
+00:34:17.560 --> 00:34:18.600
+We'll have to solve it.
+
+f37b9e96-2828-4572-8967-f0fdfe8274ab-0
+00:34:18.600 --> 00:34:20.720
+And then just give them the can we stop
+the recording?
+
+041bf471-2881-4ac5-82b5-436448fe1481-0
+00:34:21.640 --> 00:34:22.480
+Yeah, Yeah, we can.
+
+a5b1d361-14c7-40a0-a6f5-257c826abc45-0
+00:34:30.790 --> 00:34:31.790
+OK, now you can.
+
+716623ee-dbd7-41fe-9979-ecd832b5395b-0
+00:34:31.790 --> 00:34:32.110
+Go ahead.
