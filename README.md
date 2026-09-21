@@ -8,8 +8,13 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ```
 ├── w1-aurora-db-connection/      Dev Aurora connection saturation      — open
 ├── w2-abc-framework/             ABC framework reference               — background
-└── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
+├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
+└── (repo root)                   DataCamp DS practical exam            — ACTIVE
 ```
+
+The DataCamp exam files sit at the repo root rather than in a `w<n>-` folder,
+because `code.py` reads the CSV by a bare relative path and moving either would
+break the DataLab paste. See the note at the end of this file.
 
 Each workstream folder keeps its raw inputs — transcripts, screenshots, email exports — in its own
 `sources/` subfolder, separate from the analysis derived from them.
@@ -98,6 +103,50 @@ drive target dates — the team has confirmed such tables exist in Zone1, so tha
 rather than a fact to establish.
 
 The full list of affected assets is owned by Abhi and not yet available.
+
+---
+
+## DataCamp DS Professional practical exam *(active, repo root)*
+
+Unrelated to W1-W3. The certification practical exam for QuorWatt Urban
+Mobility: predict whether a shared e-scooter goes out of service in the next 24
+hours, identify the strongest drivers, and recommend what the Fleet Reliability
+Team should do next.
+
+| File | What it is |
+|------|-----------|
+| `code.py` | **Source of truth.** Exact copy of the single DataLab code cell — validation, cleaning, EDA, both models, evaluation, business metric, driver ranking. CRLF line endings; preserve them |
+| `report.txt` | **Source of truth** for the narrative. Exact copy of the DataLab text area, including the task-list preamble. CRLF |
+| `written_report_draft.md` | The same narrative rendered as markdown, for reading and review |
+| `FULL_SUBMISSION_REFERENCE.md` | Report + code in one file. **Generated** from `report.txt` and `code.py` — do not hand-edit |
+| `PROJECT_NOTES.md` | Working notes: every decision taken, why, and what was verified against real output |
+| `DS_capstone_scooter_snapshots.csv` | The dataset — 1800 scooter snapshots, 7 columns |
+| `Deloitte+Practical+-+DS+-+Automotive.pdf` | The brief and the grading task list |
+| `workbook_screenshot.png` | The DataLab workbook template task list |
+| `scooter_reliability_presentation.pptx` | The deliverable deck — 8 slides, full word-for-word speaker notes in the notes pane |
+| `presentation/make_charts.py` | Regenerates the deck's five charts from the CSV, same matplotlib style as `code.py` |
+| `presentation/build_deck.js` | Regenerates the .pptx (`node presentation/build_deck.js`, needs `npm install pptxgenjs`) |
+| `presentation/charts/` | The rendered chart PNGs the deck embeds |
+
+### Current stage
+
+Code, written report and presentation are all complete and mutually consistent.
+Every number in the report and the deck comes from a verified run of `code.py`.
+**Still to do: record the presentation** (≤10 minutes) and submit both through
+the certification portal. The deck's speaker notes are a full script; at a
+normal 150 words per minute it runs about 8.9 minutes.
+
+**Headline result**: the requested ≥90% accuracy target is not achievable and
+should not be chased — a model predicting "in service" for every row already
+scores 87.8% while catching nothing. The usable finding is that
+`battery_health_score` dominates every driver ranking, and that at a 10%-of-fleet
+daily inspection budget the model catches ~23% of next-day failures at a 29% hit
+rate, against 0% under today's reactive maintenance.
+
+**Known gap**: these files break this repo's own one-folder-per-workstream
+convention. Moving them into `w4-datacamp-practical/` would be tidier but breaks
+`code.py`'s relative read of the CSV and the direct paste into DataLab. Left at
+the root deliberately; revisit once the exam is submitted.
 
 ---
 
