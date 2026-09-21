@@ -123,13 +123,18 @@ Team should do next.
 | `DS_capstone_scooter_snapshots.csv` | The dataset — 1800 scooter snapshots, 7 columns |
 | `Deloitte+Practical+-+DS+-+Automotive.pdf` | The brief and the grading task list |
 | `workbook_screenshot.png` | The DataLab workbook template task list |
+| `scooter_reliability_presentation.pptx` | The deliverable deck — 8 slides, full word-for-word speaker notes in the notes pane |
+| `presentation/make_charts.py` | Regenerates the deck's five charts from the CSV, same matplotlib style as `code.py` |
+| `presentation/build_deck.js` | Regenerates the .pptx (`node presentation/build_deck.js`, needs `npm install pptxgenjs`) |
+| `presentation/charts/` | The rendered chart PNGs the deck embeds |
 
 ### Current stage
 
-Code and written report are complete, mutually consistent, and every number in
-the report comes from a verified run of `code.py`. **The presentation (6-10
-slides, ≤10 minutes, recorded) has not been started** — it is a separately
-graded, mandatory deliverable.
+Code, written report and presentation are all complete and mutually consistent.
+Every number in the report and the deck comes from a verified run of `code.py`.
+**Still to do: record the presentation** (≤10 minutes) and submit both through
+the certification portal. The deck's speaker notes are a full script; at a
+normal 150 words per minute it runs about 8.9 minutes.
 
 **Headline result**: the requested ≥90% accuracy target is not achievable and
 should not be chased — a model predicting "in service" for every row already
