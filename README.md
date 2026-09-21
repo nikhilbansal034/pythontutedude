@@ -72,7 +72,7 @@ enrichment — where the driving table alone sets the target dates.
 | `scenario_matrix.md` | Which join combinations hit the problem and why, explained with worked data. Written to be read cold by people outside the discussion |
 | `solution_design.md` | How it gets solved: the three-step architecture, why a single MERGE fails, the IDMC components, and what the POC proves |
 | `poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Loads seven brokers across four runs, exercises all three steps, asserts twenty-six results. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header |
-| `solution_deck.html` | The slide deck — 9 slides covering the problem, the worked Day 1 / Day 2 example, which join combinations break, and the solution architecture. Standalone single file: open it in a browser, no server and no build step. Speaker notes behind the toggle in the header; `Ctrl`/`Cmd`+`P` prints one slide per page |
+| `solution_deck.html` | The slide deck — 12 slides covering the problem, the worked Day 1 / Day 2 example, which join combinations break, the solution architecture, and the object map showing which pieces are new, which get swapped for real tables, and what changes on integration. Standalone single file: open it in a browser, no server and no build step. Speaker notes behind the toggle in the header; `Ctrl`/`Cmd`+`P` prints one slide per page |
 | `POC_Evidence.docx` | Execution evidence — 53 captioned screenshots of the POC running against Snowflake, in sixteen sections, each stating what it tests, the steps, and the expected result before the screenshots. Summary table at the top |
 | `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
 | `sources/…vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
@@ -99,7 +99,7 @@ soft-delete → insert) rather than a single MERGE.
 wherever it sits, but the layer decides which engine runs the SQL and who owns the build.
 
 **Open, in order of how much they change the design**: whether a SQL override this large still pushes down
-fully in IDMC (`solution_design.md` §11); whether a current-bucket read gives one row per key or all versions
+fully in IDMC (`solution_design.md` §12); whether a current-bucket read gives one row per key or all versions
 (`glossary.md`); whether a source can *remove* one of its own versions; and whether load-timed tables may
 drive target dates — the team has confirmed such tables exist in Zone1, so that one is a decision to take
 rather than a fact to establish.

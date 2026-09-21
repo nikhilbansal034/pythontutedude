@@ -183,7 +183,7 @@ rows are no longer live, and re-emits the inserts. Nothing to unwind, no special
 stage's truncate-and-reload.
 
 **One gap**: between Step 2 and Step 3 the target holds soft-deleted rows with no replacement. Whether IDMC
-can wrap both mappings in one Snowflake transaction under pushdown is **unverified** — see §11.
+can wrap both mappings in one Snowflake transaction under pushdown is **unverified** — see §12.
 
 ---
 
@@ -333,12 +333,107 @@ turn, to check the assertions actually fail when the logic is wrong rather than 
 **None of T01–T12 caught any of them** — the original suite passed cleanly on all three broken versions.
 That is precisely why BR004–BR007 exist.
 
-DuckDB checks the *logic*, not Snowflake syntax or pushdown behaviour — hence §11, which is unchanged by
+DuckDB checks the *logic*, not Snowflake syntax or pushdown behaviour — hence §12, which is unchanged by
 any of this.
 
 ---
 
-## 10. Confirmed limitation — mixed clocks
+## 10. From POC to the real system
+
+The POC creates seven objects. They are not all the same kind of thing, and the difference matters when
+this is built for real: one already exists, three are placeholders, two are genuinely new, and one is the
+logic itself.
+
+| POC object | What it actually is | What happens to it |
+|---|---|---|
+| `ETL_DATA_INGESTION_SOURCE_WINDOW` | The **real** ABC control table. The POC recreates it only because `POC_SCHEMA` holds no copy | **Already exists** — drop the `CREATE` from the script. Read-only input, written by the framework at job preload |
+| `Z1_BROKER_PARTY_HIST` | Placeholder source 1 | **Replace** with the real Zone1 table |
+| `Z1_BROKER_COMMISSION_HIST` | Placeholder source 2 | **Replace** with the real Zone1 table |
+| `Z2_BROKER_PARTY_DIM` | Placeholder target | **Replace** with the real Zone2 dimension, which already exists |
+| `STG_Z2_BROKER_PARTY_DIM` | The stage | **New** — one per target |
+| `SEQ_BROKER_PARTY_DIM_SK` | Surrogate-key source | **New, or not needed** — see below |
+| `V_STEP1_..._DIFF` | Step 1's logic | **New** — one per target |
+
+Steps 2 and 3 are DML, not objects. They become IDMC mappings (§7).
+
+### The view is the brain, but not the whole design
+
+Step 1 **writes nothing**. It reads four inputs and returns a list of instructions. Two further operations
+apply them. A common misreading is that the view is the whole solution and everything else is a parameter;
+it is neither the whole solution nor is the rest parameterised.
+
+Two details are easy to miss:
+
+- **Step 1 reads the Zone2 target.** Stage 7 pulls the rows already there for the impacted keys. So this is
+  not a one-way Zone1 → Zone2 flow: one query touches both zones plus the control table. If the zones sit in
+  different databases, that has consequences for qualification and for connection privileges.
+- **The view is hand-written per target, not parameter-driven.** It hardcodes the two source table names,
+  the join key, the two carried columns, and the *number* of sources. Swapping a table name is a rewrite of
+  the CTEs, not a parameter substitution. Making it genuinely generic is the metadata-template question in
+  §12, and is a much larger build.
+
+### The stage table — the one piece with no equivalent today
+
+The stage is the handoff between deciding and doing. Every row carries `ACTION_FLAG`:
+
+| Flag | Meaning | `BROKER_PARTY_DIM_SK` |
+|---|---|---|
+| `I` | A version that should exist in the target but does not | Null — Step 3 assigns one |
+| `D` | A version in the target that is no longer valid | **The existing key**, which is how Step 2 finds the row to retire |
+
+It is truncated and reloaded every run, never appended — which is what makes the load restartable. There is
+no accumulated state to unwind, and a re-run recomputes against whatever the target holds at that moment
+(§8). Its columns mirror the target's carried columns plus `ACTION_FLAG`, the surrogate key, `ROW_HASH`
+and the audit columns.
+
+### Changes required before this runs for real
+
+In priority order. **The first two fail silently** — the job reports success having done nothing, or the
+wrong thing.
+
+**A. The control-table read is POC-grade and will break.** `cur_run` takes `MAX(EXECUTION_RUN_ID)` across
+the whole table, and neither it nor `win` filters on `TARGET_TABLE_NAME`. With one target that is harmless.
+In the real system that table holds rows for **every** target, so `MAX()` picks up whichever job ran most
+recently anywhere — possibly another team's — and `win` then returns source windows belonging to a
+different target. Both CTEs need a `TARGET_TABLE_NAME` filter, and the run id should come from the
+framework's run context rather than `MAX()`.
+
+**B. The `SOURCE_TABLE_NAME` literals must match what the framework actually writes.** The `win` CTE joins
+on string literals. If the framework writes fully-qualified names, or a different case, the join returns
+nothing → `impacted_keys` is empty → the stage is empty → the job succeeds having done nothing. Read one
+real row of that table before trusting it.
+
+**C. `GRS_REFINED_TIMESTAMP` is an invented name.** The ABC reference describes the column but never names
+it. Every delta-detection predicate depends on it.
+
+**D. Cross-database qualification.** If Zone1 and Zone2 are in different databases or schemas, every
+reference needs full `DB.SCHEMA.TABLE` qualification and the connection needs read on both. This also
+interacts with pushdown: a documented Informatica failure puts the temporary view in the wrong schema when
+a mapping reads across schemas (§12).
+
+**E. The surrogate key.** If the real Zone2 dimension already generates keys — an identity column, its own
+sequence, a hash key — delete `SEQ_BROKER_PARTY_DIM_SK` and the `NEXTVAL` from Step 3 and use whatever
+exists. Only create a sequence if the target has no generator.
+
+**F. Stage location and naming** should follow the ABC convention rather than the POC's, and the stage needs
+whatever audit columns the framework expects.
+
+### One decision to take before building
+
+The Step 1 SQL can live two ways:
+
+| | How | Trade-off |
+|---|---|---|
+| **A permanent Snowflake view** | Deploy the view; IDMC selects from it | `CREATE VIEW` needed once at deploy time, under change control. Version-controlled in Snowflake |
+| **A SQL override in the Source transformation** | Paste the query into IDMC | Informatica implements this by creating a *temporary view at runtime* anyway, so the same privilege is needed — but granted permanently to the runtime role |
+
+Since both need `CREATE VIEW`, the permanent view is the better default: the same privilege, exercised at
+deploy time under change control rather than on every run. This is drawn from vendor documentation read
+second-hand and is one of the things the §12 spike should settle.
+
+---
+
+## 11. Confirmed limitation — mixed clocks
 
 The team has confirmed Zone1 holds **SCD2 tables built from sources that overwrite in place**. Those tables
 have no business effective date; their `row_eff_dte` records *when Zone1 loaded the row*.
@@ -356,7 +451,7 @@ Two options, and it is a business decision rather than a technical one:
 
 ---
 
-## 11. To verify before build
+## 12. To verify before build
 
 | | Question | Why it could change the design |
 |---|---|---|
@@ -371,7 +466,7 @@ it reports full pushdown.
 
 ---
 
-## 12. Still open on the problem side
+## 13. Still open on the problem side
 
 Carried from `scenario_matrix.md` §11 — these do not block the POC but do affect scope:
 
