@@ -1,0 +1,63 @@
+## 📝 Task List
+
+Your written report should include both code, output and written text summaries of the following:
+- Data Validation:   
+  - Describe validation and cleaning steps for every column in the data 
+- Exploratory Analysis:  
+  - Include two different graphics showing single variables only to demonstrate the characteristics of data  
+  - Include at least one graphic showing two or more variables to represent the relationship between features
+  - Describe your findings
+- Model Development
+  - Include your reasons for selecting the models you use as well as a statement of the problem type
+  - Code to fit the baseline and comparison models
+- Model Evaluation
+  - Describe the performance of the two models based on an appropriate metric
+- Business Metrics
+  - Define a way to compare your model performance to the business
+  - Describe how your models perform using this approach
+- Final summary including recommendations that the business should undertake
+
+*Start writing report here..*
+ - Data Validation - The provided dataset has 1800 rows and 7 column, one row per scooter snapshot. There are multiple issues which I found that requires fixing before analysis.
+   *    scooter_id - No duplicates found. Data clean.
+   *    service_area - Found 6 raw category values. "downtwon" was a spelling mistake for "downtown". Fixed by merging it into "downtown".
+   *    scooter_model - No issues found. Data clean.
+   *    total_trips_24h - This column was stored as text because 54 rows contained the literal value "na" mixed in with numeric strings. Converted the column to numeric which converted these "na" entries to "NaN"
+   *    battery_health_score - 72 rows were missing which were filled using the column median.
+   *    reported_issue_count_24h - Found 18 rows with negative value. Since count cannot logically be negative, so assumed these as sign errors and corrected them using absolute value.
+   *    taken_out_of_service - No issues found. Data clean.
+
+ - Exploratory analysis - For better understanding of data before modelling, I looked and understand the below graphics
+    *    Histogram of battery_health_score (single variable) - the distribution is skewed towards higher values. Most scooters sit in the 80-90 range with a tail stretching down towards 55.
+    *    Bar chart of service_area coounts (single variable, different chart type) - This showed that downtown has the most scooter while waterfront has fewest.
+    *    Boxplot of battery_health_score split by taken_out_of_service (two variables) - This compares battery health between scooters that went out of service and scooters that stayed in service. The out-of-service group has lower median battery (approx 77) compared to in-service group (approx 82).
+
+ - Model Development - The goal is to predict one of the two outcomes for each scooter: whether it will be taken out of service or not in the following 24 hours. This is like binary classification problem. Before fitting any model, I performed below steps:-
+
+   *    Filled remaining missing values in battery_health_score and total_trips_24h using the column median since scikit-learn models cannot accept missing values directly.
+   *    Converted service_area and scooter_model text columns into numeric (0/1) columns using one-hot encoding since models can only work with numbers and mapping categories to arbitrary numbers would incorrectly imply an order between them doesnt exist.
+   *    scooter_id was dropped since it is just an identifier and carries no predictive information.
+   *    The data was split into 80% training and 20% testing using stratified sampling so that both sets kept the same class split at the full dataset.
+   *    I chose below 2 models:
+         1. Baseline model: Logical regression - It was chosen because it is simple, fast to train and easy to explain. Its coefficient give a rough sense of which features push the prediction one way or the other.
+         2. Comparison model: Random Forest - It was chosen because it can capture non-linear relationships and interaction between features that logistics regression cannot and it also produces a feature importance ranking that can be compared against the logistics regression coefficients.
+         
+ - Model Evaluation - I evaluated both models using accuracy, precision, recall, F1 score, ROC-AUC and confusion matrix.
+   *    the baseline model predicted "in service" for every single row in the test set. It never once correctly identified a scooter that actually went out of service (confusion matrix showed 0 true positives out of 44). Despite this, it still scored 87.8% accuracy which was evidend that accuracy is not a suitable metrix for this problem.
+   *    The random forest model performed slightly worse on raw accuracy (85.6%), but it was the only model that identified any true oout-of-service cases at all catching 3 out of 44. Both ROC-AUC scores (0.62 and 0.59) are close to 0.5 showing that only 3 numeric features and this level of class imbalance, neither model separates the two classes strongly yet.
+
+ - Business Metrics - Since accuracy alone is misleading, I recommend to use recall (catch rate) as the metric which business should track going forward alongside precision as secondary check.
+    *    Recall answers the business actuals question on of all the scooters that really do go out of service, what percentage did we correctly flag in advance? This number is very crucial for reducing unplanned downtime.
+    *    Precision should also be considered because a low precision means technicians would be sent out on false alarms, wasting labor and parts.
+
+    In current estimate, using the random forest model: we have recall as 0.068 (catching about 3 out of every 44 scooters that go out of service) and precision = 0.214 which means the current models are catching a very small fraction of real breakdown and are not yet reliable enough to base staffing or purchasing decisions on.
+
+
+ - Final Summary - This project goal was to identify the strongest predctors of a scooter going out of service and to build a model that could predict this with high accuracy. Based on the analysis:
+   *    The 90% accuracy target given by the business is not a meaningful goal for this dataset. Only 12.3% of scooters actually go out of service, a model can exceed 90% accuracy while being practically useless as shown by our own baseline model by hitting 87.8% accuracy while catching 0 real cases.
+   *    Both models currently have a very low catch rate. The random forest model is an improvement over the baseline but still misses the majority of real breakdowns.
+
+ - Recommendations
+    *    Replace the accuracy target with recall and precision and track both metrics monthly rather than aiming for a single accuracy number.
+    *    Fix the data collection issues found during validation.
+    *    Collect additional features if possible - The current 3 numeric features available (total_trip_24h, battery_health_score and reported_issue_count_24h) are not enough on their own to reliably predict breakdowns and richer telemetry.
