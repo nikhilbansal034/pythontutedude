@@ -163,6 +163,26 @@ plt.title('Battery Health Score by Service Outcome')
 plt.ylabel('battery_health_score')
 plt.show()
 
+# Checking how the out-of-service rate changes across the range of each numeric column.
+# The charts show the shape of each column, these numbers show which of them actually separates the two groups.
+scooter_df['battery_group'] = pd.qcut(scooter_df['battery_health_score'], 5)    # splits the fleet into 5 equal sized groups
+print('\nOut of service rate by battery_health_score group :\n', scooter_df.groupby('battery_group', observed=True)['taken_out_of_service'].agg(['mean', 'count']).round(3))
+
+scooter_df['trips_group'] = pd.qcut(scooter_df['total_trips_24h'], 5)
+print('\nOut of service rate by total_trips_24h group :\n', scooter_df.groupby('trips_group', observed=True)['taken_out_of_service'].agg(['mean', 'count']).round(3))
+
+print('\nOut of service rate by service_area :\n', scooter_df.groupby('service_area')['taken_out_of_service'].agg(['mean', 'count']).round(3))
+print('\nOut of service rate by scooter_model :\n', scooter_df.groupby('scooter_model')['taken_out_of_service'].agg(['mean', 'count']).round(3))
+
+# these two helper columns were only for the grouping above, dropping them so they never reach the model
+scooter_df = scooter_df.drop(columns=['battery_group', 'trips_group'])
+
+# observations from data analysis
+# - battery health is the clearest signal, the weakest fifth of the fleet goes out of service about 24% of the time against about 5% for the healthiest fifth
+# - usage shows a weaker version of the same pattern, the busiest fifth fails about 21% of the time against about 8% for the quietest fifth
+# - service_area varies too (downtown about 17% against waterfront about 6%) but the groups overlap heavily
+# - scooter_model is almost flat across the three hardware families, so hardware does not look like a driver
+
 # Model development
 
 # fill the remaining missing values in battery_health_score with the median of that column

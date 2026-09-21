@@ -1,13 +1,19 @@
 # Regenerates the five charts used in the deck, from the same data and the same
-# plain matplotlib style as code.py. Run from the repo root:
-#     python3 presentation/make_charts.py
+# plain matplotlib style as code.py. Can be run from anywhere:
+#     python3 "datacamp project/presentation/make_charts.py"
+import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-OUT = 'presentation/charts/'
+# paths are worked out from where this script sits, not from the current
+# directory, so it does not matter which folder you run it from
+HERE = os.path.dirname(os.path.abspath(__file__))
+PROJECT = os.path.dirname(HERE)
+OUT = os.path.join(HERE, 'charts') + os.sep
+CSV = os.path.join(PROJECT, 'DS_capstone_scooter_snapshots.csv')
 plt.rcParams.update({'font.size': 13, 'axes.titlesize': 15,
                      'figure.dpi': 200, 'savefig.bbox': 'tight'})
 CH = '#36454F'   # charcoal, used for neutral bars
@@ -15,7 +21,7 @@ AC = '#B85042'   # terracotta, used to highlight the point being made
 MU = '#A8B0B5'   # muted grey, used for the comparison bar
 
 # same load and same cleaning as code.py sections 1 and 2
-df = pd.read_csv('DS_capstone_scooter_snapshots.csv')
+df = pd.read_csv(CSV)
 df['service_area'] = df['service_area'].replace('downtwon', 'downtown')
 df['total_trips_24h'] = pd.to_numeric(df['total_trips_24h'], errors='coerce')
 df['reported_issue_count_24h'] = df['reported_issue_count_24h'].abs()
