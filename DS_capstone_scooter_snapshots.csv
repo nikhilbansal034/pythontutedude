@@ -1,0 +1,1801 @@
+scooter_id,service_area,scooter_model,total_trips_24h,battery_health_score,reported_issue_count_24h,taken_out_of_service
+SC00001,university,QX2080,5,70.9,0,0
+SC00002,university,QX1010,5,83,1,0
+SC00003,downtown,QX3000,10,88.7,0,0
+SC00004,university,QX2080,10,54.9,1,1
+SC00005,university,QX1010,6,82.7,2,0
+SC00006,university,QX3000,3,82.4,0,0
+SC00007,downtown,QX2080,8,64.1,2,1
+SC00008,city center,QX2080,5,81.2,0,0
+SC00009,city center,QX1010,7,79.2,0,0
+SC00010,downtown,QX2080,10,76.3,0,0
+SC00011,downtown,QX1010,5,79,1,0
+SC00012,city center,QX3000,5,75.3,3,1
+SC00013,residential,QX2080,4,,0,0
+SC00014,downtown,QX3000,3,79.7,1,0
+SC00015,residential,QX1010,4,90.1,1,0
+SC00016,university,QX1010,15,76,1,0
+SC00017,residential,QX2080,11,75.1,0,0
+SC00018,city center,QX1010,7,71.6,2,0
+SC00019,city center,QX3000,5,80.8,1,0
+SC00020,university,QX2080,6,86,0,0
+SC00021,waterfront,QX2080,2,87.2,1,0
+SC00022,city center,QX1010,5,77.9,-4,0
+SC00023,university,QX3000,6,61,-5,0
+SC00024,university,QX3000,10,74.3,3,0
+SC00025,residential,QX2080,6,75.6,0,0
+SC00026,downtown,QX1010,5,74.3,0,0
+SC00027,university,QX2080,6,76.2,2,0
+SC00028,city center,QX1010,3,90.5,1,0
+SC00029,waterfront,QX1010,4,,3,0
+SC00030,city center,QX2080,4,89.7,2,0
+SC00031,city center,QX2080,8,65.3,0,0
+SC00032,waterfront,QX3000,3,83,0,0
+SC00033,city center,QX1010,9,62.3,2,0
+SC00034,downtown,QX1010,12,72.8,0,1
+SC00035,downtown,QX2080,8,69.2,3,0
+SC00036,downtown,QX1010,7,91.3,0,0
+SC00037,downtown,QX1010,5,85.5,0,0
+SC00038,city center,QX2080,2,91.5,0,0
+SC00039,residential,QX1010,2,80.8,0,0
+SC00040,residential,QX2080,5,71.8,1,0
+SC00041,downtown,QX1010,12,67.5,0,0
+SC00042,university,QX3000,9,83.1,3,0
+SC00043,downtown,QX2080,11,91.1,0,0
+SC00044,waterfront,QX1010,4,86.3,1,0
+SC00045,downtown,QX3000,7,79.2,0,0
+SC00046,university,QX3000,6,81.6,0,0
+SC00047,city center,QX1010,5,81.7,3,0
+SC00048,university,QX1010,7,97.6,0,0
+SC00049,city center,QX2080,6,90.2,0,0
+SC00050,residential,QX1010,3,85.8,1,0
+SC00051,downtown,QX1010,7,81.3,0,0
+SC00052,waterfront,QX1010,1,87.7,4,0
+SC00053,university,QX2080,4,85.5,0,0
+SC00054,residential,QX2080,na,77.8,0,0
+SC00055,residential,QX2080,6,,1,0
+SC00056,waterfront,QX2080,2,91.7,0,0
+SC00057,downtown,QX2080,7,79.1,2,0
+SC00058,city center,QX2080,4,89.4,0,0
+SC00059,downtown,QX1010,na,94.4,0,0
+SC00060,downtown,QX1010,7,84.8,0,0
+SC00061,university,QX2080,10,79.5,0,0
+SC00062,waterfront,QX2080,4,100,0,0
+SC00063,waterfront,QX2080,3,83.9,0,0
+SC00064,university,QX2080,8,68.8,0,0
+SC00065,university,QX2080,10,74.1,0,1
+SC00066,residential,QX2080,5,93.7,0,0
+SC00067,waterfront,QX2080,2,71.9,0,0
+SC00068,downtown,QX1010,5,75.6,0,0
+SC00069,university,QX1010,8,89,0,0
+SC00070,residential,QX1010,4,80.5,0,0
+SC00071,city center,QX1010,9,77.9,0,0
+SC00072,city center,QX1010,11,86.3,0,0
+SC00073,waterfront,QX3000,7,76.3,0,0
+SC00074,waterfront,QX1010,3,71.1,3,0
+SC00075,waterfront,QX1010,6,69.4,0,0
+SC00076,residential,QX1010,1,90.1,0,0
+SC00077,downtown,QX1010,8,81.8,2,0
+SC00078,city center,QX2080,4,75.4,0,0
+SC00079,university,QX2080,na,71.5,0,0
+SC00080,university,QX2080,5,,1,0
+SC00081,university,QX2080,5,90,2,0
+SC00082,university,QX1010,13,68.5,1,0
+SC00083,city center,QX3000,6,77.6,4,1
+SC00084,residential,QX1010,5,71.9,0,0
+SC00085,city center,QX1010,4,79.7,1,0
+SC00086,city center,QX1010,6,84.1,0,0
+SC00087,downtown,QX2080,6,97.7,2,0
+SC00088,downtown,QX2080,na,80.8,0,0
+SC00089,residential,QX1010,3,83.1,0,0
+SC00090,city center,QX2080,5,87.8,0,0
+SC00091,downtown,QX1010,10,83.9,0,0
+SC00092,residential,QX2080,4,76.4,0,0
+SC00093,university,QX1010,5,100,2,0
+SC00094,downtown,QX1010,5,81.8,0,1
+SC00095,city center,QX1010,14,76.8,2,1
+SC00096,downtown,QX2080,5,85.2,0,0
+SC00097,university,QX1010,6,84.1,0,0
+SC00098,downtown,QX1010,4,95.8,0,0
+SC00099,downtown,QX1010,11,72.2,0,0
+SC00100,downtown,QX3000,9,87.5,0,0
+SC00101,university,QX3000,9,82.2,0,0
+SC00102,downtown,QX2080,7,87.3,0,0
+SC00103,residential,QX1010,3,,2,0
+SC00104,downtown,QX3000,4,81.8,0,0
+SC00105,university,QX2080,9,83.5,2,1
+SC00106,city center,QX2080,8,81.1,2,0
+SC00107,city center,QX1010,7,73.4,0,0
+SC00108,downtown,QX1010,6,92.6,2,0
+SC00109,residential,QX1010,3,89.8,3,0
+SC00110,residential,QX3000,6,82.6,6,0
+SC00111,downtown,QX2080,9,73.3,3,0
+SC00112,downtown,QX1010,6,84.3,0,0
+SC00113,waterfront,QX1010,5,87.6,3,0
+SC00114,university,QX2080,4,67.8,-5,0
+SC00115,downtown,QX1010,3,86.8,0,0
+SC00116,downtown,QX3000,7,87.9,2,0
+SC00117,university,QX2080,3,62.1,0,0
+SC00118,residential,QX2080,7,80.6,0,0
+SC00119,university,QX1010,5,87.9,0,1
+SC00120,waterfront,QX2080,3,87,0,0
+SC00121,city center,QX2080,6,86.5,2,0
+SC00122,city center,QX2080,4,78.5,0,0
+SC00123,city center,QX1010,5,73.2,0,0
+SC00124,city center,QX1010,6,65.9,1,0
+SC00125,downtown,QX1010,13,84.9,2,0
+SC00126,downtown,QX2080,9,83.3,3,0
+SC00127,city center,QX1010,6,91.1,0,0
+SC00128,residential,QX1010,4,76.6,3,0
+SC00129,downtown,QX1010,7,87.2,0,0
+SC00130,city center,QX2080,8,65.3,3,0
+SC00131,university,QX1010,8,72.2,0,1
+SC00132,university,QX3000,5,85.1,0,0
+SC00133,residential,QX2080,6,85.3,0,1
+SC00134,residential,QX1010,3,97.9,0,0
+SC00135,residential,QX2080,5,78.5,0,0
+SC00136,downtown,QX1010,8,72.2,0,1
+SC00137,city center,QX3000,7,74.6,4,0
+SC00138,university,QX2080,8,72.3,0,0
+SC00139,downtown,QX2080,11,94.6,0,1
+SC00140,downtown,QX1010,11,83.6,0,0
+SC00141,downtown,QX2080,9,86.8,1,1
+SC00142,city center,QX2080,8,,0,0
+SC00143,city center,QX3000,5,84,0,0
+SC00144,downtown,QX2080,5,86.4,2,0
+SC00145,residential,QX2080,1,79.4,2,0
+SC00146,waterfront,QX1010,1,82.7,0,0
+SC00147,downtown,QX1010,9,73.1,1,0
+SC00148,waterfront,QX2080,3,78.3,4,0
+SC00149,downtown,QX1010,9,79.2,0,1
+SC00150,waterfront,QX1010,2,77.4,3,0
+SC00151,waterfront,QX3000,1,89.6,0,0
+SC00152,downtown,QX3000,5,86.4,1,0
+SC00153,residential,QX1010,6,79.7,2,1
+SC00154,waterfront,QX2080,4,74.3,2,0
+SC00155,waterfront,QX1010,4,83.7,2,0
+SC00156,waterfront,QX2080,5,76.2,0,0
+SC00157,university,QX1010,4,83.2,0,0
+SC00158,downtown,QX2080,8,87.4,2,1
+SC00159,residential,QX2080,4,70.7,0,0
+SC00160,university,QX2080,6,98.2,0,0
+SC00161,university,QX1010,9,78.2,5,0
+SC00162,city center,QX3000,5,87.5,0,0
+SC00163,university,QX1010,3,77.2,0,0
+SC00164,downtown,QX1010,10,87.7,0,0
+SC00165,residential,QX2080,7,77.8,0,0
+SC00166,downtown,QX1010,5,78.6,3,0
+SC00167,residential,QX3000,1,82.3,0,0
+SC00168,residential,QX3000,2,84.1,0,0
+SC00169,city center,QX1010,10,81.6,3,0
+SC00170,university,QX3000,5,85.5,0,0
+SC00171,city center,QX1010,6,80.9,2,0
+SC00172,waterfront,QX2080,0,78.5,0,0
+SC00173,residential,QX1010,7,73.9,0,0
+SC00174,city center,QX3000,5,80.1,0,0
+SC00175,downtown,QX1010,10,81.9,6,0
+SC00176,downtwon,QX1010,9,84.4,4,0
+SC00177,city center,QX1010,5,88.8,0,0
+SC00178,waterfront,QX3000,2,86.4,0,0
+SC00179,residential,QX3000,na,88.1,0,0
+SC00180,downtown,QX2080,6,78.3,0,0
+SC00181,residential,QX3000,6,68.4,0,0
+SC00182,city center,QX3000,na,81.4,1,0
+SC00183,residential,QX2080,5,,2,0
+SC00184,downtown,QX1010,9,70,0,0
+SC00185,university,QX2080,na,74.1,0,0
+SC00186,waterfront,QX2080,5,81.6,0,0
+SC00187,downtown,QX1010,8,70,0,0
+SC00188,university,QX1010,10,72,0,0
+SC00189,waterfront,QX2080,na,95.3,3,0
+SC00190,downtwon,QX1010,9,65.2,0,1
+SC00191,downtown,QX3000,11,77.6,0,0
+SC00192,university,QX1010,8,69.7,0,0
+SC00193,city center,QX1010,5,,0,0
+SC00194,downtown,QX3000,3,83.9,2,0
+SC00195,city center,QX1010,3,75.2,1,0
+SC00196,residential,QX1010,5,86.9,3,0
+SC00197,city center,QX2080,7,90.4,2,0
+SC00198,city center,QX3000,4,92,0,0
+SC00199,residential,QX1010,5,90.7,1,0
+SC00200,university,QX1010,7,68.7,3,1
+SC00201,residential,QX2080,6,77.6,0,0
+SC00202,city center,QX3000,6,87.2,0,0
+SC00203,waterfront,QX2080,7,86.3,2,0
+SC00204,university,QX1010,3,98.5,2,0
+SC00205,downtown,QX1010,8,88.7,0,0
+SC00206,residential,QX1010,3,91.2,1,0
+SC00207,city center,QX1010,7,100,2,0
+SC00208,downtown,QX2080,7,79.7,1,0
+SC00209,downtown,QX1010,7,77.9,0,0
+SC00210,university,QX2080,7,80.4,0,0
+SC00211,downtown,QX2080,7,71.1,-4,0
+SC00212,city center,QX2080,9,77.9,0,0
+SC00213,downtown,QX1010,na,62.5,0,1
+SC00214,city center,QX3000,7,77.9,1,0
+SC00215,city center,QX2080,5,79.5,0,0
+SC00216,university,QX2080,6,87.8,0,0
+SC00217,downtown,QX1010,na,88.2,2,1
+SC00218,downtown,QX1010,7,72.2,0,0
+SC00219,university,QX3000,8,99.2,2,0
+SC00220,city center,QX1010,1,86.5,0,0
+SC00221,university,QX1010,8,,0,0
+SC00222,downtown,QX2080,8,64.3,0,0
+SC00223,downtown,QX2080,3,76.8,0,1
+SC00224,downtown,QX3000,4,93.7,0,0
+SC00225,city center,QX1010,3,85,1,0
+SC00226,city center,QX3000,10,80.9,5,0
+SC00227,residential,QX1010,4,84.7,0,0
+SC00228,city center,QX2080,na,69.8,0,0
+SC00229,university,QX2080,na,80.5,1,1
+SC00230,university,QX1010,6,93.2,0,0
+SC00231,downtown,QX1010,4,92,0,1
+SC00232,university,QX1010,3,82.5,0,0
+SC00233,city center,QX3000,8,94.9,0,0
+SC00234,city center,QX2080,4,70.6,0,0
+SC00235,downtown,QX3000,6,74.9,0,0
+SC00236,residential,QX3000,3,100,3,0
+SC00237,waterfront,QX2080,6,,0,0
+SC00238,downtown,QX2080,6,77.2,0,0
+SC00239,university,QX1010,16,72.7,0,0
+SC00240,residential,QX1010,3,76.7,0,0
+SC00241,city center,QX3000,10,82.4,1,1
+SC00242,residential,QX2080,4,83,1,0
+SC00243,university,QX1010,4,83,3,0
+SC00244,waterfront,QX2080,2,73,0,0
+SC00245,waterfront,QX2080,3,84.4,0,0
+SC00246,downtown,QX3000,5,79.5,0,0
+SC00247,city center,QX2080,3,73.7,0,0
+SC00248,university,QX1010,8,90.4,0,0
+SC00249,downtown,QX1010,9,97.2,0,0
+SC00250,city center,QX1010,8,96.1,0,0
+SC00251,waterfront,QX2080,6,85.2,0,0
+SC00252,downtown,QX3000,9,78.5,0,0
+SC00253,city center,QX2080,6,79.1,0,0
+SC00254,residential,QX1010,5,85.4,0,0
+SC00255,city center,QX1010,4,79.2,1,0
+SC00256,city center,QX2080,9,88.5,0,0
+SC00257,waterfront,QX3000,0,70.7,0,0
+SC00258,city center,QX1010,6,78.7,0,0
+SC00259,downtown,QX1010,7,87.2,0,0
+SC00260,downtown,QX2080,5,73.3,2,1
+SC00261,waterfront,QX1010,2,82.4,0,0
+SC00262,downtown,QX3000,13,82.6,2,0
+SC00263,university,QX1010,9,91.7,2,0
+SC00264,downtown,QX1010,5,71,0,1
+SC00265,city center,QX3000,5,72.4,2,0
+SC00266,waterfront,QX1010,2,76.4,1,0
+SC00267,university,QX1010,6,,3,0
+SC00268,waterfront,QX1010,1,72.7,0,1
+SC00269,downtown,QX1010,8,71.3,3,1
+SC00270,university,QX1010,0,96.5,0,0
+SC00271,residential,QX1010,6,78.5,0,0
+SC00272,city center,QX1010,8,79.9,2,0
+SC00273,downtown,QX1010,4,74.7,0,0
+SC00274,residential,QX2080,5,85.9,0,0
+SC00275,city center,QX2080,5,96.4,0,0
+SC00276,university,QX1010,6,73.7,0,0
+SC00277,waterfront,QX1010,4,97.5,0,0
+SC00278,downtown,QX2080,12,78,0,0
+SC00279,city center,QX3000,11,79.3,0,0
+SC00280,downtown,QX3000,9,84.2,2,0
+SC00281,city center,QX1010,5,85.3,0,0
+SC00282,downtown,QX1010,4,98.6,2,0
+SC00283,university,QX1010,11,81.6,0,0
+SC00284,downtown,QX1010,8,84.2,2,1
+SC00285,university,QX2080,10,72.9,3,1
+SC00286,downtown,QX1010,5,89.1,2,0
+SC00287,city center,QX1010,8,71.5,0,0
+SC00288,city center,QX1010,4,83.7,0,0
+SC00289,residential,QX2080,4,100,2,0
+SC00290,city center,QX1010,4,61.5,3,0
+SC00291,city center,QX3000,5,86,0,0
+SC00292,residential,QX1010,6,83.5,0,0
+SC00293,university,QX3000,7,80.5,2,1
+SC00294,downtown,QX1010,6,79.5,0,0
+SC00295,waterfront,QX3000,1,88,4,0
+SC00296,city center,QX3000,11,77.1,1,1
+SC00297,downtown,QX3000,8,83.5,0,0
+SC00298,city center,QX3000,5,79.9,0,0
+SC00299,downtown,QX2080,9,94.5,0,0
+SC00300,downtown,QX2080,7,76.8,0,1
+SC00301,residential,QX2080,5,85.3,0,0
+SC00302,downtown,QX1010,6,75.5,2,0
+SC00303,residential,QX2080,7,86.8,0,0
+SC00304,waterfront,QX2080,5,86.7,3,0
+SC00305,university,QX3000,9,84.4,3,0
+SC00306,residential,QX2080,5,71.8,1,0
+SC00307,residential,QX1010,3,77.2,0,1
+SC00308,waterfront,QX2080,2,97.2,0,0
+SC00309,city center,QX1010,8,73.1,2,1
+SC00310,downtown,QX1010,8,85,0,0
+SC00311,university,QX2080,13,66.1,0,1
+SC00312,university,QX1010,7,89,0,0
+SC00313,downtown,QX1010,11,71.4,0,0
+SC00314,university,QX1010,10,69.8,3,1
+SC00315,downtown,QX1010,8,73.5,0,0
+SC00316,waterfront,QX1010,3,78.9,-3,0
+SC00317,downtown,QX1010,9,82.2,0,0
+SC00318,downtown,QX2080,6,80.3,0,0
+SC00319,downtown,QX1010,7,71.1,0,0
+SC00320,downtown,QX3000,7,82.2,3,0
+SC00321,downtown,QX3000,5,74.3,2,1
+SC00322,downtown,QX2080,na,82.8,3,0
+SC00323,downtown,QX1010,4,89.8,0,0
+SC00324,downtown,QX2080,8,77.9,0,0
+SC00325,city center,QX3000,2,88.7,0,0
+SC00326,city center,QX2080,7,93.8,2,0
+SC00327,city center,QX3000,7,81.1,3,0
+SC00328,city center,QX2080,3,74.1,3,0
+SC00329,downtown,QX2080,9,82.2,0,0
+SC00330,downtown,QX1010,9,69.2,0,0
+SC00331,downtown,QX2080,4,79.5,2,0
+SC00332,residential,QX1010,6,76.1,0,0
+SC00333,waterfront,QX2080,3,76.1,3,0
+SC00334,waterfront,QX3000,2,84.3,2,0
+SC00335,university,QX1010,6,88.8,0,0
+SC00336,university,QX2080,8,87.5,2,0
+SC00337,city center,QX1010,8,87.5,3,0
+SC00338,residential,QX2080,3,85,1,0
+SC00339,residential,QX1010,6,79,0,0
+SC00340,residential,QX3000,6,63.2,0,0
+SC00341,residential,QX1010,6,84.3,3,0
+SC00342,city center,QX3000,3,66.2,0,0
+SC00343,residential,QX3000,1,70.9,0,0
+SC00344,residential,QX2080,9,75.9,0,0
+SC00345,city center,QX2080,5,82.7,0,0
+SC00346,waterfront,QX2080,0,80.7,3,1
+SC00347,downtown,QX3000,7,95.5,0,0
+SC00348,waterfront,QX1010,5,85.9,0,0
+SC00349,residential,QX2080,5,78.4,0,0
+SC00350,downtown,QX1010,2,96.2,0,0
+SC00351,university,QX2080,10,,0,0
+SC00352,downtown,QX1010,4,87.2,0,0
+SC00353,residential,QX2080,5,73.9,0,1
+SC00354,residential,QX2080,2,78.2,0,0
+SC00355,university,QX2080,5,68.2,5,0
+SC00356,residential,QX2080,3,81.7,0,0
+SC00357,downtown,QX2080,8,69.2,0,0
+SC00358,downtown,QX2080,9,74.5,0,0
+SC00359,city center,QX2080,7,81.1,2,0
+SC00360,downtown,QX2080,1,66.8,0,0
+SC00361,city center,QX3000,5,73.3,0,0
+SC00362,downtown,QX1010,3,79.3,3,1
+SC00363,city center,QX1010,7,80,1,0
+SC00364,city center,QX1010,3,79.4,0,0
+SC00365,residential,QX2080,9,75,0,0
+SC00366,downtown,QX1010,4,76.8,2,0
+SC00367,residential,QX2080,0,72.2,0,0
+SC00368,city center,QX2080,12,70.4,2,0
+SC00369,city center,QX1010,8,77.8,0,1
+SC00370,university,QX3000,10,77.4,2,0
+SC00371,city center,QX2080,4,82.3,1,0
+SC00372,downtown,QX1010,7,,2,0
+SC00373,university,QX1010,5,87.8,0,0
+SC00374,downtown,QX1010,8,74.2,2,1
+SC00375,city center,QX1010,5,68.6,0,0
+SC00376,university,QX1010,8,90.4,0,0
+SC00377,city center,QX3000,6,86.5,3,0
+SC00378,residential,QX1010,2,76.3,0,0
+SC00379,downtown,QX1010,11,79.6,2,0
+SC00380,waterfront,QX2080,2,92,0,0
+SC00381,residential,QX2080,2,97.6,0,0
+SC00382,waterfront,QX3000,3,87.7,0,0
+SC00383,residential,QX2080,2,91.9,0,0
+SC00384,downtown,QX2080,4,,0,0
+SC00385,university,QX1010,7,80.1,0,0
+SC00386,downtown,QX3000,13,74.8,4,0
+SC00387,residential,QX2080,5,83.4,2,0
+SC00388,university,QX3000,7,96.1,1,0
+SC00389,downtown,QX1010,12,78.5,0,0
+SC00390,waterfront,QX3000,4,76.8,0,0
+SC00391,downtown,QX2080,9,66.6,2,1
+SC00392,university,QX1010,15,88,0,0
+SC00393,residential,QX2080,6,84.1,0,0
+SC00394,downtown,QX2080,9,81.1,2,0
+SC00395,university,QX1010,9,75.9,0,0
+SC00396,residential,QX2080,5,82.8,2,0
+SC00397,downtown,QX3000,na,74,0,0
+SC00398,university,QX1010,6,84.5,0,0
+SC00399,downtown,QX2080,7,68.9,0,1
+SC00400,university,QX1010,9,75.7,3,1
+SC00401,downtown,QX1010,5,76.5,0,0
+SC00402,waterfront,QX3000,2,58.7,2,1
+SC00403,residential,QX2080,4,78.4,0,1
+SC00404,downtown,QX1010,10,70.4,4,1
+SC00405,city center,QX3000,8,79.8,0,0
+SC00406,university,QX3000,11,79.2,0,0
+SC00407,residential,QX1010,7,95.4,3,0
+SC00408,city center,QX3000,4,87.4,1,0
+SC00409,downtown,QX1010,10,80.8,1,0
+SC00410,downtown,QX3000,6,87.4,0,0
+SC00411,waterfront,QX2080,4,88.7,1,0
+SC00412,city center,QX2080,4,85.2,0,0
+SC00413,residential,QX1010,na,85.2,2,0
+SC00414,city center,QX3000,8,87.6,0,0
+SC00415,waterfront,QX1010,0,65.4,0,0
+SC00416,downtown,QX1010,5,99.8,0,0
+SC00417,downtown,QX1010,6,94.7,0,0
+SC00418,waterfront,QX2080,2,84.7,0,0
+SC00419,waterfront,QX1010,5,70,1,0
+SC00420,city center,QX3000,6,93.5,1,0
+SC00421,city center,QX2080,5,74.6,0,0
+SC00422,city center,QX1010,7,84.9,0,0
+SC00423,city center,QX1010,15,63.1,1,0
+SC00424,downtown,QX1010,4,100,1,0
+SC00425,residential,QX2080,8,65.8,0,0
+SC00426,downtown,QX3000,4,85.4,1,0
+SC00427,residential,QX1010,2,66.4,0,0
+SC00428,downtown,QX3000,5,83.6,2,0
+SC00429,downtown,QX1010,8,76,2,0
+SC00430,university,QX3000,3,95.3,0,0
+SC00431,city center,QX3000,5,80.4,0,0
+SC00432,university,QX2080,7,88.6,2,0
+SC00433,downtown,QX2080,6,71,0,1
+SC00434,waterfront,QX3000,2,84,0,0
+SC00435,residential,QX1010,2,82.2,0,0
+SC00436,residential,QX1010,9,83,2,0
+SC00437,downtown,QX1010,10,81.1,0,0
+SC00438,city center,QX2080,7,85,0,0
+SC00439,city center,QX2080,11,78,1,1
+SC00440,university,QX2080,6,85.3,2,0
+SC00441,city center,QX3000,8,74,0,1
+SC00442,downtown,QX1010,11,80.5,0,0
+SC00443,city center,QX2080,6,93.4,0,0
+SC00444,downtown,QX1010,8,65.3,0,0
+SC00445,city center,QX1010,5,86.2,0,0
+SC00446,downtown,QX2080,2,88.7,0,0
+SC00447,downtown,QX3000,6,95.6,0,0
+SC00448,university,QX2080,8,84.3,0,0
+SC00449,city center,QX1010,7,81.3,0,0
+SC00450,city center,QX2080,9,81,0,0
+SC00451,university,QX1010,7,74.2,1,0
+SC00452,residential,QX3000,7,79.1,0,0
+SC00453,city center,QX2080,7,,3,0
+SC00454,university,QX1010,10,90.6,0,0
+SC00455,waterfront,QX1010,2,88.2,0,0
+SC00456,university,QX1010,7,72.6,0,1
+SC00457,waterfront,QX3000,2,88.7,0,0
+SC00458,residential,QX2080,8,88,1,0
+SC00459,downtown,QX2080,9,85.7,0,0
+SC00460,city center,QX2080,8,70.2,0,0
+SC00461,university,QX2080,4,54.7,0,1
+SC00462,waterfront,QX1010,2,87.8,0,0
+SC00463,city center,QX3000,4,77.3,0,0
+SC00464,downtown,QX1010,8,84.9,0,0
+SC00465,university,QX2080,5,88.6,0,0
+SC00466,downtown,QX2080,10,86,0,0
+SC00467,residential,QX2080,3,96.9,2,0
+SC00468,university,QX3000,14,,0,0
+SC00469,residential,QX1010,8,94.5,3,1
+SC00470,residential,QX2080,4,93,0,0
+SC00471,university,QX1010,11,,0,0
+SC00472,university,QX2080,13,73.8,1,1
+SC00473,residential,QX1010,na,69.4,0,0
+SC00474,residential,QX1010,3,100,0,0
+SC00475,residential,QX1010,6,81.7,2,0
+SC00476,downtown,QX1010,7,90.8,1,0
+SC00477,university,QX1010,8,74.9,0,0
+SC00478,downtown,QX2080,8,86.3,0,0
+SC00479,residential,QX2080,9,56.5,2,0
+SC00480,university,QX1010,1,81.7,3,0
+SC00481,city center,QX1010,2,83.6,0,0
+SC00482,downtown,QX1010,5,85.9,0,0
+SC00483,city center,QX2080,na,87.2,1,0
+SC00484,residential,QX1010,2,75.1,0,0
+SC00485,downtown,QX1010,5,87.6,2,0
+SC00486,downtown,QX1010,10,,0,1
+SC00487,residential,QX2080,5,100,3,0
+SC00488,residential,QX1010,3,89.6,0,0
+SC00489,downtwon,QX2080,4,77.4,0,0
+SC00490,city center,QX2080,8,67.3,0,0
+SC00491,waterfront,QX2080,4,96.8,0,0
+SC00492,residential,QX2080,na,85.2,0,0
+SC00493,university,QX2080,10,,0,0
+SC00494,city center,QX1010,3,69.8,3,0
+SC00495,city center,QX2080,4,73.4,0,0
+SC00496,downtown,QX2080,7,84.3,2,0
+SC00497,residential,QX1010,7,83.4,0,0
+SC00498,downtown,QX2080,6,63.2,2,0
+SC00499,downtown,QX1010,8,85,0,0
+SC00500,residential,QX2080,3,68.8,0,0
+SC00501,waterfront,QX2080,3,,0,0
+SC00502,residential,QX3000,11,81,0,1
+SC00503,city center,QX3000,8,77.7,1,0
+SC00504,city center,QX2080,4,89.7,2,0
+SC00505,city center,QX2080,4,84.3,1,1
+SC00506,city center,QX2080,7,90.2,2,0
+SC00507,university,QX1010,4,83.5,1,1
+SC00508,city center,QX3000,10,81.2,2,0
+SC00509,university,QX2080,2,80.5,1,0
+SC00510,residential,QX1010,4,85,0,0
+SC00511,waterfront,QX1010,3,98,0,1
+SC00512,downtown,QX3000,8,77.3,0,0
+SC00513,city center,QX1010,4,88.3,1,0
+SC00514,downtown,QX1010,5,74.5,0,0
+SC00515,city center,QX1010,9,61.2,0,0
+SC00516,city center,QX1010,13,77.4,3,1
+SC00517,downtown,QX1010,7,83.5,0,0
+SC00518,residential,QX2080,2,82,0,0
+SC00519,city center,QX1010,6,68.5,2,0
+SC00520,waterfront,QX3000,6,85.8,0,0
+SC00521,downtown,QX3000,6,85.5,0,0
+SC00522,downtown,QX1010,9,71.2,0,0
+SC00523,city center,QX1010,8,68.1,0,0
+SC00524,downtown,QX2080,7,76.8,0,0
+SC00525,downtown,QX1010,6,86.7,0,1
+SC00526,waterfront,QX1010,5,85.5,0,0
+SC00527,downtown,QX3000,10,72.5,-2,0
+SC00528,downtown,QX3000,8,82.8,0,0
+SC00529,university,QX2080,3,89.6,0,0
+SC00530,city center,QX1010,8,69.6,0,0
+SC00531,university,QX2080,9,77.8,0,0
+SC00532,city center,QX2080,7,90.3,0,0
+SC00533,residential,QX1010,4,72,0,0
+SC00534,downtown,QX2080,4,91.1,0,0
+SC00535,city center,QX1010,2,,1,0
+SC00536,university,QX1010,10,76.1,0,0
+SC00537,residential,QX2080,2,80,2,0
+SC00538,city center,QX1010,8,88.4,0,1
+SC00539,university,QX1010,5,80.4,1,0
+SC00540,downtown,QX3000,9,60.8,0,0
+SC00541,downtown,QX3000,4,84,1,0
+SC00542,downtown,QX2080,8,82.1,3,0
+SC00543,residential,QX3000,5,90.3,0,0
+SC00544,city center,QX3000,na,73.3,0,0
+SC00545,residential,QX1010,4,80.5,2,0
+SC00546,downtown,QX1010,8,87.9,3,1
+SC00547,residential,QX1010,7,79.9,1,0
+SC00548,residential,QX1010,4,69.8,0,0
+SC00549,downtown,QX2080,5,91,0,0
+SC00550,downtown,QX1010,8,77.8,0,0
+SC00551,downtown,QX2080,12,84.2,4,0
+SC00552,residential,QX1010,3,71.7,0,0
+SC00553,downtown,QX1010,4,81.8,0,0
+SC00554,university,QX3000,6,87.5,0,0
+SC00555,city center,QX1010,6,80.5,0,0
+SC00556,residential,QX1010,6,71.1,2,0
+SC00557,city center,QX1010,3,63.3,0,0
+SC00558,university,QX2080,11,88.6,2,0
+SC00559,waterfront,QX2080,2,85,0,0
+SC00560,downtown,QX2080,8,88,0,0
+SC00561,residential,QX1010,na,93.9,0,0
+SC00562,downtown,QX1010,4,87.9,0,0
+SC00563,city center,QX3000,6,80.5,0,0
+SC00564,residential,QX2080,9,81.5,4,0
+SC00565,university,QX2080,11,,0,0
+SC00566,university,QX2080,13,74.8,0,0
+SC00567,downtown,QX2080,5,96.7,2,1
+SC00568,city center,QX1010,6,68.5,0,0
+SC00569,city center,QX1010,6,67.5,0,0
+SC00570,university,QX2080,6,88.1,0,0
+SC00571,city center,QX1010,4,75.8,0,0
+SC00572,city center,QX3000,9,98.2,0,0
+SC00573,city center,QX2080,9,88.7,0,0
+SC00574,downtown,QX2080,11,89.2,0,0
+SC00575,city center,QX3000,4,92.3,0,0
+SC00576,downtown,QX2080,7,71.1,3,0
+SC00577,residential,QX3000,5,69.9,2,0
+SC00578,university,QX2080,7,91.6,0,0
+SC00579,downtown,QX3000,7,69.7,0,0
+SC00580,university,QX1010,4,96.3,2,0
+SC00581,residential,QX2080,4,87,0,0
+SC00582,downtown,QX2080,8,77.5,3,0
+SC00583,downtown,QX1010,15,77.8,0,0
+SC00584,downtwon,QX1010,6,85.2,0,0
+SC00585,downtown,QX3000,6,81.5,0,0
+SC00586,residential,QX2080,1,95.8,3,0
+SC00587,waterfront,QX1010,4,94.6,0,0
+SC00588,downtown,QX1010,11,78.5,0,0
+SC00589,residential,QX1010,6,76.1,0,0
+SC00590,downtown,QX1010,9,89.9,3,0
+SC00591,university,QX3000,4,67.6,0,1
+SC00592,residential,QX1010,6,85,4,0
+SC00593,city center,QX1010,8,85.9,0,0
+SC00594,downtown,QX2080,8,71.1,0,1
+SC00595,university,QX1010,7,88.7,0,0
+SC00596,waterfront,QX1010,2,84.2,3,0
+SC00597,downtown,QX2080,9,72.7,0,0
+SC00598,downtown,QX2080,7,87.1,0,1
+SC00599,downtown,QX3000,4,75.6,1,0
+SC00600,university,QX2080,3,89.5,0,0
+SC00601,university,QX2080,6,62.9,0,0
+SC00602,residential,QX2080,3,84.5,0,1
+SC00603,residential,QX3000,6,83.6,2,1
+SC00604,residential,QX2080,4,76.7,0,0
+SC00605,residential,QX3000,7,85.7,3,0
+SC00606,downtown,QX2080,11,75,2,0
+SC00607,university,QX3000,9,89.8,0,0
+SC00608,city center,QX1010,2,89.2,0,0
+SC00609,city center,QX2080,4,85.1,2,0
+SC00610,waterfront,QX1010,1,87.7,1,0
+SC00611,university,QX2080,7,74.9,2,0
+SC00612,waterfront,QX2080,5,77.9,0,0
+SC00613,city center,QX3000,6,85.3,2,0
+SC00614,university,QX3000,9,79.3,1,0
+SC00615,city center,QX1010,na,92.2,3,0
+SC00616,downtown,QX2080,18,70.9,0,0
+SC00617,downtown,QX2080,5,83.7,1,0
+SC00618,university,QX1010,8,67.7,1,0
+SC00619,downtown,QX1010,6,89.2,1,0
+SC00620,waterfront,QX1010,3,,3,0
+SC00621,downtown,QX2080,10,67.6,1,0
+SC00622,downtown,QX2080,4,95.3,0,0
+SC00623,residential,QX3000,5,89.9,0,0
+SC00624,downtown,QX2080,na,80,0,1
+SC00625,waterfront,QX3000,5,87.9,2,0
+SC00626,residential,QX1010,3,82.8,0,1
+SC00627,downtown,QX2080,8,75.7,3,0
+SC00628,university,QX1010,7,87,3,0
+SC00629,university,QX2080,6,89.3,2,0
+SC00630,residential,QX3000,3,85,2,0
+SC00631,residential,QX3000,4,100,1,0
+SC00632,residential,QX3000,4,83.1,0,1
+SC00633,university,QX1010,8,67.8,0,0
+SC00634,city center,QX1010,9,,0,1
+SC00635,university,QX1010,11,62.9,2,0
+SC00636,waterfront,QX1010,0,82.5,0,0
+SC00637,university,QX2080,7,76.9,0,0
+SC00638,university,QX2080,6,,2,0
+SC00639,city center,QX2080,9,,0,0
+SC00640,residential,QX3000,5,91.2,1,0
+SC00641,waterfront,QX2080,5,80.9,0,0
+SC00642,downtown,QX3000,8,81.7,3,0
+SC00643,downtown,QX1010,13,70.7,0,1
+SC00644,university,QX1010,4,,2,0
+SC00645,city center,QX2080,9,64.3,4,0
+SC00646,university,QX3000,7,85,0,0
+SC00647,downtown,QX1010,9,77.3,0,0
+SC00648,city center,QX2080,8,84.7,4,0
+SC00649,university,QX2080,6,79.5,0,1
+SC00650,university,QX1010,3,83.7,1,1
+SC00651,university,QX1010,9,76.5,0,0
+SC00652,residential,QX3000,6,95,1,0
+SC00653,university,QX2080,8,78.1,0,0
+SC00654,residential,QX1010,7,97.1,0,0
+SC00655,university,QX3000,8,83.9,0,0
+SC00656,university,QX1010,4,,0,0
+SC00657,university,QX3000,na,82,0,0
+SC00658,downtown,QX1010,8,84.4,2,0
+SC00659,downtown,QX2080,7,73.9,2,0
+SC00660,university,QX1010,9,80,2,0
+SC00661,residential,QX1010,4,82.9,3,0
+SC00662,university,QX3000,9,83.6,1,0
+SC00663,downtown,QX1010,5,85,0,0
+SC00664,university,QX1010,6,84.6,1,1
+SC00665,downtown,QX1010,8,80.4,0,0
+SC00666,residential,QX2080,5,93.8,0,0
+SC00667,residential,QX3000,6,86.8,3,0
+SC00668,university,QX3000,8,100,1,0
+SC00669,university,QX1010,9,79.2,0,0
+SC00670,city center,QX1010,12,84.6,0,0
+SC00671,city center,QX1010,9,72.6,0,0
+SC00672,residential,QX2080,5,92.4,3,0
+SC00673,residential,QX3000,3,79.6,0,0
+SC00674,university,QX2080,10,80.4,4,0
+SC00675,city center,QX2080,6,77.5,0,0
+SC00676,downtown,QX1010,13,79.4,0,0
+SC00677,downtown,QX3000,7,80.4,1,0
+SC00678,downtown,QX2080,6,73,0,0
+SC00679,city center,QX1010,10,75.7,2,0
+SC00680,waterfront,QX1010,3,96.7,0,0
+SC00681,university,QX1010,3,87.6,2,0
+SC00682,downtown,QX1010,10,67,0,0
+SC00683,downtown,QX1010,9,88.1,1,0
+SC00684,city center,QX2080,9,69.7,3,1
+SC00685,residential,QX2080,4,87.6,0,0
+SC00686,city center,QX1010,4,87.5,3,0
+SC00687,residential,QX1010,7,85.6,0,0
+SC00688,residential,QX3000,8,97.4,0,0
+SC00689,downtown,QX2080,11,68.7,4,1
+SC00690,university,QX2080,6,84.9,1,0
+SC00691,waterfront,QX1010,3,94.3,3,0
+SC00692,city center,QX3000,1,81.7,1,0
+SC00693,downtown,QX1010,7,74.1,0,0
+SC00694,waterfront,QX1010,2,82,0,0
+SC00695,residential,QX3000,6,86,0,0
+SC00696,university,QX2080,7,66.9,0,0
+SC00697,university,QX2080,4,86,0,0
+SC00698,downtown,QX2080,10,64.5,0,1
+SC00699,residential,QX2080,6,90.7,0,0
+SC00700,city center,QX1010,6,85.6,0,0
+SC00701,downtown,QX1010,7,96.7,0,0
+SC00702,university,QX1010,7,86.1,2,0
+SC00703,waterfront,QX1010,3,81,0,0
+SC00704,residential,QX3000,4,78,2,0
+SC00705,downtown,QX1010,9,80.8,2,0
+SC00706,downtown,QX2080,11,75.4,0,0
+SC00707,waterfront,QX2080,1,93.8,1,0
+SC00708,waterfront,QX2080,3,74.2,1,0
+SC00709,university,QX1010,4,100,0,0
+SC00710,university,QX2080,4,92.1,1,0
+SC00711,city center,QX3000,4,83.1,0,0
+SC00712,city center,QX2080,3,97.4,0,0
+SC00713,downtown,QX3000,3,78.9,3,0
+SC00714,downtown,QX3000,3,87.3,4,1
+SC00715,downtown,QX2080,na,64.8,4,0
+SC00716,residential,QX1010,5,97.7,1,0
+SC00717,downtown,QX2080,6,65.7,1,0
+SC00718,downtown,QX1010,11,65,0,0
+SC00719,university,QX2080,4,75.9,0,0
+SC00720,downtown,QX3000,8,92.8,0,1
+SC00721,downtown,QX2080,12,83,0,0
+SC00722,university,QX1010,12,77.4,3,0
+SC00723,city center,QX1010,5,90.7,0,1
+SC00724,university,QX3000,na,79.8,0,0
+SC00725,waterfront,QX1010,8,83.2,0,0
+SC00726,downtwon,QX1010,10,92,0,0
+SC00727,waterfront,QX1010,2,82.3,0,0
+SC00728,waterfront,QX1010,4,76.3,0,0
+SC00729,residential,QX2080,3,86.1,0,0
+SC00730,university,QX2080,9,83.6,0,1
+SC00731,university,QX1010,6,,0,0
+SC00732,university,QX1010,5,90.5,3,0
+SC00733,university,QX1010,6,79.5,0,0
+SC00734,downtown,QX1010,8,80.7,0,0
+SC00735,waterfront,QX1010,2,87.6,0,0
+SC00736,university,QX2080,na,81.3,3,0
+SC00737,residential,QX1010,2,98.1,0,0
+SC00738,city center,QX1010,7,83.5,0,0
+SC00739,downtown,QX1010,9,76.2,1,0
+SC00740,university,QX1010,6,85.7,3,0
+SC00741,university,QX1010,9,87.4,0,0
+SC00742,city center,QX1010,5,88.6,0,0
+SC00743,city center,QX3000,3,91.7,0,0
+SC00744,downtown,QX1010,8,66.9,0,1
+SC00745,university,QX2080,6,58.5,0,1
+SC00746,city center,QX2080,6,90.5,1,0
+SC00747,waterfront,QX1010,5,85.7,0,1
+SC00748,downtown,QX1010,4,82.6,0,0
+SC00749,city center,QX2080,11,,0,0
+SC00750,city center,QX3000,5,100,0,0
+SC00751,university,QX1010,8,91.6,0,0
+SC00752,city center,QX1010,2,92.6,0,0
+SC00753,university,QX1010,8,,0,0
+SC00754,waterfront,QX2080,4,74.9,0,0
+SC00755,city center,QX2080,8,57.8,0,1
+SC00756,university,QX1010,9,84.2,2,0
+SC00757,downtown,QX1010,5,,0,0
+SC00758,downtown,QX3000,12,88.5,0,1
+SC00759,city center,QX1010,10,83.7,1,0
+SC00760,downtown,QX2080,8,76.8,1,0
+SC00761,university,QX2080,5,75.7,0,0
+SC00762,university,QX1010,7,73.4,0,0
+SC00763,residential,QX1010,4,81.4,0,0
+SC00764,university,QX1010,11,68.9,0,0
+SC00765,university,QX3000,10,94.9,-5,1
+SC00766,city center,QX1010,9,67.7,0,0
+SC00767,downtown,QX1010,7,78.7,0,0
+SC00768,downtown,QX1010,6,64.7,0,0
+SC00769,university,QX1010,5,84.5,0,0
+SC00770,waterfront,QX2080,5,80.5,0,0
+SC00771,downtown,QX1010,9,75.8,0,0
+SC00772,university,QX2080,4,73.4,0,1
+SC00773,residential,QX2080,6,79.7,1,0
+SC00774,residential,QX3000,6,78.6,2,0
+SC00775,university,QX1010,8,78.4,2,0
+SC00776,university,QX3000,7,99,2,0
+SC00777,university,QX2080,na,80.4,2,1
+SC00778,residential,QX1010,2,88.9,1,0
+SC00779,downtown,QX2080,na,73.4,0,0
+SC00780,waterfront,QX3000,5,77.3,0,0
+SC00781,downtown,QX1010,11,77,0,0
+SC00782,residential,QX3000,4,100,1,0
+SC00783,downtown,QX2080,11,73.3,1,0
+SC00784,downtown,QX2080,10,79.6,0,0
+SC00785,downtown,QX3000,7,75.4,3,0
+SC00786,city center,QX1010,9,55.4,-4,0
+SC00787,city center,QX3000,5,77.3,1,0
+SC00788,downtown,QX1010,7,100,0,0
+SC00789,city center,QX2080,5,85.6,0,0
+SC00790,city center,QX2080,8,92,0,0
+SC00791,residential,QX1010,4,79.8,0,0
+SC00792,residential,QX1010,4,62.8,0,0
+SC00793,university,QX1010,3,74.2,0,0
+SC00794,downtown,QX1010,8,,0,0
+SC00795,city center,QX1010,2,86.4,0,0
+SC00796,waterfront,QX1010,5,81.9,0,0
+SC00797,downtown,QX1010,10,73.5,0,0
+SC00798,city center,QX1010,10,86,3,0
+SC00799,waterfront,QX2080,5,76.2,0,0
+SC00800,waterfront,QX2080,2,85.5,2,0
+SC00801,city center,QX2080,8,79.8,0,1
+SC00802,university,QX1010,13,72.5,0,0
+SC00803,city center,QX3000,na,74.9,2,0
+SC00804,residential,QX2080,8,74.5,1,0
+SC00805,downtown,QX1010,5,97.9,3,0
+SC00806,downtown,QX1010,11,86.7,1,0
+SC00807,university,QX2080,9,86,0,1
+SC00808,downtown,QX1010,8,72.9,2,1
+SC00809,university,QX2080,5,68.3,0,0
+SC00810,city center,QX3000,7,91.7,2,0
+SC00811,residential,QX1010,1,92.9,1,0
+SC00812,residential,QX1010,9,80,2,0
+SC00813,city center,QX3000,10,76.9,3,0
+SC00814,residential,QX2080,2,70.5,2,0
+SC00815,downtown,QX1010,10,85.4,0,0
+SC00816,city center,QX3000,5,94.1,0,0
+SC00817,downtown,QX3000,7,76.6,2,0
+SC00818,residential,QX2080,4,74.8,1,0
+SC00819,residential,QX2080,8,88.6,0,0
+SC00820,waterfront,QX1010,2,78.9,4,0
+SC00821,residential,QX1010,8,94.7,0,0
+SC00822,waterfront,QX2080,2,82,2,0
+SC00823,downtown,QX1010,3,80.3,5,0
+SC00824,waterfront,QX2080,5,80.9,0,0
+SC00825,university,QX3000,6,79.9,0,0
+SC00826,city center,QX1010,5,91.6,2,0
+SC00827,university,QX2080,4,88.8,0,1
+SC00828,city center,QX1010,7,89.6,1,0
+SC00829,city center,QX3000,7,84,0,0
+SC00830,downtown,QX1010,8,75.7,0,0
+SC00831,downtown,QX2080,10,76.4,0,1
+SC00832,city center,QX2080,1,80.1,1,0
+SC00833,residential,QX1010,8,92.1,0,0
+SC00834,university,QX2080,8,86.6,2,1
+SC00835,university,QX2080,7,78.1,1,0
+SC00836,city center,QX2080,8,70.2,0,1
+SC00837,city center,QX2080,na,92,0,0
+SC00838,downtown,QX3000,14,78,0,0
+SC00839,residential,QX1010,5,80.9,3,0
+SC00840,downtown,QX2080,3,95.3,0,0
+SC00841,residential,QX1010,3,79.3,2,0
+SC00842,residential,QX2080,3,79.4,3,0
+SC00843,university,QX2080,6,77.7,3,0
+SC00844,residential,QX1010,3,72.4,0,0
+SC00845,city center,QX1010,9,81.5,2,0
+SC00846,residential,QX3000,3,79.1,1,0
+SC00847,residential,QX1010,0,81.1,2,0
+SC00848,residential,QX2080,7,72.9,0,0
+SC00849,university,QX1010,6,76.2,0,0
+SC00850,residential,QX3000,2,79.3,0,1
+SC00851,waterfront,QX1010,na,84.9,1,0
+SC00852,city center,QX1010,10,76.7,1,0
+SC00853,residential,QX3000,4,,4,0
+SC00854,residential,QX3000,2,100,0,0
+SC00855,city center,QX1010,7,79.1,1,0
+SC00856,waterfront,QX2080,5,85.6,0,0
+SC00857,city center,QX2080,7,85,2,0
+SC00858,university,QX3000,7,81.9,0,0
+SC00859,downtown,QX1010,2,86.7,4,0
+SC00860,downtown,QX2080,3,82.3,2,0
+SC00861,residential,QX2080,3,83.8,0,0
+SC00862,city center,QX2080,7,73.9,0,0
+SC00863,city center,QX2080,5,76.3,0,0
+SC00864,downtown,QX2080,7,79,0,0
+SC00865,city center,QX1010,6,64.4,0,0
+SC00866,residential,QX3000,3,98.3,-4,0
+SC00867,residential,QX3000,5,100,0,0
+SC00868,downtown,QX2080,7,80.3,0,0
+SC00869,university,QX1010,5,,2,0
+SC00870,city center,QX1010,6,90.4,0,0
+SC00871,university,QX2080,3,70.8,0,0
+SC00872,city center,QX1010,6,89.1,1,0
+SC00873,city center,QX3000,6,79.6,0,0
+SC00874,city center,QX1010,7,99.9,4,0
+SC00875,university,QX2080,7,77.3,1,0
+SC00876,university,QX3000,11,86.9,1,0
+SC00877,city center,QX1010,6,,0,0
+SC00878,residential,QX1010,4,100,0,0
+SC00879,residential,QX2080,3,,3,0
+SC00880,city center,QX2080,5,90.4,2,0
+SC00881,residential,QX1010,5,87.3,0,0
+SC00882,residential,QX2080,7,82.3,1,0
+SC00883,downtown,QX3000,5,85.9,2,1
+SC00884,university,QX2080,9,71.6,3,0
+SC00885,city center,QX1010,na,61.6,0,0
+SC00886,residential,QX1010,0,95.1,0,0
+SC00887,downtown,QX1010,8,75.4,0,1
+SC00888,university,QX1010,4,92.7,0,0
+SC00889,downtown,QX1010,8,82.6,1,0
+SC00890,university,QX2080,5,90.7,0,0
+SC00891,waterfront,QX1010,2,91.2,0,0
+SC00892,city center,QX3000,na,63.1,0,0
+SC00893,residential,QX1010,4,88,2,0
+SC00894,waterfront,QX1010,3,80.7,2,0
+SC00895,residential,QX2080,3,92,2,0
+SC00896,downtown,QX3000,8,86.6,2,0
+SC00897,residential,QX1010,7,85.5,3,0
+SC00898,downtown,QX1010,10,75.7,0,0
+SC00899,city center,QX1010,5,74.2,0,0
+SC00900,residential,QX2080,2,79.2,1,0
+SC00901,university,QX2080,3,66.8,2,1
+SC00902,university,QX1010,10,73,0,0
+SC00903,city center,QX1010,7,68,1,0
+SC00904,residential,QX2080,4,69.1,0,0
+SC00905,residential,QX3000,6,84.2,1,0
+SC00906,city center,QX2080,7,83.4,0,0
+SC00907,residential,QX2080,8,77.8,0,0
+SC00908,downtown,QX1010,8,75.4,3,0
+SC00909,downtown,QX1010,7,72.3,1,0
+SC00910,university,QX1010,3,80.9,2,0
+SC00911,waterfront,QX2080,2,75.9,0,0
+SC00912,downtwon,QX3000,9,80.3,0,0
+SC00913,downtown,QX3000,3,72.7,0,0
+SC00914,downtown,QX3000,3,91.6,0,0
+SC00915,residential,QX3000,4,80,0,0
+SC00916,downtown,QX3000,8,84.8,0,0
+SC00917,university,QX1010,9,86.3,0,0
+SC00918,waterfront,QX1010,2,87.2,0,0
+SC00919,downtown,QX1010,8,86.4,0,0
+SC00920,university,QX2080,3,64.5,0,1
+SC00921,university,QX1010,5,77.8,0,0
+SC00922,residential,QX3000,0,97.4,1,0
+SC00923,city center,QX2080,10,80.8,4,0
+SC00924,city center,QX2080,4,97,4,0
+SC00925,downtown,QX1010,4,97.3,0,0
+SC00926,residential,QX1010,1,87.7,-3,0
+SC00927,residential,QX1010,6,79.1,0,0
+SC00928,downtown,QX3000,7,74.3,0,1
+SC00929,city center,QX2080,6,75.7,1,0
+SC00930,residential,QX2080,1,80.2,0,0
+SC00931,downtown,QX1010,6,76.2,2,0
+SC00932,city center,QX1010,13,67.8,2,1
+SC00933,university,QX1010,6,84.6,0,0
+SC00934,city center,QX2080,7,93.3,0,0
+SC00935,downtown,QX2080,9,85.2,2,0
+SC00936,city center,QX1010,6,78.5,0,0
+SC00937,downtown,QX3000,12,87,0,1
+SC00938,university,QX1010,4,85.7,0,0
+SC00939,residential,QX3000,9,80.5,2,0
+SC00940,university,QX1010,2,83.5,0,0
+SC00941,downtwon,QX1010,7,78.7,2,0
+SC00942,residential,QX3000,8,87.1,2,0
+SC00943,downtown,QX1010,13,76.8,0,1
+SC00944,residential,QX1010,7,74.2,0,0
+SC00945,city center,QX1010,6,74.6,3,0
+SC00946,residential,QX1010,4,85.4,0,0
+SC00947,downtown,QX2080,5,84.1,0,0
+SC00948,downtown,QX3000,11,76.5,0,0
+SC00949,city center,QX3000,6,73.6,3,0
+SC00950,downtown,QX1010,9,89.4,3,0
+SC00951,downtown,QX2080,6,88.5,0,0
+SC00952,residential,QX1010,3,66.7,0,0
+SC00953,residential,QX1010,3,95,0,0
+SC00954,downtown,QX1010,5,80.2,1,1
+SC00955,residential,QX3000,7,84,-5,0
+SC00956,residential,QX3000,4,94.5,2,0
+SC00957,residential,QX2080,2,96.9,1,0
+SC00958,university,QX2080,8,86.6,0,0
+SC00959,university,QX2080,6,81.7,2,0
+SC00960,university,QX2080,7,67.2,2,1
+SC00961,university,QX2080,6,62.5,2,0
+SC00962,waterfront,QX1010,2,91.9,0,0
+SC00963,downtown,QX1010,7,91.8,1,0
+SC00964,city center,QX1010,10,71.1,0,0
+SC00965,downtown,QX3000,6,80.9,3,0
+SC00966,waterfront,QX2080,4,76.6,0,0
+SC00967,city center,QX3000,8,76.6,0,0
+SC00968,university,QX1010,8,88.7,2,0
+SC00969,residential,QX2080,4,83.2,0,0
+SC00970,waterfront,QX1010,5,80.1,0,0
+SC00971,downtown,QX1010,10,100,3,0
+SC00972,residential,QX1010,6,69,0,0
+SC00973,residential,QX1010,5,86.7,2,1
+SC00974,downtown,QX3000,12,69.5,1,0
+SC00975,residential,QX1010,8,78.3,0,0
+SC00976,city center,QX2080,7,80.2,0,0
+SC00977,university,QX2080,8,,2,0
+SC00978,university,QX1010,8,77.4,3,0
+SC00979,downtown,QX2080,12,71.8,0,1
+SC00980,downtown,QX1010,11,74.8,3,1
+SC00981,downtown,QX3000,13,68.4,0,0
+SC00982,downtown,QX3000,10,85.4,0,0
+SC00983,university,QX2080,4,83.7,2,0
+SC00984,city center,QX2080,8,81.8,0,0
+SC00985,downtown,QX1010,14,74.2,0,0
+SC00986,university,QX3000,8,80,0,0
+SC00987,university,QX1010,10,88,4,0
+SC00988,university,QX1010,5,90.7,0,0
+SC00989,waterfront,QX1010,1,97.2,0,0
+SC00990,city center,QX2080,8,81.3,0,0
+SC00991,residential,QX2080,3,93.6,0,0
+SC00992,downtown,QX2080,8,74.6,1,0
+SC00993,residential,QX2080,6,78,0,0
+SC00994,waterfront,QX1010,2,94.6,0,0
+SC00995,residential,QX3000,8,88.8,4,0
+SC00996,university,QX1010,7,77.9,0,0
+SC00997,university,QX2080,8,69.2,0,0
+SC00998,city center,QX1010,8,77.9,1,1
+SC00999,university,QX3000,8,75.8,1,0
+SC01000,residential,QX1010,5,96.7,0,0
+SC01001,waterfront,QX1010,3,90.1,1,0
+SC01002,city center,QX2080,na,73.2,2,0
+SC01003,downtown,QX1010,7,71.5,4,0
+SC01004,university,QX1010,8,73,0,1
+SC01005,downtown,QX2080,6,,1,0
+SC01006,downtown,QX1010,10,76.6,0,0
+SC01007,city center,QX3000,10,89.5,2,0
+SC01008,residential,QX1010,4,74.6,1,1
+SC01009,downtown,QX2080,5,100,1,0
+SC01010,downtwon,QX2080,9,69.3,2,1
+SC01011,downtown,QX2080,9,65.3,0,0
+SC01012,residential,QX2080,6,94.1,0,0
+SC01013,university,QX2080,5,91.7,0,0
+SC01014,downtown,QX3000,7,80.9,0,1
+SC01015,downtown,QX1010,6,84.4,2,0
+SC01016,university,QX1010,9,82.3,3,0
+SC01017,city center,QX2080,8,79.3,0,0
+SC01018,university,QX3000,14,65.8,0,0
+SC01019,city center,QX1010,11,56.1,1,0
+SC01020,waterfront,QX1010,7,73.2,0,0
+SC01021,city center,QX3000,7,97.8,0,0
+SC01022,university,QX2080,4,97.1,0,0
+SC01023,downtown,QX3000,14,74.6,0,0
+SC01024,waterfront,QX2080,5,72.4,3,0
+SC01025,waterfront,QX2080,5,82.9,0,0
+SC01026,residential,QX1010,5,85.7,0,0
+SC01027,city center,QX3000,6,88.3,0,0
+SC01028,downtown,QX1010,16,51.7,0,0
+SC01029,residential,QX2080,6,100,0,0
+SC01030,residential,QX1010,5,91.6,0,0
+SC01031,downtown,QX2080,6,78,2,1
+SC01032,city center,QX2080,7,72.8,1,0
+SC01033,city center,QX2080,6,88.1,0,0
+SC01034,residential,QX3000,7,86.6,0,0
+SC01035,university,QX1010,7,81.2,3,0
+SC01036,university,QX2080,6,83.6,0,0
+SC01037,university,QX1010,9,77.8,0,0
+SC01038,downtown,QX1010,7,83.8,0,0
+SC01039,city center,QX1010,7,86.6,0,0
+SC01040,downtown,QX1010,10,80.9,2,1
+SC01041,residential,QX1010,4,85.3,0,0
+SC01042,city center,QX2080,3,93.9,3,0
+SC01043,city center,QX2080,4,67.7,2,0
+SC01044,downtown,QX2080,6,72.9,1,0
+SC01045,downtown,QX1010,6,81.4,4,0
+SC01046,university,QX1010,13,69.4,3,0
+SC01047,downtown,QX1010,4,79.4,0,0
+SC01048,downtown,QX2080,9,88.2,3,0
+SC01049,residential,QX3000,1,85.9,0,0
+SC01050,city center,QX1010,3,68.1,1,0
+SC01051,city center,QX2080,4,77.7,2,0
+SC01052,city center,QX1010,6,81.7,0,0
+SC01053,residential,QX1010,3,83.9,0,0
+SC01054,city center,QX1010,6,,0,0
+SC01055,residential,QX1010,5,86,0,0
+SC01056,waterfront,QX2080,2,81.7,0,0
+SC01057,university,QX3000,8,71.5,0,0
+SC01058,city center,QX1010,8,75.9,0,0
+SC01059,residential,QX2080,3,76.8,0,0
+SC01060,city center,QX2080,7,76.5,0,1
+SC01061,city center,QX3000,4,90.7,0,0
+SC01062,university,QX2080,5,83.9,0,0
+SC01063,city center,QX1010,4,89.8,0,0
+SC01064,downtown,QX2080,8,74.8,0,0
+SC01065,city center,QX1010,9,91.6,2,0
+SC01066,downtown,QX3000,9,86.5,0,0
+SC01067,city center,QX1010,5,83,0,0
+SC01068,university,QX2080,3,87.2,0,0
+SC01069,waterfront,QX1010,2,78.7,4,0
+SC01070,downtown,QX1010,8,61.7,0,0
+SC01071,university,QX3000,4,79.6,0,0
+SC01072,city center,QX2080,5,86.9,0,0
+SC01073,downtown,QX1010,8,80.3,0,0
+SC01074,downtown,QX3000,4,83.6,0,0
+SC01075,downtown,QX3000,10,72.8,1,1
+SC01076,downtown,QX1010,7,63.8,1,1
+SC01077,downtown,QX2080,7,91,0,0
+SC01078,city center,QX2080,5,78.7,0,0
+SC01079,university,QX2080,9,73.6,0,0
+SC01080,downtown,QX1010,10,72.3,2,0
+SC01081,downtown,QX1010,11,87.9,3,0
+SC01082,downtown,QX3000,6,90.7,0,0
+SC01083,university,QX3000,6,75,0,0
+SC01084,city center,QX3000,6,93.1,0,0
+SC01085,university,QX3000,2,85.2,2,0
+SC01086,downtown,QX2080,9,72.1,0,0
+SC01087,downtown,QX2080,3,79.6,0,0
+SC01088,waterfront,QX2080,3,75.4,0,0
+SC01089,downtwon,QX2080,8,66.9,0,1
+SC01090,downtown,QX2080,2,89.5,1,0
+SC01091,downtown,QX1010,12,74.5,0,0
+SC01092,waterfront,QX2080,2,88.1,0,0
+SC01093,university,QX1010,4,,3,0
+SC01094,university,QX1010,10,82.7,2,0
+SC01095,waterfront,QX2080,4,,1,1
+SC01096,downtown,QX1010,7,73,1,0
+SC01097,waterfront,QX1010,1,90,0,0
+SC01098,downtwon,QX3000,6,72.4,0,0
+SC01099,university,QX3000,4,88,0,0
+SC01100,city center,QX1010,6,69.4,3,0
+SC01101,city center,QX1010,8,79.7,1,1
+SC01102,waterfront,QX1010,3,97.3,0,0
+SC01103,downtown,QX2080,9,83.9,2,0
+SC01104,waterfront,QX3000,4,69.1,2,0
+SC01105,city center,QX1010,7,87.6,3,0
+SC01106,university,QX2080,10,92,0,0
+SC01107,waterfront,QX1010,2,100,0,0
+SC01108,downtown,QX1010,9,82.8,3,0
+SC01109,waterfront,QX3000,2,74.8,3,0
+SC01110,university,QX1010,4,86.5,2,0
+SC01111,residential,QX1010,2,98,1,0
+SC01112,downtown,QX1010,6,79.6,0,0
+SC01113,university,QX2080,10,,2,1
+SC01114,university,QX3000,10,72.9,0,0
+SC01115,city center,QX3000,8,84.8,0,0
+SC01116,downtown,QX1010,10,56.8,0,0
+SC01117,downtown,QX1010,12,68.3,0,1
+SC01118,residential,QX2080,na,80.4,0,0
+SC01119,downtown,QX1010,11,74.1,2,0
+SC01120,residential,QX3000,7,,4,0
+SC01121,waterfront,QX2080,3,77.9,0,0
+SC01122,downtown,QX1010,6,84,0,0
+SC01123,downtown,QX3000,8,80.9,0,0
+SC01124,university,QX1010,4,83.3,0,0
+SC01125,downtown,QX1010,12,82.6,0,0
+SC01126,university,QX2080,8,75.2,0,1
+SC01127,university,QX2080,10,88.1,4,0
+SC01128,university,QX2080,6,71.3,0,0
+SC01129,city center,QX2080,na,98.5,1,0
+SC01130,university,QX3000,5,93.5,1,0
+SC01131,university,QX3000,1,84.2,0,0
+SC01132,downtown,QX2080,7,76.4,0,0
+SC01133,university,QX1010,9,80.6,-3,0
+SC01134,residential,QX2080,3,87.2,0,0
+SC01135,university,QX3000,14,86.1,2,0
+SC01136,city center,QX1010,6,69.8,0,0
+SC01137,city center,QX2080,7,82.6,0,0
+SC01138,downtown,QX1010,9,60.8,0,1
+SC01139,downtown,QX1010,9,77.3,0,0
+SC01140,downtown,QX2080,6,92.1,2,0
+SC01141,waterfront,QX1010,7,68.4,0,1
+SC01142,downtown,QX2080,5,66.9,3,0
+SC01143,residential,QX3000,2,88.3,0,0
+SC01144,downtown,QX3000,4,96.6,0,0
+SC01145,city center,QX1010,10,80.8,0,0
+SC01146,city center,QX1010,4,66.6,1,1
+SC01147,city center,QX2080,5,66.2,0,1
+SC01148,residential,QX3000,4,,4,0
+SC01149,waterfront,QX2080,7,68.9,0,0
+SC01150,residential,QX3000,10,81.2,0,0
+SC01151,downtown,QX1010,15,,0,0
+SC01152,residential,QX3000,3,81.4,2,0
+SC01153,downtown,QX1010,7,95.8,0,0
+SC01154,waterfront,QX1010,5,87,0,0
+SC01155,university,QX2080,5,90.8,4,0
+SC01156,city center,QX1010,6,89,0,0
+SC01157,downtown,QX1010,5,80.7,0,0
+SC01158,downtown,QX1010,7,78.7,0,0
+SC01159,downtown,QX1010,8,77.1,0,0
+SC01160,waterfront,QX2080,1,89.5,0,0
+SC01161,residential,QX1010,5,76.5,0,1
+SC01162,waterfront,QX2080,2,97.6,0,0
+SC01163,downtown,QX3000,7,76.1,0,0
+SC01164,university,QX1010,6,83,2,1
+SC01165,downtown,QX1010,na,78.5,1,0
+SC01166,university,QX3000,8,77.8,2,0
+SC01167,city center,QX3000,5,100,0,0
+SC01168,city center,QX2080,7,75.2,2,0
+SC01169,university,QX3000,na,79,0,0
+SC01170,downtown,QX1010,10,72.4,3,0
+SC01171,city center,QX1010,6,81.5,0,0
+SC01172,university,QX2080,9,,0,0
+SC01173,downtown,QX1010,8,70.1,1,0
+SC01174,waterfront,QX2080,3,78.5,0,0
+SC01175,university,QX2080,7,84.1,2,0
+SC01176,residential,QX2080,5,89.2,2,0
+SC01177,university,QX2080,6,79.9,0,0
+SC01178,residential,QX1010,7,80.9,0,1
+SC01179,residential,QX1010,5,78.9,0,0
+SC01180,residential,QX1010,7,76.1,3,0
+SC01181,university,QX2080,5,72.7,4,1
+SC01182,downtown,QX1010,9,65.6,0,0
+SC01183,downtown,QX1010,5,76,2,1
+SC01184,university,QX1010,11,84.9,0,0
+SC01185,downtown,QX1010,7,76.8,0,0
+SC01186,downtown,QX3000,4,81.9,0,0
+SC01187,downtown,QX1010,4,79.7,0,0
+SC01188,university,QX3000,11,89.8,0,0
+SC01189,downtown,QX1010,6,73.3,0,0
+SC01190,university,QX2080,9,79.7,3,0
+SC01191,residential,QX1010,1,84.6,2,0
+SC01192,residential,QX1010,5,82.6,1,1
+SC01193,city center,QX3000,13,79.7,0,1
+SC01194,university,QX3000,5,84.5,0,0
+SC01195,university,QX3000,3,92.3,3,0
+SC01196,city center,QX1010,7,80.2,0,0
+SC01197,university,QX1010,3,98.4,0,0
+SC01198,downtown,QX2080,10,76.9,0,1
+SC01199,waterfront,QX1010,4,68.3,0,0
+SC01200,downtown,QX2080,11,81.1,3,1
+SC01201,residential,QX2080,2,86.2,0,0
+SC01202,university,QX2080,11,76,0,1
+SC01203,downtown,QX3000,10,77.8,4,1
+SC01204,residential,QX2080,3,64.1,0,0
+SC01205,downtown,QX1010,7,63.9,0,1
+SC01206,residential,QX1010,4,96.8,0,0
+SC01207,university,QX2080,6,74.7,1,0
+SC01208,downtown,QX2080,12,83.1,3,0
+SC01209,downtown,QX1010,10,64.4,0,0
+SC01210,residential,QX1010,1,76.3,1,0
+SC01211,city center,QX2080,5,86.3,2,0
+SC01212,residential,QX3000,6,82.3,0,0
+SC01213,residential,QX2080,6,84.3,0,0
+SC01214,university,QX1010,4,82.7,0,0
+SC01215,downtown,QX1010,18,69.8,3,1
+SC01216,residential,QX2080,3,76.3,0,1
+SC01217,waterfront,QX1010,1,75.1,0,0
+SC01218,downtown,QX2080,8,90,0,0
+SC01219,city center,QX2080,4,94.6,1,1
+SC01220,downtown,QX1010,10,69.2,2,0
+SC01221,city center,QX1010,10,68.6,0,0
+SC01222,residential,QX1010,3,80.6,0,0
+SC01223,city center,QX3000,5,86.9,2,1
+SC01224,university,QX2080,4,79.8,0,0
+SC01225,city center,QX1010,11,81.4,2,0
+SC01226,downtown,QX3000,3,85.2,-4,0
+SC01227,downtown,QX2080,na,75.5,2,0
+SC01228,residential,QX2080,3,100,0,0
+SC01229,university,QX3000,5,79.5,3,0
+SC01230,city center,QX1010,6,95.1,0,0
+SC01231,residential,QX1010,4,95.1,0,0
+SC01232,downtown,QX2080,5,84.8,1,0
+SC01233,downtown,QX1010,10,61.6,0,0
+SC01234,downtown,QX2080,na,79.2,3,1
+SC01235,waterfront,QX1010,3,79.2,0,0
+SC01236,residential,QX1010,4,83,0,0
+SC01237,university,QX1010,7,71.4,2,0
+SC01238,downtown,QX1010,12,82.8,0,0
+SC01239,downtown,QX1010,7,88.8,3,0
+SC01240,university,QX1010,15,83.9,0,0
+SC01241,city center,QX3000,8,78.4,0,0
+SC01242,waterfront,QX1010,2,75.4,2,0
+SC01243,residential,QX1010,10,81,0,0
+SC01244,city center,QX1010,8,94.5,0,1
+SC01245,residential,QX1010,na,85.8,-4,0
+SC01246,waterfront,QX1010,na,85.8,0,0
+SC01247,city center,QX2080,5,78.5,2,0
+SC01248,university,QX1010,5,77.7,0,0
+SC01249,waterfront,QX3000,4,90.4,0,0
+SC01250,downtown,QX3000,8,80.7,0,0
+SC01251,residential,QX1010,5,85.4,0,0
+SC01252,downtown,QX1010,7,,0,0
+SC01253,university,QX1010,5,85,0,0
+SC01254,residential,QX2080,7,83.6,2,0
+SC01255,university,QX1010,10,70.7,2,0
+SC01256,city center,QX3000,6,75.4,0,0
+SC01257,university,QX2080,6,79.3,0,0
+SC01258,downtown,QX3000,3,85.4,0,0
+SC01259,downtown,QX2080,12,70.5,0,1
+SC01260,downtown,QX3000,8,83.6,0,0
+SC01261,university,QX1010,8,87.3,2,0
+SC01262,city center,QX1010,na,89.7,1,1
+SC01263,downtown,QX1010,6,,0,1
+SC01264,residential,QX3000,2,75.2,0,0
+SC01265,city center,QX2080,4,71.4,1,0
+SC01266,city center,QX3000,10,77.5,2,0
+SC01267,city center,QX1010,1,85.9,0,0
+SC01268,downtown,QX3000,8,79.6,2,0
+SC01269,residential,QX2080,6,75,0,0
+SC01270,city center,QX2080,4,78.7,1,0
+SC01271,downtown,QX3000,7,86.5,0,1
+SC01272,waterfront,QX1010,4,71.5,0,0
+SC01273,residential,QX1010,4,100,0,0
+SC01274,residential,QX2080,2,83.1,0,0
+SC01275,residential,QX1010,7,89.3,0,0
+SC01276,waterfront,QX1010,2,79.5,0,0
+SC01277,city center,QX1010,6,86.1,3,0
+SC01278,university,QX1010,5,82.9,0,0
+SC01279,university,QX3000,8,88.9,3,0
+SC01280,downtown,QX2080,5,78.8,0,0
+SC01281,downtown,QX1010,7,93.6,3,0
+SC01282,downtown,QX1010,11,64.5,0,1
+SC01283,university,QX1010,9,86.9,0,0
+SC01284,residential,QX2080,4,82.3,0,0
+SC01285,residential,QX3000,4,76.1,1,1
+SC01286,city center,QX3000,8,98.2,3,0
+SC01287,downtown,QX1010,4,98.5,0,0
+SC01288,city center,QX1010,9,61.2,1,1
+SC01289,university,QX2080,9,78.8,0,0
+SC01290,waterfront,QX2080,2,88.9,0,0
+SC01291,residential,QX2080,4,85.1,0,0
+SC01292,waterfront,QX2080,3,95,2,0
+SC01293,residential,QX2080,7,90,4,0
+SC01294,waterfront,QX1010,1,87.5,1,0
+SC01295,city center,QX1010,4,100,0,0
+SC01296,downtown,QX1010,7,88.4,0,0
+SC01297,downtown,QX1010,7,77.4,3,0
+SC01298,city center,QX1010,8,74.9,0,0
+SC01299,downtwon,QX2080,13,84.7,0,0
+SC01300,downtown,QX1010,8,72.9,3,1
+SC01301,waterfront,QX1010,1,81.7,0,0
+SC01302,downtown,QX2080,4,79.3,0,0
+SC01303,waterfront,QX2080,na,86.7,1,0
+SC01304,residential,QX1010,1,83.6,1,0
+SC01305,university,QX3000,11,68,4,1
+SC01306,university,QX3000,5,93.9,2,0
+SC01307,city center,QX2080,3,78.7,0,0
+SC01308,university,QX2080,8,95.3,1,1
+SC01309,downtown,QX1010,7,83,2,0
+SC01310,waterfront,QX3000,0,98.8,1,0
+SC01311,city center,QX1010,11,,0,0
+SC01312,downtown,QX3000,9,92,0,0
+SC01313,residential,QX2080,3,86.9,0,0
+SC01314,university,QX1010,8,81.6,0,0
+SC01315,city center,QX1010,3,92.9,2,0
+SC01316,university,QX2080,8,99.2,1,0
+SC01317,downtown,QX2080,11,73.4,0,0
+SC01318,university,QX1010,6,88,3,0
+SC01319,downtown,QX2080,5,80.5,0,1
+SC01320,downtown,QX3000,11,83.5,1,0
+SC01321,downtown,QX2080,4,,3,0
+SC01322,city center,QX2080,6,61.4,1,1
+SC01323,city center,QX1010,5,80.3,2,0
+SC01324,city center,QX2080,7,87.4,1,0
+SC01325,downtown,QX1010,4,76.3,1,0
+SC01326,downtown,QX3000,7,90.2,0,0
+SC01327,university,QX1010,2,86,1,0
+SC01328,downtown,QX2080,11,74.1,0,0
+SC01329,university,QX1010,10,85.7,0,0
+SC01330,waterfront,QX1010,3,89.4,3,1
+SC01331,city center,QX2080,7,82.5,2,0
+SC01332,waterfront,QX2080,2,91.5,2,0
+SC01333,downtown,QX2080,9,79,0,1
+SC01334,downtown,QX3000,5,70,0,0
+SC01335,residential,QX3000,4,81.6,0,0
+SC01336,residential,QX3000,3,70.3,2,0
+SC01337,residential,QX1010,6,86.8,1,0
+SC01338,downtown,QX2080,9,84.9,4,0
+SC01339,residential,QX3000,11,87.2,0,0
+SC01340,city center,QX1010,2,88.6,2,0
+SC01341,city center,QX1010,10,86.2,0,0
+SC01342,downtown,QX3000,4,71.4,1,1
+SC01343,waterfront,QX2080,2,82,0,0
+SC01344,downtown,QX2080,5,68.5,0,0
+SC01345,residential,QX3000,6,80.2,0,0
+SC01346,university,QX2080,7,92.6,2,0
+SC01347,residential,QX1010,3,92.9,0,0
+SC01348,residential,QX1010,1,90.8,0,0
+SC01349,residential,QX1010,1,83.7,4,0
+SC01350,downtown,QX1010,13,67.2,2,0
+SC01351,downtown,QX2080,3,83.7,1,0
+SC01352,university,QX3000,7,91.8,0,0
+SC01353,city center,QX1010,7,83.9,2,0
+SC01354,downtown,QX1010,6,67.7,0,1
+SC01355,downtown,QX3000,10,80.9,0,0
+SC01356,city center,QX1010,6,64.9,0,0
+SC01357,downtown,QX2080,5,87.3,0,0
+SC01358,downtown,QX2080,8,72.2,0,0
+SC01359,waterfront,QX2080,5,70.1,0,0
+SC01360,city center,QX1010,10,85,0,1
+SC01361,waterfront,QX2080,2,87.7,1,0
+SC01362,waterfront,QX1010,2,86.4,0,1
+SC01363,downtown,QX2080,7,97.5,0,0
+SC01364,residential,QX1010,4,88.2,0,0
+SC01365,university,QX2080,6,74.2,1,1
+SC01366,university,QX2080,6,84.1,-1,0
+SC01367,downtown,QX1010,6,78.8,0,0
+SC01368,downtown,QX1010,8,90.4,1,0
+SC01369,downtown,QX1010,10,80.4,2,0
+SC01370,university,QX1010,7,83.6,1,0
+SC01371,waterfront,QX1010,2,72.1,0,0
+SC01372,university,QX3000,9,81.3,0,0
+SC01373,residential,QX1010,5,81.5,0,0
+SC01374,waterfront,QX3000,2,77.7,0,0
+SC01375,university,QX3000,6,81.3,0,0
+SC01376,downtown,QX1010,10,81.7,3,0
+SC01377,residential,QX2080,4,81.3,0,0
+SC01378,city center,QX3000,6,71.2,0,0
+SC01379,downtwon,QX2080,7,76.6,2,0
+SC01380,university,QX1010,7,76.4,0,0
+SC01381,waterfront,QX1010,7,82,0,0
+SC01382,downtown,QX1010,10,78.7,1,0
+SC01383,city center,QX2080,8,74.6,0,0
+SC01384,downtown,QX3000,6,79.4,0,0
+SC01385,downtown,QX3000,9,81.4,0,0
+SC01386,downtown,QX1010,7,88.6,0,0
+SC01387,residential,QX2080,5,82.9,1,0
+SC01388,residential,QX1010,5,94.1,0,1
+SC01389,downtown,QX3000,6,92.8,1,0
+SC01390,city center,QX1010,7,93.1,0,0
+SC01391,downtown,QX3000,7,94,2,0
+SC01392,downtown,QX3000,13,90.9,0,0
+SC01393,university,QX1010,6,71.4,3,0
+SC01394,university,QX1010,4,88.3,0,0
+SC01395,university,QX3000,4,95.2,2,0
+SC01396,city center,QX1010,4,94.7,2,0
+SC01397,university,QX2080,3,75.5,0,0
+SC01398,downtown,QX3000,6,88.8,0,0
+SC01399,downtown,QX2080,8,78.7,3,1
+SC01400,waterfront,QX1010,3,99.3,0,0
+SC01401,residential,QX1010,8,67.8,0,0
+SC01402,waterfront,QX1010,7,73.9,1,0
+SC01403,waterfront,QX3000,5,,2,0
+SC01404,university,QX1010,10,79.2,3,0
+SC01405,waterfront,QX1010,4,100,0,0
+SC01406,city center,QX1010,8,79.2,0,0
+SC01407,downtown,QX3000,10,80.9,0,0
+SC01408,downtown,QX1010,8,84.3,2,0
+SC01409,downtown,QX3000,8,80.6,3,0
+SC01410,downtown,QX2080,8,81.2,0,0
+SC01411,city center,QX3000,4,88.1,0,0
+SC01412,residential,QX3000,11,,0,1
+SC01413,residential,QX3000,5,,0,0
+SC01414,university,QX3000,2,92.7,1,0
+SC01415,downtown,QX1010,13,83.5,2,0
+SC01416,residential,QX2080,5,91.5,0,0
+SC01417,city center,QX2080,7,81.8,0,0
+SC01418,downtown,QX2080,8,81.1,0,0
+SC01419,city center,QX3000,8,88,1,1
+SC01420,city center,QX3000,9,75.7,3,0
+SC01421,downtown,QX2080,10,71.1,0,0
+SC01422,residential,QX2080,5,79.4,0,0
+SC01423,residential,QX2080,6,68.9,1,1
+SC01424,university,QX1010,6,84.7,3,0
+SC01425,downtown,QX1010,15,82.9,0,0
+SC01426,residential,QX1010,8,73.6,0,0
+SC01427,university,QX1010,3,87.3,3,1
+SC01428,downtown,QX1010,13,70.3,2,0
+SC01429,university,QX2080,10,67.9,1,0
+SC01430,city center,QX1010,10,95.5,0,0
+SC01431,city center,QX3000,7,73.9,0,0
+SC01432,downtown,QX2080,7,68,0,0
+SC01433,university,QX1010,11,79,2,0
+SC01434,downtown,QX1010,12,78.7,3,0
+SC01435,downtown,QX1010,12,82.1,0,0
+SC01436,downtown,QX3000,11,96.2,2,0
+SC01437,waterfront,QX1010,5,75.4,3,0
+SC01438,city center,QX2080,4,76.4,0,0
+SC01439,city center,QX3000,11,,3,0
+SC01440,city center,QX3000,7,90.4,4,0
+SC01441,residential,QX1010,3,90.4,0,0
+SC01442,university,QX1010,2,79.4,2,0
+SC01443,waterfront,QX1010,2,94,0,0
+SC01444,city center,QX1010,6,88,1,0
+SC01445,downtown,QX1010,10,79.6,2,1
+SC01446,university,QX2080,6,74.7,1,0
+SC01447,city center,QX3000,5,84.9,1,0
+SC01448,residential,QX2080,7,92.9,0,0
+SC01449,residential,QX2080,10,67.2,0,0
+SC01450,city center,QX1010,10,71.2,2,1
+SC01451,waterfront,QX3000,1,81.9,0,0
+SC01452,university,QX2080,12,71.4,4,1
+SC01453,downtown,QX3000,12,78.3,0,1
+SC01454,city center,QX3000,8,89.7,0,0
+SC01455,downtown,QX1010,11,81.1,0,0
+SC01456,residential,QX1010,7,80.9,3,0
+SC01457,downtown,QX1010,6,83.6,0,0
+SC01458,city center,QX1010,5,87.3,4,0
+SC01459,university,QX3000,7,68.1,0,0
+SC01460,downtown,QX1010,9,87.9,2,1
+SC01461,downtown,QX2080,4,74.3,2,0
+SC01462,university,QX2080,3,78.3,0,0
+SC01463,downtown,QX1010,7,83.3,0,0
+SC01464,city center,QX1010,6,80.6,0,0
+SC01465,city center,QX2080,14,77.4,0,0
+SC01466,downtown,QX2080,8,79.3,2,0
+SC01467,downtown,QX1010,10,75.5,0,0
+SC01468,residential,QX1010,7,93.4,2,0
+SC01469,waterfront,QX2080,3,88.1,1,0
+SC01470,downtown,QX1010,10,80.6,0,1
+SC01471,waterfront,QX3000,4,90.7,2,0
+SC01472,university,QX1010,5,76,4,0
+SC01473,university,QX1010,2,100,0,0
+SC01474,residential,QX2080,5,71.3,2,0
+SC01475,residential,QX2080,4,82.3,1,0
+SC01476,residential,QX2080,3,79.7,0,0
+SC01477,city center,QX1010,na,77.6,0,0
+SC01478,university,QX3000,9,76.9,0,0
+SC01479,city center,QX2080,7,72.3,0,1
+SC01480,downtown,QX2080,7,89,2,0
+SC01481,university,QX1010,6,71,0,0
+SC01482,downtown,QX1010,8,88,1,0
+SC01483,downtwon,QX2080,10,82,0,0
+SC01484,downtown,QX1010,7,77.2,0,0
+SC01485,downtown,QX2080,7,83.4,4,0
+SC01486,university,QX1010,8,,0,0
+SC01487,university,QX3000,6,73.8,0,0
+SC01488,city center,QX2080,10,67.2,0,0
+SC01489,downtown,QX3000,8,87.2,0,0
+SC01490,city center,QX2080,6,84.8,0,0
+SC01491,city center,QX1010,2,86.5,0,0
+SC01492,residential,QX3000,4,81.5,1,0
+SC01493,university,QX2080,9,75.7,0,0
+SC01494,city center,QX2080,9,74.5,2,0
+SC01495,city center,QX1010,8,64.8,3,0
+SC01496,waterfront,QX2080,8,78.6,0,0
+SC01497,residential,QX3000,1,91.6,0,0
+SC01498,city center,QX2080,9,77.9,2,0
+SC01499,city center,QX1010,4,97.8,0,0
+SC01500,downtown,QX2080,13,65.6,0,1
+SC01501,waterfront,QX2080,1,78.1,0,0
+SC01502,city center,QX3000,6,84.3,3,0
+SC01503,downtown,QX1010,11,79.3,0,0
+SC01504,waterfront,QX1010,4,66.6,0,0
+SC01505,residential,QX3000,3,90.7,0,0
+SC01506,downtown,QX2080,9,79.4,1,0
+SC01507,downtown,QX2080,12,56.9,0,0
+SC01508,downtown,QX2080,10,75.5,1,0
+SC01509,university,QX1010,6,74.3,0,0
+SC01510,downtown,QX2080,11,71.8,0,0
+SC01511,waterfront,QX1010,0,74.6,0,0
+SC01512,waterfront,QX1010,5,85.5,0,0
+SC01513,university,QX2080,12,89.9,0,0
+SC01514,university,QX2080,4,,3,0
+SC01515,city center,QX3000,8,63.2,0,0
+SC01516,downtown,QX1010,5,84.4,1,0
+SC01517,residential,QX1010,4,81.1,0,0
+SC01518,downtown,QX3000,15,66.6,0,0
+SC01519,downtown,QX1010,11,80.2,0,0
+SC01520,city center,QX1010,3,91.1,1,0
+SC01521,downtown,QX1010,7,74.7,0,0
+SC01522,city center,QX2080,5,66.5,0,0
+SC01523,residential,QX3000,5,66.9,-3,0
+SC01524,residential,QX2080,4,75.6,0,0
+SC01525,university,QX2080,13,72.8,3,0
+SC01526,residential,QX1010,5,77.6,3,0
+SC01527,city center,QX1010,7,74.6,0,0
+SC01528,residential,QX2080,5,85.3,1,0
+SC01529,university,QX1010,6,85.1,0,0
+SC01530,downtown,QX1010,5,83.7,1,0
+SC01531,waterfront,QX1010,4,89.7,1,0
+SC01532,downtown,QX1010,14,69.2,1,1
+SC01533,downtown,QX2080,6,70.4,2,0
+SC01534,downtown,QX2080,2,78.5,2,0
+SC01535,city center,QX1010,4,77.8,0,0
+SC01536,city center,QX2080,7,61.5,0,0
+SC01537,university,QX2080,10,71.9,0,0
+SC01538,residential,QX2080,5,89.9,0,0
+SC01539,city center,QX3000,4,91.6,3,0
+SC01540,university,QX1010,4,87.3,0,0
+SC01541,city center,QX3000,8,82.7,1,0
+SC01542,residential,QX1010,4,95.1,0,0
+SC01543,downtown,QX1010,3,74.6,0,0
+SC01544,downtown,QX1010,12,68.2,0,0
+SC01545,university,QX2080,8,87.7,3,0
+SC01546,university,QX1010,7,80.6,0,0
+SC01547,residential,QX1010,3,77.9,0,0
+SC01548,university,QX2080,na,85.2,0,0
+SC01549,residential,QX1010,5,78.3,3,0
+SC01550,city center,QX1010,3,76.5,0,0
+SC01551,downtown,QX1010,10,70.6,2,0
+SC01552,downtwon,QX1010,6,83.9,0,0
+SC01553,downtown,QX1010,7,82.1,0,0
+SC01554,city center,QX1010,5,94.9,2,0
+SC01555,city center,QX1010,7,77.9,1,0
+SC01556,city center,QX2080,4,78.7,2,0
+SC01557,university,QX3000,13,89.8,0,0
+SC01558,city center,QX2080,10,84.9,5,0
+SC01559,university,QX2080,9,78.5,0,0
+SC01560,university,QX3000,7,69.1,1,1
+SC01561,city center,QX3000,8,74.7,0,1
+SC01562,city center,QX2080,na,69.1,0,0
+SC01563,university,QX3000,9,81.1,0,0
+SC01564,university,QX3000,3,81.3,1,0
+SC01565,city center,QX2080,8,91.7,2,0
+SC01566,city center,QX2080,13,60.7,0,1
+SC01567,university,QX1010,8,69.7,0,1
+SC01568,university,QX1010,5,84.1,0,1
+SC01569,downtown,QX2080,9,81.7,0,0
+SC01570,city center,QX2080,6,57.7,2,1
+SC01571,residential,QX1010,8,64.8,0,0
+SC01572,downtown,QX2080,6,,-4,0
+SC01573,residential,QX2080,5,92,0,0
+SC01574,downtown,QX3000,7,98.4,0,0
+SC01575,university,QX1010,8,76.1,4,0
+SC01576,city center,QX1010,6,79.7,0,0
+SC01577,downtown,QX2080,na,72.6,4,0
+SC01578,waterfront,QX3000,4,90.2,1,0
+SC01579,city center,QX3000,8,94.6,0,0
+SC01580,waterfront,QX3000,1,97.9,0,0
+SC01581,city center,QX3000,6,83,2,0
+SC01582,residential,QX1010,5,74.9,1,0
+SC01583,waterfront,QX1010,2,84.5,0,0
+SC01584,university,QX1010,8,91.3,1,0
+SC01585,downtown,QX2080,na,77.1,0,0
+SC01586,university,QX3000,7,67,0,1
+SC01587,university,QX1010,10,74.9,0,0
+SC01588,waterfront,QX2080,4,,2,0
+SC01589,city center,QX1010,1,69.7,0,0
+SC01590,downtown,QX1010,9,80.8,0,0
+SC01591,downtown,QX1010,10,82.3,0,0
+SC01592,university,QX1010,9,94.6,0,0
+SC01593,waterfront,QX3000,3,74.3,0,0
+SC01594,downtwon,QX1010,4,,2,0
+SC01595,residential,QX3000,4,93,0,0
+SC01596,waterfront,QX2080,1,88.1,1,0
+SC01597,downtown,QX1010,3,75,3,0
+SC01598,downtown,QX1010,11,68.1,2,0
+SC01599,university,QX3000,8,82.4,2,0
+SC01600,university,QX1010,5,82.8,0,0
+SC01601,downtown,QX3000,5,79.2,0,0
+SC01602,residential,QX1010,5,93,0,0
+SC01603,university,QX2080,8,74.7,0,0
+SC01604,waterfront,QX3000,1,71.1,0,0
+SC01605,residential,QX1010,3,81.7,1,0
+SC01606,residential,QX1010,3,87.7,1,0
+SC01607,university,QX3000,4,87.7,0,0
+SC01608,downtown,QX1010,4,85.6,3,0
+SC01609,university,QX1010,9,91.5,0,0
+SC01610,downtwon,QX1010,7,70.9,0,0
+SC01611,university,QX1010,3,80,0,0
+SC01612,downtown,QX2080,11,88.8,0,0
+SC01613,university,QX2080,7,62.2,0,0
+SC01614,downtown,QX1010,7,,0,0
+SC01615,city center,QX3000,6,,0,0
+SC01616,downtown,QX1010,10,88.3,0,0
+SC01617,university,QX1010,7,86,3,1
+SC01618,residential,QX2080,4,87.1,0,0
+SC01619,downtown,QX3000,4,76,1,0
+SC01620,residential,QX1010,4,94.5,1,0
+SC01621,residential,QX1010,7,70.2,0,1
+SC01622,city center,QX2080,10,66.8,0,0
+SC01623,university,QX3000,8,84.9,2,0
+SC01624,city center,QX1010,na,77,0,1
+SC01625,downtown,QX1010,4,84.6,0,0
+SC01626,university,QX2080,7,82.6,3,1
+SC01627,downtown,QX1010,5,97.1,1,0
+SC01628,residential,QX1010,2,88.1,1,0
+SC01629,waterfront,QX1010,2,79.1,2,1
+SC01630,residential,QX1010,5,87.8,0,0
+SC01631,university,QX2080,9,70.2,2,0
+SC01632,university,QX3000,8,,0,0
+SC01633,waterfront,QX2080,1,84.2,2,0
+SC01634,downtown,QX2080,7,82.3,0,0
+SC01635,downtown,QX3000,11,64.1,0,0
+SC01636,university,QX1010,6,62.1,0,0
+SC01637,city center,QX1010,na,65.2,1,0
+SC01638,city center,QX3000,6,98,0,0
+SC01639,downtown,QX1010,8,69.8,3,1
+SC01640,university,QX2080,7,85.1,0,0
+SC01641,downtown,QX2080,5,75,0,0
+SC01642,downtown,QX1010,na,78.4,0,1
+SC01643,downtown,QX2080,4,80.9,0,0
+SC01644,city center,QX1010,6,95.2,1,0
+SC01645,residential,QX1010,4,87.8,1,0
+SC01646,city center,QX2080,4,84.6,1,0
+SC01647,university,QX1010,8,90.6,0,0
+SC01648,residential,QX2080,3,76.7,0,0
+SC01649,city center,QX3000,10,89.1,3,1
+SC01650,residential,QX3000,2,94.1,1,0
+SC01651,university,QX1010,2,92,3,0
+SC01652,university,QX1010,9,77.5,0,0
+SC01653,downtown,QX1010,10,,1,0
+SC01654,downtown,QX1010,9,71.4,0,0
+SC01655,waterfront,QX3000,2,79.5,1,0
+SC01656,residential,QX1010,4,75,2,0
+SC01657,waterfront,QX1010,2,87.5,1,0
+SC01658,waterfront,QX3000,4,82.9,0,1
+SC01659,downtwon,QX1010,8,83.3,1,0
+SC01660,residential,QX1010,6,85.3,0,0
+SC01661,city center,QX1010,2,75.4,0,0
+SC01662,residential,QX2080,6,70.4,1,1
+SC01663,downtown,QX2080,9,,0,1
+SC01664,city center,QX1010,11,70.6,0,0
+SC01665,residential,QX3000,5,76.5,1,0
+SC01666,residential,QX3000,5,,1,0
+SC01667,university,QX3000,6,70.2,0,0
+SC01668,city center,QX1010,7,97.6,0,0
+SC01669,city center,QX1010,na,84.5,1,0
+SC01670,waterfront,QX3000,2,94.8,0,0
+SC01671,city center,QX1010,5,89.4,0,0
+SC01672,city center,QX2080,4,86.5,0,0
+SC01673,university,QX2080,10,90.6,3,0
+SC01674,city center,QX1010,4,73.6,0,0
+SC01675,university,QX2080,6,78.4,0,0
+SC01676,city center,QX3000,7,75.2,2,0
+SC01677,residential,QX2080,1,69.3,2,0
+SC01678,waterfront,QX1010,5,,0,0
+SC01679,waterfront,QX3000,4,100,1,0
+SC01680,university,QX2080,6,78.2,2,0
+SC01681,city center,QX2080,9,94.2,0,0
+SC01682,residential,QX3000,6,100,0,0
+SC01683,residential,QX2080,8,100,2,0
+SC01684,university,QX1010,5,98.2,1,0
+SC01685,university,QX1010,11,97.2,2,0
+SC01686,residential,QX1010,6,84,0,0
+SC01687,university,QX2080,8,80,3,0
+SC01688,residential,QX2080,1,86.2,2,0
+SC01689,downtown,QX2080,6,79.7,0,0
+SC01690,city center,QX1010,8,80.9,4,0
+SC01691,university,QX2080,5,86.9,2,0
+SC01692,downtown,QX3000,10,76,1,0
+SC01693,residential,QX1010,3,71.9,2,0
+SC01694,university,QX2080,8,,0,0
+SC01695,downtown,QX2080,3,76.2,2,0
+SC01696,residential,QX2080,4,76.3,0,0
+SC01697,residential,QX1010,5,80.8,2,0
+SC01698,residential,QX2080,7,75.7,3,0
+SC01699,city center,QX3000,6,92.6,2,0
+SC01700,residential,QX2080,5,79.1,2,1
+SC01701,city center,QX3000,4,94.7,1,0
+SC01702,university,QX3000,6,85,0,0
+SC01703,downtown,QX1010,10,,0,0
+SC01704,university,QX2080,8,79.4,0,0
+SC01705,residential,QX2080,3,71.1,2,0
+SC01706,university,QX3000,15,78.9,2,0
+SC01707,city center,QX1010,6,88.4,0,0
+SC01708,residential,QX1010,6,89.6,0,0
+SC01709,university,QX3000,14,65.3,0,0
+SC01710,downtown,QX1010,7,67.5,0,1
+SC01711,waterfront,QX2080,0,79.9,1,0
+SC01712,residential,QX1010,5,93.8,2,1
+SC01713,waterfront,QX3000,1,89.1,0,0
+SC01714,waterfront,QX3000,1,,1,0
+SC01715,waterfront,QX1010,6,68.9,0,0
+SC01716,residential,QX2080,4,75.5,0,0
+SC01717,university,QX1010,4,76.4,1,0
+SC01718,downtown,QX2080,9,85.3,3,0
+SC01719,university,QX2080,8,86.7,0,0
+SC01720,residential,QX3000,5,75.1,0,0
+SC01721,university,QX1010,7,86.8,0,1
+SC01722,residential,QX1010,6,86.7,0,0
+SC01723,downtown,QX2080,8,68.1,-2,0
+SC01724,city center,QX2080,3,81.4,0,0
+SC01725,university,QX2080,9,80.2,1,0
+SC01726,city center,QX1010,4,84.2,0,0
+SC01727,downtown,QX1010,7,65.9,0,0
+SC01728,downtown,QX3000,10,81.1,0,0
+SC01729,residential,QX1010,4,88.2,0,0
+SC01730,city center,QX1010,7,93.8,3,0
+SC01731,downtown,QX3000,9,75.1,0,1
+SC01732,downtown,QX1010,1,80.6,0,1
+SC01733,city center,QX2080,3,80.3,2,0
+SC01734,downtown,QX1010,14,77.3,2,0
+SC01735,residential,QX3000,4,85.6,0,0
+SC01736,residential,QX2080,4,86.4,0,1
+SC01737,downtown,QX3000,7,72.8,2,0
+SC01738,university,QX1010,6,84.6,4,0
+SC01739,downtown,QX2080,6,73.4,3,1
+SC01740,city center,QX2080,6,78.5,0,0
+SC01741,residential,QX1010,6,95.7,2,0
+SC01742,university,QX1010,4,70.9,0,0
+SC01743,residential,QX1010,8,77.2,0,0
+SC01744,downtown,QX3000,7,71.6,3,0
+SC01745,city center,QX2080,8,79.4,1,0
+SC01746,city center,QX2080,12,83.8,0,0
+SC01747,city center,QX2080,7,80.3,0,1
+SC01748,waterfront,QX2080,2,81.9,2,0
+SC01749,downtown,QX2080,9,88.6,0,0
+SC01750,residential,QX1010,3,86.4,0,1
+SC01751,residential,QX2080,2,89.9,0,0
+SC01752,university,QX1010,5,88.1,0,0
+SC01753,city center,QX3000,10,55.6,2,1
+SC01754,university,QX3000,5,83.3,0,0
+SC01755,city center,QX1010,8,,0,1
+SC01756,residential,QX2080,4,74.3,2,1
+SC01757,city center,QX1010,8,92.1,0,0
+SC01758,waterfront,QX3000,2,83.2,2,0
+SC01759,university,QX3000,10,96.1,0,0
+SC01760,university,QX3000,11,67.2,3,0
+SC01761,residential,QX1010,6,72,3,0
+SC01762,university,QX1010,3,90.1,2,0
+SC01763,waterfront,QX1010,4,79.9,0,0
+SC01764,downtown,QX1010,11,79.8,2,0
+SC01765,waterfront,QX1010,1,84.2,2,0
+SC01766,residential,QX1010,5,80.8,0,0
+SC01767,residential,QX3000,7,79.8,0,0
+SC01768,city center,QX1010,6,82.7,0,0
+SC01769,residential,QX1010,7,85.9,0,0
+SC01770,city center,QX3000,12,92.1,0,0
+SC01771,residential,QX2080,3,80.4,1,0
+SC01772,downtwon,QX2080,9,74,2,0
+SC01773,city center,QX2080,5,76.1,0,0
+SC01774,city center,QX3000,6,95.7,2,0
+SC01775,city center,QX2080,6,85.6,1,0
+SC01776,city center,QX2080,3,66,0,1
+SC01777,residential,QX2080,2,66.4,1,0
+SC01778,downtown,QX1010,9,71.7,1,0
+SC01779,residential,QX1010,6,83.2,0,0
+SC01780,downtown,QX2080,na,77,0,0
+SC01781,residential,QX1010,1,89.6,0,0
+SC01782,residential,QX2080,4,,4,0
+SC01783,city center,QX1010,6,93.1,0,1
+SC01784,residential,QX1010,3,90.2,0,0
+SC01785,waterfront,QX1010,1,85.9,0,0
+SC01786,residential,QX3000,3,95.3,0,0
+SC01787,city center,QX1010,9,64.8,0,0
+SC01788,city center,QX2080,6,79,1,0
+SC01789,residential,QX3000,2,87.6,0,0
+SC01790,city center,QX1010,5,87.1,2,0
+SC01791,residential,QX2080,4,66.7,0,0
+SC01792,city center,QX1010,10,75.8,0,0
+SC01793,residential,QX1010,3,87,0,0
+SC01794,downtown,QX2080,2,87,0,0
+SC01795,downtown,QX3000,6,93.3,3,0
+SC01796,waterfront,QX1010,3,90.1,1,0
+SC01797,residential,QX2080,7,78.4,0,0
+SC01798,residential,QX1010,5,87.7,1,0
+SC01799,waterfront,QX2080,3,80.4,2,0
+SC01800,city center,QX2080,8,79.3,0,0
