@@ -38,22 +38,30 @@ Connection saturation on the Dev Aurora PostgreSQL instance
 ## W2 — ABC framework reference
 
 `reference.md` — complete reference for the Audit Balancing Control framework: the metadata-driven
-orchestration layer every Zone1→Zone2 job integrates with. Built from the design workbook and 17 KT
-transcripts.
+orchestration layer every Zone1→Zone2 job integrates with. Organised as a **sequential chain** —
+it follows one batch run from the scheduler trigger through to batch post load, with a setup
+prologue covering everything that must exist before a run can start.
+
+`KT_transcript/` — the 16 source `.vtt` recordings the reference is built from (Jun 2026 architecture
+session, May 2026 metadata sessions, the Zone2 design session, ABC KT 1–7, the Balance Reconciliation
+KT, the runtime-mock-entries session, the Sept 2026 "new changes" session, and the two Sept 2026
+framework walkthroughs). All read in full.
 
 **Cross-cutting.** Background for both W1 and W3; not itself an issue to be solved.
 
 Sections W3 leans on:
-- §2 — Aurora vs. Snowflake split, and why the framework depends on **full push-down optimization (PDO)**
-- §3 — naming conventions, IDMC connection and folder conventions
-- **§5 Phase 3 (Job load)** — the existing two-step shape: one source-qualifier query (full PDO) → stage,
+- §2–3 — Aurora vs. Snowflake split, and why the framework depends on **full push-down optimization (PDO)**
+- §4–6 — naming conventions, metadata tables, IDMC connection and folder conventions, parameter file
+- **§9 Phase 4 (Job load)** — the existing two-step shape: one source-qualifier query (full PDO) → stage,
   then a SQL `MERGE` stage → target. The shape any W3 solution has to fit inside
-- §4.2 `etl_data_ingestion_source_window` — the per-source-table sourcing window the W3 POC uses
-- §7 — DQ rule handling
+- **§9 Phase 3, step 3.2** — `etl_data_ingestion_source_window`, the per-source-table sourcing window
+  the W3 POC uses
+- §4 (S1.4–S1.5) and §9 Phase 4.2 — DQ rule handling
+- §15 — the September 2026 changes (`batch_sourcing_stats` split, reversed RA behaviour)
 
-Referenced but **not in this repo**: `abc_framework_deck.html`, the design workbook
-`ABC_load_across_phases_scenrios.xlsx`, and `KT transcripts/` + `claude/transcript_notes/`. Treat citations
-to these as external.
+Referenced but **not in this repo**: the LLD, the Lucid flow, the ABC data model, `abc_framework_deck.html`,
+the design workbook `ABC_load_across_phases_scenrios.xlsx`, and the metadata/runtime-entry Excel
+workbooks. Treat citations to these as external.
 
 ---
 
