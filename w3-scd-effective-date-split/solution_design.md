@@ -91,20 +91,21 @@ to be read — otherwise the rebuilt timeline has no Table 1 values and the targ
 **Stage 4 must include expiry dates, not just effective dates.** If a source covers 10-Sep to 15-Sep and its
 next version starts 20-Sep, using only effective dates gives boundaries {10, 20} and the value would be
 wrongly carried across the 15–20 gap. Including expiry dates cuts the interval correctly and leaves the gap
-blank. The worked example has no mid-timeline gap, so it does not exercise this — the POC's collapse logic
-guards it explicitly.
+blank. The worked example has no mid-timeline gap; **BR005** in the POC does, stopping on 10-Apr and
+starting again on 20-Apr.
 
 **Stage 3's collapse has two traps.** Only *consecutive* versions merge, so `p → q → p` must not collapse
 into one. And a gap in cover is not a merge: if a source has no value for a period, the periods either side
 stay separate even when the value is identical. The POC implements both as an explicit "new run starts
-here" flag rather than relying on value comparison alone.
+here" flag rather than relying on value comparison alone. **BR004** exercises the repeat, **BR005** the gap.
 
 **Stage 6 cannot fan out, and this is structural.** Because intervals are cut at *every* boundary from both
 sources, each interval falls entirely inside at most one version per source. Each join matches 0 or 1 rows.
-No aggregation or de-duplication is needed after the join.
+No aggregation or de-duplication is needed after the join. What keeps that true when the *same* version
+arrives twice in one window is stage 3a's per-`(key, eff date)` de-duplication — **BR007** exercises it.
 
 **Stage 8 compares dates *and* values.** A source correcting a value without moving its dates still produces
-a `D` + `I` pair. Comparing dates alone would silently keep the stale value.
+a `D` + `I` pair. Comparing dates alone would silently keep the stale value. **BR006** exercises it.
 
 ---
 
@@ -191,6 +192,9 @@ can wrap both mappings in one Snowflake transaction under pushdown is **unverifi
 `poc_snowflake.sql` runs the whole thing against `LM_POC_DB.POC_SCHEMA`. Copy, paste, execute top to
 bottom. Every `EVIDENCE` block returns a result set to capture.
 
+**It has been run.** All **26 assertions PASS**, and every evidence block matched the row counts written
+down before execution. Captioned screenshots of every step are in `POC_Evidence.docx`.
+
 ### Objects — what is real and what is illustrative
 
 Taken from `../w2-abc-framework/reference.md`, names and columns as documented:
@@ -214,13 +218,23 @@ the column name).
 Two Zone1 history-bucket tables, both SCD2, both contributing attributes to one Zone2 SCD2 dimension,
 joined on `BROKER_ID`.
 
-| Broker | Purpose |
-|---|---|
-| **BR001** | The main scenario. The party table never changes on Day 2, yet three of its target rows get rewritten |
-| **BR002** | Day 2 changes a column that never reaches the target. Must produce **no** target change at all |
-| **BR003** | Never touched after Day 1. Must not be re-read or re-written |
+| Broker | Purpose | Runs |
+|---|---|---|
+| **BR001** | The main scenario. The party table never changes on Day 2, yet three of its target rows get rewritten | 101, 102 |
+| **BR002** | Day 2 changes a column that never reaches the target. Must produce **no** target change at all | 101, 102 |
+| **BR003** | Never touched after Day 1. Must not be re-read or re-written | 101 |
+| **BR004** | The same value returns later with a different one in between (`ACTIVE → SUSPEND → ACTIVE`). The two `ACTIVE` runs must stay separate | 104 |
+| **BR005** | A gap in cover with the same value either side. The gap must survive the collapse | 104 |
+| **BR006** | A value corrected without either of its dates moving. The target row must still be replaced | 104, 105 |
+| **BR007** | The same version arrives twice inside one window. Only the later copy may be used | 104 |
 
-### Expected results
+BR004–BR007 were added after the first run, one per trap in §4. Each is built so that a *plausible but
+wrong* implementation fails on it **silently** — producing a wrong target and reporting success — rather
+than raising an error.
+
+### Verified results — Day 1 and Day 2
+
+Each table below was written down as a prediction before the run, and is what the run produced.
 
 **After Day 1** — 5 target rows, all `IS_DEL = 'N'`:
 
@@ -232,7 +246,9 @@ joined on `BROKER_ID`.
 | BR002 | 2026-09-05 | 9999-12-31 | ACTIVE | TIER1 |
 | BR003 | 2026-09-01 | 9999-12-31 | ACTIVE | TIER1 |
 
-**Day 2 stage** — exactly 4 `I` and 2 `D`, all BR001. Nothing for BR002 or BR003.
+**Day 2 stage** — exactly 4 `I` and 2 `D`, all BR001, the `D` rows carrying surrogate keys 3 and 4. Nothing
+for BR002 or BR003. Step 2 also reported `0 multi-joined rows updated`, independently confirming the
+surrogate-key match is unambiguous.
 
 **After Day 2** — BR001 has 5 live rows and 2 superseded:
 
@@ -246,7 +262,31 @@ joined on `BROKER_ID`.
 | BR001 | 2026-09-21 | 9999-12-31 | SUSPEND | TIER1 | **Y** |
 | BR001 | 2026-09-22 | 9999-12-31 | SUSPEND | TIER3 | N |
 
-### The twelve assertions
+### Verified results — the four harder cases
+
+**Run 104 stage** — 8 rows, all `I`, in the shape that separates a correct collapse from a fan-out:
+
+| Broker | Rows | What a different count would have meant |
+|---|---|---|
+| BR004 | 3 | 4 → the two `ACTIVE` runs merged into one overlapping version, fanning the middle interval out |
+| BR005 | 3 | 1 → the gap was collapsed away and both its boundary dates lost |
+| BR006 | 1 | — |
+| BR007 | 1 | 2 → the duplicate survived de-duplication and fanned out |
+
+BR005's middle row came through carrying **no** `BROKER_STATUS_CDE`, spanning 2026-04-10 to 2026-04-20 —
+the period neither source covers. That is the intended behaviour, not a defect.
+
+**Run 105 stage** — exactly one `D` and one `I`, both BR006, both on the *same* `ROW_EFF_DTE` and
+`ROW_EXP_DTE` (2026-05-01 → 9999-12-31), differing only in value. This is the case `ROW_HASH` exists for: a
+diff joining on dates alone returns an **empty stage** here, leaves the stale `ACTIVE` value in the target
+permanently, and reports success.
+
+**After run 105** — BR006 holds both rows on identical dates: the live `SUSPEND` one under
+`AUDIT_BATCH_ID` 105, and the retired `ACTIVE` one under 104. The correction is recorded, not overwritten.
+
+### The twenty-six assertions
+
+**T01–T12 — Day 1 and Day 2**
 
 | | Checks |
 |---|---|
@@ -262,6 +302,39 @@ joined on `BROKER_ID`.
 
 T07 and T08 together are the important pair: they pin down the consequence that every consumer query and
 every future merge has to filter on `is_del`.
+
+**T13–T26 — the four harder cases**
+
+| | Checks |
+|---|---|
+| T13 / T14 | BR004 has 3 live rows, 2 of them separate live `ACTIVE` rows — **the repeat was not merged** |
+| T15 | BR004's live timeline has no gaps or overlaps |
+| T16 | BR005 has 3 live rows — **the gap survived the collapse** |
+| T17 | BR005's 10-Apr to 20-Apr row carries no `BROKER_STATUS_CDE` |
+| T18 | BR005 has 2 separate live `ACTIVE` rows — not merged across the gap |
+| T19 / T20 / T21 | BR006's correction retired exactly 1 row, left exactly 1 live, and that row carries `SUSPEND` |
+| T22 | BR006's retired and live rows share the same dates — **the in-place correction was caught** |
+| T23 / T24 | BR007 has 1 live row carrying `SUSPEND` — **the duplicate did not fan out, and the later copy won** |
+| T25 | No duplicate `BROKER_ID` + `ROW_EFF_DTE` among live rows, with all seven brokers loaded |
+| T26 | Idempotence again at the larger scale — empty stage with 7 brokers and 15 live rows in the target |
+
+### Why these assertions are not vacuous
+
+Before the Snowflake run, the whole script was executed in DuckDB — which supports the same `QUALIFY`,
+`IS DISTINCT FROM` and windowing this logic relies on — and three wrong implementations were injected in
+turn, to check the assertions actually fail when the logic is wrong rather than passing by coincidence:
+
+| Injected fault | Caught by |
+|---|---|
+| Collapse groups by value rather than by consecutive run | T13–T18, T25 |
+| Diff joins on dates only, `ROW_HASH` omitted | T19, T21, T22 |
+| Per-`(key, eff date)` de-duplication removed | T23, T25 |
+
+**None of T01–T12 caught any of them** — the original suite passed cleanly on all three broken versions.
+That is precisely why BR004–BR007 exist.
+
+DuckDB checks the *logic*, not Snowflake syntax or pushdown behaviour — hence §11, which is unchanged by
+any of this.
 
 ---
 

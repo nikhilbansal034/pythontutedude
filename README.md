@@ -71,8 +71,9 @@ enrichment — where the driving table alone sets the target dates.
 |------|-----------|
 | `scenario_matrix.md` | Which join combinations hit the problem and why, explained with worked data. Written to be read cold by people outside the discussion |
 | `solution_design.md` | How it gets solved: the three-step architecture, why a single MERGE fails, the IDMC components, and what the POC proves |
-| `poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Loads Day 1 and Day 2, runs all three steps, asserts twelve results. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header |
+| `poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Loads seven brokers across four runs, exercises all three steps, asserts twenty-six results. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header |
 | `solution_deck.html` | The slide deck — 9 slides covering the problem, the worked Day 1 / Day 2 example, which join combinations break, and the solution architecture. Standalone single file: open it in a browser, no server and no build step. Speaker notes behind the toggle in the header; `Ctrl`/`Cmd`+`P` prints one slide per page |
+| `POC_Evidence.docx` | Execution evidence — 53 captioned screenshots of the POC running against Snowflake, in sixteen sections, each stating what it tests, the steps, and the expected result before the screenshots. Summary table at the top |
 | `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
 | `sources/…vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
 | `sources/scenario_screenshot.png` | The Excel mock-up shared on that call — Day 1 and Day 2 worked example |
@@ -82,8 +83,13 @@ enrichment — where the driving table alone sets the target dates.
 
 ### Current stage
 
-Solution design drafted and a runnable POC written; **awaiting execution evidence** from a real Snowflake run
-before any of it is called proven.
+Solution design drafted, POC written, and **executed against Snowflake — all 26 assertions pass**. Evidence
+for every step is in `POC_Evidence.docx`.
+
+The four cases most likely to fail silently are covered and confirmed: a value returning after a different
+one in between, a gap in cover with the same value either side, a value corrected without its dates moving,
+and the same version arriving twice in one window. Each was also checked against a deliberately broken
+implementation, to confirm the assertions fail when the logic is wrong (`solution_design.md` §9).
 
 **Settled**: periods where one source has no value are kept with the missing side blank; superseded rows are
 soft-deleted and reinserted rather than updated in place; the load is three steps (build-and-diff → stage →
