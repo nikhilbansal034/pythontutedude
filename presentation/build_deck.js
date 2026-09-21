@@ -24,7 +24,7 @@ s.background = { color: CH };
 s.addText('Reducing Scooter Downtime', { x:0.7, y:1.5, w:8.6, h:0.8, fontFace:HF, fontSize:40, bold:true, color:W, isTextBox:true, margin:0 });
 s.addText('What actually predicts a scooter going out of service — and what to do about it',
   { x:0.7, y:2.4, w:8.6, h:0.6, fontFace:BF, fontSize:16, color:'CADCFC', isTextBox:true, margin:0 });
-s.addText('Fleet Reliability Review   |   Data Science   |   QuorWatt Urban Mobility',
+s.addText('Nikhil Bansal   |   Data Science   |   Fleet Reliability Review, QuorWatt Urban Mobility',
   { x:0.7, y:4.5, w:8.6, h:0.35, fontFace:BF, fontSize:12, color:'A8B0B5', isTextBox:true, margin:0 });
 s.addNotes(
 `Good morning, and thanks for making the time.
