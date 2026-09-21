@@ -242,14 +242,44 @@ print('TESTING SET SHAPE:')
 print(X_test.shape)
 print()
 
+# our columns are on very different scales, battery_health_score runs
+# from about 50 to 100 while the one hot columns are only 0 or 1, so
+# we standardise every column to put them on the same scale
+# this matters for two reasons, logistic regression trains better on
+# scaled data, and it also makes the coefficients comparable to each
+# other later when we rank the predictors in section 7
+from sklearn.preprocessing import StandardScaler
+
+# we fit the scaler on the training data only and then apply it to
+# both sets, so no information from the test set leaks into training
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# reference point: a "no skill" model that always predicts the most
+# common class, which here is "stays in service"
+# this is not one of our two real models, we only fit it so we have
+# something honest to compare the accuracy numbers against later
+from sklearn.dummy import DummyClassifier
+
+no_skill_model = DummyClassifier(strategy='most_frequent')
+no_skill_model.fit(X_train_scaled, y_train)
+
+print('NO SKILL REFERENCE MODEL TRAINED')
+print()
+
 # baseline model: logistic regression
 # we picked this as our baseline because it is simple, fast, and
 # easy to explain, the coefficients also tell us which features push
 # the prediction towards out of service or not
 from sklearn.linear_model import LogisticRegression
 
-baseline_model = LogisticRegression(max_iter=1000)
-baseline_model.fit(X_train, y_train)
+# class_weight='balanced' tells the model to treat the rare class as
+# just as important as the common one, without this the model learns
+# that always saying "in service" is the safest answer and it never
+# flags a single scooter, which is useless to the business
+baseline_model = LogisticRegression(max_iter=1000, class_weight='balanced')
+baseline_model.fit(X_train_scaled, y_train)
 
 print('BASELINE MODEL (LOGISTIC REGRESSION) TRAINED')
 print()
@@ -261,8 +291,18 @@ print()
 # regression coefficients
 from sklearn.ensemble import RandomForestClassifier
 
-comparison_model = RandomForestClassifier(random_state=42)
-comparison_model.fit(X_train, y_train)
+# we limit the tree depth and the minimum leaf size because we only
+# have 1440 training rows with 12 percent positives, a fully grown
+# forest memorises the training data instead of learning the pattern
+# class_weight='balanced' is used here for the same reason as above
+comparison_model = RandomForestClassifier(
+    n_estimators=400,
+    max_depth=5,
+    min_samples_leaf=20,
+    class_weight='balanced',
+    random_state=42
+)
+comparison_model.fit(X_train_scaled, y_train)
 
 print('COMPARISON MODEL (RANDOM FOREST) TRAINED')
 
@@ -274,7 +314,14 @@ print('COMPARISON MODEL (RANDOM FOREST) TRAINED')
 # just guesses "in service" every single time would already score
 # about 87.7 percent accuracy without learning anything useful, so
 # plain accuracy alone would be misleading here, we are going to look
-# at precision, recall, f1 score and roc auc as well for both models
+# at precision, recall, f1 score, roc auc and pr auc as well
+#
+# note on the two auc scores:
+# roc auc measures how well a model ranks a real out of service
+# scooter above a healthy one, it does not depend on the class split
+# at all, so unlike accuracy it is not inflated by the imbalance
+# pr auc is compared against the share of positives (about 0.12),
+# anything above that is better than guessing at random
 # =====================================================================
 
 # we need these to calculate the different evaluation metrics
@@ -283,94 +330,177 @@ from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import f1_score
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import average_precision_score
 from sklearn.metrics import confusion_matrix
 
-# get predictions from the baseline model on the test set
-baseline_predictions = baseline_model.predict(X_test)
+# we will score three models the same way, so we write one small
+# helper and call it three times instead of repeating the code
+def print_model_scores(model_name, fitted_model):
+    predictions = fitted_model.predict(X_test_scaled)
+    probabilities = fitted_model.predict_proba(X_test_scaled)[:, 1]
+    print(model_name)
+    print('accuracy  : ', round(accuracy_score(y_test, predictions), 3))
+    print('precision : ', round(precision_score(y_test, predictions, zero_division=0), 3))
+    print('recall    : ', round(recall_score(y_test, predictions), 3))
+    print('f1 score  : ', round(f1_score(y_test, predictions), 3))
+    print('roc auc   : ', round(roc_auc_score(y_test, probabilities), 3))
+    print('pr auc    : ', round(average_precision_score(y_test, probabilities), 3))
+    print('confusion matrix : ')
+    print(confusion_matrix(y_test, predictions))
+    print()
 
-# get the predicted probability of class 1 as well, roc auc needs
-# probabilities and not just the final 0/1 prediction
-baseline_probabilities = baseline_model.predict_proba(X_test)[:, 1]
-
-# calculate all the metrics for the baseline model
-baseline_accuracy = accuracy_score(y_test, baseline_predictions)
-baseline_precision = precision_score(y_test, baseline_predictions)
-baseline_recall = recall_score(y_test, baseline_predictions)
-baseline_f1 = f1_score(y_test, baseline_predictions)
-baseline_roc_auc = roc_auc_score(y_test, baseline_probabilities)
-
-# print the baseline model metrics
-print('BASELINE MODEL (LOGISTIC REGRESSION) METRICS:')
-print('accuracy : ', baseline_accuracy)
-print('precision : ', baseline_precision)
-print('recall : ', baseline_recall)
-print('f1 score : ', baseline_f1)
-print('roc auc : ', baseline_roc_auc)
-print('confusion matrix : ')
-print(confusion_matrix(y_test, baseline_predictions))
+# the share of positives in the test set, this is the number pr auc
+# has to beat and it is also the accuracy the no skill model gets
+print('SHARE OF OUT OF SERVICE SCOOTERS IN THE TEST SET:')
+print(round(y_test.mean(), 3))
 print()
 
-# get predictions from the comparison model on the test set
-comparison_predictions = comparison_model.predict(X_test)
+# score all three, starting with the no skill reference
+print_model_scores('NO SKILL REFERENCE (ALWAYS PREDICTS IN SERVICE):', no_skill_model)
+print_model_scores('BASELINE MODEL (LOGISTIC REGRESSION) METRICS:', baseline_model)
+print_model_scores('COMPARISON MODEL (RANDOM FOREST) METRICS:', comparison_model)
 
-# get the predicted probability of class 1 for the comparison model
-comparison_probabilities = comparison_model.predict_proba(X_test)[:, 1]
+# the test set only has 44 out of service scooters in it, so a single
+# split gives a noisy score, we also run 5 fold cross validation on
+# the full dataset to check the roc auc is stable and not a fluke
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
 
-# calculate all the metrics for the comparison model
-comparison_accuracy = accuracy_score(y_test, comparison_predictions)
-comparison_precision = precision_score(y_test, comparison_predictions)
-comparison_recall = recall_score(y_test, comparison_predictions)
-comparison_f1 = f1_score(y_test, comparison_predictions)
-comparison_roc_auc = roc_auc_score(y_test, comparison_probabilities)
+# scale the full dataset the same way so cross validation sees the
+# same kind of input the models were trained on
+all_features_scaled = StandardScaler().fit_transform(feature_columns)
+cross_validation_folds = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-# print the comparison model metrics
-print('COMPARISON MODEL (RANDOM FOREST) METRICS:')
-print('accuracy : ', comparison_accuracy)
-print('precision : ', comparison_precision)
-print('recall : ', comparison_recall)
-print('f1 score : ', comparison_f1)
-print('roc auc : ', comparison_roc_auc)
-print('confusion matrix : ')
-print(confusion_matrix(y_test, comparison_predictions))
+baseline_cv_scores = cross_val_score(
+    LogisticRegression(max_iter=1000, class_weight='balanced'),
+    all_features_scaled, target_column,
+    cv=cross_validation_folds, scoring='roc_auc'
+)
+
+comparison_cv_scores = cross_val_score(
+    RandomForestClassifier(n_estimators=400, max_depth=5, min_samples_leaf=20,
+                           class_weight='balanced', random_state=42),
+    all_features_scaled, target_column,
+    cv=cross_validation_folds, scoring='roc_auc'
+)
+
+# print the cross validated scores, the plus/minus is the spread
+# across the 5 folds
+print('5 FOLD CROSS VALIDATED ROC AUC (MORE RELIABLE THAN ONE SPLIT):')
+print('baseline (logistic regression) : ', round(baseline_cv_scores.mean(), 3),
+      '+/-', round(baseline_cv_scores.std(), 3))
+print('comparison (random forest)     : ', round(comparison_cv_scores.mean(), 3),
+      '+/-', round(comparison_cv_scores.std(), 3))
+print()
+
+# what the numbers above tell us
+print('HOW THE TWO MODELS COMPARE:')
+print('- the no skill model scores 87.8 percent accuracy while catching')
+print('  zero real cases, this is the proof that accuracy is the wrong')
+print('  metric here, and also means the 90 percent accuracy target the')
+print('  business asked for was never a meaningful goal')
+print('- both real models have a much lower accuracy than the no skill')
+print('  model, that is expected and it is a trade we want, they give up')
+print('  accuracy in order to actually flag scooters at risk')
+print('- both models score a roc auc around 0.65, clearly above the 0.5')
+print('  a coin flip would give, and the 5 fold spread is small, so the')
+print('  signal is real but it is modest, not strong')
+print('- the logistic regression is slightly ahead of the random forest')
+print('  on roc auc and pr auc, so we treat it as our better model')
 
 
 # =====================================================================
 # SECTION 6: BUSINESS METRIC
-# the business asked for 90 percent accuracy, but we already showed
-# in section 5 that accuracy alone is misleading here because just
-# guessing "in service" every time already gives close to 88 percent
-# accuracy without catching a single real breakdown, so instead we
-# are proposing recall as the metric the business should track
+# the business asked for 90 percent accuracy, but section 5 showed a
+# model that predicts "in service" every time already scores 87.8
+# percent while catching nothing, so accuracy cannot be the metric
 #
-# recall answers the question the business actually cares about:
-# out of all the scooters that really do go out of service, what
-# percent did we correctly warn about ahead of time, this is often
-# called the "catch rate"
+# what the business actually has to decide is how many scooters their
+# technicians can inspect each day, so we define the metric around
+# that real constraint instead of around a model setting
 #
-# we are also going to report precision alongside it, because if
-# precision is too low it means a lot of technician visits would be
-# sent out for false alarms, which wastes labor and parts cost, so
-# the business should watch both numbers together, not just one
+# METRIC: pre-emptive catch rate at fixed inspection capacity
+#   rank every scooter by its predicted risk, inspect the top 10
+#   percent of the fleet, and measure what share of the scooters that
+#   really did go out of service were in that inspected group
+#
+# we report three numbers together:
+#   catch rate  - share of real breakdowns we flagged in advance
+#   hit rate    - share of inspections that found a real problem
+#                 (this is the labour and parts cost side)
+#   lift        - how many times better this is than inspecting the
+#                 same number of scooters picked at random
+#
+# the value of this metric today is 0 percent, because maintenance is
+# reactive and no scooter is inspected before it fails, so anything
+# above 0 is an improvement over how the business runs right now
 # =====================================================================
 
-# we are picking the random forest as our recommended model since it
-# is the only one that catches any real out of service cases at all
-print('RECOMMENDED BUSINESS METRIC: RECALL (CATCH RATE), WITH PRECISION AS A SECONDARY CHECK')
+# we use the logistic regression since section 5 showed it is the
+# better of our two models on roc auc and pr auc
+risk_scores = baseline_model.predict_proba(X_test_scaled)[:, 1]
+
+# put the predicted risk next to the real outcome so we can sort
+risk_table = pd.DataFrame()
+risk_table['predicted_risk'] = risk_scores
+risk_table['really_went_out_of_service'] = y_test.values
+
+# sort by risk, highest first, this is the inspection queue we would
+# hand the technicians each morning
+risk_table = risk_table.sort_values('predicted_risk', ascending=False)
+
+# how many scooters a 10 percent daily inspection budget covers
+inspection_budget = int(len(risk_table) * 0.10)
+inspected = risk_table.head(inspection_budget)
+
+# the three numbers that make up the metric
+catch_rate = inspected['really_went_out_of_service'].sum() / risk_table['really_went_out_of_service'].sum()
+hit_rate = inspected['really_went_out_of_service'].mean()
+random_hit_rate = risk_table['really_went_out_of_service'].mean()
+lift = hit_rate / random_hit_rate
+
+print('BUSINESS METRIC: PRE-EMPTIVE CATCH RATE AT A 10 PERCENT INSPECTION BUDGET')
+print()
+print('scooters inspected per day (10 percent of fleet) : ', inspection_budget)
+print('catch rate (share of real breakdowns flagged)    : ', round(catch_rate, 3))
+print('hit rate (share of inspections that were right)  : ', round(hit_rate, 3))
+print('same budget inspecting at random would hit       : ', round(random_hit_rate, 3))
+print('lift over inspecting at random                   : ', round(lift, 2), 'times')
 print()
 
-# current estimate of the catch rate using the random forest model
-print('CURRENT CATCH RATE (RECALL) ESTIMATE FROM RANDOM FOREST : ', comparison_recall)
+# the test set is small, so we repeat the same calculation using 5
+# fold cross validation over all 1800 rows for a steadier estimate
+from sklearn.model_selection import cross_val_predict
 
-# current estimate of how many flagged scooters are true positives
-print('CURRENT PRECISION ESTIMATE FROM RANDOM FOREST : ', comparison_precision)
+out_of_fold_risk = cross_val_predict(
+    LogisticRegression(max_iter=1000, class_weight='balanced'),
+    all_features_scaled, target_column,
+    cv=cross_validation_folds, method='predict_proba'
+)[:, 1]
+
+full_risk_table = pd.DataFrame()
+full_risk_table['predicted_risk'] = out_of_fold_risk
+full_risk_table['really_went_out_of_service'] = target_column.values
+full_risk_table = full_risk_table.sort_values('predicted_risk', ascending=False)
+
+full_budget = int(len(full_risk_table) * 0.10)
+full_inspected = full_risk_table.head(full_budget)
+full_catch_rate = full_inspected['really_went_out_of_service'].sum() / full_risk_table['really_went_out_of_service'].sum()
+full_hit_rate = full_inspected['really_went_out_of_service'].mean()
+full_lift = full_hit_rate / full_risk_table['really_went_out_of_service'].mean()
+
+print('SAME METRIC ESTIMATED ACROSS ALL 1800 ROWS (5 FOLD, STEADIER):')
+print('catch rate : ', round(full_catch_rate, 3))
+print('hit rate   : ', round(full_hit_rate, 3))
+print('lift       : ', round(full_lift, 2), 'times')
 print()
 
-# a plain english summary of what these numbers mean today
-print('IN PLAIN TERMS : out of every 44 scooters that actually go out of')
-print('service in the test set, the random forest model only catches about')
-print('3 of them in advance, this is a very low catch rate and shows there')
-print('is a lot of room for improvement before this can be relied on for')
-print('staffing or purchasing decisions')
+print('IN PLAIN TERMS : if technicians inspect the 180 highest risk')
+print('scooters out of 1800 each day, they would find about a quarter of')
+print('all the scooters that were going to break down, and roughly 1 in')
+print('every 3 or 4 inspections would be justified, which is about twice')
+print('as good as picking scooters to inspect at random, today that catch')
+print('rate is 0 percent because nothing is inspected before it fails')
 
 
 # =====================================================================
@@ -385,12 +515,14 @@ feature_names = feature_columns.columns
 # baseline model coefficients tell us the direction and strength of
 # each feature, a positive coefficient pushes towards out of service
 # and a negative coefficient pushes towards staying in service
+# because we scaled the columns in section 4 these numbers are now on
+# the same footing and can be compared to each other directly
 baseline_coefficients = baseline_model.coef_[0]
 baseline_importance = pd.Series(baseline_coefficients, index=feature_names)
-baseline_importance_sorted = baseline_importance.sort_values(ascending=False)
+baseline_importance_sorted = baseline_importance.sort_values(key=abs, ascending=False)
 
-print('BASELINE MODEL (LOGISTIC REGRESSION) COEFFICIENTS, SORTED:')
-print(baseline_importance_sorted)
+print('BASELINE MODEL (LOGISTIC REGRESSION) COEFFICIENTS, BIGGEST EFFECT FIRST:')
+print(baseline_importance_sorted.round(3))
 print()
 
 # random forest feature importances tell us how much each feature
@@ -399,7 +531,24 @@ comparison_importance = pd.Series(comparison_model.feature_importances_, index=f
 comparison_importance_sorted = comparison_importance.sort_values(ascending=False)
 
 print('COMPARISON MODEL (RANDOM FOREST) FEATURE IMPORTANCES, SORTED:')
-print(comparison_importance_sorted)
+print(comparison_importance_sorted.round(3))
+print()
+
+# the two rankings above are each built in a different way, so as a
+# third check we shuffle one column at a time and see how much the
+# roc auc drops, a column that matters will hurt the score when it is
+# shuffled, this check does not favour any column type
+from sklearn.inspection import permutation_importance
+
+shuffle_test = permutation_importance(
+    baseline_model, X_test_scaled, y_test,
+    scoring='roc_auc', n_repeats=30, random_state=42
+)
+shuffle_importance = pd.Series(shuffle_test.importances_mean, index=feature_names)
+shuffle_importance_sorted = shuffle_importance.sort_values(ascending=False)
+
+print('DROP IN ROC AUC WHEN EACH COLUMN IS SHUFFLED (THIRD CHECK):')
+print(shuffle_importance_sorted.round(4))
 print()
 
 # final written summary of everything we found, this pulls together
@@ -410,31 +559,43 @@ print('  scooter goes out of service in the next 24 hours')
 print('- the data needed some cleaning first, a typo in service_area,')
 print('  text values mixed into total_trips_24h, and negative values')
 print('  in reported_issue_count_24h all had to be fixed')
-print('- the target is imbalanced, only 12.3 percent of scooters go')
-print('  out of service, so a 90 percent accuracy target is not a')
-print('  meaningful goal on its own, our baseline model already hits')
-print('  87.8 percent accuracy while catching zero real cases')
-print('- note : the numeric features were not scaled before fitting the')
-print('  logistic regression, so its coefficient sizes cannot be fairly')
-print('  compared to each other, the random forest importances do not')
-print('  have this problem and are more reliable for ranking predictors')
-print('- based on the random forest importances, battery_health_score is')
-print('  by far the strongest predictor, followed by total_trips_24h and')
-print('  then reported_issue_count_24h, service_area and scooter_model')
-print('  barely matter in comparison')
-print('- both models currently have a very low catch rate (recall),')
-print('  the random forest is better than the baseline but still only')
-print('  catches a small share of true out of service scooters')
+print('- the 90 percent accuracy target was not met and it should not')
+print('  be met, only 12.3 percent of scooters go out of service, so a')
+print('  model that always says "in service" already scores 87.8')
+print('  percent accuracy while catching nothing at all')
+print('- there is a real signal in the data, both models score a roc')
+print('  auc of about 0.65 across 5 folds, which is clearly better than')
+print('  the 0.5 a coin flip gives, but it is a modest signal, it is')
+print('  enough to rank scooters by risk and not enough to call any')
+print('  single scooter a certain breakdown')
+print('- all three of our rankings agree that battery_health_score is by')
+print('  far the strongest driver, and both models put total_trips_24h')
+print('  second, service_area and scooter_model add very little')
+print('- reported_issue_count_24h turned out weaker than expected, both')
+print('  models rank it low and the shuffle test shows removing it does')
+print('  not hurt the score at all, so rider reported issues are not a')
+print('  useful early warning on their own')
+print('- scooters in the lowest fifth of battery health go out of')
+print('  service about 24 percent of the time against about 5 percent')
+print('  for the healthiest fifth, that gap is the usable finding')
+print('- at a 10 percent daily inspection budget the model finds about')
+print('  a quarter of all breakdowns before they happen, against zero')
+print('  percent today, at roughly twice the hit rate of random checks')
 print()
 
 print('RECOMMENDATIONS:')
-print('- do not use accuracy as the target metric, use recall and')
-print('  precision instead, and track them every month')
+print('- replace the accuracy target with the catch rate and hit rate')
+print('  at whatever inspection budget the team can actually staff, and')
+print('  review both numbers every month')
+print('- start proactive inspections from the bottom of the battery')
+print('  health ranking, that single column carries most of the signal')
+print('  and needs no model to act on')
 print('- fix the data collection issues found during validation so')
 print('  future data does not have typos, text mixed into number')
 print('  columns, or impossible negative counts')
-print('- collect more features if possible, the current 3 numeric')
-print('  features are not enough to reliably predict breakdowns')
-print('- do not rely on the current models yet for staffing or')
-print('  purchasing decisions given the low catch rate, treat this as')
-print('  a first version and keep improving it as more data comes in')
+print('- collect more features, the five columns we have are not enough')
+print('  to predict an individual breakdown, things like scooter age,')
+print('  charge cycles, fault codes and weather would likely help most')
+print('- use the model to prioritise the inspection queue now, but do')
+print('  not size the technician team or the parts order from it yet,')
+print('  revisit once richer data is available')
