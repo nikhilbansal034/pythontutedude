@@ -1,5 +1,12 @@
+// Regenerates the .pptx. Needs pptxgenjs (npm install pptxgenjs).
+// Can be run from anywhere: node "datacamp project/presentation/build_deck.js"
 const pptxgen = require('pptxgenjs');
 const fs = require('fs');
+const path = require('path');
+
+// paths are worked out from where this script sits, not the current directory
+const HERE = __dirname;
+const PROJECT = path.dirname(HERE);
 const p = new pptxgen();
 p.layout = 'LAYOUT_16x9';          // 10 x 5.625 in
 p.author = 'Nikhil Bansal';
@@ -7,7 +14,7 @@ p.title  = 'Scooter Reliability - Fleet Reliability Review';
 
 const CH='36454F', AC='B85042', MU='6B7478', LT='F2F2F2', W='FFFFFF';
 const HF='Cambria', BF='Calibri';
-const img = f => ({ data: 'image/png;base64,' + fs.readFileSync(f).toString('base64') });
+const img = f => ({ data: 'image/png;base64,' + fs.readFileSync(path.join(HERE, 'charts', f)).toString('base64') });
 
 // title helper - no accent line, just whitespace
 function head(s, t, sub) {
@@ -219,4 +226,4 @@ That is a real improvement, available now, at no extra cost. And it grows as the
 
 Happy to take questions.`);
 
-p.writeFile({ fileName: 'scooter_reliability_presentation.pptx' }).then(f => console.log('WROTE', f));
+p.writeFile({ fileName: path.join(PROJECT, 'scooter_reliability_presentation.pptx') }).then(f => console.log('WROTE', f));
