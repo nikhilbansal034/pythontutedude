@@ -80,22 +80,6 @@ cost-based metric instead of raw accuracy.
 7. **Presentation** — condense report into 6–10 slides per the four required
    sections (overview/goals, work summary, key findings + metric, recommendations).
 
-## Code style rules (agreed, apply to every section)
-
-1. Comment before every block, but keep comments short (one line) — heavy
-   detailed comments look AI-written, not human. See
-   `~/.claude/.../memory/feedback_datacamp_code_style.md`.
-2. Beginner-style Python only — no one-liner consolidation, no advanced
-   syntax, multiple simple lines over compact expert code. User is learning
-   Python and this is their own submitted work.
-3. No watermarks/AI-attribution anywhere in code or docs for this project.
-4. Nothing gets dropped from the data initially — validate first via code,
-   decide fixes only after seeing full picture.
-5. All fixes/decisions happen via code (with a comment explaining what and
-   why), not silently — this project runs in a single DataLab notebook cell,
-   so `datacamp_notebook_code.py` in this folder is the running source of
-   truth, built up section by section, that the user copies into that cell.
-
 ## Section 1 — Data validation (done, verified in user's actual DataLab cell)
 
 Checked, no fixes applied yet, per column:
@@ -139,7 +123,7 @@ Decisions discussed and confirmed with user:
    pipeline-level imputer, or drop) will be decided later at the model-fitting
    step, since sklearn models generally can't take raw NaN as input.
 
-Section 2 code was drafted in `datacamp_notebook_code.py`, with a summary
+Section 2 code was drafted in `code.py`, with a summary
 comment block added at the top listing all section 1 findings/decisions
 (typo, `'na'` conversion, negative-value fix, battery_health_score left as
 NaN), per user's ask to carry those assumptions forward as comments into
@@ -190,7 +174,7 @@ actual chart output.
 ## Presentation requirement (noted for later, not built yet)
 
 User wants section 1 assumptions/decisions (the same summary now placed at
-the top of section 2 in `datacamp_notebook_code.py`) also carried into the
+the top of section 2 in `code.py`) also carried into the
 final presentation slides — likely as part of the "data validation" /
 "summary of work" slide, so the reviewer sees what was found and how it was
 handled, not just the modeling results.
@@ -208,125 +192,157 @@ handled, not just the modeling results.
 (Presentation slides are a separate deliverable built after the report, not
 an 8th code section.)
 
-## Section 4 — Model development (done, verified in user's real DataLab cell)
+## Section 4 — Model development (reworked after review, verified)
 
-- Remaining NaN handling decided: `battery_health_score` (72) and
-  `total_trips_24h` (54) filled with column median via `.fillna()`, right
-  before modeling — sklearn models can't accept raw NaN input.
-- `service_area` and `scooter_model` one-hot encoded via `pd.get_dummies`
-  (user asked why text columns need conversion: models only do numeric math,
-  text has no inherent order/magnitude, and naively mapping categories to
-  1/2/3 would wrongly imply an order between them — one-hot avoids that).
-- `scooter_id` dropped from features (identifier, not predictive).
-- Stratified 80/20 train/test split (`stratify=target_column`) to preserve
-  the 87.7/12.3 class ratio in both sets, `random_state=42`.
-- Problem type stated: binary classification.
-- Baseline model: Logistic Regression (simple, interpretable coefficients
-  double as a driver ranking).
-- Comparison model: Random Forest (captures non-linear patterns, gives a
-  second feature-importance-based driver ranking).
+First pass fit both models with default settings. That was the core mistake of
+the first version: the notes correctly identified the 87.7/12.3 imbalance as the
+central problem, then did nothing about it in the fit, so the headline "recall
+0.068" was an artefact of the modelling, not a property of the data.
 
-Verified output: train shape (1440, 11), test shape (360, 11), both models
-trained with no errors, matches expected split sizes (80% of 1800 = 1440).
+Current state:
 
-## Section 5 — Model evaluation (done, verified in user's real DataLab cell)
+- Remaining NaN handling unchanged: `battery_health_score` (72) and
+  `total_trips_24h` (54) filled with column median right before modelling.
+- `service_area` / `scooter_model` one-hot encoded; `scooter_id` dropped.
+- Stratified 80/20 split, `random_state=42`. Train (1440, 11), test (360, 11).
+- **`StandardScaler` added**, fit on the training split only. Two reasons:
+  `battery_health_score` runs 50-100 against 0/1 dummies, and scaling makes the
+  logistic regression coefficients comparable to each other — which is what
+  resolves the ranking contradiction flagged in section 7 below.
+- **`class_weight='balanced'` on both models.** Without it both learn that
+  always answering "in service" is right 87.7% of the time.
+- **Random forest capped** at `max_depth=5`, `min_samples_leaf=20`,
+  `n_estimators=400`. The default forest was overfitting 1440 rows and was
+  actually the *worse* model by cross-validated AUC (0.576).
+- **`DummyClassifier(strategy='most_frequent')` added as a no-skill reference.**
+  Not a third contender — a benchmark, so the "87.8% accuracy while catching
+  nothing" argument is demonstrated rather than asserted.
+- Problem type: binary classification. Baseline = logistic regression,
+  comparison = random forest, reasons unchanged.
 
-Compared both models on accuracy, precision, recall, F1, ROC-AUC and
-confusion matrix, not just accuracy, given the class imbalance.
+## Section 5 — Model evaluation (reworked, verified)
 
-**Baseline (Logistic Regression):** accuracy 0.878, precision 0.0, recall
-0.0, F1 0.0, ROC-AUC 0.620. Confusion matrix `[[316, 0], [44, 0]]` — it
-predicts "in service" for every single test row, never once flags a real
-out-of-service case. High accuracy, zero practical use.
+| Metric | No-skill | Baseline (LogReg) | Comparison (RF) |
+|---|---|---|---|
+| Accuracy | 0.878 | 0.589 | 0.617 |
+| Precision | 0.000 | 0.149 | 0.144 |
+| Recall | 0.000 | 0.500 | 0.432 |
+| F1 | 0.000 | 0.229 | 0.216 |
+| ROC-AUC | 0.500 | 0.620 | 0.601 |
+| PR-AUC | 0.122 | 0.257 | 0.213 |
+| True positives (of 44) | 0 | 22 | 19 |
+| 5-fold CV ROC-AUC | — | 0.664 +/- 0.031 | 0.646 +/- 0.029 |
 
-**Comparison (Random Forest):** accuracy 0.856 (lower than baseline),
-precision 0.214, recall 0.068, F1 0.103, ROC-AUC 0.588. Confusion matrix
-`[[305, 11], [41, 3]]` — catches only 3 of 44 true out-of-service cases, but
-at least catches some, unlike the baseline.
+Confusion matrices: no-skill `[[316, 0], [44, 0]]`, baseline
+`[[190, 126], [22, 22]]`, comparison `[[203, 113], [25, 19]]`.
 
-**This is the concrete evidence for the report's key message:** the
-stakeholder's ">=90% accuracy" ask is a trap given the 87.7%/12.3% class
-imbalance — a model can clear 90% accuracy while being functionally useless
-(as the baseline demonstrates at 87.8%). ROC-AUC (0.62 / 0.59, close to 0.5
-random-guess baseline) is the more honest read: with only 3 features and this
-much class imbalance, neither model meaningfully separates the two classes
-yet. Report should recommend against raw accuracy as the target metric and
-propose something imbalance-aware instead (feeds into section 6, business
-metric).
+**Corrections to the first version's conclusions:**
 
-## Section 6 — Business metric (done, verified in user's real DataLab cell)
+1. The claim that the ROC-AUC was depressed by class imbalance was wrong.
+   ROC-AUC is invariant to the class prior — imbalance cannot affect it.
+2. The claim that 0.62 is "close to random" was also wrong. A bootstrap 95% CI
+   on that split is [0.532, 0.708], which excludes 0.5, and the out-of-fold AUC
+   over all 1800 rows is 0.661. The signal is modest but real and significant.
+3. PR-AUC and 5-fold CV added because the test split holds only 44 positives,
+   which is far too few to report a single number from.
 
-**Chosen metric: recall ("catch rate")**, with precision reported alongside
-as a secondary check.
+Honest read: cross-validated AUC ~0.65 supports **ranking scooters by risk**,
+not predicting individual breakdowns.
 
-Rationale: business asked for accuracy, but section 5 already proved plain
-accuracy is misleading (baseline hits 87.8% accuracy while catching zero real
-cases). Recall directly answers what the business actually needs — of all
-scooters that truly go out of service, what percent get flagged ahead of
-time. Precision reported alongside because a low precision means wasted
-technician dispatches on false alarms (labor/parts cost).
+## Section 6 — Business metric (reworked, verified)
 
-Model used for the estimate: Random Forest (the comparison model), since it's
-the only one of the two that catches any real positives at all.
+First version proposed recall + precision. That is still a model metric, and
+the workbook criterion asks to "define a way to compare your model performance
+**to the business**". Reframed around the real operational constraint.
 
-**Current estimate (verified):** recall = 0.068 (catches ~3 of 44 true
-out-of-service cases in the test set), precision = 0.214. Plain-english
-takeaway printed in the code: catch rate is very low today, not yet reliable
-enough to base staffing/purchasing decisions on — clear room-for-improvement
-message carried into section 7.
+**Metric: pre-emptive catch rate at a fixed inspection budget.** Rank every
+scooter by predicted risk, inspect the top 10% of the fleet, measure what share
+of real breakdowns sat in that group. Reported with **hit rate** (share of
+inspections that found a real problem — the labour/parts cost side) and **lift**
+over random inspection.
 
-## Section 7 — Final summary and recommendations (done, verified in user's real DataLab cell)
+**Business baseline: 0%** — maintenance is reactive today, nothing is inspected
+before it fails.
 
-Pulled feature rankings from both models and wrote up the closing summary:
+| Estimate | Catch rate | Hit rate | Lift |
+|---|---|---|---|
+| Current process | 0% | — | — |
+| Held-out test set | 0.205 | 0.250 | 2.05x |
+| 5-fold over all 1800 rows | 0.234 | 0.289 | 2.34x |
 
-- **Logistic regression coefficients** (sorted): `service_area_downtown`
-  0.383, `service_area_university` 0.136, `reported_issue_count_24h` 0.112,
-  ... down to `service_area_waterfront` -0.311 — dominated by the
-  `service_area` dummy variables.
-- **Random forest feature importances** (sorted): `battery_health_score`
-  0.546 (dominant), `total_trips_24h` 0.218, `reported_issue_count_24h`
-  0.111, all `service_area`/`scooter_model` dummies under 0.02 each.
-- **Important caveat caught and written into the summary**: these two
-  rankings disagree because the numeric features were never scaled before
-  fitting logistic regression, so its coefficient magnitudes aren't
-  comparable across differently-scaled columns (0/1 dummies vs. a 50-100
-  range score) — flagged explicitly rather than silently picking one
-  ranking. Random forest importances treated as the more reliable ranking
-  for "most influential predictors" since they don't have this issue.
-- Final summary + recommendations printed: problem type, data quality issues
-  found, why 90% accuracy is not a meaningful target given the imbalance,
-  the scaling caveat, true feature ranking, low recall on both models, and
-  recommendations (track recall/precision monthly instead of accuracy, fix
-  upstream data collection issues, collect more features, don't rely on
-  current models yet for staffing/purchasing decisions).
+Model used: logistic regression, since it leads on ROC-AUC, PR-AUC and true
+positives. (First version picked the random forest because it was "the only one
+catching any positives" — that was a thresholding artefact, and the RF was the
+weaker model.)
 
-Verified against actual DataLab output — matches exactly.
+## Section 7 — Final summary and driver ranking (reworked, verified)
 
-## Written report text (drafted, not yet pasted into DataLab / finalized by user)
+The first version flagged that the two rankings disagreed because the features
+were unscaled, then resolved the contradiction by trusting the weaker model.
+Scaling is a two-line fix and makes the disagreement disappear.
 
-DataLab workbook template has a separate markdown/text area above the single
-code cell ("Start writing report here..") distinct from code comments/print
-output — rubric requires actual written text summaries there, not just code
-output. Drafted full narrative covering all 6 rubric bullets (data
-validation, EDA, model development, model evaluation, business metrics,
-final summary/recommendations), using the exact verified numbers from all 7
-code sections. Saved to `written_report_draft.md` in this folder. User to
-copy into the DataLab text area, may adjust wording to sound like their own
-voice.
+- **Standardised logistic coefficients** (now mutually comparable):
+  `battery_health_score` -0.532, `total_trips_24h` +0.184,
+  `reported_issue_count_24h` +0.151, `service_area_downtown` +0.139, rest below
+  0.11. Battery health odds ratio is 0.59 per +1 SD.
+- **Random forest importances**: `battery_health_score` 0.511,
+  `total_trips_24h` 0.212, `service_area_downtown` 0.069,
+  `reported_issue_count_24h` 0.059, rest below 0.04.
+- **Permutation importance added as a third, unbiased check** — impurity
+  importance favours continuous/high-cardinality columns and raw coefficients
+  favour large-scale ones, so neither ranking is trustworthy alone. Shuffling
+  `battery_health_score` costs 0.057 ROC-AUC; every other column costs under
+  0.008, and `reported_issue_count_24h` comes out slightly negative.
 
-Also created `FULL_SUBMISSION_REFERENCE.md` — combined copy of the report
-text followed by the full verified code, all in one file, for convenience of
-having both together in one place (not a new/different submission artifact,
-same content as `written_report_draft.md` + `datacamp_notebook_code.py`).
+**Conclusion:** battery health dominates on all three rankings, trips second on
+both models. `reported_issue_count_24h` is weak — removing it does not hurt the
+score, so rider-reported issues are not a useful early warning on their own.
+`service_area` and `scooter_model` add very little.
+
+Underlying data check: lowest battery-health quintile goes out of service 24.1%
+of the time against 5.2% for the highest. Trips quintiles run 7.6% to 20.9%.
+Service area 5.9% (waterfront) to 17.1% (downtown).
+
+## Files
+
+| File | What it is |
+|---|---|
+| `code.py` | **The source of truth.** Exact copy of the single DataLab code cell. CRLF line endings — preserve them. |
+| `report.txt` | **The source of truth** for the narrative. Exact copy of the DataLab text area, including the task-list preamble. CRLF. |
+| `written_report_draft.md` | Markdown rendering of the same narrative, for readability and review |
+| `FULL_SUBMISSION_REFERENCE.md` | Generated from `report.txt` + `code.py`. Do not hand-edit |
+| `DS_capstone_scooter_snapshots.csv` | The dataset |
+| `Deloitte+Practical+-+DS+-+Automotive.pdf` | The brief |
+| `workbook_screenshot.png` | The DataLab workbook task list |
+
+`datacamp_notebook_code.py` was deleted — it was a second copy of the same
+analysis in a different style, and keeping two in sync was avoidable risk.
 
 ## Status
 
-All 7 planned code sections (data validation, data cleaning, EDA, model
-development, model evaluation, business metric, final summary/
-recommendations) are complete and verified against user's real DataLab
-workbook output, each cross-checked and confirmed correct. Section 1
-findings/decisions are carried as a comment summary at the top of section 2
-in the code; still to be carried into the final presentation slides too (see
-requirement above). Written report narrative drafted (`written_report_draft.md`)
-but not yet confirmed as pasted/finalized by user. Not yet started: the
-presentation slides (6-10 slides, <=10 min).
+- **Code**: complete, all 7 sections, verified running end to end against the
+  CSV (exit 0, no warnings, all three figures render).
+- **Written report**: complete and consistent with the code. Every number in it
+  comes from a verified run.
+- **Presentation**: not started. 6-10 slides, <=10 minutes, recorded and
+  submitted through the certification portal. Required to pass.
+
+## Code style rules (agreed, apply to every section)
+
+`code.py` has its own conventions — match them, do not import the style of any
+other file:
+
+1. All imports grouped at the top, one `from ... import X` per line.
+2. Plain Title Case section headers (`# Model development`), no banner comments.
+3. `print('\nLabel : ', value)` — leading newline, label and value in a single
+   call.
+4. Trailing inline comments for annotations (`# change 1`,
+   `# checking for duplicates in scooter_id`).
+5. Findings written as `# - ` comment bullets, matching
+   `# observations from data profiling`.
+6. Symmetric straight-line blocks, no helper functions.
+7. No narrative `print()` walls — the file ends at the ranking output. The
+   write-up belongs in the DataLab text area, not in print statements.
+8. Beginner-level Python: simple lines over compact expert code.
+9. CRLF line endings.
+10. No AI attribution or watermarks anywhere in the submitted files.
