@@ -1,0 +1,1119 @@
+WEBVTT
+
+4cb0dbc0-4800-43e1-b85a-f779c3775078-0
+00:00:04.000 --> 00:00:07.800
+OK, once recording has started,
+once the post load is done,
+
+4cb0dbc0-4800-43e1-b85a-f779c3775078-1
+00:00:07.800 --> 00:00:12.551
+let me know like I will stop the
+recording and restart before jumping into
+
+4cb0dbc0-4800-43e1-b85a-f779c3775078-2
+00:00:12.551 --> 00:00:16.099
+any Yeah, yeah,
+whatever related to batch notifications
+
+4cb0dbc0-4800-43e1-b85a-f779c3775078-3
+00:00:16.099 --> 00:00:18.760
+added handling within the batch task flow.
+
+f824f923-807d-4f59-9e2c-2cc93b0ac705-0
+00:00:18.800 --> 00:00:25.800
+I'll cover everything now post it
+whatever parameter file make we can take
+
+f824f923-807d-4f59-9e2c-2cc93b0ac705-1
+00:00:25.800 --> 00:00:28.880
+it in a separate batch post load.
+
+875f9664-c60c-446d-954d-23ede3426119-0
+00:00:29.000 --> 00:00:31.000
+So this is here.
+
+5a52f22d-7c1d-4df3-8fe5-5f221602f4e8-0
+00:00:31.120 --> 00:00:35.012
+The system cheques the final status of
+the of all the jobs under that given
+
+5a52f22d-7c1d-4df3-8fe5-5f221602f4e8-1
+00:00:35.012 --> 00:00:35.320
+batch.
+
+8213a250-1856-4265-bae7-2453513b2cab-0
+00:00:35.560 --> 00:00:37.894
+So if all the jobs are completed
+successfully,
+
+8213a250-1856-4265-bae7-2453513b2cab-1
+00:00:37.894 --> 00:00:41.520
+then the status in the job run stash
+table would be updated to complete.
+
+7c7bcb57-42bd-4f8e-834a-8d2e62d746d9-0
+00:00:41.840 --> 00:00:45.367
+If one or more jobs have failed,
+the status is updated to fail and a
+
+7c7bcb57-42bd-4f8e-834a-8d2e62d746d9-1
+00:00:45.367 --> 00:00:49.560
+notification will be sent out based upon
+the based on on the status of the batch.
+
+21512ec5-c05b-4761-94ee-49870b1ce43d-0
+00:00:50.320 --> 00:00:54.600
+OK let me show you here also in the low
+seat also it is same.
+
+bbb7f571-039d-4328-bf2e-83f0bd07b25c-0
+00:00:54.800 --> 00:00:57.720
+It will check if all the jobs under this
+batch has succeeded.
+
+b1c61c27-0bc4-4e1b-a1f7-1617265f5f6e-0
+00:00:57.720 --> 00:01:01.134
+If all that that succeeded,
+it will just update the status to
+
+b1c61c27-0bc4-4e1b-a1f7-1617265f5f6e-1
+00:01:01.134 --> 00:01:05.429
+completed in the batch runsters and
+success notification would be send out if
+
+b1c61c27-0bc4-4e1b-a1f7-1617265f5f6e-2
+00:01:05.429 --> 00:01:05.760
+it is.
+
+e626aead-7306-48c8-a7e5-08a226052935-0
+00:01:06.200 --> 00:01:12.111
+If if all the jobs are not succeeded then
+it would update the status as failed and
+
+e626aead-7306-48c8-a7e5-08a226052935-1
+00:01:12.111 --> 00:01:14.960
+it will send out a failure notification.
+
+c2b78050-3150-46e0-a19a-cc9c4bd81964-0
+00:01:14.960 --> 00:01:20.432
+So in that case inside a batch,
+if there are 10 jobs,
+
+c2b78050-3150-46e0-a19a-cc9c4bd81964-1
+00:01:20.432 --> 00:01:25.093
+1011 notification will be sent, Yeah,
+for 10,
+
+c2b78050-3150-46e0-a19a-cc9c4bd81964-2
+00:01:25.093 --> 00:01:31.680
+for 10 individual job runs and extra 1
+for batch, overall batch.
+
+444528e1-c58b-48d1-92c6-abd45a066e4d-0
+00:01:31.880 --> 00:01:39.021
+That is huge because on everyday basis it
+is expected to have the successful run
+
+444528e1-c58b-48d1-92c6-abd45a066e4d-1
+00:01:39.021 --> 00:01:40.080
+only, right?
+
+f999bf0f-5508-4b6f-8c81-cbe6d0c6c889-0
+00:01:41.120 --> 00:01:41.960
+Yeah, yeah.
+
+65e12838-d8ed-48f1-b0a5-c30521d1dac5-0
+00:01:42.200 --> 00:01:44.920
+Like I think it's a client requirement.
+
+e4f31267-f2b2-4391-ab61-f5b2103bfe0b-0
+00:01:44.920 --> 00:01:49.160
+Also they didn't write like we have a
+walkthrough of code with client already.
+
+7415f76b-bba1-4987-8f90-98beaeb29b17-0
+00:01:50.040 --> 00:01:55.025
+Like explicitly while sending out
+notification or making an entrance into
+
+7415f76b-bba1-4987-8f90-98beaeb29b17-1
+00:01:55.025 --> 00:01:58.124
+this,
+they ask a few parameters that needs to
+
+7415f76b-bba1-4987-8f90-98beaeb29b17-2
+00:01:58.124 --> 00:02:02.840
+be like that needs to be present for sure
+like batch name, job names.
+
+b4e498b3-d420-4998-8c1a-e355883939d4-0
+00:02:03.120 --> 00:02:08.360
+I tell if we're not passing them,
+we are just passing the job ID, batch ID,
+
+b4e498b3-d420-4998-8c1a-e355883939d4-1
+00:02:08.360 --> 00:02:10.360
+job run ID, exception run ID.
+
+87ed963a-dc9a-4a92-ba2f-34f136a0f274-0
+00:02:10.360 --> 00:02:12.000
+These details only we usually pass right?
+
+e740d15e-1f29-4c1b-af6b-a58afcb40cdb-0
+00:02:12.400 --> 00:02:13.760
+But they explicitly ask.
+
+5dcc2c7c-9b68-4c6a-99a6-e870803cdd98-0
+00:02:13.760 --> 00:02:18.520
+Then we have added them again as part of
+free work after the feedback.
+
+56e81d43-b433-4680-b92f-301d4d666f6d-0
+00:02:18.600 --> 00:02:21.640
+OK, OK.
+
+b959d658-f67f-4f73-9f5e-24dc667140c4-0
+00:02:22.360 --> 00:02:24.000
+It's taking so long.
+
+6ecdd0e8-c7de-440a-9f5e-78565b1e1c89-0
+00:02:29.760 --> 00:02:32.640
+Sometimes this VDI irritates.
+
+772aacb6-82c4-46bf-9c51-89c52ac1865e-0
+00:02:43.200 --> 00:02:47.042
+Oh my God,
+why aren't we not able to do let me open
+
+772aacb6-82c4-46bf-9c51-89c52ac1865e-1
+00:02:47.042 --> 00:02:48.520
+it in the Microsoft.
+
+6b29ebb1-167b-405b-9a45-6b715bad39f4-0
+00:03:08.640 --> 00:03:09.520
+What happened?
+
+ea56ab46-f5c5-465b-b23f-8094ffedf13b-0
+00:03:10.320 --> 00:03:11.840
+Should I sign in another move?
+
+a704791c-5509-498c-a687-d3fccd5821c2-0
+00:03:13.000 --> 00:03:13.080
+Huh?
+
+bc80dd77-9121-4ee8-b178-24454d364239-0
+00:03:13.400 --> 00:03:18.280
+I don't know that is your.
+
+c5911399-6429-46a1-a467-c203c0da83ff-0
+00:03:18.280 --> 00:03:20.280
+Is IDMC open from your end?
+
+dfe0ed68-c05a-495a-95f4-0a65f1fd9a22-0
+00:03:27.320 --> 00:03:33.360
+Oh my God,
+let me know if it is open from your end.
+
+8ccf7a3f-b013-4d24-afda-1ab231fc0145-0
+00:03:33.560 --> 00:03:38.794
+There is something issue with my
+otherwise let me disconnect and connect
+
+8ccf7a3f-b013-4d24-afda-1ab231fc0145-1
+00:03:38.794 --> 00:03:39.440
+it again.
+
+7a446c6e-be69-45d1-8e13-07e97e0b377b-0
+00:04:17.180 --> 00:04:17.500
+Hello.
+
+50101160-2b92-4f06-bccd-14829ab65381-0
+00:04:18.460 --> 00:04:20.340
+Yeah is it open?
+
+91cddf1a-7065-496f-8d2f-b9fdeb4f55cc-0
+00:04:23.980 --> 00:04:25.900
+Yeah,
+you can share your screen and show me the
+
+91cddf1a-7065-496f-8d2f-b9fdeb4f55cc-1
+00:04:25.900 --> 00:04:26.540
+batch task flow.
+
+433d3479-b0d3-4ce7-9831-ebbfb5cca46e-0
+00:04:26.540 --> 00:04:33.800
+Open any batch task flow account D go to
+explore type Dai.
+
+75d94ad7-7cca-4583-86ea-c5d40ec8bc3d-0
+00:04:37.960 --> 00:05:00.970
+Open Dai account main main search for
+batch pillow one.
+
+e204f3fb-8194-4eff-830b-82a868fdc004-0
+00:05:01.650 --> 00:05:03.210
+First one is batch prerequisite.
+
+5f04baf4-d930-4db2-a253-29899aaa6a9c-0
+00:05:12.480 --> 00:05:16.480
+So scroll to the left,
+I'll tell you scroll to a little left.
+
+9346671f-017e-4e69-aeec-70fb2020f61f-0
+00:05:16.600 --> 00:05:21.741
+So in the start strip,
+we have two temporary parameters which
+
+9346671f-017e-4e69-aeec-70fb2020f61f-1
+00:05:21.741 --> 00:05:28.208
+are temporary count and batch status,
+temporary error count user to count the
+
+9346671f-017e-4e69-aeec-70fb2020f61f-2
+00:05:28.208 --> 00:05:31.360
+failures of the jobs within the batch.
+
+5333ae0f-81be-4822-8805-7e5d47b21f0c-0
+00:05:32.160 --> 00:05:36.925
+Temporary batch status is the final batch
+status which would be use it to send out
+
+5333ae0f-81be-4822-8805-7e5d47b21f0c-1
+00:05:36.925 --> 00:05:40.600
+notification and also update the status
+in the batch run stats.
+
+e08cf42d-2a02-4e65-9cb6-5bb07b1fe068-0
+00:05:40.600 --> 00:05:43.825
+OK,
+So once we'll add this assignment task
+
+e08cf42d-2a02-4e65-9cb6-5bb07b1fe068-1
+00:05:43.825 --> 00:05:48.400
+under each and every like under each and
+every subtask loop.
+
+eb2e5a47-30e4-4dff-b01b-aec7193e3740-0
+00:05:48.640 --> 00:05:51.520
+And here we would be updating it to one
+in case of a failure.
+
+f7a6fc35-37dd-42dc-9a00-42050e8067a5-0
+00:05:51.920 --> 00:05:53.760
+OK, next in the dash and task.
+
+db9c89ec-b4ab-41f3-9d05-792b4b74dcb4-0
+00:05:53.760 --> 00:05:59.865
+Next in the dash and task we will not
+this not this before that we have just
+
+db9c89ec-b4ab-41f3-9d05-792b4b74dcb4-1
+00:05:59.865 --> 00:06:02.720
+after the subtask, we have this one.
+
+0e5880ee-0ab0-4ac1-a7dc-4ee90929d4f2-0
+00:06:07.040 --> 00:06:10.873
+OK, so here decision task,
+we'll check if the error count is equal
+
+0e5880ee-0ab0-4ac1-a7dc-4ee90929d4f2-1
+00:06:10.873 --> 00:06:11.160
+to 0.
+
+e34c766b-4b35-48b3-8d03-dec541d99885-0
+00:06:11.360 --> 00:06:15.800
+If it is equal to 0,
+it means no job has failed in that run.
+
+d03f90ca-1432-41a2-af4d-75e45c63075a-0
+00:06:15.960 --> 00:06:22.814
+This has to be kept after all the subtask
+flows are arranged in as per their run
+
+d03f90ca-1432-41a2-af4d-75e45c63075a-1
+00:06:22.814 --> 00:06:28.822
+order and here if it is equal to 0 we
+will set the batch run status to
+
+d03f90ca-1432-41a2-af4d-75e45c63075a-2
+00:06:28.822 --> 00:06:30.600
+completed or success.
+
+69f5b2cc-eaf7-43a5-8c03-f151681fb5cd-0
+00:06:30.680 --> 00:06:37.306
+Click on the assignment task after that
+at zero in the first part here we are
+
+69f5b2cc-eaf7-43a5-8c03-f151681fb5cd-1
+00:06:37.306 --> 00:06:39.600
+come like assigning C tour.
+
+82dab82f-7ac9-4981-914c-c9b9dafa9958-0
+00:06:39.760 --> 00:06:49.297
+If it is space we are assigning FI guess
+below 1F and then in the batch run starts
+
+82dab82f-7ac9-4981-914c-c9b9dafa9958-1
+00:06:49.297 --> 00:06:58.835
+we are passing this as a one of the input
+field OK times batch status OK open this
+
+82dab82f-7ac9-4981-914c-c9b9dafa9958-2
+00:06:58.835 --> 00:07:06.305
+batch task mapping task,
+open the mapping OK copy the query from
+
+82dab82f-7ac9-4981-914c-c9b9dafa9958-3
+00:07:06.305 --> 00:07:06.880
+here.
+
+bea7b2ab-4085-46d0-b419-ca4d23f5da51-0
+00:07:23.020 --> 00:07:28.940
+So here we are just trying to get using
+the input batch ID and status has started.
+
+066d48e1-6a31-4293-914d-a07e6993f5c1-0
+00:07:28.940 --> 00:07:34.720
+We are trying to fast the latest batch
+run ID, so we have to upgrade it, right?
+
+09bcd746-393c-4320-bd61-209214db06eb-0
+00:07:35.160 --> 00:07:38.720
+And then current time stamp value and
+audit summary failed.
+
+f1bf3804-e822-4c67-a932-e15322e245dc-0
+00:07:39.200 --> 00:07:41.234
+OK,
+we are just trying to get the latest
+
+f1bf3804-e822-4c67-a932-e15322e245dc-1
+00:07:41.234 --> 00:07:43.120
+batch run ID along with audit columns.
+
+faf7c2a6-224d-4ced-b01a-3002154fe715-0
+00:07:43.680 --> 00:07:44.360
+Yeah, that's it.
+
+6db8e593-486a-4f34-8eb9-cad2fb2a0a12-0
+00:07:44.440 --> 00:07:48.280
+You can go to the next, next,
+next transformation in the mark.
+
+29ea0238-503f-4f7a-bbb1-02635ac6b28e-0
+00:07:52.520 --> 00:07:55.360
+So here we are updating setting the value
+for status.
+
+0b43cd65-f620-4948-804e-c9ac1b04c032-0
+00:07:55.640 --> 00:07:58.291
+If my temporary input state,
+parent status,
+
+0b43cd65-f620-4948-804e-c9ac1b04c032-1
+00:07:58.291 --> 00:08:00.400
+whatever we are passing here right?
+
+206e26b0-63f7-4f6d-9ea2-2b2b082f7608-0
+00:08:00.400 --> 00:08:02.880
+If it is C then it is completed otherwise
+it is failed.
+
+a149e503-09a4-448b-b2ce-df9bf635c79f-0
+00:08:03.120 --> 00:08:05.840
+Using all these values,
+we will be updating the batch run strats.
+
+4c6c079e-eec2-4654-9863-892d88db1363-0
+00:08:06.640 --> 00:08:09.600
+I'm going to directly go to fill mapping
+using batch run ID.
+
+5e3e380d-e8a3-4e95-ac42-a7f811e8fe80-0
+00:08:09.600 --> 00:08:11.000
+Batch run ID is a picky column.
+
+70185a2e-8c21-46f5-8b37-77b090e46ae3-0
+00:08:11.000 --> 00:08:16.437
+We are using it for update operation and
+we are updating it batch run ID OK we are
+
+70185a2e-8c21-46f5-8b37-77b090e46ae3-1
+00:08:16.437 --> 00:08:21.547
+updating batch end time status audit,
+update item audit up by that's true and
+
+70185a2e-8c21-46f5-8b37-77b090e46ae3-2
+00:08:21.547 --> 00:08:23.839
+go to the task once batch transfer.
+
+773aaabb-54ab-4a66-8bb8-2ac8bec364c1-0
+00:08:24.720 --> 00:08:30.260
+Once this is done using the same status,
+we have another decision task,
+
+773aaabb-54ab-4a66-8bb8-2ac8bec364c1-1
+00:08:30.260 --> 00:08:31.800
+print decision task.
+
+27df607c-d58d-4904-b1c8-923c500e3569-0
+00:08:33.240 --> 00:08:38.160
+So here if my batch status equal to C,
+success notification would be sent out.
+
+55255621-0e60-40e8-ab20-1d076dfecb77-0
+00:08:38.160 --> 00:08:40.560
+If it is,
+if failure notification would be sent out.
+
+59222112-080b-43c0-bef0-b648ae078278-0
+00:08:40.800 --> 00:08:43.419
+And if,
+if any failure notification is sent out,
+
+59222112-080b-43c0-bef0-b648ae078278-1
+00:08:43.419 --> 00:08:46.360
+we have we are failing the task load
+after sending it.
+
+ebca4f09-add1-4a37-a7d6-eb01a0a52db9-0
+00:08:48.280 --> 00:08:51.160
+OK, yeah, that's it.
+
+ba98145e-6cd5-4702-9aff-a0e1687b1c68-0
+00:08:51.160 --> 00:08:53.160
+Raya, could you please go to the LLD once?
+
+121c2554-e2b6-446c-a77e-2c7d6a540146-0
+00:08:53.240 --> 00:08:56.504
+I'll just give you a high level of error
+handling, manual handling,
+
+121c2554-e2b6-446c-a77e-2c7d6a540146-1
+00:08:56.504 --> 00:08:57.320
+all those things.
+
+27ace009-296f-4287-8993-84c822096af6-0
+00:09:03.160 --> 00:09:09.640
+All that we get down error handling
+folder.
+
+3f63d539-17cb-4e94-bbde-9c585c749f14-0
+00:09:12.080 --> 00:09:12.200
+Yeah.
+
+158e4bf9-f51f-4b67-af9f-e211607dd56a-0
+00:09:12.600 --> 00:09:19.262
+So here the prerequisite process fails if
+the latest target job June batch run is
+
+158e4bf9-f51f-4b67-af9f-e211607dd56a-1
+00:09:19.262 --> 00:09:20.400
+not completed.
+
+9bd93bce-2fe5-423a-aabb-eeaacdf2f06f-0
+00:09:20.840 --> 00:09:23.320
+OK, so we have a batch predict site.
+
+21de5448-3e3c-46f9-8c2b-61fe9fd51adb-0
+00:09:23.320 --> 00:09:24.560
+It is a separate task flow.
+
+5c1d1a08-bb44-4436-aa59-6a1f94743e94-0
+00:09:24.560 --> 00:09:29.480
+I told you it in the first KTV KT call I
+guess.
+
+aea5a0ec-6e91-4de2-848c-0909e196ca7e-0
+00:09:29.960 --> 00:09:33.705
+So we have it it it will get failed and
+it it,
+
+aea5a0ec-6e91-4de2-848c-0909e196ca7e-1
+00:09:33.705 --> 00:09:39.683
+it it gets failed if if my if our target
+the latest shown batch that's not
+
+aea5a0ec-6e91-4de2-848c-0909e196ca7e-2
+00:09:39.683 --> 00:09:40.480
+completed.
+
+bbe056ad-9baa-47aa-b921-aeb4f08e55d5-0
+00:09:40.600 --> 00:09:44.095
+OK,
+interrupted batch runs in starter status
+
+bbe056ad-9baa-47aa-b921-aeb4f08e55d5-1
+00:09:44.095 --> 00:09:47.280
+or marker in failure fail before restart.
+
+b8507f83-ee55-4092-ac5c-66a5767cbc17-0
+00:09:47.280 --> 00:09:47.600
+OK.
+
+180c878a-f337-40f1-9018-0550c6ebafef-0
+00:09:47.840 --> 00:09:51.600
+So any batch run interrupted due to
+network failure.
+
+c567b100-1df6-4828-b327-0b1363097d7b-0
+00:09:51.760 --> 00:09:57.494
+So if in case if any batch run got
+interrupted due to network failure,
+
+c567b100-1df6-4828-b327-0b1363097d7b-1
+00:09:57.494 --> 00:10:00.240
+its status would be started right?
+
+59db4a5b-c47c-4a1f-a080-85d6b176d13c-0
+00:10:00.440 --> 00:10:07.480
+We have to update like it will be updated
+as fail before reset.
+
+16f6d0d9-90e9-4327-a98b-cb101fed9772-0
+00:10:07.480 --> 00:10:13.579
+We have to update it as failed and we
+have to start the task flow batch run OK
+
+16f6d0d9-90e9-4327-a98b-cb101fed9772-1
+00:10:13.579 --> 00:10:18.520
+Failed batch runs are restarted using the
+same execution right?
+
+4e01d655-c783-40b1-ac36-44888ad60c37-0
+00:10:18.520 --> 00:10:21.360
+We will be using same execution run ID
+for restart purpose.
+
+792e3f57-ef3b-4f4f-8e18-21c484406471-0
+00:10:21.600 --> 00:10:27.459
+Successfully completed jobs are skipped
+during during restart OK and target
+
+792e3f57-ef3b-4f4f-8e18-21c484406471-1
+00:10:27.459 --> 00:10:32.240
+cleanup is performed before restart
+automatically OK restart.
+
+965a8a29-36fd-421d-bd66-e038c1f0f37d-0
+00:10:32.680 --> 00:10:36.885
+What I mean to say is before restart load,
+target cleanup would be done and job
+
+965a8a29-36fd-421d-bd66-e038c1f0f37d-1
+00:10:36.885 --> 00:10:40.040
+execution failures are recorded in the
+job error stats log.
+
+df96bd04-266a-4387-877a-9987cb5b82e6-0
+00:10:40.800 --> 00:10:42.000
+That this I told you right?
+
+dc174258-bb8a-4d1f-a99e-941abb945040-0
+00:10:42.280 --> 00:10:48.320
+And then failed or invalid source loads
+caused the target job to like to fail, OK.
+
+4cd04251-0a1e-40a8-a0aa-12fe9fc12c5e-0
+00:10:48.320 --> 00:10:50.720
+This is the part of ETL execution log.
+
+a7ffa693-9171-4f4b-85ae-2c51c1184f4d-0
+00:10:50.760 --> 00:10:54.840
+So this is part of batch job preload
+failed or invalid source load.
+
+33206a8d-4a4d-445e-be12-b897002f8eec-0
+00:10:54.840 --> 00:10:58.835
+So any source load gets failed,
+we won't be going with the target job
+
+33206a8d-4a4d-445e-be12-b897002f8eec-1
+00:10:58.835 --> 00:10:59.520
+load, right?
+
+0fec8ddf-2fef-464a-a40f-b2d7bbdab3bf-0
+00:10:59.520 --> 00:11:01.600
+So that is the reason why we are failing.
+
+1b293a86-2c8d-45c0-868b-a61b7172d421-0
+00:11:01.600 --> 00:11:05.000
+We are updating the status in the job run
+status failed OK.
+
+ccd688bf-bb0f-4230-b331-3444cc4b5b60-0
+00:11:05.880 --> 00:11:09.293
+The next one is critical validation
+failures prevent impacted record from
+
+ccd688bf-bb0f-4230-b331-3444cc4b5b60-1
+00:11:09.293 --> 00:11:10.400
+loading into the target.
+
+33bfed31-0a31-481a-a2e4-e30212d7581b-0
+00:11:10.520 --> 00:11:15.200
+So if any critical validation check fail,
+we are not loading them into the target.
+
+9777294f-ff60-4a58-9f67-1bd7c8ec4c20-0
+00:11:15.320 --> 00:11:18.232
+Informational valid validation failures
+are logged,
+
+9777294f-ff60-4a58-9f67-1bd7c8ec4c20-1
+00:11:18.232 --> 00:11:20.080
+but the records continue to load.
+
+830d6d12-09c8-478b-8662-c829e79c5b8c-0
+00:11:20.880 --> 00:11:24.640
+Can you add can you can you add continue
+to load into the target?
+
+68a5e019-a230-453e-9a9b-c7ffcc13315d-0
+00:11:28.960 --> 00:11:34.317
+Continue to load into the target small it
+is OK,
+
+68a5e019-a230-453e-9a9b-c7ffcc13315d-1
+00:11:34.317 --> 00:11:42.080
+into the target OK Reconciliation
+failures or out of balance threshold
+
+68a5e019-a230-453e-9a9b-c7ffcc13315d-2
+00:11:42.080 --> 00:11:45.360
+metrics cause the job to fail.
+
+8cd63834-eae5-4dd4-81a9-dd4aa058b114-0
+00:11:46.040 --> 00:11:46.440
+OK.
+
+24a17e10-345d-4c7b-bc95-961fe6a44682-0
+00:11:46.880 --> 00:11:49.280
+This is balance related to balance to
+cancellation.
+
+cd08b177-36b2-4c27-bb05-f69d9e2db3f3-0
+00:11:49.280 --> 00:11:52.520
+If any method is out of threshold,
+then it's a failure.
+
+6df86e5c-a374-4647-a65f-798557b136c9-0
+00:11:52.520 --> 00:11:53.560
+We will be failing the job.
+
+6649ff0d-3de9-426f-86e3-fb3bc973622f-0
+00:11:53.920 --> 00:11:58.640
+Main load failures mark the job and
+related rule executions as failed.
+
+5ea3b9cd-e111-4c8a-8238-8932bbd2e582-0
+00:11:58.680 --> 00:12:02.555
+I told you right, if anything is failed,
+we would be updating rule execution log
+
+5ea3b9cd-e111-4c8a-8238-8932bbd2e582-1
+00:12:02.555 --> 00:12:03.800
+and job run stress, right?
+
+2df004e5-dfcc-47d0-a712-6097dfb34040-0
+00:12:04.120 --> 00:12:07.680
+So I mean that the batches failed if one
+or more jobs failed.
+
+3ab0dee1-9b1a-4bde-b7e1-e9459ed6d52d-0
+00:12:07.680 --> 00:12:13.361
+This this you know and manual handling
+the batch pre requisite task for must be
+
+3ab0dee1-9b1a-4bde-b7e1-e9459ed6d52d-1
+00:12:13.361 --> 00:12:18.120
+manually trigger if the latest job run
+batch is not not completed.
+
+f21c0a34-b05e-406b-836e-2441a4f27889-0
+00:12:18.160 --> 00:12:25.190
+What what I mean to say is if my batch
+start OK, batch pre requisite OK,
+
+f21c0a34-b05e-406b-836e-2441a4f27889-1
+00:12:25.190 --> 00:12:32.028
+if my latest zone 2 batch is not
+completed then in that case batch pre
+
+f21c0a34-b05e-406b-836e-2441a4f27889-2
+00:12:32.028 --> 00:12:38.962
+requisite will be failed right after
+updating it to either completed or
+
+f21c0a34-b05e-406b-836e-2441a4f27889-3
+00:12:38.962 --> 00:12:45.800
+bypassing this batch prerequisite,
+we have to run our actual batch OK.
+
+db01c90b-030d-47ef-9e72-4b3f2278eada-0
+00:12:46.280 --> 00:12:52.830
+This this should be the batch
+prerequisite that's not completed
+
+db01c90b-030d-47ef-9e72-4b3f2278eada-1
+00:12:52.830 --> 00:13:00.609
+completed after after making after making
+it either to after updating it to
+
+db01c90b-030d-47ef-9e72-4b3f2278eada-2
+00:13:00.609 --> 00:13:03.679
+completed as per the scenario.
+
+03fa365f-9ea0-4c06-a6f1-bfcfacb6f3e5-0
+00:13:03.720 --> 00:13:06.600
+Otherwise we can directly run the batch.
+
+b14ce020-9110-4341-8e82-66fb51dc0ebd-0
+00:13:08.600 --> 00:13:16.080
+We can directly trigger OK,
+manual trigger if OK, OK, RIA here.
+
+ad6f9c23-7580-437e-aafa-7a068e2f93be-0
+00:13:16.120 --> 00:13:18.600
+I think complete information is not
+provided.
+
+352144e1-7106-4511-84d1-4d5fcb359830-0
+00:13:18.600 --> 00:13:23.796
+What I mean to say here is if my latest
+batch is not in completed state then my
+
+352144e1-7106-4511-84d1-4d5fcb359830-1
+00:13:23.796 --> 00:13:26.720
+batch to request a task for would be
+failed.
+
+95973e1c-bacc-4bb1-961f-d05bc9bb3423-0
+00:13:26.960 --> 00:13:31.736
+In that case I would this end like the
+admin team will get our notification what
+
+95973e1c-bacc-4bb1-961f-d05bc9bb3423-1
+00:13:31.736 --> 00:13:32.680
+they have to do.
+
+cd5ead99-ef21-4e00-817f-b7ee12bf026f-0
+00:13:32.920 --> 00:13:37.556
+Either they have to update the status to
+complete it and trigger this batch to
+
+cd5ead99-ef21-4e00-817f-b7ee12bf026f-1
+00:13:37.556 --> 00:13:39.200
+request a task for directly.
+
+25e59c7d-b5e3-495a-bdbd-fb1e0b22dc0b-0
+00:13:39.360 --> 00:13:43.260
+Otherwise,
+if it is in failed status and if they are
+
+25e59c7d-b5e3-495a-bdbd-fb1e0b22dc0b-1
+00:13:43.260 --> 00:13:49.000
+OK to run, restart, do a reset or rerun,
+they can directly trigger the batch.
+
+202c5e0b-eff5-4fdb-a441-875be0650d7b-0
+00:13:50.200 --> 00:13:51.520
+Batch task flow.
+
+cfd70d5c-812a-4b3c-98de-d8a38e4f97c7-0
+00:13:51.520 --> 00:14:00.040
+OK I get this segment is is the batch
+free request OK?
+
+6fd1d359-169d-4d3f-adda-7e9c12332cea-0
+00:14:00.160 --> 00:14:04.594
+The batch free request the task flow must
+be manually trigger if the latest zone 2
+
+6fd1d359-169d-4d3f-adda-7e9c12332cea-1
+00:14:04.594 --> 00:14:07.960
+batch is not completed after updating the
+status to completed.
+
+d8b3e58a-db88-4a07-a87a-5e9c4a35e981-0
+00:14:07.960 --> 00:14:10.960
+You can write just after updating the
+status to completed.
+
+f7370b04-9e71-4ba5-a531-f8dc83bbe3c3-0
+00:14:30.320 --> 00:14:35.400
+Keep check updating spelling.
+
+9f7cbd9b-a552-469b-ba69-b4322d10fbf5-0
+00:15:05.480 --> 00:15:11.692
+Otherwise, if like otherwise OK,
+otherwise they can do,
+
+9f7cbd9b-a552-469b-ba69-b4322d10fbf5-1
+00:15:11.692 --> 00:15:20.901
+we can skip this and directly go with the
+with the restart or rerun based upon the
+
+9f7cbd9b-a552-469b-ba69-b4322d10fbf5-2
+00:15:20.901 --> 00:15:29.444
+like failure or failure scenario or like
+that directly proceed with the with
+
+9f7cbd9b-a552-469b-ba69-b4322d10fbf5-3
+00:15:29.444 --> 00:15:38.320
+either restart or rerun based upon the
+data issue or based upon the issue task.
+
+b0800455-a547-4e03-a8ce-f8a5a5c91f1c-0
+00:15:38.320 --> 00:15:47.836
+Look for restart or rerun store rerun
+based upon the failure or based upon the
+
+b0800455-a547-4e03-a8ce-f8a5a5c91f1c-1
+00:15:47.836 --> 00:15:48.800
+failure.
+
+59286851-dea7-4043-939f-931af0072a9d-0
+00:15:48.800 --> 00:15:50.360
+You can write based upon the failure.
+
+c9675729-d5f0-4606-9370-94f025789c1f-0
+00:15:56.960 --> 00:16:00.280
+OK, not failure, right?
+
+ef8c26e5-d7f6-4c1b-abe9-5266f263fca6-0
+00:16:00.560 --> 00:16:02.640
+Rerun is not dependent upon failure.
+
+4854585f-6057-47d7-9aa2-5e8c9043c883-0
+00:16:04.480 --> 00:16:09.880
+It can be or cannot be, right,
+but then can you?
+
+2d12b135-5d75-4f25-9ef5-c9cb17ca403b-0
+00:16:09.880 --> 00:16:10.720
+So, yeah.
+
+e28f40c5-1270-4747-8a0a-5711c83716ea-0
+00:16:10.960 --> 00:16:18.360
+So one thing, OK, based upon the scenario,
+yeah, yeah, I'll tell.
+
+1c5dfa02-9deb-4947-b75c-0d243006a803-0
+00:16:18.800 --> 00:16:22.960
+Yeah, based upon the scenario,
+that is fine for restart.
+
+0492dde4-475e-464b-a806-c89bb5fb98b3-0
+00:16:23.040 --> 00:16:26.833
+And the second point is for restart
+return or return return scenarios,
+
+0492dde4-475e-464b-a806-c89bb5fb98b3-1
+00:16:26.833 --> 00:16:30.040
+the target zone batch task flow must be
+triggered manually.
+
+1d1a3a08-39b9-4abc-b0f9-0c35736d9ef4-0
+00:16:30.240 --> 00:16:32.560
+So this is not a prerequisite.
+
+05288fde-0d73-4f0d-891d-abfe53fbf721-0
+00:16:32.560 --> 00:16:35.800
+We don't touch prerequisite task for
+these three scenarios.
+
+95a8c642-5843-4c9f-ae36-262e1803f56b-0
+00:16:35.800 --> 00:16:38.880
+We will be directly triggering the target
+zone batch task flow.
+
+6552e160-9bec-43b3-9139-c57aed85734b-0
+00:16:58.160 --> 00:17:01.352
+OK,
+rerun and zone 1 rerun in case rerun
+
+6552e160-9bec-43b3-9139-c57aed85734b-1
+00:17:01.352 --> 00:17:07.425
+reports must be created manually with
+required execution details in the batch
+
+6552e160-9bec-43b3-9139-c57aed85734b-2
+00:17:07.425 --> 00:17:08.359
+run strikes.
+
+5af1e92d-37f1-4dad-a7c4-a46db6d4fc5f-0
+00:17:09.720 --> 00:17:12.339
+OK,
+like what does it mean Like not only
+
+5af1e92d-37f1-4dad-a7c4-a46db6d4fc5f-1
+00:17:12.339 --> 00:17:16.364
+rerun, zone 1 rerun,
+you can also add first time history catch
+
+5af1e92d-37f1-4dad-a7c4-a46db6d4fc5f-2
+00:17:16.364 --> 00:17:19.240
+up first time incremental also before
+rerun.
+
+2ed44a4c-181e-4412-bc22-efc7202036d3-0
+00:17:20.400 --> 00:17:24.320
+Before rerun history catch up.
+
+b17ae406-582e-41ab-b362-ea77dfc954e3-0
+00:17:24.320 --> 00:17:25.240
+First time incremental.
+
+4089a1a1-10e8-46e4-9dd5-a7b5454499b9-0
+00:17:37.840 --> 00:17:38.200
+OK.
+
+8c5cddc9-ac25-44b4-a272-15b7d1bb272e-0
+00:17:39.240 --> 00:17:46.080
+Before the batsman said remove 1 space,
+keep only one space, remove that.
+
+eabba6b6-0edc-474d-82c1-e364a2a968d3-0
+00:17:46.560 --> 00:17:47.760
+OK, Remove one more.
+
+8ccd4efe-c42f-4bb4-af82-7f9cd03ca45c-0
+00:17:49.760 --> 00:17:50.120
+OK.
+
+d8254c33-0b0a-41f5-80b5-a4f6a2bb636c-0
+00:17:50.200 --> 00:17:53.200
+Keep only one space, keep 1 space.
+
+af816d63-1756-41d5-b827-14f29780378d-0
+00:17:53.200 --> 00:17:54.000
+Yeah, right.
+
+82f42b85-75bb-4c5d-bd79-d61d7ab1a13d-0
+00:17:54.560 --> 00:17:55.520
+Is it OK?
+
+1a41fe14-f5c2-4ede-bd64-8ee06c2cdcba-0
+00:17:55.520 --> 00:17:56.000
+It is happening.
+
+27c5daf4-a765-4bc3-b8dc-75454b74ee87-0
+00:17:56.000 --> 00:17:56.360
+Space.
+
+78d2eaee-fe4c-4525-ae45-275feb72243e-0
+00:17:56.360 --> 00:17:57.240
+OK, OK, cool.
+
+b66cd690-0744-4b87-8117-694dd139f9e2-0
+00:17:59.240 --> 00:18:01.560
+OK, required sourcing dates for.
+
+ca01936c-ddbd-4238-a73b-b18fc670e694-0
+00:18:01.720 --> 00:18:08.745
+OK next required sourcing dates and
+parameter values must be provided for
+
+ca01936c-ddbd-4238-a73b-b18fc670e694-1
+00:18:08.745 --> 00:18:10.360
+rerun processing.
+
+ab2dd77a-11e6-4d05-a941-2eeea46841a6-0
+00:18:10.360 --> 00:18:19.400
+OK for rerun we have to get the execution
+run ID from the parameter file right?
+
+aea8f20a-c9c4-4af2-b47b-7c47ae618e19-0
+00:18:19.680 --> 00:18:23.640
+So those days should be provided for
+rerun processing.
+
+19c0798f-f9c8-4ba8-9a8f-1f8f153715c4-0
+00:18:24.040 --> 00:18:27.840
+Restart or rerun must be performed only
+after validation.
+
+247d8667-ba50-478c-8427-20f79ace899c-0
+00:18:28.000 --> 00:18:33.556
+So if if any error comes or any failure
+occurs this these two needs to be
+
+247d8667-ba50-478c-8427-20f79ace899c-1
+00:18:33.556 --> 00:18:35.960
+performed only after validation.
+
+e3771957-eae6-4873-8e96-72f9a730a976-0
+00:18:35.960 --> 00:18:42.480
+Target cleanup must be performed manually
+for reader OK and then notification.
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-0
+00:18:42.480 --> 00:18:47.101
+Notification is sent when batch requests
+like task flow fails, process fails,
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-1
+00:18:47.101 --> 00:18:50.004
+OK and,
+and failure notification is sent out for
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-2
+00:18:50.004 --> 00:18:53.262
+source load failures and critical
+validation failures,
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-3
+00:18:53.262 --> 00:18:56.580
+record count or record balance
+reconciliation failures,
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-4
+00:18:56.580 --> 00:19:00.846
+information validation failures to
+balance differences within the alert
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-5
+00:19:00.846 --> 00:19:04.104
+threshold and,
+and when the job completes successfully
+
+b8fa85bf-f222-4998-8374-a59529bd06eb-6
+00:19:04.104 --> 00:19:07.600
+when with all cheques passed and final
+batch notification.
+
+05adb55d-bfbf-4b03-9347-b18587b5e520-0
+00:19:07.600 --> 00:19:09.080
+All these are the notification stuff.
+
+8eeea321-f4ef-48a2-b36c-e2e0dd1d5995-0
+00:19:09.400 --> 00:19:15.616
+How many notifications are we set like
+scenarios when the notification should be
+
+8eeea321-f4ef-48a2-b36c-e2e0dd1d5995-1
+00:19:15.616 --> 00:19:16.000
+sent?
+
+bffb73fe-5774-4cbc-960a-2bcff4bf3353-0
+00:19:16.000 --> 00:19:18.160
+OK, I think we are, we are, we are on.
+
+37b28ef0-3a09-40cf-beb4-88230e298394-0
+00:19:19.920 --> 00:19:23.960
+Are we having any details in the No, no,
+we are, we are on the last page of it.
+
+b8da4f3c-0812-44e4-bbef-2a76303efcc7-0
+00:19:23.960 --> 00:19:28.137
+OK,
+I think we are done with the technical
+
+b8da4f3c-0812-44e4-bbef-2a76303efcc7-1
+00:19:28.137 --> 00:19:28.720
+slide.
+
+57bb8171-9634-4040-a070-efee5df5973d-0
+00:19:29.400 --> 00:19:30.280
+Let's stop the record.

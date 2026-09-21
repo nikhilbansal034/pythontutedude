@@ -1,0 +1,3280 @@
+WEBVTT
+
+be362c21-5486-456c-89f0-610f333c8519-0
+00:00:07.840 --> 00:00:12.840
+Yeah, yeah.
+
+579f65a1-c917-45d3-812f-fdddea7171b5-0
+00:00:14.280 --> 00:00:17.680
+So yeah,
+you told during recent scenario of ETL
+
+579f65a1-c917-45d3-812f-fdddea7171b5-1
+00:00:17.680 --> 00:00:23.560
+data injection source window sourcing end
+time is not given availability is there?
+
+34c30d1c-3bdf-4ff0-bd91-9846ddd89937-0
+00:00:23.840 --> 00:00:25.760
+OK, let me give you OK.
+
+89228b3f-235d-4d9a-a397-ab0786f00b89-0
+00:00:25.760 --> 00:00:31.348
+This is the once we get the computer
+start job ID and end job ID,
+
+89228b3f-235d-4d9a-a397-ab0786f00b89-1
+00:00:31.348 --> 00:00:37.360
+it gets sourcing start time from this
+further starting job job run ID.
+
+b3f7f825-f456-4141-b0bf-b4e093646abd-0
+00:00:37.360 --> 00:00:41.690
+Next it gets the source job status,
+source job run ID and sourcing end date
+
+b3f7f825-f456-4141-b0bf-b4e093646abd-1
+00:00:41.690 --> 00:00:45.680
+time from ETL data ingestion source
+window for the ending job run ID.
+
+e38c5222-3071-4dfd-bf6a-ae7db30c7f01-0
+00:00:45.840 --> 00:00:47.320
+It published these values into the.
+
+8cbf1513-80af-4ebe-beda-3b897e93b922-0
+00:00:47.560 --> 00:00:52.760
+So it is having the information related
+to sourcing end time as well.
+
+a1959dad-4e47-46be-b40d-e0d202e2512e-0
+00:00:53.240 --> 00:00:56.360
+Yeah, sourcing end time.
+
+c77f3994-87ca-4a9f-bc89-63b8b82ee745-0
+00:00:59.720 --> 00:01:04.560
+So sourcing end time from ending job run
+ID will be my sourcing end time.
+
+ded6e5ca-0c7b-4bad-9f92-5fd71d165f7c-0
+00:01:07.680 --> 00:01:08.960
+What sourcing intent?
+
+2193ac6d-c68b-441b-a37a-13eedd5d9847-0
+00:01:12.280 --> 00:01:12.760
+What happened?
+
+3c4f23e7-9ea2-4286-aec7-9f979e404a13-0
+00:01:12.960 --> 00:01:14.320
+We will not paste one.
+
+8c094802-fa6a-4b03-a769-844299f8a506-0
+00:01:17.240 --> 00:01:23.962
+So OK,
+here is sourcing starting is there Now
+
+8c094802-fa6a-4b03-a769-844299f8a506-1
+00:01:23.962 --> 00:01:28.200
+where is the sourcing intent?
+
+95ab11b9-c9bb-4649-a5c5-34badc1df373-0
+00:01:28.200 --> 00:01:30.040
+Let me show you.
+
+b98c9fcc-90dd-42e4-b50c-2ca5d6222c23-0
+00:01:30.240 --> 00:01:31.840
+I think here it wouldn't be.
+
+90d374d7-44e3-4caf-bcfb-3ab5d43af3bc-0
+00:01:37.520 --> 00:01:41.970
+For each source table it finds the active,
+then cheques for the each job and if it
+
+90d374d7-44e3-4caf-bcfb-3ab5d43af3bc-1
+00:01:41.970 --> 00:01:42.400
+matches.
+
+c14df77a-77f7-4a09-8389-11638944f8c3-0
+00:01:43.080 --> 00:01:46.950
+If it matches each L data injection
+source window table will be populated
+
+c14df77a-77f7-4a09-8389-11638944f8c3-1
+00:01:46.950 --> 00:01:49.880
+with source job and source job status and
+job and time.
+
+465f6839-3761-4705-acff-7758feecd3cd-0
+00:01:49.960 --> 00:01:56.400
+Yeah, as sourcing and ending time.
+
+d024eb73-a574-4a9e-9827-ce2cc10e4b52-0
+00:01:56.400 --> 00:01:57.680
+Yeah, good catch.
+
+d1aea8b8-1740-4591-b086-470c81417e4d-0
+00:01:59.680 --> 00:02:02.316
+OK,
+it doesn't if if it doesn't match or the
+
+d1aea8b8-1740-4591-b086-470c81417e4d-1
+00:02:02.316 --> 00:02:06.241
+latest and we update the detail to OK, OK,
+Ria are we good like I,
+
+d1aea8b8-1740-4591-b086-470c81417e4d-2
+00:02:06.241 --> 00:02:10.224
+I have explicitly added this as a
+separate point because we have to
+
+d1aea8b8-1740-4591-b086-470c81417e4d-3
+00:02:10.224 --> 00:02:14.560
+implement this first time incremental
+load, this is handling differently.
+
+8153a667-1165-4b1d-b7d6-d691410ef5bf-0
+00:02:14.560 --> 00:02:19.808
+We are here we are handling differently
+for sourcing started in case of first
+
+8153a667-1165-4b1d-b7d6-d691410ef5bf-1
+00:02:19.808 --> 00:02:25.057
+time incremental load it we would be
+getting the value from the batch friends
+
+8153a667-1165-4b1d-b7d6-d691410ef5bf-2
+00:02:25.057 --> 00:02:28.959
+OK For the other scenarios OK let's the
+possible success.
+
+9b499aaa-6d43-4914-b68e-f19f4fd45c31-0
+00:02:32.480 --> 00:02:39.920
+So in the post load success we have,
+we have few parts.
+
+d053d900-ca7b-4312-bc7a-7fa2f69de6e3-0
+00:02:39.920 --> 00:02:41.880
+I think four or five would be there.
+
+935d6d1a-580b-488d-b229-f1734d92ec23-0
+00:02:43.160 --> 00:02:49.388
+55 we have 5 S 1st 1 is loading RA
+referential integrity records from the
+
+935d6d1a-580b-488d-b229-f1734d92ec23-1
+00:02:49.388 --> 00:02:52.840
+temporary table to the actual main table.
+
+b1be3c22-5c52-491d-9651-a17e7f2628ec-0
+00:02:53.080 --> 00:02:56.999
+Before loading it cheques whether the
+records are all already exist in the main
+
+b1be3c22-5c52-491d-9651-a17e7f2628ec-1
+00:02:56.999 --> 00:02:57.440
+RA table.
+
+1fc7f5c7-686d-4cf4-ba1f-86dd70ab5026-0
+00:02:57.440 --> 00:02:59.560
+If they do,
+those records would be skipped.
+
+ef285631-93c6-456e-b81d-8290a73c9055-0
+00:02:59.800 --> 00:03:03.931
+OK, so for example,
+in the fasting there fire records were
+
+ef285631-93c6-456e-b81d-8290a73c9055-1
+00:03:03.931 --> 00:03:09.463
+processed already in the second run out
+of like we have we got another five RA
+
+ef285631-93c6-456e-b81d-8290a73c9055-2
+00:03:09.463 --> 00:03:14.785
+records out of those three are already
+like 3 are already processed or like
+
+ef285631-93c6-456e-b81d-8290a73c9055-3
+00:03:14.785 --> 00:03:20.527
+loaded into main array table as part of
+our issue our issue then in in the second
+
+ef285631-93c6-456e-b81d-8290a73c9055-4
+00:03:20.527 --> 00:03:26.199
+day on the second day we won't be loading
+the same 3 records again into the main
+
+ef285631-93c6-456e-b81d-8290a73c9055-5
+00:03:26.199 --> 00:03:27.040
+array table.
+
+26cda7ec-8afb-4f64-9e1b-4816084a0fa8-0
+00:03:27.960 --> 00:03:31.160
+OK, this is what so one question here.
+
+5db63d54-e735-442c-b54d-aeee8c04e8c1-0
+00:03:33.320 --> 00:03:35.920
+So for this RI it is right.
+
+9c741773-8ba2-4926-b7dc-f014513e263a-0
+00:03:36.000 --> 00:03:40.759
+Suppose this record has like like today
+I'm seeing one record is not populated OK
+
+9c741773-8ba2-4926-b7dc-f014513e263a-1
+00:03:40.759 --> 00:03:41.920
+into the main table.
+
+7f348a2c-7134-45c7-b630-ff082bdea64a-0
+00:03:42.440 --> 00:03:46.660
+When we are loading it into the main
+table from the right table then like are
+
+7f348a2c-7134-45c7-b630-ff082bdea64a-1
+00:03:46.660 --> 00:03:50.880
+we updating any status to like update it
+or anything in the main right table.
+
+9cf3abf1-fbd1-4033-b787-44cc6f0d4eee-0
+00:03:51.880 --> 00:03:57.585
+So in case of reprocessing,
+whenever we find the match in this parent
+
+9cf3abf1-fbd1-4033-b787-44cc6f0d4eee-1
+00:03:57.585 --> 00:04:03.779
+table then yeah we are updating the main
+array table column which is called
+
+9cf3abf1-fbd1-4033-b787-44cc6f0d4eee-2
+00:04:03.779 --> 00:04:10.054
+processor flag as Y We'll update it as Y
+Defaultly whenever we make entries,
+
+9cf3abf1-fbd1-4033-b787-44cc6f0d4eee-3
+00:04:10.054 --> 00:04:11.440
+it would be null.
+
+7c7755c7-c9d8-43a6-9d73-9f67a4bfc4fa-0
+00:04:11.600 --> 00:04:16.225
+Once it gets processed,
+we will be updating it with Y even after
+
+7c7755c7-c9d8-43a6-9d73-9f67a4bfc4fa-1
+00:04:16.225 --> 00:04:21.562
+like even in the next run onwards,
+only the codes with the process to flag
+
+7c7755c7-c9d8-43a6-9d73-9f67a4bfc4fa-2
+00:04:21.562 --> 00:04:24.480
+null would be construed for reprocessing.
+
+d8a1328c-2e90-4e84-8779-dcfb4b1dbc02-0
+00:04:25.400 --> 00:04:27.930
+OK,
+that is part of source qual fair query
+
+d8a1328c-2e90-4e84-8779-dcfb4b1dbc02-1
+00:04:27.930 --> 00:04:32.872
+again source to stage 1 and then job role
+error detail table load to job role error
+
+d8a1328c-2e90-4e84-8779-dcfb4b1dbc02-2
+00:04:32.872 --> 00:04:33.520
+data table.
+
+fa51f1ef-bc32-45e8-a3a1-d5cf0ff65b60-0
+00:04:33.520 --> 00:04:38.361
+For job role error detail table load,
+we'll use the job ID to identify all the
+
+fa51f1ef-bc32-45e8-a3a1-d5cf0ff65b60-1
+00:04:38.361 --> 00:04:40.200
+active job role assignment ID.
+
+7229db46-bea5-40dd-9fe5-e860f9b8ce23-0
+00:04:40.480 --> 00:04:45.788
+It then cheques the error details in the
+job role error detail timetable at source
+
+7229db46-bea5-40dd-9fe5-e860f9b8ce23-1
+00:04:45.788 --> 00:04:51.096
+record level and then loads them into job
+error detail table and record and column
+
+7229db46-bea5-40dd-9fe5-e860f9b8ce23-2
+00:04:51.096 --> 00:04:51.479
+level.
+
+1f317975-f84b-432e-9a8a-18841eaa3a75-0
+00:04:51.720 --> 00:04:52.520
+You got this right.
+
+896f3a19-ebe0-4af4-a977-594574449291-0
+00:04:52.520 --> 00:04:57.605
+We will have every record and once we
+will just transpose each and every record
+
+896f3a19-ebe0-4af4-a977-594574449291-1
+00:04:57.605 --> 00:05:00.720
+into column level in the job error detail
+table.
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-0
+00:05:02.200 --> 00:05:07.468
+This information captures source database
+schema, table column error name, error,
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-1
+00:05:07.468 --> 00:05:10.552
+error column value,
+source recorder identifier,
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-2
+00:05:10.552 --> 00:05:15.435
+rule ID rule a segment ID and error
+severe to if all these details would be
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-3
+00:05:15.435 --> 00:05:20.318
+fetched from this and if the if the data
+comes from multiple source labels,
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-4
+00:05:20.318 --> 00:05:23.530
+the source record identifier is stored in
+a yeah,
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-5
+00:05:23.530 --> 00:05:28.606
+if the source record identifier whatever
+the like if the record is coming from
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-6
+00:05:28.606 --> 00:05:32.846
+multiple source labels,
+then in that case we have to populate the
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-7
+00:05:32.846 --> 00:05:36.573
+source record value as a source column
+source one column,
+
+3d4b1f6a-aba9-4092-b57a-9f6b07e4f56f-8
+00:05:36.573 --> 00:05:39.400
+source source one value OK and pipe
+symbol.
+
+f5aec462-e4ea-471a-af29-ba79eb600b97-0
+00:05:40.040 --> 00:05:43.320
+This is what the primary key, right?
+
+c4ad74da-89a1-4db1-aaab-c8f43b45516e-0
+00:05:44.440 --> 00:05:46.837
+Yeah, yeah,
+we would be passing primary key value,
+
+c4ad74da-89a1-4db1-aaab-c8f43b45516e-1
+00:05:46.837 --> 00:05:47.120
+right?
+
+4e852798-a497-4ace-aeac-8c6dcb8712b7-0
+00:05:47.520 --> 00:05:47.680
+Yeah.
+
+16df35a0-e3be-4a2a-bc59-f39aac5ab1b5-0
+00:05:47.840 --> 00:05:53.949
+If we have multiple sources,
+then in that case every table will have
+
+16df35a0-e3be-4a2a-bc59-f39aac5ab1b5-1
+00:05:53.949 --> 00:05:58.200
+its own like you don't want UUID column,
+right.
+
+72ad69e3-9af7-4dbe-80c9-ad7be408bd81-0
+00:05:58.400 --> 00:06:04.897
+So that column would be would be pass it
+in this format source one column value,
+
+72ad69e3-9af7-4dbe-80c9-ad7be408bd81-1
+00:06:04.897 --> 00:06:11.475
+column value like this separated by pipe
+symbols and cause column and value would
+
+72ad69e3-9af7-4dbe-80c9-ad7be408bd81-2
+00:06:11.475 --> 00:06:13.240
+be separated by Colin.
+
+34130534-3e4d-4b9c-a575-683d83ab254a-0
+00:06:15.280 --> 00:06:18.435
+OK and then coming to George operal
+execution log,
+
+34130534-3e4d-4b9c-a575-683d83ab254a-1
+00:06:18.435 --> 00:06:23.446
+it finds all the entries in the job roll
+execution log with start status for the
+
+34130534-3e4d-4b9c-a575-683d83ab254a-2
+00:06:23.446 --> 00:06:24.560
+Kibbon job run ID.
+
+c8bf143d-62f1-4004-9744-872a9796b342-0
+00:06:24.800 --> 00:06:28.680
+It then cheques the related error entries
+in the job roll error table.
+
+4d3456d0-34d7-441f-8461-29f62e57cb24-0
+00:06:28.760 --> 00:06:33.793
+Table here would be loading all the
+details right All the records from rule
+
+4d3456d0-34d7-441f-8461-29f62e57cb24-1
+00:06:33.793 --> 00:06:36.840
+temp to actual error detail table right
+here.
+
+a58405dd-7c3f-4dca-8c11-cb30d59d9b18-0
+00:06:36.840 --> 00:06:41.439
+It will check how many records are like
+routed into this table for each rule
+
+a58405dd-7c3f-4dca-8c11-cb30d59d9b18-1
+00:06:41.439 --> 00:06:44.067
+assignment and if no records are
+processed,
+
+a58405dd-7c3f-4dca-8c11-cb30d59d9b18-2
+00:06:44.067 --> 00:06:48.785
+the status is updated to for past and
+execution details are updated in the job
+
+a58405dd-7c3f-4dca-8c11-cb30d59d9b18-3
+00:06:48.785 --> 00:06:50.039
+rule execution table.
+
+1e10ee1c-d0c6-4040-9808-4d49b92a3bdd-0
+00:06:50.240 --> 00:06:53.577
+If error records are found,
+the status is updated to fail and error
+
+1e10ee1c-d0c6-4040-9808-4d49b92a3bdd-1
+00:06:53.577 --> 00:06:57.258
+message with error text and error record
+count are updated in the job rule
+
+1e10ee1c-d0c6-4040-9808-4d49b92a3bdd-2
+00:06:57.258 --> 00:06:58.240
+execution log table.
+
+e84abb93-5b79-4d45-aa62-bce1c6a988f2-0
+00:06:58.480 --> 00:06:58.720
+OK.
+
+80df12dc-f6f7-47a0-852f-8bb7aacbcc13-0
+00:06:59.120 --> 00:07:02.266
+In case if it is,
+if there are error records,
+
+80df12dc-f6f7-47a0-852f-8bb7aacbcc13-1
+00:07:02.266 --> 00:07:06.507
+if there are no error records,
+it will be updated to past and
+
+80df12dc-f6f7-47a0-852f-8bb7aacbcc13-2
+00:07:06.507 --> 00:07:11.501
+corresponding aggregation details would
+be updated error message balance
+
+80df12dc-f6f7-47a0-852f-8bb7aacbcc13-3
+00:07:11.501 --> 00:07:13.280
+reconciliation the system.
+
+7c32c90f-eea5-4e3a-a6de-6e9f545f2218-0
+00:07:13.400 --> 00:07:14.560
+So one question.
+
+ebbd429e-840b-4fd5-8795-b2cde7ff12a8-0
+00:07:15.200 --> 00:07:16.480
+So what is error 1?
+
+811d8ed2-5339-498b-a52b-55cab8ac76da-0
+00:07:16.480 --> 00:07:23.080
+So when you're we are transposing it to
+like 1 record to multiple records, right?
+
+e7244474-15a6-4915-bfdb-c7c160aae5a9-0
+00:07:23.400 --> 00:07:23.960
+Basically.
+
+f020f52a-4d4f-4d27-a8cf-8dc744507cd3-0
+00:07:24.360 --> 00:07:27.696
+So in that case,
+like is that done by using a usable
+
+f020f52a-4d4f-4d27-a8cf-8dc744507cd3-1
+00:07:27.696 --> 00:07:28.200
+mapping?
+
+2bf6b2a4-c072-40d7-9b81-d4336afd2192-0
+00:07:29.240 --> 00:07:30.080
+Correct, Correct.
+
+8db2400b-a5c5-40a4-bc7d-b1f97858aa01-0
+00:07:30.760 --> 00:07:31.320
+Not.
+
+f2ef9b60-47f2-4d9d-ac53-e3991d7c1fc3-0
+00:07:31.880 --> 00:07:34.440
+Yeah, it's a mapping only, not Maplet.
+
+40dc5f68-f993-4c17-9275-f252d5535659-0
+00:07:34.560 --> 00:07:40.960
+It's a mapping only reusable mapping,
+balance reconciliation.
+
+8c8c390a-2fcf-47f1-90e5-692c9718efc3-0
+00:07:40.960 --> 00:07:47.118
+The system fetches all active balancing
+metrics for the job from balance
+
+8c8c390a-2fcf-47f1-90e5-692c9718efc3-1
+00:07:47.118 --> 00:07:50.240
+reconciliation metadata using job ID.
+
+bc1837c4-40d0-4ea5-9fd9-84886854182b-0
+00:07:51.000 --> 00:07:55.707
+So whatever the job balance metrics that
+we have in the job in the balance
+
+bc1837c4-40d0-4ea5-9fd9-84886854182b-1
+00:07:55.707 --> 00:07:58.720
+reconciliation metadata table using our
+job ID,
+
+bc1837c4-40d0-4ea5-9fd9-84886854182b-2
+00:07:58.720 --> 00:08:03.240
+we'll fetch all them and then it it then
+calculates the target metrics.
+
+3a37a360-c02d-405f-be0e-81cf47960726-0
+00:08:04.200 --> 00:08:08.828
+We have already calculated source metrics
+and we would be passing it as a input
+
+3a37a360-c02d-405f-be0e-81cf47960726-1
+00:08:08.828 --> 00:08:11.200
+parameter to this balance reconciliation.
+
+c7f65e24-020f-4f51-903f-6973bcad998e-0
+00:08:11.200 --> 00:08:16.366
+And here in this process it then
+calculates the target metrics using the
+
+c7f65e24-020f-4f51-903f-6973bcad998e-1
+00:08:16.366 --> 00:08:17.640
+target expression.
+
+08d5357f-7afc-445f-8769-36b176a8e2e1-0
+00:08:17.640 --> 00:08:21.180
+I told you right,
+our target expression and target balance
+
+08d5357f-7afc-445f-8769-36b176a8e2e1-1
+00:08:21.180 --> 00:08:25.920
+ballot Recon philtre would be pass it
+from the parameter file using these two.
+
+ee4afd1c-4c27-4e16-83d5-dbe6906a0df5-0
+00:08:26.440 --> 00:08:31.400
+This ballot Recon philtre is nothing but
+active record kind of OK.
+
+1ae4d19c-6969-4814-b950-acc5f5bf508f-0
+00:08:31.680 --> 00:08:37.440
+So for type 2 table,
+we have to consider only the active
+
+1ae4d19c-6969-4814-b950-acc5f5bf508f-1
+00:08:37.440 --> 00:08:41.280
+records, right balance reconciliation.
+
+2cef739c-072d-4439-83c4-901e9c2dd1c7-0
+00:08:41.520 --> 00:08:47.797
+So that Philtre I have applied OK and the
+target aggregation expression this is
+
+2cef739c-072d-4439-83c4-901e9c2dd1c7-1
+00:08:47.797 --> 00:08:54.153
+nothing but it will have all the select
+clause expression whatever we have to do
+
+2cef739c-072d-4439-83c4-901e9c2dd1c7-2
+00:08:54.153 --> 00:08:59.960
+OK and then target table details,
+the system compares the source metrics.
+
+c082f693-8434-423c-9d5b-ff6b41e7697c-0
+00:09:01.880 --> 00:09:06.478
+The system compares the source metrics
+with the target metrics to check whether
+
+c082f693-8434-423c-9d5b-ff6b41e7697c-1
+00:09:06.478 --> 00:09:08.720
+there are whether there are balance OK.
+
+be8dd409-930c-48ff-9779-78ea3bc326cf-0
+00:09:08.720 --> 00:09:11.408
+If the source and target target metrics
+match,
+
+be8dd409-930c-48ff-9779-78ea3bc326cf-1
+00:09:11.408 --> 00:09:14.440
+both balancing flag and threshold flag
+are set to Y.
+
+2f4140f1-14a4-4786-a61d-9f64f3e8e14b-0
+00:09:14.760 --> 00:09:18.136
+If they don't match,
+balancing flag is set to north and the
+
+2f4140f1-14a4-4786-a61d-9f64f3e8e14b-1
+00:09:18.136 --> 00:09:21.120
+difference is check back next the allowed
+threshold.
+
+bca54d6b-6e02-461e-950e-612f7b7e5044-0
+00:09:21.120 --> 00:09:24.984
+If it is within the threshold,
+then it would be This flag would be Y
+
+bca54d6b-6e02-461e-950e-612f7b7e5044-1
+00:09:24.984 --> 00:09:27.560
+threshold flag,
+otherwise it would be also N.
+
+9a30a7c6-e557-4dc1-a049-558bc2de1e6d-0
+00:09:27.560 --> 00:09:33.028
+All reconciliation results are stored in
+balance reconciliation stat along with
+
+9a30a7c6-e557-4dc1-a049-558bc2de1e6d-1
+00:09:33.028 --> 00:09:36.720
+job run ID and execution run ID and audit
+columns OK.
+
+b1eaa792-f950-4ab9-9e4e-e042da9a06c2-0
+00:09:45.400 --> 00:09:47.360
+OK, next coming to job run stats.
+
+ee661c49-aee1-4d4b-a29e-b564233c824a-0
+00:09:47.400 --> 00:09:54.296
+So here this this whatever this this step
+update the job run stats entry with the
+
+ee661c49-aee1-4d4b-a29e-b564233c824a-1
+00:09:54.296 --> 00:09:59.680
+final status, source count,
+target counts and validation flags.
+
+9e9c3fe3-09ab-44a3-b408-2332f6e4ef39-0
+00:10:00.400 --> 00:10:02.080
+OK all these things it will update.
+
+3b419522-e708-45a1-822a-c7ae182d1a76-0
+00:10:02.080 --> 00:10:05.755
+First it will it fetches the source
+record count and target and change record
+
+3b419522-e708-45a1-822a-c7ae182d1a76-1
+00:10:05.755 --> 00:10:07.640
+count from the job run stress timetable.
+
+b9f42e2a-9ab9-40d0-acf4-5781e23244f4-0
+00:10:08.400 --> 00:10:09.720
+This is snowflake table.
+
+0f4156d6-192e-43d5-9ba2-f0ac28087fb3-0
+00:10:14.800 --> 00:10:18.463
+OK, if DQ cheques are, if DQ,
+if DQ checking is enabled,
+
+0f4156d6-192e-43d5-9ba2-f0ac28087fb3-1
+00:10:18.463 --> 00:10:22.963
+it calculates total error records,
+critical records and informational
+
+0f4156d6-192e-43d5-9ba2-f0ac28087fb3-2
+00:10:22.963 --> 00:10:25.920
+records from the job rule error detail
+table.
+
+c5664e3d-f9af-47ba-9a86-6131e265ea7f-0
+00:10:26.240 --> 00:10:29.126
+OK,
+how many record total error records are
+
+c5664e3d-f9af-47ba-9a86-6131e265ea7f-1
+00:10:29.126 --> 00:10:29.520
+there?
+
+9114bad6-b789-4742-bbea-29be43e7acce-0
+00:10:29.520 --> 00:10:31.160
+How many critical error records are there?
+
+5d4c9c2b-cad7-4ebd-8198-6aa54ebc82da-0
+00:10:31.160 --> 00:10:36.267
+How many informational record all these
+counts it will check and then if amount
+
+5d4c9c2b-cad7-4ebd-8198-6aa54ebc82da-1
+00:10:36.267 --> 00:10:41.246
+balancing if there are any balancing
+metrics are there then it calculates the
+
+5d4c9c2b-cad7-4ebd-8198-6aa54ebc82da-2
+00:10:41.246 --> 00:10:44.119
+number of metrics that are out of
+threshold,
+
+5d4c9c2b-cad7-4ebd-8198-6aa54ebc82da-3
+00:10:44.119 --> 00:10:49.482
+number of metrics that are out of balance
+but within threshold like that it will do
+
+5d4c9c2b-cad7-4ebd-8198-6aa54ebc82da-4
+00:10:49.482 --> 00:10:50.440
+2 calculations.
+
+4a548b3b-a0fa-4de2-bdb0-9e0709b10b3a-0
+00:10:51.560 --> 00:10:56.569
+System then calculates target insert
+record count, target update record count,
+
+4a548b3b-a0fa-4de2-bdb0-9e0709b10b3a-1
+00:10:56.569 --> 00:11:00.120
+target delete record count that will OK
+delete reverse.
+
+cd91cce3-56bb-4309-bea5-d4265e32aa3c-0
+00:11:00.120 --> 00:11:01.440
+It don't do any calculation.
+
+97565973-4139-468c-87c1-59a69063c28b-0
+00:11:01.440 --> 00:11:06.837
+It is directly set it to 0 using OK
+insert record count, update record count,
+
+97565973-4139-468c-87c1-59a69063c28b-1
+00:11:06.837 --> 00:11:12.720
+RA record count would be calculated using
+target table details and RA table details.
+
+ef86c512-9e68-466e-bbd4-910133056651-0
+00:11:14.240 --> 00:11:21.867
+It's like so in case suppose no record
+has been inserted or updated like will it
+
+ef86c512-9e68-466e-bbd4-910133056651-1
+00:11:21.867 --> 00:11:27.800
+update it to 0 or it will be remain it
+will remain as one, OK.
+
+5412f9d5-cc9a-4ac1-b0a8-ad3b991d140b-0
+00:11:27.840 --> 00:11:32.840
+If it is not updated,
+then in that case it not updated.
+
+9cbe9add-498a-4ed9-935b-bc4fd7f657b0-0
+00:11:32.840 --> 00:11:33.800
+Not not updated.
+
+50696faf-6382-4772-aa92-06438a467e81-0
+00:11:33.800 --> 00:11:33.920
+Yeah.
+
+7c4c608e-2336-40aa-8bbe-93cd3e1f112f-0
+00:11:33.920 --> 00:11:36.320
+Suppose I got in the run it there was no
+record.
+
+a89eedee-d570-4d57-aa1a-c17808d8196b-0
+00:11:37.040 --> 00:11:37.800
+Yeah, yeah.
+
+86fdda9b-b74b-42a4-94dc-131dccefbcd0-0
+00:11:37.800 --> 00:11:40.840
+If there are no record,
+then it would be updated to CU.
+
+672b77d6-6b52-4a0a-8d5d-2dbd9cddab1b-0
+00:11:41.720 --> 00:11:44.600
+OK, OK.
+
+3c7dc21b-b600-476c-a194-afe1a6f530a0-0
+00:11:44.600 --> 00:11:53.787
+And then it updates and if it if there
+was a report but not like process fully
+
+3c7dc21b-b600-476c-a194-afe1a6f530a0-1
+00:11:53.787 --> 00:11:57.160
+in that case it will be null.
+
+be63b629-f2fb-4e44-b283-b200e8070316-0
+00:11:58.320 --> 00:12:00.880
+No,
+no update record count is updated to 0.
+
+6662464e-cb31-478d-a6aa-fd021d35f9e9-0
+00:12:03.240 --> 00:12:09.667
+Like if it is just job it it didn't reach
+to the job post but then also it didn't
+
+6662464e-cb31-478d-a6aa-fd021d35f9e9-1
+00:12:09.667 --> 00:12:11.000
+do it one minute.
+
+b12dc507-e042-4850-8245-9ad39d0d1f50-0
+00:12:11.200 --> 00:12:12.680
+So what is your question?
+
+cf912f5b-bf02-46cf-aecd-feae6d2f6c94-0
+00:12:12.760 --> 00:12:13.840
+Could you please come again?
+
+25b634bc-c108-4e20-8964-6d72bc877e22-0
+00:12:15.480 --> 00:12:19.240
+Suppose job the next job got failed in
+the job load.
+
+3c17b240-1114-45d1-b381-4ee784ed50e3-0
+00:12:19.640 --> 00:12:22.280
+It still got somewhere due to some
+network.
+
+9b0b2fc7-4e9a-4679-a0c6-a26d820353a5-0
+00:12:22.600 --> 00:12:23.440
+It would be null.
+
+53144282-4212-48b3-a6d6-ca6b06478fa9-0
+00:12:23.920 --> 00:12:25.400
+Then it would be null, yes.
+
+907998c5-7f42-4b92-96c7-0b4804897a26-0
+00:12:28.840 --> 00:12:32.040
+Then the system calculates the record
+count balancing flag.
+
+e4b2b571-ae10-4310-9e48-8b440b8262b9-0
+00:12:32.040 --> 00:12:37.360
+If source and target aggregated some both
+are equal then it would be a.
+
+46a7e3cf-98e9-4cdd-b6be-7f590b53d342-0
+00:12:37.360 --> 00:12:42.864
+Why else it would be OK and here while
+calculating while taking the SO target
+
+46a7e3cf-98e9-4cdd-b6be-7f590b53d342-1
+00:12:42.864 --> 00:12:48.368
+records also it is taking target inset
+record con, target update, record con,
+
+46a7e3cf-98e9-4cdd-b6be-7f590b53d342-2
+00:12:48.368 --> 00:12:53.943
+target critical error record con and
+target RA record con and target unchanged
+
+46a7e3cf-98e9-4cdd-b6be-7f590b53d342-3
+00:12:53.943 --> 00:12:54.719
+record con.
+
+4ae54f7c-1d37-4b03-a273-fa45df605e82-0
+00:12:55.000 --> 00:12:57.480
+Cause the condition is not made the flag
+is set to end.
+
+36b55fc6-98db-402a-aff3-f544ac5727d3-0
+00:12:58.160 --> 00:13:03.320
+It updates the the flags as below
+critical error check flag.
+
+42ca460b-ec4f-40d6-a757-f78776b77251-0
+00:13:03.560 --> 00:13:07.931
+It updates the critical error check flag
+as Y if there are no critical error
+
+42ca460b-ec4f-40d6-a757-f78776b77251-1
+00:13:07.931 --> 00:13:12.245
+records and then if there are any
+critical error records if X like it would
+
+42ca460b-ec4f-40d6-a757-f78776b77251-2
+00:13:12.245 --> 00:13:16.560
+be updated with X if there if there are
+no DQ cheques assigned to that job.
+
+2b440f7f-8405-42f7-b6bd-c8e62d24f8a4-0
+00:13:17.440 --> 00:13:19.320
+And same goes with informational records.
+
+00a4387a-34c5-4b0b-8f20-ef27eddd874e-0
+00:13:19.320 --> 00:13:24.566
+If there are any informational cheques,
+why if no one in informational records
+
+00a4387a-34c5-4b0b-8f20-ef27eddd874e-1
+00:13:24.566 --> 00:13:29.680
+then N that no informational DQ cheques
+assigned X balance reconciliation Y.
+
+9b7d7410-22aa-4ac6-933c-9444e3a2b084-0
+00:13:30.000 --> 00:13:35.832
+So if all balance metrics are within
+threshold then it is Y if any if N if all
+
+9b7d7410-22aa-4ac6-933c-9444e3a2b084-1
+00:13:35.832 --> 00:13:41.960
+balance metrics are out of threshold and
+out of X if there are no balance metrics.
+
+b38f12c5-a7d4-4e6f-8eae-01ec81561efe-0
+00:13:43.160 --> 00:13:44.600
+OK, why it would be?
+
+ea8ac90f-2bef-4ecd-aedc-ac4a9fafe974-0
+00:13:45.080 --> 00:13:50.873
+Why in both the cases if all are balanced
+and if if metrics are out of balance but
+
+ea8ac90f-2bef-4ecd-aedc-ac4a9fafe974-1
+00:13:50.873 --> 00:13:55.061
+within threshold,
+then it would be why if the record if the
+
+ea8ac90f-2bef-4ecd-aedc-ac4a9fafe974-2
+00:13:55.061 --> 00:14:00.087
+metrics are out of balance out of
+threshold and if there are no metrics
+
+ea8ac90f-2bef-4ecd-aedc-ac4a9fafe974-3
+00:14:00.087 --> 00:14:04.276
+assigned to that job,
+then X OK and then how the final this
+
+ea8ac90f-2bef-4ecd-aedc-ac4a9fafe974-4
+00:14:04.276 --> 00:14:10.000
+these three steps tells us how the final
+status gets updated in the job restarts.
+
+a10a799e-ee61-4b38-8e1f-acd94c1aa348-0
+00:14:10.240 --> 00:14:16.971
+The status in the job restart is is
+updated to fail and an entry in the OK if
+
+a10a799e-ee61-4b38-8e1f-acd94c1aa348-1
+00:14:16.971 --> 00:14:21.545
+this like OK,
+so if the current if the record count,
+
+a10a799e-ee61-4b38-8e1f-acd94c1aa348-2
+00:14:21.545 --> 00:14:26.119
+source record count and target aggregated
+sum count.
+
+50609c3b-b0f0-44f5-8942-8fe267191926-0
+00:14:26.400 --> 00:14:31.517
+If both doesn't balance these,
+I'm telling you the scenarios where the
+
+50609c3b-b0f0-44f5-8942-8fe267191926-1
+00:14:31.517 --> 00:14:35.625
+status is updated,
+status in job run stats is updated to
+
+50609c3b-b0f0-44f5-8942-8fe267191926-2
+00:14:35.625 --> 00:14:41.247
+fail and whenever any failure happens,
+entry would be made into the job error
+
+50609c3b-b0f0-44f5-8942-8fe267191926-3
+00:14:41.247 --> 00:14:41.680
+stats.
+
+488f8060-a944-4671-8894-c112afb99ba2-0
+00:14:41.680 --> 00:14:45.560
+So similarly here also entries being made
+into errors job error stats.
+
+424dab72-d4c8-48a7-8802-a13e9f48ce16-0
+00:14:45.960 --> 00:14:51.500
+So I'm telling you the scenarios whenever
+our source record count and have get
+
+424dab72-d4c8-48a7-8802-a13e9f48ce16-1
+00:14:51.500 --> 00:14:57.322
+record count doesn't match whenever there
+is any balancing metrics that is outside
+
+424dab72-d4c8-48a7-8802-a13e9f48ce16-2
+00:14:57.322 --> 00:15:01.320
+the allowed threshold or if any critical
+DQ check fails.
+
+44a0c9c7-8185-4af4-88df-2f1773a42de2-0
+00:15:01.680 --> 00:15:06.840
+In these three scenarios,
+our job runs fast.
+
+79f66fc8-2ab5-4065-9b36-1a2c66d97179-0
+00:15:06.840 --> 00:15:13.283
+Scenario 1 is when like out of threshold
+and two is critical error 1030 source
+
+79f66fc8-2ab5-4065-9b36-1a2c66d97179-1
+00:15:13.283 --> 00:15:17.280
+record count and target and change record
+count.
+
+d028edc7-c773-4a14-b5b9-0646b647cf74-0
+00:15:17.280 --> 00:15:22.230
+So basically we would be checking right
+source record if my record count
+
+d028edc7-c773-4a14-b5b9-0646b647cf74-1
+00:15:22.230 --> 00:15:27.587
+balancing flag is N then in that case so
+in the record count balancing flag we
+
+d028edc7-c773-4a14-b5b9-0646b647cf74-2
+00:15:27.587 --> 00:15:32.538
+would be comparing the source record
+count against the aggregated sum of
+
+d028edc7-c773-4a14-b5b9-0646b647cf74-3
+00:15:32.538 --> 00:15:36.200
+target record count target insert update
+error right?
+
+b2dea5aa-954f-4f2d-9043-19dc74358df3-0
+00:15:36.520 --> 00:15:40.240
+That summation would be a compared
+against the source record count right?
+
+f300d9ce-3204-425a-85fc-8e35f4d6dca0-0
+00:15:40.240 --> 00:15:44.573
+So if that is not matching,
+then also we would be updating the status
+
+f300d9ce-3204-425a-85fc-8e35f4d6dca0-1
+00:15:44.573 --> 00:15:45.440
+as failed, OK.
+
+fda9f843-1462-426e-828d-87cf578f2b0d-0
+00:15:45.680 --> 00:15:50.706
+And if the the the status in the job
+ranks would be updated to success and a
+
+fda9f843-1462-426e-828d-87cf578f2b0d-1
+00:15:50.706 --> 00:15:52.600
+warning notification is sent.
+
+8b7a751b-5380-4831-8624-bd1a97449b34-0
+00:15:52.840 --> 00:15:56.930
+In following cases,
+if there are any informational cheques
+
+8b7a751b-5380-4831-8624-bd1a97449b34-1
+00:15:56.930 --> 00:16:02.200
+failures or if any balancing metric is
+out of balance but within threshold.
+
+dffc0cb2-f474-4b01-899e-fb0dc169bea1-0
+00:16:02.480 --> 00:16:05.080
+In these cases a warning notification
+would be sent.
+
+b7008afd-ff94-4e2b-ad67-320528799d26-0
+00:16:06.400 --> 00:16:09.440
+The status in the IT would be updated to
+success and sets success.
+
+0124020b-ec69-4cb2-aa30-fcf3d689a525-0
+00:16:09.440 --> 00:16:13.560
+Notification would be sent only if all
+the record counts balance.
+
+aef176d0-0ed9-436b-8640-7934c0cc9cf0-0
+00:16:13.640 --> 00:16:15.960
+All the balancing metrics are completely
+balanced.
+
+ce59238a-876a-45f0-8d89-3e7476193bc0-0
+00:16:15.960 --> 00:16:18.880
+All the critical and informational
+cheques are passed.
+
+4aacc6af-25e0-4b26-b600-dd0be555f5af-0
+00:16:20.400 --> 00:16:24.120
+In this case it will be updated to pass
+job post load failure.
+
+ef48f3af-64f5-4d65-a870-d76970213448-0
+00:16:24.520 --> 00:16:27.520
+So basically when any.
+
+4ae6cc41-935d-44ee-a168-774213684fcd-0
+00:16:27.760 --> 00:16:40.413
+This is used when the when any load fails,
+When the main load or your post load
+
+4ae6cc41-935d-44ee-a168-774213684fcd-1
+00:16:40.413 --> 00:16:48.954
+success fails,
+OK main main stage load or main target
+
+4ae6cc41-935d-44ee-a168-774213684fcd-2
+00:16:48.954 --> 00:16:57.969
+load, OK stage load target load,
+your post load success.
+
+605baeda-147b-477e-be44-40f240d5181c-0
+00:16:57.970 --> 00:17:02.530
+Anything fails it it it will be executed
+or it it has only two steps.
+
+3e9d66a4-b001-4b3b-9ea9-bbf8e2400eee-0
+00:17:02.970 --> 00:17:08.536
+First it will update the first assist
+like it it updates the records in the job
+
+3e9d66a4-b001-4b3b-9ea9-bbf8e2400eee-1
+00:17:08.536 --> 00:17:11.320
+role execution log and in job run stats.
+
+f4a0f9e5-ff15-4c37-aa3e-4becf6fa5f38-0
+00:17:11.480 --> 00:17:16.284
+So here in the job role execution log,
+it tries to find all the entries in the
+
+f4a0f9e5-ff15-4c37-aa3e-4becf6fa5f38-1
+00:17:16.284 --> 00:17:20.480
+job role execution log for the given job
+run ID with starter status.
+
+59f13c06-b755-4ee0-8d3a-d6bf2b5697d5-0
+00:17:20.480 --> 00:17:22.000
+This is the same component, right?
+
+5538e037-fdcd-46ed-a054-0681c3aa771d-0
+00:17:23.320 --> 00:17:23.560
+Yeah.
+
+fa34217f-1a07-4ba6-8328-c94c6d47b879-0
+00:17:23.680 --> 00:17:25.960
+These two are the same components mapping.
+
+f8e58e7f-d679-4dde-8648-eb5d3c026e88-0
+00:17:26.000 --> 00:17:28.650
+At the mapping level,
+these two are the same components,
+
+f8e58e7f-d679-4dde-8648-eb5d3c026e88-1
+00:17:28.650 --> 00:17:31.765
+but at the task flow level,
+we have separate component for preload
+
+f8e58e7f-d679-4dde-8648-eb5d3c026e88-2
+00:17:31.765 --> 00:17:33.160
+failure and post load failure.
+
+2d9299ad-ba2e-46b4-b579-26cca27273ce-0
+00:17:33.160 --> 00:17:37.826
+Because I told you right that
+notification tasks are different and
+
+2d9299ad-ba2e-46b4-b579-26cca27273ce-1
+00:17:37.826 --> 00:17:41.240
+handling of those things are slightly
+different.
+
+d76dc087-7bb5-459e-8227-dfa400867975-0
+00:17:41.520 --> 00:17:46.720
+Mostly notifications are different job
+preload failure and job post load failure.
+
+239544a7-c6af-4c98-83a9-8d1ef4a6a221-0
+00:17:46.800 --> 00:17:48.200
+OK, that's it.
+
+d6420091-8635-4417-a258-3974b203a2fa-0
+00:17:48.520 --> 00:17:56.614
+Yeah,
+let me go through this flow chart 50
+
+d6420091-8635-4417-a258-3974b203a2fa-1
+00:17:56.614 --> 00:17:58.120
+diagram.
+
+625b70ad-10eb-47d1-8994-bb0e63febb04-0
+00:18:34.320 --> 00:18:37.400
+OK, job pre job posting right?
+
+6ce6608e-c83b-4c38-859f-758e09f0b4e8-0
+00:18:38.080 --> 00:18:42.700
+So here once this job job load is done,
+we'll just load the RA reports from
+
+6ce6608e-c83b-4c38-859f-758e09f0b4e8-1
+00:18:42.700 --> 00:18:44.160
+temporary to main array.
+
+7506e24f-01ed-40ac-b6ac-60966d881b40-0
+00:18:44.440 --> 00:18:46.731
+If there are any DQ cheques I sent to our
+job,
+
+7506e24f-01ed-40ac-b6ac-60966d881b40-1
+00:18:46.731 --> 00:18:50.047
+we'll load the records from the job role
+error detail, time to job,
+
+7506e24f-01ed-40ac-b6ac-60966d881b40-2
+00:18:50.047 --> 00:18:51.119
+actual job role table.
+
+67585894-64b7-4d18-b465-77a38b03b4e7-0
+00:18:51.560 --> 00:18:55.600
+If there are any DQ,
+check if there are any error records.
+
+27250b13-2fc5-48ea-91a8-b99ece559c2a-0
+00:18:57.560 --> 00:19:02.443
+The based upon the count of error records,
+the status and error log or execution
+
+27250b13-2fc5-48ea-91a8-b99ece559c2a-1
+00:19:02.443 --> 00:19:05.760
+details will be updated in the job rule
+execution log.
+
+e80dd747-a2e8-44e1-b282-25fba1138223-0
+00:19:06.440 --> 00:19:12.182
+If there are any balance metrics or the
+present for this particular table,
+
+e80dd747-a2e8-44e1-b282-25fba1138223-1
+00:19:12.182 --> 00:19:17.160
+then this balance sheet cancellation
+would be would be happened.
+
+41ec9c43-3fda-4132-b9ca-7b71b5467e3b-0
+00:19:17.400 --> 00:19:22.080
+It will just fetch the source related
+metric information from the Snowflake
+
+41ec9c43-3fda-4132-b9ca-7b71b5467e3b-1
+00:19:22.080 --> 00:19:26.700
+balance sheet cancellation stats
+timetable and using target expression and
+
+41ec9c43-3fda-4132-b9ca-7b71b5467e3b-2
+00:19:26.700 --> 00:19:28.240
+target philtre condition.
+
+adf552c1-d6a7-4053-9ce4-49a4f7faae4e-0
+00:19:29.000 --> 00:19:34.558
+It will get the IT will get the IT will
+try to calculate the target metrics and
+
+adf552c1-d6a7-4053-9ce4-49a4f7faae4e-1
+00:19:34.558 --> 00:19:39.978
+it will compare both of them with both of
+them are like it will come back the
+
+adf552c1-d6a7-4053-9ce4-49a4f7faae4e-2
+00:19:39.978 --> 00:19:42.480
+difference between those two values.
+
+4f7abc65-59af-4718-8de7-e6da65f3838c-0
+00:19:42.480 --> 00:19:46.504
+If the out of balance value equal to 0,
+then it will update the balancing flag to
+
+4f7abc65-59af-4718-8de7-e6da65f3838c-1
+00:19:46.504 --> 00:19:50.185
+Y and threshold flag to Y in balanced
+cancellation balance to cancellation
+
+4f7abc65-59af-4718-8de7-e6da65f3838c-2
+00:19:50.185 --> 00:19:50.480
+stats.
+
+a288d0f7-7890-464c-b891-23f1aca617a6-0
+00:19:50.840 --> 00:19:54.920
+Otherwise if if it is not balanced,
+if it is not equal to 0,
+
+a288d0f7-7890-464c-b891-23f1aca617a6-1
+00:19:54.920 --> 00:19:58.800
+then it would be balanced flag would be
+updated to north.
+
+a0b415df-50b1-4d14-90d4-a47758ab00e8-0
+00:19:59.080 --> 00:20:04.956
+After that we will check within the given
+whether the difference out of balance
+
+a0b415df-50b1-4d14-90d4-a47758ab00e8-1
+00:20:04.956 --> 00:20:07.160
+value is within the threshold.
+
+76aa028d-c419-4c9e-a1c1-92f1efe15946-0
+00:20:07.160 --> 00:20:08.320
+If it is within the threshold.
+
+3a353f58-c9a6-4d0a-add9-da396ce20b48-0
+00:20:09.320 --> 00:20:14.716
+It will update the threshold flag as well
+and otherwise it will update the
+
+3a353f58-c9a6-4d0a-add9-da396ce20b48-1
+00:20:14.716 --> 00:20:20.760
+threshold flag as and after that it after
+that it updates the balance refund flags.
+
+bd7e1de7-8c5e-47e8-b7e8-6b8a65985e13-0
+00:20:21.080 --> 00:20:26.679
+OK so next it here we are just telling
+about the flags basically flags how we
+
+bd7e1de7-8c5e-47e8-b7e8-6b8a65985e13-1
+00:20:26.679 --> 00:20:29.120
+are updating in the job run stats.
+
+d3bff53c-117c-42fe-acbc-6d337d2da533-0
+00:20:29.600 --> 00:20:35.686
+So here they how we are updating this
+balance flag and how we are updating the
+
+d3bff53c-117c-42fe-acbc-6d337d2da533-1
+00:20:35.686 --> 00:20:41.773
+balance like we are just telling this
+here we have kept it here and after that
+
+d3bff53c-117c-42fe-acbc-6d337d2da533-2
+00:20:41.773 --> 00:20:47.243
+here we have just kept the information
+related to source record count,
+
+d3bff53c-117c-42fe-acbc-6d337d2da533-3
+00:20:47.243 --> 00:20:52.560
+target record count and informational
+flags and balance record flag.
+
+0e318e98-90dd-4925-a88b-4923076c77ce-0
+00:20:52.560 --> 00:20:58.507
+How all the flags count statuses are
+being updated in the job table and if any
+
+0e318e98-90dd-4925-a88b-4923076c77ce-1
+00:20:58.507 --> 00:21:04.379
+if there is any mismatch and like if
+there is any mismatch between the source
+
+0e318e98-90dd-4925-a88b-4923076c77ce-2
+00:21:04.379 --> 00:21:10.326
+and target record counts then we are
+updating the record count balancing flags
+
+0e318e98-90dd-4925-a88b-4923076c77ce-3
+00:21:10.326 --> 00:21:16.424
+as if there is any mismatch and if they
+are exactly matching why for a given job
+
+0e318e98-90dd-4925-a88b-4923076c77ce-4
+00:21:16.424 --> 00:21:19.360
+run ID based upon the status and flags.
+
+ea97228a-f11d-47da-902b-2b67c09d29ca-0
+00:21:19.480 --> 00:21:23.631
+Like I told you right,
+there are three scenarios failed,
+
+ea97228a-f11d-47da-902b-2b67c09d29ca-1
+00:21:23.631 --> 00:21:27.200
+completed, completed warning,
+completed success.
+
+41724bc2-fdf2-463f-81c9-37279972dee9-0
+00:21:27.840 --> 00:21:28.800
+So all these things.
+
+9f0da759-a8a3-4fc8-b01e-db5791dec3ad-0
+00:21:28.800 --> 00:21:33.507
+So in case if we have both the issues
+like if we have both informational issue
+
+9f0da759-a8a3-4fc8-b01e-db5791dec3ad-1
+00:21:33.507 --> 00:21:34.640
+and critical issue.
+
+95df3517-5423-40c2-b452-d819730a2837-0
+00:21:34.840 --> 00:21:36.800
+So majorly it is a failure, right.
+
+3afead62-5ab9-45e7-9cea-2d1a421464f9-0
+00:21:36.800 --> 00:21:40.197
+So we would be passing both the details,
+warning details,
+
+3afead62-5ab9-45e7-9cea-2d1a421464f9-1
+00:21:40.197 --> 00:21:45.060
+all the datas under failure notification
+only under the same failure notification,
+
+3afead62-5ab9-45e7-9cea-2d1a421464f9-2
+00:21:45.060 --> 00:21:48.282
+we'll be sending out all the details,
+failure details,
+
+3afead62-5ab9-45e7-9cea-2d1a421464f9-3
+00:21:48.282 --> 00:21:50.040
+warning details and that's it.
+
+353c055a-a7ae-4a39-b153-cab6d547143a-0
+00:21:50.080 --> 00:21:51.600
+I'll just cover this like here.
+
+a8fe9ea2-578b-458a-a0e2-a736b1aa1ffc-0
+00:21:51.600 --> 00:21:54.327
+It it,
+it's nothing If the if all the jobs under
+
+a8fe9ea2-578b-458a-a0e2-a736b1aa1ffc-1
+00:21:54.327 --> 00:21:57.611
+that batch is succeeded,
+then it will update the status to
+
+a8fe9ea2-578b-458a-a0e2-a736b1aa1ffc-2
+00:21:57.611 --> 00:22:01.897
+completed and there is it will update the
+status to fail in either in either
+
+a8fe9ea2-578b-458a-a0e2-a736b1aa1ffc-3
+00:22:01.897 --> 00:22:04.346
+scenario,
+it will send out the notification
+
+a8fe9ea2-578b-458a-a0e2-a736b1aa1ffc-4
+00:22:04.346 --> 00:22:08.799
+corresponding notification either success
+notification or failure notification.
+
+d39be4d6-a64d-479f-8860-26b5c3df4f44-0
+00:22:09.560 --> 00:22:10.880
+OK, that's it.
+
+b9888119-96b2-4c6e-bebb-0bee110f20da-0
+00:22:10.960 --> 00:22:12.520
+Batch word is just simple thing.
+
+09371f75-0ba8-4e36-a160-81e5018b79cb-0
+00:22:12.720 --> 00:22:14.280
+That's why I just I have just covered.
+
+f3c52d5d-baee-44ea-903b-700bc622f5b8-0
+00:22:19.640 --> 00:22:23.094
+Here only,
+but if we have any OK here also,
+
+f3c52d5d-baee-44ea-903b-700bc622f5b8-1
+00:22:23.094 --> 00:22:29.374
+it's it's a small thing only it cheques
+the weather of all the actually a batch
+
+f3c52d5d-baee-44ea-903b-700bc622f5b8-2
+00:22:29.374 --> 00:22:32.200
+load next take it for tomorrow only.
+
+2cbc54ca-47a6-4625-b64f-9330294ae644-0
+00:22:32.400 --> 00:22:35.480
+I'm not a simple,
+but this post load is huge, right?
+
+c6becffb-c11e-44bc-8547-4c5dbaaa695d-0
+00:22:37.160 --> 00:22:37.360
+OK.
+
+a3b768fc-c4bb-4ec7-8916-55f040ac1d1a-0
+00:22:39.400 --> 00:22:43.163
+And also like tomorrow along with the
+batch post load see,
+
+a3b768fc-c4bb-4ec7-8916-55f040ac1d1a-1
+00:22:43.163 --> 00:22:48.458
+I can like entirely I can go through the
+entire state right and get something with
+
+a3b768fc-c4bb-4ec7-8916-55f040ac1d1a-2
+00:22:48.458 --> 00:22:51.519
+this and I can discuss on like on the
+same day.
+
+a34b1e91-ea0b-4a20-8401-2dcf3ab27075-0
+00:22:57.640 --> 00:22:58.720
+Yeah, you were saying something.
+
+9c925299-16ee-462c-b5d9-93cb2000b530-0
+00:22:59.840 --> 00:23:00.400
+Discuss those.
+
+114a8872-e8e6-4681-b07f-8eb5e13f60a7-0
+00:23:00.880 --> 00:23:05.440
+And also your voice is breaking.
+
+51ac01d6-d315-4ba6-88f5-a1bc3fd3b85e-0
+00:23:07.680 --> 00:23:08.240
+OK.
+
+b75160fb-5ade-4050-a247-0ba89566496e-0
+00:23:08.520 --> 00:23:09.680
+It got disconnected.
+
+540342f9-4682-422e-9905-3bc001b44dcd-0
+00:23:11.400 --> 00:23:12.440
+Got disconnected.
+
+fd23492f-a408-42a0-9743-477d3e096c72-0
+00:23:12.440 --> 00:23:13.200
+Give me one minute.
+
+eae5fe40-e5cb-4ffe-b10f-441f0143e9a5-0
+00:23:13.200 --> 00:23:16.400
+Let me log up now if you are able to hear
+me right.
+
+75760326-68fd-499a-9dbd-287b01020722-0
+00:23:17.080 --> 00:23:17.480
+Yeah.
+
+dcc43280-9e8a-4af0-9200-403daf9bb0e8-0
+00:23:19.520 --> 00:23:26.561
+So actually what I'm trying to tell you
+is I'll tell you once batch post load is
+
+dcc43280-9e8a-4af0-9200-403daf9bb0e8-1
+00:23:26.561 --> 00:23:31.082
+also done,
+I'll just complete the remaining part in
+
+dcc43280-9e8a-4af0-9200-403daf9bb0e8-2
+00:23:31.082 --> 00:23:32.560
+the LLD also, OK.
+
+977944e3-e63c-4ce6-8c41-40205d5b9f99-0
+00:23:32.840 --> 00:23:38.000
+After that I'll give you a walkthrough of
+the mail that I'm telling right.
+
+01fe2486-efeb-49a1-a196-2af3e9e9f539-0
+00:23:38.000 --> 00:23:42.478
+Whatever the changes that are there and
+what are the things that needs to be
+
+01fe2486-efeb-49a1-a196-2af3e9e9f539-1
+00:23:42.478 --> 00:23:46.200
+implemented and that needs to be followed
+or what they're like.
+
+2de42393-d2ff-4c3e-8844-bf36d67c6532-0
+00:23:47.720 --> 00:23:49.160
+I got it, I got it.
+
+0254e03c-93a5-48ba-9528-a38f84d69b53-0
+00:23:50.840 --> 00:23:52.720
+Everything that needs to be what I'm
+saying.
+
+23e17316-c58f-49bb-8a1f-c629df0a602a-0
+00:23:52.840 --> 00:23:56.960
+So today, like as per the plan,
+today you complete the job post with OK.
+
+d6eb21ed-249e-4db1-a5a2-4d4389b36dd8-0
+00:23:57.480 --> 00:24:02.045
+And tomorrow you complete the batch post
+load so that I can like tomorrow I can go
+
+d6eb21ed-249e-4db1-a5a2-4d4389b36dd8-1
+00:24:02.045 --> 00:24:06.280
+to the batch post load as well as the
+entire thing that we discussed, right?
+
+a26a39dd-ce84-4034-97d2-c04759c9ce6a-0
+00:24:06.560 --> 00:24:12.200
+Because we, we like, I saw it bit by bit,
+piece by piece, right, if everything.
+
+5f18ff0e-c037-404c-848b-9122aae3a4d9-0
+00:24:12.200 --> 00:24:15.080
+So I want to go through the entire flow
+as well.
+
+f11bb256-6fb0-45cb-98ad-f7c1200f70f4-0
+00:24:16.640 --> 00:24:17.320
+Are we disconnected?
+
+149d8631-d5e6-45b0-b037-3ed8d123167b-0
+00:24:17.480 --> 00:24:18.440
+Yeah, OK.
+
+5ec99e95-fa3f-4601-a7a7-5a574acec3d6-0
+00:24:18.520 --> 00:24:21.320
+Like that is very, very small topic.
+
+b9eec39a-e968-4125-9ae4-dd70a2991207-0
+00:24:21.320 --> 00:24:23.000
+It doesn't even take 5 minutes.
+
+77a33c39-8535-447a-a235-2d0209faf2c1-0
+00:24:23.520 --> 00:24:29.184
+That is the reason why I'm trying to
+cover two things that that needs to be
+
+77a33c39-8535-447a-a235-2d0209faf2c1-1
+00:24:29.184 --> 00:24:32.240
+like taken care in case of ABC framework.
+
+0e29a83b-53a7-4b8f-a943-d70fbf80f9c9-0
+00:24:32.480 --> 00:24:35.240
+And also there are things that I want to
+inform you.
+
+e6eae56c-8709-463d-ba1b-19073884ed46-0
+00:24:35.600 --> 00:24:40.204
+I'll inform all those things and related
+statuses, everything, tracker everything,
+
+e6eae56c-8709-463d-ba1b-19073884ed46-1
+00:24:40.204 --> 00:24:41.480
+I'll inform everything.
+
+724b0cd1-e2f1-4116-bd06-c6f1d26de97d-0
+00:24:41.480 --> 00:24:46.744
+So tomorrow and the day after tomorrow
+again we'll have the reverse KD right
+
+724b0cd1-e2f1-4116-bd06-c6f1d26de97d-1
+00:24:46.744 --> 00:24:49.000
+then after going end to end flow.
+
+fb4b63d4-e8aa-4524-b7a1-08a15bdf94cd-0
+00:24:49.040 --> 00:24:54.151
+If you have any questions we can discuss
+and then we'll add the like
+
+fb4b63d4-e8aa-4524-b7a1-08a15bdf94cd-1
+00:24:54.151 --> 00:24:57.040
+implementation related changes as well.
+
+9e9d9f4a-cf77-4343-9b0a-9533ff792137-0
+00:24:57.240 --> 00:25:01.320
+That seems to yeah, that is pending.
+
+fc1df298-2da1-427d-a59c-42755b6f3c99-0
+00:25:01.320 --> 00:25:04.360
+Yeah, you yeah, you will be taking care,
+right?
+
+d6a8757c-1712-435b-915d-cf2a8c085cde-0
+00:25:05.160 --> 00:25:05.280
+Yeah.
+
+9eb99023-47fe-4f89-a1e0-92ee9f5ab431-0
+00:25:05.320 --> 00:25:10.834
+But we can discuss like one give give a
+thought from your end how to do this,
+
+9eb99023-47fe-4f89-a1e0-92ee9f5ab431-1
+00:25:10.834 --> 00:25:11.400
+that OK.
+
+6e2c306e-20fb-474b-8c9f-3f68af414ae7-0
+00:25:12.360 --> 00:25:15.680
+For that we will discuss and we can do
+that.
+
+9ee21eb9-6ae8-41b6-af35-73d788ead88f-0
+00:25:15.720 --> 00:25:16.040
+OK.
+
+95b98be3-6333-42cb-b00c-c54a6e62f4c6-0
+00:25:16.520 --> 00:25:19.714
+Yeah,
+that that session like let's do it on
+
+95b98be3-6333-42cb-b00c-c54a6e62f4c6-1
+00:25:19.714 --> 00:25:20.440
+Wednesday.
+
+895fbe2c-d195-4136-a1e0-6a13d6ea9887-0
+00:25:20.840 --> 00:25:23.520
+So everything will be covered I guess by
+then.
+
+706b779a-f4a9-4ccb-847e-541ea3461b87-0
+00:25:25.840 --> 00:25:29.800
+OK, OK, OK.
+
+a05ddcde-eb04-4617-93f3-3d4503006197-0
+00:25:31.240 --> 00:25:31.720
+What?
+
+8c316038-5376-4bbc-9197-6490a6c475e1-0
+00:25:31.800 --> 00:25:32.360
+Which task?
+
+ac03e979-ed50-4ef7-9181-4e3e06020049-0
+00:25:32.400 --> 00:25:40.040
+I was a broker,
+I guess Broker no account I was taking.
+
+8c4b33b4-2be7-41d0-8bfd-234b8425053e-0
+00:25:40.640 --> 00:25:47.200
+Yeah, yeah,
+broker something let me take account.
+
+156cfaff-0f71-43ef-9c3d-1fd53183d85b-0
+00:25:47.200 --> 00:25:54.223
+I,
+I guess yesterday I took a broker account
+
+156cfaff-0f71-43ef-9c3d-1fd53183d85b-1
+00:25:54.223 --> 00:25:55.160
+party.
+
+9f252dbc-a69f-402d-9758-ec36a66f69f2-0
+00:25:55.160 --> 00:25:58.200
+I think actually we were discussing on
+account party address.
+
+b9fd2fe2-e297-4c39-926f-3388a26b10a0-0
+00:25:58.200 --> 00:26:04.520
+But that that day I want to show you
+balance reconciliation part, right?
+
+a5ce817e-8a93-42c4-a06d-9790a457c4dd-0
+00:26:04.520 --> 00:26:06.600
+That is the reason why I showed that.
+
+bffa9f24-bfd9-4d53-86b5-d33c032c07f0-0
+00:26:07.000 --> 00:26:12.980
+But today we can go with account party
+address only because you posted all the
+
+bffa9f24-bfd9-4d53-86b5-d33c032c07f0-1
+00:26:12.980 --> 00:26:18.280
+but they're like will that have the
+balance for installation limited?
+
+4a2e3375-1996-4af3-8ea7-4f367c88b728-0
+00:26:18.480 --> 00:26:19.560
+Yeah, yeah, yeah.
+
+d9efd5f3-aff6-423d-816b-a49f29b2a272-0
+00:26:19.560 --> 00:26:20.800
+Post component.
+
+dfde8687-e7c3-464f-8e26-d32abc2075d3-0
+00:26:20.920 --> 00:26:21.440
+OK, OK.
+
+c0a80f3e-d178-4d09-b98f-edee8bb5da7d-0
+00:26:21.440 --> 00:26:24.000
+That is so common that is reusable.
+
+3810efa5-62e2-470c-b04b-8285e1d2e4a1-0
+00:26:24.000 --> 00:26:47.562
+Now after job load,
+we have job post load 1st is RA2 main
+
+3810efa5-62e2-470c-b04b-8285e1d2e4a1-1
+00:26:47.562 --> 00:26:50.000
+array.
+
+9606fb98-810c-430b-87dc-8faf97e6723c-0
+00:26:50.360 --> 00:26:53.920
+This is developed by Bharat,
+but I'll try to explain you.
+
+a110c2b0-e205-468f-a190-d4310e8009f3-0
+00:26:53.920 --> 00:26:59.351
+If if we were not able to figure out
+anything here, we can reach out to him,
+
+a110c2b0-e205-468f-a190-d4310e8009f3-1
+00:26:59.351 --> 00:27:00.480
+we can pull him.
+
+d4b6eaf2-cc00-4f37-ba1f-1d5a8d776c60-0
+00:27:30.160 --> 00:27:37.032
+OK so this is the first city inside this
+we have one select close and inside that
+
+d4b6eaf2-cc00-4f37-ba1f-1d5a8d776c60-1
+00:27:37.032 --> 00:27:38.960
+we have another subway.
+
+3cc98618-e4c2-474a-9a1f-b04834e8af5e-0
+00:27:38.960 --> 00:27:40.760
+So let's come from the sub query.
+
+0ded5049-e2a1-4c4c-a503-cb0947d7f7f2-0
+00:27:41.280 --> 00:27:48.544
+So here we are trying OK here we are
+trying to get we are we are fetching few
+
+0ded5049-e2a1-4c4c-a503-cb0947d7f7f2-1
+00:27:48.544 --> 00:27:55.994
+records from temporary table and here we
+are doing a lateral pattern on a chill
+
+0ded5049-e2a1-4c4c-a503-cb0947d7f7f2-2
+00:27:55.994 --> 00:27:59.440
+table and we are trying to get input.
+
+ad3fbfd5-d9d0-41c8-8731-b6a2718804df-0
+00:28:02.280 --> 00:28:05.280
+Let me let me open this snowflake.
+
+20b55aee-2cd9-408b-89a5-c56dfd70e999-0
+00:28:05.400 --> 00:28:09.200
+How this chill looks in main array?
+
+e3c2c679-d449-4c64-875d-8dcbb80db347-0
+00:28:09.200 --> 00:28:10.760
+How it got changed?
+
+57a626e4-e3bf-4650-9cce-47e992800f02-0
+00:28:22.280 --> 00:28:25.519
+OK,
+so child is this so they're doing a
+
+57a626e4-e3bf-4650-9cce-47e992800f02-1
+00:28:25.519 --> 00:28:29.487
+lateral,
+they're doing a lateral pattern on this
+
+57a626e4-e3bf-4650-9cce-47e992800f02-2
+00:28:29.487 --> 00:28:35.480
+child table and they're getting the value
+from it and that value they're.
+
+e3d5e632-d010-42fc-b779-9b281870ec1c-0
+00:28:36.840 --> 00:28:41.802
+So when we do a lateral pattern on a
+Jason text, we'll have key and value,
+
+e3d5e632-d010-42fc-b779-9b281870ec1c-1
+00:28:41.802 --> 00:28:42.200
+right?
+
+c0436b4d-28e5-4f9d-b77f-14199e314445-0
+00:28:42.200 --> 00:28:46.423
+Yeah,
+key they are taking it as a zone 1 table
+
+c0436b4d-28e5-4f9d-b77f-14199e314445-1
+00:28:46.423 --> 00:28:49.120
+and value as zone 1 UAD value.
+
+5ef96079-d0a0-4409-980a-0e440b3a4017-0
+00:28:49.720 --> 00:28:54.875
+So if you see if you see here,
+whatever the key is there,
+
+5ef96079-d0a0-4409-980a-0e440b3a4017-1
+00:28:54.875 --> 00:29:00.120
+right First key this they are taking it
+as a what is this?
+
+be9ea335-6841-45c6-addb-1a12d5d90e94-0
+00:29:00.280 --> 00:29:05.762
+As a German table, German table name,
+this is the German table name and they
+
+be9ea335-6841-45c6-addb-1a12d5d90e94-1
+00:29:05.762 --> 00:29:11.244
+are taking the value this is the whole
+value for F and in that F this is the
+
+be9ea335-6841-45c6-addb-1a12d5d90e94-2
+00:29:11.244 --> 00:29:15.160
+like this you,
+they are considering it the value as U.
+
+98774b59-8b3c-41c6-a40d-154d9920d608-0
+00:29:15.520 --> 00:29:19.578
+Here they are again doing the lateral
+pattern on the test and they're
+
+98774b59-8b3c-41c6-a40d-154d9920d608-1
+00:29:19.578 --> 00:29:23.927
+considering it as AU under that U,
+whatever the value they have this value
+
+98774b59-8b3c-41c6-a40d-154d9920d608-2
+00:29:23.927 --> 00:29:27.000
+they are considering as a zone when you
+get a value.
+
+9fc6ebf1-62e7-4e58-a297-7a73824f8b7a-0
+00:29:27.800 --> 00:29:37.720
+OK, OK, And then they are doing a row,
+row number partition by job ID.
+
+b89485d2-d34a-4dd8-9af3-e584a6b234cf-0
+00:29:37.720 --> 00:29:42.435
+They're doing a partition by using job ID,
+table name, source table name,
+
+b89485d2-d34a-4dd8-9af3-e584a6b234cf-1
+00:29:42.435 --> 00:29:45.240
+and one UUID parted by audit creating
+date.
+
+1c675f02-4082-4be7-a448-e2ccb746c447-0
+00:29:45.240 --> 00:29:47.360
+OK, They're just applying version.
+
+468352da-e3a4-42ea-a36b-0e01a0db4320-0
+00:29:47.920 --> 00:29:51.680
+So they're just checking if there are any
+duplicate records.
+
+7f477765-305d-41e1-8302-9521af41dd3f-0
+00:29:51.680 --> 00:29:55.360
+If there are any duplicate records,
+they are just keeping it.
+
+c0df00d6-0642-4b4c-908e-be791bce4a31-0
+00:29:55.760 --> 00:30:00.200
+They're just keeping only one version,
+that's it.
+
+c25fc104-505a-4483-9ee8-6c746a0b72ff-0
+00:30:00.680 --> 00:30:07.094
+They're just taking table name,
+UUID value and all the details from the
+
+c25fc104-505a-4483-9ee8-6c746a0b72ff-1
+00:30:07.094 --> 00:30:08.520
+temp table here.
+
+fb52f1ca-5be3-4a5d-aa0c-b2dbb153eff7-0
+00:30:08.520 --> 00:30:11.920
+They're what they're doing is using these
+job ID.
+
+2fb3850c-d084-4f30-bf5e-c136b87f12cb-0
+00:30:11.920 --> 00:30:16.120
+They're just taking only one value, Yeah.
+
+f5100a07-d1c3-4314-9e41-1c093c8166da-0
+00:30:16.120 --> 00:30:22.358
+And after that in this main array,
+they're trying to get the zone to job ID,
+
+f5100a07-d1c3-4314-9e41-1c093c8166da-1
+00:30:22.358 --> 00:30:25.680
+zone to table name and zone 1 table name.
+
+645a5df6-fb52-4c44-9394-db05dfe2a4a6-0
+00:30:25.800 --> 00:30:30.708
+All these things from the main array
+table using target zone to table name and
+
+645a5df6-fb52-4c44-9394-db05dfe2a4a6-1
+00:30:30.708 --> 00:30:32.200
+process flag is is null.
+
+55e99c8d-a108-4e20-91dd-461735ae5706-0
+00:30:32.560 --> 00:30:38.439
+So whatever the records that are present
+in the main array table with process flag
+
+55e99c8d-a108-4e20-91dd-461735ae5706-1
+00:30:38.439 --> 00:30:42.760
+equal to north the null,
+they are taking only those records.
+
+946db3ac-4e0b-4fc7-8fee-db71839c0535-0
+00:30:43.120 --> 00:30:46.640
+After that they're doing the all the
+things here.
+
+2fc78157-17ed-411a-83fc-b19e46364db3-0
+00:30:46.640 --> 00:30:51.713
+So they're just joining temper and main
+array based upon the job ID,
+
+2fc78157-17ed-411a-83fc-b19e46364db3-1
+00:30:51.713 --> 00:30:56.640
+target table name and this, this OK,
+they're doing this full join.
+
+73b22305-6221-4ac1-909d-9a2c736d5997-0
+00:30:57.360 --> 00:31:04.004
+They're doing full join based upon that
+they're comparing each and flagging
+
+73b22305-6221-4ac1-909d-9a2c736d5997-1
+00:31:04.004 --> 00:31:07.240
+they're they're flagging each record.
+
+a3c7f066-d197-46dc-9672-6335ad63d3af-0
+00:31:07.480 --> 00:31:12.876
+No change,
+insert and update if there if if there is
+
+a3c7f066-d197-46dc-9672-6335ad63d3af-1
+00:31:12.876 --> 00:31:15.320
+no change in the record.
+
+49a2e7a6-d1b9-4ffc-b9c3-9300d9a1d09f-0
+00:31:15.320 --> 00:31:18.280
+So they have done this right.
+
+d7ca70dd-ebd4-4c1c-b908-16b491d5031f-0
+00:31:18.440 --> 00:31:29.443
+So if the if they found a record where
+it's the doc is and main like can you
+
+d7ca70dd-ebd4-4c1c-b908-16b491d5031f-1
+00:31:29.443 --> 00:31:40.590
+Scroll down what is pimp and what is mean
+here We have parameterized even the
+
+d7ca70dd-ebd4-4c1c-b908-16b491d5031f-2
+00:31:40.590 --> 00:31:50.880
+tamper a table earlier they were not sure
+about the table name as well.
+
+6a6f13a3-c131-4b33-a4b4-5600a2d2da84-0
+00:31:51.240 --> 00:31:53.280
+So that is the reason why I parameterized
+it.
+
+4b02114d-ed0e-4b39-b1d5-b8e626ab4eb2-0
+00:31:53.280 --> 00:32:02.209
+This table name is is what like it is the
+RI table name or tamper table,
+
+4b02114d-ed0e-4b39-b1d5-b8e626ab4eb2-1
+00:32:02.209 --> 00:32:03.800
+TEMPRA table.
+
+bb5a1baf-09c2-440c-bf84-53a152a88237-0
+00:32:03.920 --> 00:32:04.920
+This is the table name.
+
+4a133046-a487-4cd2-a5f6-82fb83a981ab-0
+00:32:05.640 --> 00:32:09.848
+So for in snowflake,
+in snowflake both are in snowflake tamper
+
+4a133046-a487-4cd2-a5f6-82fb83a981ab-1
+00:32:09.848 --> 00:32:12.320
+and main array both are in snowflake.
+
+b81ae085-2973-4194-97f6-6c92c0e0e5a9-0
+00:32:12.440 --> 00:32:13.600
+They look like this.
+
+bf4149a2-65cb-4c31-a980-75cea496d483-0
+00:32:17.960 --> 00:32:19.520
+What is the purpose of these two?
+
+caeecec4-f1b0-4729-b997-819b1cececaf-0
+00:32:21.800 --> 00:32:26.720
+So these are related to referential
+integrity records.
+
+672cfccd-6b28-40db-a1e8-5f9ea197b569-0
+00:32:28.040 --> 00:32:28.360
+Yeah, yeah.
+
+943c35fd-d106-49de-a349-1b6277ecd517-0
+00:32:29.120 --> 00:32:34.723
+I mean I think the during during the
+stage load we would be loading all the
+
+943c35fd-d106-49de-a349-1b6277ecd517-1
+00:32:34.723 --> 00:32:40.473
+records which are having are issues into
+the timetable and after that they we
+
+943c35fd-d106-49de-a349-1b6277ecd517-2
+00:32:40.473 --> 00:32:44.160
+would be loading it into temp to main are
+tables.
+
+ea6082af-d33e-4afe-93b0-25e0f180c3cb-0
+00:32:44.160 --> 00:32:49.863
+So this temporary table basically works
+like we will be like whenever we are
+
+ea6082af-d33e-4afe-93b0-25e0f180c3cb-1
+00:32:49.863 --> 00:32:55.566
+loading in records into the temporary
+table we would be deleting the records
+
+ea6082af-d33e-4afe-93b0-25e0f180c3cb-2
+00:32:55.566 --> 00:33:01.639
+from the for that particular job ID which
+are loaded as part of the previous run.
+
+769a5225-1999-4e82-b23f-cb325977ff00-0
+00:33:01.840 --> 00:33:06.840
+So every time it's it's kind of a clean
+up based upon the job ID table.
+
+d96a4a27-07d4-4316-9ec4-a1bc99061f93-0
+00:33:07.120 --> 00:33:11.400
+So as we have to reprocess them every
+every time.
+
+4698acf9-94d5-4679-bf74-17339bdc5798-0
+00:33:11.440 --> 00:33:15.790
+In the source qualified query we are
+having two separate tables one time 1
+
+4698acf9-94d5-4679-bf74-17339bdc5798-1
+00:33:15.790 --> 00:33:16.080
+main.
+
+d3faecb3-ea55-4e2b-8881-f2f6c36e80c1-0
+00:33:16.600 --> 00:33:22.236
+So main table will have the final truth
+how many records are processed processed,
+
+d3faecb3-ea55-4e2b-8881-f2f6c36e80c1-1
+00:33:22.236 --> 00:33:25.880
+how many records are are still remained
+unprocessed.
+
+5f7beb64-0fb2-4be2-b90b-94c08666345b-0
+00:33:25.880 --> 00:33:28.520
+All those details will have the main main
+tables.
+
+1591ba59-ab16-4c73-8eee-6ab6cbc55a6f-0
+00:33:28.640 --> 00:33:33.880
+This temporary table we are just using to
+load that records.
+
+3de415af-adaa-4897-b78f-723d25cb67cb-0
+00:33:34.120 --> 00:33:40.220
+So that will use this table to update the
+the main array table otherwise inserted
+
+3de415af-adaa-4897-b78f-723d25cb67cb-1
+00:33:40.220 --> 00:33:43.493
+if there are if,
+if they if the old record,
+
+3de415af-adaa-4897-b78f-723d25cb67cb-2
+00:33:43.493 --> 00:33:46.320
+if the record in the main array table.
+
+ef5dbfa1-b97d-4275-a836-55fb291d7e8e-0
+00:33:46.600 --> 00:33:49.680
+So for the first time,
+all records would be inserted, right?
+
+15479633-9bbc-4d7d-9d60-78c2d4cbeded-0
+00:33:49.680 --> 00:33:52.183
+Yeah, into main,
+into temporary table and then from
+
+15479633-9bbc-4d7d-9d60-78c2d4cbeded-1
+00:33:52.183 --> 00:33:54.880
+temporary to main array,
+all records would be inserted.
+
+49008bb0-d55b-4356-b49f-282cecd9603c-0
+00:33:55.120 --> 00:33:59.244
+On day 2,
+we found that three records like on day 2,
+
+49008bb0-d55b-4356-b49f-282cecd9603c-1
+00:33:59.244 --> 00:34:05.160
+we'll use this main array table for
+reprocessing in the stage table though.
+
+1a3c9fdf-f1b3-4b0d-898e-cf0edff8bf4e-0
+00:34:05.440 --> 00:34:11.904
+So while this reprocessing 2 of the
+records are are found their parent parent
+
+1a3c9fdf-f1b3-4b0d-898e-cf0edff8bf4e-1
+00:34:11.904 --> 00:34:18.120
+record and they are processed OK,
+they are processed into the stage table.
+
+a49bdd86-2db1-43a5-b75e-689071f24925-0
+00:34:18.400 --> 00:34:25.897
+So in that case and whatever the three
+records OK, 3 records are processed right,
+
+a49bdd86-2db1-43a5-b75e-689071f24925-1
+00:34:25.897 --> 00:34:27.360
+two or two left.
+
+59d4eaee-83a3-4c4e-b2c7-c70b38f2ea4c-0
+00:34:28.400 --> 00:34:32.640
+So along with stage 2,
+there are two more new records OK.
+
+370b2eca-d479-41e2-a0d9-13ba926719c3-0
+00:34:33.040 --> 00:34:36.280
+All these 4 records are routed to
+temporary using.
+
+fd328711-c1f0-4a0c-aabb-f131c7fb09d4-0
+00:34:36.640 --> 00:34:40.931
+Before loading into this temporary
+whatever the records that are loaded
+
+fd328711-c1f0-4a0c-aabb-f131c7fb09d4-1
+00:34:40.931 --> 00:34:45.401
+yesterday fire records would be first
+deleted and these 4 records would be
+
+fd328711-c1f0-4a0c-aabb-f131c7fb09d4-2
+00:34:45.401 --> 00:34:49.872
+inserted OK Using these 4 records,
+yesterday's spy records are there right
+
+fd328711-c1f0-4a0c-aabb-f131c7fb09d4-3
+00:34:49.872 --> 00:34:51.719
+out office three are processed.
+
+167c6129-e8c9-4960-bfc3-df2834f7b051-0
+00:34:51.760 --> 00:34:56.560
+So we didn't find those records in this
+in these timetable,
+
+167c6129-e8c9-4960-bfc3-df2834f7b051-1
+00:34:56.560 --> 00:35:01.040
+then they would be updated,
+then they would be updated,
+
+167c6129-e8c9-4960-bfc3-df2834f7b051-2
+00:35:01.040 --> 00:35:07.600
+OK and then updated like updated in the
+sense their process flag would to mark as
+
+167c6129-e8c9-4960-bfc3-df2834f7b051-3
+00:35:07.600 --> 00:35:08.080
+Y, OK.
+
+733ce99b-1dab-4bb1-aae6-4372086da255-0
+00:35:08.280 --> 00:35:12.357
+And then newly coming 4 records like new
+coming 2 records would be directly
+
+733ce99b-1dab-4bb1-aae6-4372086da255-1
+00:35:12.357 --> 00:35:12.840
+inserted.
+
+18074bcc-4014-4734-a480-0e3f505c8c70-0
+00:35:13.120 --> 00:35:17.042
+And whatever the records that are
+processed yesterday that are already
+
+18074bcc-4014-4734-a480-0e3f505c8c70-1
+00:35:17.042 --> 00:35:20.800
+loaded into this main array table
+yesterday, they would be ignored.
+
+ae274a96-c325-462b-884b-b913cfb568d8-0
+00:35:22.240 --> 00:35:25.480
+OK, kind of no change again.
+
+e703d3b2-1b1f-4804-8f88-10c4f4cd6b2a-0
+00:35:25.480 --> 00:35:30.468
+On day three,
+all those 4 records would be reprocessed
+
+e703d3b2-1b1f-4804-8f88-10c4f4cd6b2a-1
+00:35:30.468 --> 00:35:31.920
+again like that.
+
+cc182628-659f-4382-974d-64c56f3336e7-0
+00:35:31.920 --> 00:35:33.120
+This process continues.
+
+bd743790-3c22-46d9-abd5-0458fb410cbe-0
+00:35:33.920 --> 00:35:38.200
+I've like I, I'm thinking like you,
+you asked why the necessity of two tables.
+
+c470cd32-42de-4965-9472-dd3606ff0580-0
+00:35:38.200 --> 00:35:40.880
+That's why I'm explaining why 2 tables
+are required.
+
+96490b92-2a5f-474a-8fa6-29e6fc7fae12-0
+00:35:41.480 --> 00:35:42.240
+You got it right.
+
+bc881bea-ae79-4e63-a08c-2f565f4f0d0d-0
+00:35:43.280 --> 00:35:45.680
+Yeah, to some some extent I got it.
+
+1881a03b-09ff-4c02-8e56-a61c16cd1768-0
+00:35:45.720 --> 00:35:50.640
+But we do think that, yeah, if you,
+if you go to go through the code, right.
+
+506bf0f6-519c-4400-911b-2f2c38f97609-0
+00:35:50.640 --> 00:35:55.387
+So if we don't have another table,
+intermediate temporary table,
+
+506bf0f6-519c-4400-911b-2f2c38f97609-1
+00:35:55.387 --> 00:36:01.523
+it would be difficult to do these updates
+and difficult to handle this reprocessing
+
+506bf0f6-519c-4400-911b-2f2c38f97609-2
+00:36:01.523 --> 00:36:04.080
+if we don't have a temporary table.
+
+c15b05c1-3b27-443a-9047-36397cbb1a54-0
+00:36:07.600 --> 00:36:11.520
+OK, OK, yeah,
+because whatever the request processed
+
+c15b05c1-3b27-443a-9047-36397cbb1a54-1
+00:36:11.520 --> 00:36:14.480
+won't won't be coming to tamper A again.
+
+9152c2f8-ef43-44bd-938e-53ded0183bc1-0
+00:36:14.480 --> 00:36:16.440
+They will be directly routed to stage.
+
+18507338-be5f-4e38-9d0f-5eef95b00668-0
+00:36:16.760 --> 00:36:20.000
+How do we know that they were not they
+were already processed.
+
+ec349296-f573-48aa-a2c9-3f8551057c79-0
+00:36:20.000 --> 00:36:24.827
+We would we would get to know only
+through tamper A table as the records
+
+ec349296-f573-48aa-a2c9-3f8551057c79-1
+00:36:24.827 --> 00:36:30.051
+that are not present in the tamper A
+table for this job ID we are assuming OK,
+
+ec349296-f573-48aa-a2c9-3f8551057c79-2
+00:36:30.051 --> 00:36:33.160
+the at least three records have got
+processed.
+
+25a2827a-fde9-4aa4-b94b-1fb5f68ac2d1-0
+00:36:33.160 --> 00:36:35.564
+OK,
+these are we have to mark it as processed
+
+25a2827a-fde9-4aa4-b94b-1fb5f68ac2d1-1
+00:36:35.564 --> 00:36:37.080
+like that it will understand.
+
+6388b8d1-1921-4128-9b57-5111d96d05f2-0
+00:36:37.320 --> 00:36:45.150
+I think this is the way they designed the
+logic to populate like RA records into
+
+6388b8d1-1921-4128-9b57-5111d96d05f2-1
+00:36:45.150 --> 00:36:46.600
+the main table.
+
+219a21ad-3f32-4344-bd2f-99db424502e4-0
+00:36:46.800 --> 00:36:50.080
+There are so many ways to handle the
+scenario.
+
+884872e8-162c-4ddd-af9d-393762c6ddcf-0
+00:36:50.120 --> 00:36:56.877
+This is the way they have implemented OK
+and during source to stage load and as I
+
+884872e8-162c-4ddd-af9d-393762c6ddcf-1
+00:36:56.877 --> 00:37:01.080
+remember it also takes the main ARRI
+table, right?
+
+409cad68-2396-485d-b9d9-c8b519386fab-0
+00:37:01.840 --> 00:37:02.920
+They can that's good.
+
+cede729b-7e65-4915-8db3-5e77da8dd463-0
+00:37:03.960 --> 00:37:06.640
+So on day one we have fire records, right?
+
+b85f1c36-f27d-46a9-8aca-c4cc2192ef04-0
+00:37:07.000 --> 00:37:12.405
+It will all the fire records are with
+process flag net using that philtre and
+
+b85f1c36-f27d-46a9-8aca-c4cc2192ef04-1
+00:37:12.405 --> 00:37:17.948
+job ID and something Wagga Wagga philtres,
+they will again try to check zone ID
+
+b85f1c36-f27d-46a9-8aca-c4cc2192ef04-2
+00:37:17.948 --> 00:37:20.997
+whether that particular using that zone
+ID,
+
+b85f1c36-f27d-46a9-8aca-c4cc2192ef04-3
+00:37:20.997 --> 00:37:26.680
+they will fetch the record again from the
+source along with the incremental data.
+
+aca51dda-a765-4f23-8b27-22adf06ae052-0
+00:37:27.040 --> 00:37:31.408
+They will fetch the records using this
+zone ID again if they even though if they
+
+aca51dda-a765-4f23-8b27-22adf06ae052-1
+00:37:31.408 --> 00:37:34.698
+are not part of our incremental load,
+even yesterday's load,
+
+aca51dda-a765-4f23-8b27-22adf06ae052-2
+00:37:34.698 --> 00:37:36.639
+they will pick along with these two.
+
+c1536d83-1f11-4c76-964b-d693b143d8f9-0
+00:37:37.080 --> 00:37:42.600
+So now for those records we will check
+whether the parent ID is there or not.
+
+0bf2866a-936c-4410-bafb-803241df37c3-0
+00:37:42.840 --> 00:37:47.080
+If it is there then we will route that
+record to the stage channel.
+
+1f5644df-f77e-435a-be4d-b0856c2f14fb-0
+00:37:47.320 --> 00:37:51.678
+If it is not then again they will be
+routed to tamper once they came tampering
+
+1f5644df-f77e-435a-be4d-b0856c2f14fb-1
+00:37:51.678 --> 00:37:53.720
+whether they will be handled as this.
+
+9e3f2915-fab3-44f0-8156-98c9ec31997c-0
+00:37:53.720 --> 00:37:58.117
+Otherwise if the if the records are not
+present in tampering but present in main
+
+9e3f2915-fab3-44f0-8156-98c9ec31997c-1
+00:37:58.117 --> 00:38:00.560
+array then they would be updated as
+process.
+
+e8a39627-a67a-46b9-876d-08570c096485-0
+00:38:01.040 --> 00:38:08.361
+OK so first we are getting information
+from temporary and also main array only
+
+e8a39627-a67a-46b9-876d-08570c096485-1
+00:38:08.361 --> 00:38:12.440
+records which with the process tag is
+null.
+
+295ef97f-09f7-4298-9156-915195624719-0
+00:38:12.840 --> 00:38:18.207
+We were taking and here the flag logic is
+implemented in such a way they are using
+
+295ef97f-09f7-4298-9156-915195624719-1
+00:38:18.207 --> 00:38:20.600
+this job ID not equal to main job ID.
+
+a1cbfbf9-1048-4e6a-881f-fd0ad8d3cbe9-0
+00:38:21.160 --> 00:38:29.743
+All these are exactly same zone 1 you
+already same everything is same then it
+
+a1cbfbf9-1048-4e6a-881f-fd0ad8d3cbe9-1
+00:38:29.743 --> 00:38:38.767
+is of no change after that for insert job
+ID is not null so zone two job ID OK we
+
+a1cbfbf9-1048-4e6a-881f-fd0ad8d3cbe9-2
+00:38:38.767 --> 00:38:45.480
+have one job ID in not null but and we
+have all the details.
+
+7d77c9c1-8b3d-4461-a789-b041e74324a4-0
+00:38:45.760 --> 00:38:49.720
+So what does it mean is we we have all
+the details from the temporary table.
+
+f87bed44-22bc-4fcb-baa4-f0871ef1d4f8-0
+00:38:49.720 --> 00:38:52.320
+The corresponding table details are not
+present in the main table.
+
+70492354-a02a-4731-8a0c-99635c5d3ec8-0
+00:38:52.800 --> 00:38:55.311
+That means whatever the zone you zone
+when right zone,
+
+70492354-a02a-4731-8a0c-99635c5d3ec8-1
+00:38:55.311 --> 00:38:58.553
+when you are using the zone,
+when you are adding we have one recording
+
+70492354-a02a-4731-8a0c-99635c5d3ec8-2
+00:38:58.553 --> 00:39:01.247
+temporary that record if we don't find in
+the main record,
+
+70492354-a02a-4731-8a0c-99635c5d3ec8-3
+00:39:01.247 --> 00:39:02.799
+we are just directly inserting it.
+
+59136a22-9e57-4017-9b49-c4e7dcfd3d2e-0
+00:39:03.160 --> 00:39:07.775
+And after that we don't have the
+recording temp table but we have the
+
+59136a22-9e57-4017-9b49-c4e7dcfd3d2e-1
+00:39:07.775 --> 00:39:09.160
+recording main table.
+
+26c4c927-3788-463e-a98e-58c9a493c233-0
+00:39:09.160 --> 00:39:10.320
+Then we are doing an update.
+
+63c28875-c224-467d-a1d9-fa4588c372c2-0
+00:39:12.320 --> 00:39:13.040
+OK, got it.
+
+b7873715-38af-4b0b-ba2b-75043747f3b1-0
+00:39:14.600 --> 00:39:16.320
+OK, then yeah, that's it.
+
+69849716-b154-4ad6-903e-52961617dc61-0
+00:39:16.440 --> 00:39:17.440
+Here they were doing.
+
+113d3cf9-29c4-4000-9a2e-4fdfb30aacc9-0
+00:39:17.440 --> 00:39:17.880
+That's it.
+
+efbe43af-0bc3-4ab1-b614-666a88702f1b-0
+00:39:18.440 --> 00:39:21.865
+So using these time update and insert
+flags,
+
+efbe43af-0bc3-4ab1-b614-666a88702f1b-1
+00:39:21.865 --> 00:39:26.280
+they are just making inserts and updates
+into this table.
+
+96ad05e1-0eea-4332-a9c3-5d875dab054c-0
+00:39:26.480 --> 00:39:27.760
+Can I go back to the query one?
+
+db149b76-0f05-4bb6-8b3f-c553ca91d476-0
+00:39:27.800 --> 00:39:37.680
+I mean please no, no, no, Scroll down,
+down.
+
+18a66bf9-c447-4a3b-861d-42d0431c720a-0
+00:40:21.630 --> 00:40:27.550
+OK so here they are taking only records
+with process flag is null right?
+
+3580cf7c-699d-4505-9b67-792d354d03af-0
+00:40:27.750 --> 00:40:32.009
+So if the records that are already
+present like here and there both are
+
+3580cf7c-699d-4505-9b67-792d354d03af-1
+00:40:32.009 --> 00:40:34.080
+exactly same then they're ignoring.
+
+78ada083-8208-4d24-b2d8-aa5e78e3fba2-0
+00:40:34.360 --> 00:40:37.960
+If temp is having record and main is not
+having record then they are doing
+
+78ada083-8208-4d24-b2d8-aa5e78e3fba2-1
+00:40:37.960 --> 00:40:38.440
+inserting.
+
+a4b6fa1e-6184-4c15-8334-73e85f2724a6-0
+00:40:38.680 --> 00:40:41.840
+If temp is not having that record,
+main is having that record.
+
+359b30a4-0028-4ac1-a148-a6e9d0ab3e6c-0
+00:40:41.840 --> 00:40:43.400
+That means it is already processed.
+
+4e58ce07-2fed-414a-ac7c-f829f4c80f6e-0
+00:40:43.400 --> 00:40:45.560
+So they are updating the processed flag
+as well.
+
+ba36923e-d052-429a-b151-93b7e0ba8067-0
+00:40:47.960 --> 00:40:50.899
+OK,
+so here router we have insert flow and
+
+ba36923e-d052-429a-b151-93b7e0ba8067-1
+00:40:50.899 --> 00:40:51.720
+update flow.
+
+fd930ac3-fb2b-4e5c-a179-23940dc7111c-0
+00:40:52.120 --> 00:40:54.880
+In the insert flow,
+I'll show you the mapping.
+
+f9bd00e5-0a7f-447e-a7ae-836721e7e9b0-0
+00:40:56.480 --> 00:41:00.960
+So I don't know why this is not mapped.
+
+ae76a337-6729-460a-bed3-83fa3fe0f4b6-0
+00:41:01.160 --> 00:41:04.320
+I don't know the sequence like
+significance of this sequence.
+
+3f4895d0-d083-4aed-84a9-4eb9f38e8190-0
+00:41:04.320 --> 00:41:06.564
+Also,
+they're just mapping all the like they're
+
+3f4895d0-d083-4aed-84a9-4eb9f38e8190-1
+00:41:06.564 --> 00:41:10.400
+just loading what are the records they
+have in the temporary table to this table.
+
+316d5016-0658-4fe2-aaeb-941630388393-0
+00:41:10.760 --> 00:41:13.040
+That's it, OK.
+
+215a88ec-ced4-4fc4-b83a-83c655e506b9-0
+00:41:13.400 --> 00:41:16.480
+And after that, they're in the update.
+
+f0295f5a-286f-4823-80eb-b1048e1d42ca-0
+00:41:24.000 --> 00:41:30.454
+They're using columns like zone one job
+ID and zone 1 UUID for updating purpose
+
+f0295f5a-286f-4823-80eb-b1048e1d42ca-1
+00:41:30.454 --> 00:41:33.520
+and they're updating the using zone 1.
+
+6b7e43e8-c1f0-4055-8f72-69c40e49a758-0
+00:41:33.920 --> 00:41:39.280
+All these are just related to like just
+like a condition like join condition.
+
+1f0c8658-f3fa-4f0f-b8a0-2c0395b9517b-0
+00:41:39.280 --> 00:41:43.360
+They were just using these these these
+fields.
+
+60afdafe-d0fe-494f-8fae-ae4dfb0dc491-0
+00:41:43.360 --> 00:41:47.120
+They're using these fields to update this
+particular processing field.
+
+1b65aacb-2e10-4ab5-a75c-4ac2d8a7503c-0
+00:41:47.240 --> 00:41:52.080
+Processing flag and audit columns are
+updated.
+
+2c849c34-2150-4238-b1ad-9c19939f344d-0
+00:41:53.400 --> 00:42:00.560
+Yes process flag logic to be healthy see
+here.
+
+b6846989-240d-4b24-b723-de3311e893c8-0
+00:42:00.560 --> 00:42:02.160
+Process flag logic is also there.
+
+0f973ff8-ca14-4f0c-925c-9730257f1d1d-0
+00:42:02.360 --> 00:42:06.400
+If the change flag is update then it is
+set as Y else it is not.
+
+51a9428f-bb6b-4fc0-aea7-a7fcdec9f55c-0
+00:42:07.320 --> 00:42:19.160
+Because I I missed this and all the ABC
+components are OK I told it.
+
+c2736bd6-6c7c-495a-bc41-fb68f4b1bc87-0
+00:42:19.240 --> 00:42:20.400
+I'll tell you then.
+
+578d01f6-a205-4d23-9e3b-4951d9cc429c-0
+00:42:20.640 --> 00:42:25.091
+So if any of these components are failed
+it will be routed to job post load
+
+578d01f6-a205-4d23-9e3b-4951d9cc429c-1
+00:42:25.091 --> 00:42:25.560
+failure.
+
+5c906652-1d86-4881-8199-ff227996781f-0
+00:42:29.120 --> 00:42:30.560
+This is job related.
+
+ccf0e1cc-4517-49d8-a0d6-34b626a2f0ea-0
+00:42:37.010 --> 00:42:44.157
+So here we have two targets 1 is the one
+is from AS as I have two here because my
+
+ccf0e1cc-4517-49d8-a0d6-34b626a2f0ea-1
+00:42:44.157 --> 00:42:51.130
+job rule added detail is from Snowflake
+and job rule assignment is from Aurora.
+
+679c7763-3b1e-471b-b91a-0a1a7d08f215-0
+00:42:52.010 --> 00:42:53.730
+Both are from two different databases.
+
+d2a2248e-47a8-47f7-bb0c-2eb9f30e1346-0
+00:42:53.730 --> 00:42:55.730
+That is the reason why we have two
+sources here.
+
+8828a0b7-9f2e-4a92-8951-f3b53fea4d5a-0
+00:42:56.280 --> 00:42:59.480
+Let me show you the logic for job retail
+time.
+
+ac12df22-ed4e-431d-9375-d4d076fff834-0
+00:42:59.480 --> 00:43:01.840
+What is the information that we are
+getting from there?
+
+878016e3-f7a7-4c7b-80a9-407294e0378b-0
+00:43:08.460 --> 00:43:14.365
+So here we're we're doing like here we
+are fetching the records from the job
+
+878016e3-f7a7-4c7b-80a9-407294e0378b-1
+00:43:14.365 --> 00:43:20.040
+role error detail temple table and error
+description will be there right?
+
+3e7e2e29-01d9-4634-a369-462975a0ea59-0
+00:43:20.040 --> 00:43:23.920
+So we are doing a lateral pattern on the
+table and using that.
+
+3af51ac1-b7ec-4613-b51e-c6bbb213757b-0
+00:43:24.040 --> 00:43:30.113
+So all the like in error description we
+would be loading the details in such a
+
+3af51ac1-b7ec-4613-b51e-c6bbb213757b-1
+00:43:30.113 --> 00:43:36.032
+way that so fast we would be adding
+target column then source column so then
+
+3af51ac1-b7ec-4613-b51e-c6bbb213757b-2
+00:43:36.032 --> 00:43:39.800
+error column value then rule 80 then
+error code.
+
+ea3dc894-a32f-4db4-b85e-4ed88d30e16f-0
+00:43:39.800 --> 00:43:44.645
+This is the way that we have loaded our
+source records into the data detail time
+
+ea3dc894-a32f-4db4-b85e-4ed88d30e16f-1
+00:43:44.645 --> 00:43:46.320
+right source detail details.
+
+be7c1de3-5386-4945-a844-4c11de651f1d-0
+00:43:46.480 --> 00:43:51.560
+So we are just doing a lateral pattern
+and getting all these details after that.
+
+3466f788-9d90-4022-b593-7844a9fc9af3-0
+00:43:52.360 --> 00:43:58.647
+So here we are just considering only our
+current run and where the error
+
+3466f788-9d90-4022-b593-7844a9fc9af3-1
+00:43:58.647 --> 00:44:05.795
+description is not null and this OK after
+that here OK all the all the things that
+
+3466f788-9d90-4022-b593-7844a9fc9af3-2
+00:44:05.795 --> 00:44:11.480
+we have here are related to this error
+and all the other details.
+
+af9ef235-b048-4670-b8aa-893ca24bd407-0
+00:44:11.760 --> 00:44:12.240
+That's it.
+
+97cf46e1-0abd-4e41-a85b-4c6d400722e4-0
+00:44:14.000 --> 00:44:22.840
+How does it look like when you run query
+from this particular output of this?
+
+b9436c6e-e81a-4e29-b5e6-0b483b9d7a33-0
+00:44:22.880 --> 00:44:29.320
+I think we don't have any errors,
+but I'll show you in the OK query.
+
+f7cde37e-de4e-43e2-a9aa-24fe99245c9f-0
+00:44:29.320 --> 00:44:30.480
+How does it work?
+
+3d4028ea-4bdd-4732-8f52-a46e11b88a9d-0
+00:44:31.360 --> 00:44:33.560
+OK, I'll show you in the UT documentary.
+
+6c0109b2-930c-475d-9792-c47224ebe61a-0
+00:44:39.040 --> 00:44:40.040
+Let me open it in the.
+
+07f4a129-3817-41ca-88b5-77344503620f-0
+00:47:14.960 --> 00:47:20.683
+So yeah here if you see this result we
+have job rule already till 10 with load
+
+07f4a129-3817-41ca-88b5-77344503620f-1
+00:47:20.683 --> 00:47:22.640
+is loaded with two records.
+
+00a36c1a-706f-4be3-97d4-c5b69f72aa9a-0
+00:47:22.640 --> 00:47:25.200
+OK so 2 records are having the issue.
+
+6ee45c55-d6d4-45ce-becd-e806d848dcde-0
+00:47:37.080 --> 00:47:49.812
+OK the source aggregated text it it
+updated in a wrong way it is so the
+
+6ee45c55-d6d4-45ce-becd-e806d848dcde-1
+00:47:49.812 --> 00:47:53.880
+columns are not proper.
+
+555cd8ec-45f6-48cb-87c0-4f984aeeb0c6-0
+00:47:59.880 --> 00:48:00.560
+I get the call.
+
+ffcafd7e-6d6d-4abc-9937-d3565373339b-0
+00:48:44.720 --> 00:48:58.640
+Actually, once this component is done,
+like if we have my lunch and don't Hello.
+
+bf831b7e-29c9-46d8-a2e1-ac3d3d6b09e1-0
+00:49:00.120 --> 00:49:00.960
+Yeah, sure.
+
+5dac04fd-00a9-4f41-9084-524f1a979c7a-0
+00:49:00.960 --> 00:49:01.120
+Yeah.
+
+5be30097-36f6-4e4a-9f8b-8cbc247a1623-0
+00:49:19.360 --> 00:49:20.360
+OK, we get this.
+
+7bf1767b-3dda-46e6-9e11-13c60b650b53-0
+00:49:23.720 --> 00:49:27.520
+Is this created in time schema first but
+later it's not.
+
+8f3c27a6-30fd-477f-aae7-025457b43978-0
+00:49:27.520 --> 00:49:28.880
+Sure, what's wrong?
+
+50f31f9e-be05-4b00-8659-58423ac6bea7-0
+00:50:02.440 --> 00:50:14.304
+OK,
+so there if you see the second second one,
+
+50f31f9e-be05-4b00-8659-58423ac6bea7-1
+00:50:14.304 --> 00:50:26.673
+this source error text or source
+description oh,
+
+50f31f9e-be05-4b00-8659-58423ac6bea7-2
+00:50:26.673 --> 00:50:38.790
+this one here error description is there
+right.
+
+e3510606-f376-49aa-b7ea-c2bb6488c806-0
+00:50:39.910 --> 00:50:44.320
+So in the error description column we
+have the values like this.
+
+6bea26df-ed30-4b81-8564-e345d4ee1f67-0
+00:50:44.520 --> 00:50:51.819
+So which are separated by;
+In the sense if we have multiple columns,
+
+6bea26df-ed30-4b81-8564-e345d4ee1f67-1
+00:50:51.819 --> 00:50:58.379
+which are OK here,
+if we have multiple call rule assignments,
+
+6bea26df-ed30-4b81-8564-e345d4ee1f67-2
+00:50:58.379 --> 00:51:06.631
+then if we have those those those cheques
+failure and a single source record,
+
+6bea26df-ed30-4b81-8564-e345d4ee1f67-3
+00:51:06.631 --> 00:51:13.507
+then we'll be having all those related
+information separated by;
+
+6bea26df-ed30-4b81-8564-e345d4ee1f67-4
+00:51:13.507 --> 00:51:20.173
+So first like when I do the error
+description split using the;
+
+6bea26df-ed30-4b81-8564-e345d4ee1f67-5
+00:51:20.173 --> 00:51:21.760
+Then it is err.
+
+3598573a-aa4f-4a1b-a82f-0972bba34113-0
+00:51:22.040 --> 00:51:28.960
+So err err value itself is an 1 error
+item OK.
+
+a3498a13-a2a6-46e7-922d-4c13d3d1d15e-0
+00:51:29.320 --> 00:51:35.840
+And then after that, each value,
+whatever the value that we have.
+
+a1bd28e2-d21a-496d-85eb-7ae216c0a720-0
+00:51:35.920 --> 00:51:44.680
+So once we separate it, so this is 1, uh,
+err, this is 1 err, this is 1 err.
+
+2a120f9e-f2fc-44df-975b-224dec6f7495-0
+00:51:44.720 --> 00:51:52.455
+So this way we'll,
+there will be each value in the in this
+
+2a120f9e-f2fc-44df-975b-224dec6f7495-1
+00:51:52.455 --> 00:52:00.190
+record to populate into these columns as
+separate columns.
+
+be0747bc-2109-4d78-96cf-3c4f574164bf-0
+00:52:00.190 --> 00:52:04.715
+OK,
+we we are just doing a split using the
+
+be0747bc-2109-4d78-96cf-3c4f574164bf-1
+00:52:04.715 --> 00:52:06.400
+pipe symbol 1st.
+
+37e7b103-6296-4600-9376-971738c7a7fb-0
+00:52:06.400 --> 00:52:21.497
+We are just doing a lateral phantom when
+as we have three separate job rule
+
+37e7b103-6296-4600-9376-971738c7a7fb-1
+00:52:21.497 --> 00:52:37.190
+assignments, these three would be oh,
+sorry, there is, there's a network list.
+
+d34e5ecc-b141-4e69-91f8-f6bd4944630c-0
+00:52:37.190 --> 00:52:37.470
+Sorry.
+
+13fd30e0-643f-4ea5-8e1f-b17e6ce6828f-0
+00:52:41.630 --> 00:52:44.840
+Oh my God, disconnect.
+
+06e856e0-e6a0-446b-8ba6-f69e5ff8adac-0
+00:52:47.160 --> 00:52:48.440
+That's connecting again.
+
+96fe0318-0e18-49e0-a6a2-1d033ff26023-0
+00:52:48.640 --> 00:52:52.577
+So first,
+what I what what I'm what I mean to say
+
+96fe0318-0e18-49e0-a6a2-1d033ff26023-1
+00:52:52.577 --> 00:52:56.909
+is for each record,
+if we have if I have multiple rule
+
+96fe0318-0e18-49e0-a6a2-1d033ff26023-2
+00:52:56.909 --> 00:53:01.162
+assignment,
+first it is doing a lateral pattern based
+
+96fe0318-0e18-49e0-a6a2-1d033ff26023-3
+00:53:01.162 --> 00:53:04.785
+upon the; So using the;
+Each rule assignment,
+
+96fe0318-0e18-49e0-a6a2-1d033ff26023-4
+00:53:04.785 --> 00:53:08.960
+for each rule assignment, we'll have one,
+one entry.
+
+15d05201-1c35-4bc2-8a90-08b4caae1fa1-0
+00:53:09.480 --> 00:53:14.220
+So as I showed in the example,
+there are three rule assignments which
+
+15d05201-1c35-4bc2-8a90-08b4caae1fa1-1
+00:53:14.220 --> 00:53:16.320
+are failed for a single record.
+
+996ff501-a97a-4533-b4df-b11b0c0f19cb-0
+00:53:16.320 --> 00:53:22.913
+So that will be transpose it 2-3 separate
+records after transpose 2-3 separate
+
+996ff501-a97a-4533-b4df-b11b0c0f19cb-1
+00:53:22.913 --> 00:53:25.000
+records using that value.
+
+452641fc-f9a7-4c83-b3f5-9607bf1bb584-0
+00:53:25.520 --> 00:53:32.356
+It we're using the each part of the value
+to populate corresponding values like
+
+452641fc-f9a7-4c83-b3f5-9607bf1bb584-1
+00:53:32.356 --> 00:53:36.800
+target column name,
+source column and source value.
+
+4aff46bc-805e-4007-8194-71e8c85d2047-0
+00:53:36.800 --> 00:53:39.400
+Like that we would be using and we would
+be populating.
+
+d745f22c-50b4-42f0-a55c-f2f8c6711ef9-0
+00:53:40.360 --> 00:53:44.480
+So the table you were showing that was
+the source table for this table.
+
+ec483946-d2a6-412d-9d70-dc19fc9afffb-0
+00:53:48.320 --> 00:53:49.680
+Sorry, what table?
+
+49ec08d5-4898-4414-9f6f-2d72e0c47a64-0
+00:53:49.680 --> 00:53:52.927
+Source table job rule error detail temp
+Yes,
+
+49ec08d5-4898-4414-9f6f-2d72e0c47a64-1
+00:53:52.927 --> 00:53:56.680
+this is the source table for job rule
+error detail.
+
+7d7dcf8a-eea4-43c4-8f04-2eee2f319439-0
+00:53:57.840 --> 00:54:04.065
+See here job rule error retail OK and
+after that like using all these records
+
+7d7dcf8a-eea4-43c4-8f04-2eee2f319439-1
+00:54:04.065 --> 00:54:09.890
+and in the mapping if you go to the
+mapping we have another source query
+
+7d7dcf8a-eea4-43c4-8f04-2eee2f319439-2
+00:54:09.890 --> 00:54:14.440
+where we are trying to pull all the job
+rule assignment.
+
+47662f2d-9d09-44db-8e8d-20df1611ca69-0
+00:54:15.240 --> 00:54:20.820
+So we have we have to assign the job rule
+assignment ID for each and every column
+
+47662f2d-9d09-44db-8e8d-20df1611ca69-1
+00:54:20.820 --> 00:54:26.195
+based upon the column name we would be
+assigning the job rule assignment value
+
+47662f2d-9d09-44db-8e8d-20df1611ca69-2
+00:54:26.195 --> 00:54:26.400
+OK.
+
+43e7f4fb-ba9d-4160-8a6a-48d545c9cbf9-0
+00:54:34.550 --> 00:54:40.288
+So here from the job rule assignment
+table using the job ID and add to philtre
+
+43e7f4fb-ba9d-4160-8a6a-48d545c9cbf9-1
+00:54:40.288 --> 00:54:46.318
+we are bringing all the job role IDs and
+target column name and error message text
+
+43e7f4fb-ba9d-4160-8a6a-48d545c9cbf9-2
+00:54:46.318 --> 00:54:48.280
+and job role assignment ID.
+
+a4885800-45c0-4ce4-914c-ed662610e956-0
+00:54:48.560 --> 00:54:52.920
+All these like these two are used to
+populate current time stamp values.
+
+d3155967-24c5-4533-957a-6b5bc04423cb-0
+00:54:54.160 --> 00:55:00.604
+OK, once we bring all these things,
+we have a here we have one expression for
+
+d3155967-24c5-4533-957a-6b5bc04423cb-1
+00:55:00.604 --> 00:55:04.405
+for rule ID,
+we're just as all the things are
+
+d3155967-24c5-4533-957a-6b5bc04423cb-2
+00:55:04.405 --> 00:55:05.480
+concatenated.
+
+45bd300c-c2a1-41c5-8532-192cf3a7cc9b-0
+00:55:06.120 --> 00:55:09.920
+This rule ID would also be like a a
+string, right?
+
+2b920bf2-165d-4801-84b4-280d33888bb3-0
+00:55:10.120 --> 00:55:13.200
+So we are just casting it to a begin.
+
+ab9d1cb6-09e6-4df5-b64d-ab08ab87f5a2-0
+00:55:14.600 --> 00:55:19.574
+After that we have a joiner where we'll
+be joining using rule ID and target
+
+ab9d1cb6-09e6-4df5-b64d-ab08ab87f5a2-1
+00:55:19.574 --> 00:55:20.360
+column name.
+
+ca0fb933-b00f-4176-8bdb-ccdfef113d6f-0
+00:55:20.360 --> 00:55:25.139
+Using rule ID and target column name we
+are doing a join with that records coming
+
+ca0fb933-b00f-4176-8bdb-ccdfef113d6f-1
+00:55:25.139 --> 00:55:28.520
+from this job will end this after that
+source error text.
+
+8eca1c0f-915f-47f0-a7e1-8ebcee4a7b0f-0
+00:55:29.640 --> 00:55:36.443
+So we are having the source error text
+like this error message text error value
+
+8eca1c0f-915f-47f0-a7e1-8ebcee4a7b0f-1
+00:55:36.443 --> 00:55:38.400
+like this it will like.
+
+b1d85dca-98f4-466e-b031-25dcafc5b3a9-0
+00:55:38.440 --> 00:55:40.800
+I'll show you how it looks.
+
+71718ab2-e983-4aa4-b1a0-ed3cbb01a9a3-0
+00:55:56.200 --> 00:55:59.600
+This looks like this null values found
+error column value.
+
+712ad99f-6c14-4cea-bc2f-a29b13e84d6b-0
+00:55:59.720 --> 00:56:05.680
+Here you see as I have passed only like I
+haven't hard coded that null.
+
+d10284c9-16e7-487a-86c3-7e7edeed1097-0
+00:56:05.800 --> 00:56:07.440
+It is giving like this empty string.
+
+4a4f9729-b474-4d20-8a2e-819a42590a02-0
+00:56:07.680 --> 00:56:11.000
+So that is the reason why I pass her null
+thereafter.
+
+b27e543b-02c2-46e5-9742-2cd5f39d5e12-0
+00:56:11.000 --> 00:56:18.760
+So it would have like this from onwards
+but it is not there in like at that time.
+
+d1cdaba5-f81e-4313-abbf-8618982d4f20-0
+00:56:20.920 --> 00:56:22.640
+OK we are making insert.
+
+7977374f-7761-42a9-bffd-9599625f1588-0
+00:56:22.800 --> 00:56:29.405
+We are loading records into both job
+snowflake job related table and also
+
+7977374f-7761-42a9-bffd-9599625f1588-1
+00:56:29.405 --> 00:56:36.814
+snowflake snowflake and both we we won't
+delete any record from the job rule error
+
+7977374f-7761-42a9-bffd-9599625f1588-2
+00:56:36.814 --> 00:56:39.760
+detail table from both databases.
+
+fd4910d1-1ea2-40ea-b4c9-e9e625ab2451-0
+00:56:39.920 --> 00:56:40.160
+OK.
+
+0644de62-03fa-4bc8-8610-c4b096ab41eb-0
+00:56:40.160 --> 00:56:44.185
+Whereas in ETL source data addition
+source window before loading into
+
+0644de62-03fa-4bc8-8610-c4b096ab41eb-1
+00:56:44.185 --> 00:56:48.440
+snowflake table we would be deleting the
+data for that particular job ID.
+
+b67afc4a-9f01-4202-a664-7ad45f75b970-0
+00:56:48.440 --> 00:56:51.120
+Even in the other timetables we will be
+doing the same.
+
+e1546e0e-5afc-4058-8f39-2e6a17416a7f-0
+00:56:51.200 --> 00:56:54.440
+Whereas for job rule error detail table
+it's kind of a permanent table.
+
+76810ce8-ad83-4736-bfa5-46191ed35252-0
+00:56:54.440 --> 00:56:59.800
+We won't be deleting any entries for the
+job ID from this snowflake table.
+
+620ee419-9d28-4241-a140-8cc17dbaa0e3-0
+00:57:02.960 --> 00:57:04.360
+OK, that's it.
+
+88421e63-fd2c-4e33-87e1-44921a82f38a-0
+00:57:04.720 --> 00:57:06.699
+OK,
+we can discuss post lunch that the
+
+88421e63-fd2c-4e33-87e1-44921a82f38a-1
+00:57:06.699 --> 00:57:08.120
+confidential can stop there.

@@ -1,0 +1,686 @@
+WEBVTT
+
+a3feda3a-1d0c-4e37-9ebe-9150cc92b514-0
+00:00:13.080 --> 00:00:13.400
+OK.
+
+2c56560f-7a70-44c8-98fb-45a94e94e21d-0
+00:00:13.600 --> 00:00:15.040
+Caviar, you can start recording.
+
+6624dc8a-7397-4dad-8239-b44e83a846f9-0
+00:00:17.560 --> 00:00:18.200
+I have something.
+
+7bba905a-8611-402b-858c-54c506370871-0
+00:00:19.720 --> 00:00:20.720
+Yeah, OK.
+
+846024aa-7c67-4c3e-8a1a-4989918a95db-0
+00:00:21.000 --> 00:00:26.546
+Regarding that ABC changes that Naria has
+discussed in that call all,
+
+846024aa-7c67-4c3e-8a1a-4989918a95db-1
+00:00:26.546 --> 00:00:32.963
+all the changes that are in that are done
+in the ABC folder I think according to
+
+846024aa-7c67-4c3e-8a1a-4989918a95db-2
+00:00:32.963 --> 00:00:37.479
+the domain wise like clients domain and
+contract domain.
+
+c3941a2a-0a8a-4a85-8208-dcd1bd522c6f-0
+00:00:37.760 --> 00:00:43.400
+So those changes have already been done
+by the other team.
+
+e83b45d7-03a6-4dee-bb7b-02daa5c3e5b6-0
+00:00:43.400 --> 00:00:51.307
+So what we have to do in our case is that
+we have to do few changes at two places
+
+e83b45d7-03a6-4dee-bb7b-02daa5c3e5b6-1
+00:00:51.307 --> 00:00:58.539
+like at this level here in input fields
+we need to add these two these two
+
+e83b45d7-03a6-4dee-bb7b-02daa5c3e5b6-2
+00:00:58.539 --> 00:00:59.600
+parameters.
+
+13389d0f-c1ab-46cf-9e95-87f01c18733f-0
+00:01:02.160 --> 00:01:07.806
+So here by click on this clicking on this
+plus button we can add these two
+
+13389d0f-c1ab-46cf-9e95-87f01c18733f-1
+00:01:07.806 --> 00:01:13.904
+parameters and we have to make sure that
+we need to check here in this check box
+
+13389d0f-c1ab-46cf-9e95-87f01c18733f-2
+00:01:13.904 --> 00:01:16.840
+because these are necessary components.
+
+70f3135d-1463-4b93-8485-015746103405-0
+00:01:17.200 --> 00:01:21.516
+And what are the other things that we
+need to do here is that is source batch
+
+70f3135d-1463-4b93-8485-015746103405-1
+00:01:21.516 --> 00:01:24.006
+ID,
+source execution run ID and source batch
+
+70f3135d-1463-4b93-8485-015746103405-2
+00:01:24.006 --> 00:01:24.560
+entertain.
+
+5f14370a-15d6-4361-9812-e5c306f7f2a4-0
+00:01:24.880 --> 00:01:29.626
+These 3 has to be unchecked because in
+place of these three parameters,
+
+5f14370a-15d6-4361-9812-e5c306f7f2a4-1
+00:01:29.626 --> 00:01:32.000
+we need to add these two parameters.
+
+2925bf45-8716-4d9a-a981-632a7c5fec9e-0
+00:01:33.480 --> 00:01:41.283
+And other thing is that and here job
+preload also here in input fields,
+
+2925bf45-8716-4d9a-a981-632a7c5fec9e-1
+00:01:41.283 --> 00:01:46.920
+we need to map the incoming fields with
+that field.
+
+6551d06a-0a65-48c6-ad5e-f56de6f3b561-0
+00:01:48.160 --> 00:01:54.240
+Like these two parameters are actually I
+can see these two parameters they're
+
+6551d06a-0a65-48c6-ad5e-f56de6f3b561-1
+00:01:54.240 --> 00:01:57.280
+coming from this subtask flow, I think.
+
+37dbfe01-ce78-4329-844d-4bb93a883cbe-0
+00:01:57.520 --> 00:02:02.737
+So whenever we open any task flow,
+we can see these two parameters that are
+
+37dbfe01-ce78-4329-844d-4bb93a883cbe-1
+00:02:02.737 --> 00:02:07.200
+being already added or or they are coming
+from the input fields.
+
+905af2b3-3d69-4c1e-9210-fef54d1089b7-0
+00:02:07.200 --> 00:02:07.520
+I can.
+
+01059a6a-ac17-49f7-b64e-2e657fdb04ec-0
+00:02:07.800 --> 00:02:14.074
+So for these input fields we need to map
+the in batch ID by clicking here earlier
+
+01059a6a-ac17-49f7-b64e-2e657fdb04ec-1
+00:02:14.074 --> 00:02:20.349
+it will be something like content but we
+need to change here to field and then we
+
+01059a6a-ac17-49f7-b64e-2e657fdb04ec-2
+00:02:20.349 --> 00:02:26.165
+need to map the whatever the input
+parameter that is coming from that start
+
+01059a6a-ac17-49f7-b64e-2e657fdb04ec-3
+00:02:26.165 --> 00:02:27.160
+input fields.
+
+1b286fa7-a65b-4b8e-8bc7-8460a4260729-0
+00:02:27.440 --> 00:02:29.480
+So we need to map it here like this.
+
+f244ba8a-aedc-435f-a70c-2ba4205b9042-0
+00:02:31.360 --> 00:02:38.349
+These are actually done so only at these
+two places only a job level we need to do
+
+f244ba8a-aedc-435f-a70c-2ba4205b9042-1
+00:02:38.349 --> 00:02:39.360
+the changes.
+
+e9293db7-e8f7-4c9a-880c-b2f2d936902e-0
+00:02:39.760 --> 00:02:46.131
+And one more thing is like here you can
+see in input fields there is some batch
+
+e9293db7-e8f7-4c9a-880c-b2f2d936902e-1
+00:02:46.131 --> 00:02:48.600
+and ID that I have given right?
+
+94f1a952-7741-4e56-a743-2f82d7fdc7d8-0
+00:02:48.600 --> 00:02:54.320
+So this can be fetched from batch and
+sourcing stats table.
+
+4e154a70-ae4f-441a-9c3b-8297ef04c06f-0
+00:02:55.000 --> 00:02:58.520
+So,
+which is a new table that is introduced
+
+4e154a70-ae4f-441a-9c3b-8297ef04c06f-1
+00:02:58.520 --> 00:03:00.760
+for this new ABC changes so.
+
+3a1ec502-2b0d-45e3-972a-acbe72d8d76c-0
+00:03:07.840 --> 00:03:14.571
+This is the batch sourcing stats table
+that they have introduced to include
+
+3a1ec502-2b0d-45e3-972a-acbe72d8d76c-1
+00:03:14.571 --> 00:03:16.520
+source batch IDs also.
+
+05171f80-fa8c-480e-a8c4-a826e733a865-0
+00:03:20.040 --> 00:03:23.640
+So like even for this table we'll have to
+make the metadata increase right?
+
+ce299e01-93a5-4ca0-865d-457bf19bf165-0
+00:03:24.120 --> 00:03:33.390
+This table we can make entry only once OK
+but means what they said is that I was
+
+ce299e01-93a5-4ca0-865d-457bf19bf165-1
+00:03:33.390 --> 00:03:35.680
+for CRC or batch ID.
+
+74c80c55-08bf-4399-a124-1746c600fbbe-0
+00:03:35.680 --> 00:03:39.120
+Target batch ID is 455 and source batch
+ID is 151 right?
+
+e71e50a5-9f35-4475-9d51-7466a3ee92f9-0
+00:03:40.520 --> 00:03:47.560
+So we need to make entry only once for
+this CRC batch.
+
+2a5c7a96-6f07-4e66-92c2-f143213258ec-0
+00:03:50.800 --> 00:03:56.909
+So here on Friday have entered the record
+for our batch ID,
+
+2a5c7a96-6f07-4e66-92c2-f143213258ec-1
+00:03:56.909 --> 00:04:02.000
+CERC batch ID 455 and our source batch ID
+is 151.
+
+28b1acd9-60be-4a2d-b90b-e433af2c3ca9-0
+00:04:02.520 --> 00:04:05.800
+Till now I think we have one source and
+only I guess.
+
+af2c2701-4d78-442e-a235-59d9ce132246-0
+00:04:06.160 --> 00:04:06.720
+Am I correct?
+
+5157b431-77d2-4d7b-8613-0e0223ddd254-0
+00:04:08.320 --> 00:04:12.160
+Yes so so for that I have inserted 1
+record.
+
+6b8a36c4-bfde-406e-979b-3d06b75ee163-0
+00:04:13.760 --> 00:04:15.280
+This is one time entry only.
+
+964937a1-2d4e-487f-9d02-531c97233d14-0
+00:04:15.600 --> 00:04:19.330
+So this is the batch ID of target batch
+ID,
+
+964937a1-2d4e-487f-9d02-531c97233d14-1
+00:04:19.330 --> 00:04:25.520
+source batch ID and execution run IDs
+coming from batch run stats table.
+
+8448fa29-e772-4c5c-814c-cd2ffacb68cb-0
+00:04:25.760 --> 00:04:32.866
+And also this batch run ID is also coming
+from batch run stats table for this batch
+
+8448fa29-e772-4c5c-814c-cd2ffacb68cb-1
+00:04:32.866 --> 00:04:33.120
+ID.
+
+0d742ac2-f236-4deb-b88f-7a2fca784b8d-0
+00:04:33.960 --> 00:04:36.040
+And this is a auto increment column.
+
+53d2ae43-6385-4b9c-a6fb-e23398a55a51-0
+00:04:36.040 --> 00:04:39.600
+So no need to insert any value into this
+column.
+
+a7ac3899-8503-47b3-bf1d-856dcd140139-0
+00:04:39.600 --> 00:04:45.858
+It will be automatically populated
+whenever we insert a record and source
+
+a7ac3899-8503-47b3-bf1d-856dcd140139-1
+00:04:45.858 --> 00:04:51.356
+batch execution run ID means for this 151
+source batch ID right,
+
+a7ac3899-8503-47b3-bf1d-856dcd140139-2
+00:04:51.356 --> 00:04:53.640
+we'll get one execution ID.
+
+8c75944e-2658-4e58-9a53-6be927be54fc-0
+00:04:53.640 --> 00:05:00.032
+So that will be inserted here in this
+column and sourcing start time sourcing
+
+8c75944e-2658-4e58-9a53-6be927be54fc-1
+00:05:00.032 --> 00:05:06.507
+and time on that day we have populated
+these columns as which is starting from
+
+8c75944e-2658-4e58-9a53-6be927be54fc-2
+00:05:06.507 --> 00:05:08.720
+1900 year to till the date.
+
+d08f6977-6929-4e82-9069-48c82ab30e39-0
+00:05:08.720 --> 00:05:11.000
+I mean the day we have inserted record
+right.
+
+89a075e3-79a2-4876-afb7-8bee50634746-0
+00:05:11.000 --> 00:05:15.440
+So on on that day,
+we have given this as 31st August.
+
+6966da66-9d18-4896-b54d-aadfcbad4bdb-0
+00:05:16.040 --> 00:05:22.558
+So these are the two time stamps that we
+need to queue and what Ria has said that
+
+6966da66-9d18-4896-b54d-aadfcbad4bdb-1
+00:05:22.558 --> 00:05:28.680
+is that the sourcing window time stamps
+will be coming from this table only.
+
+ed906122-ee08-41ec-8199-9de87c497fe1-0
+00:05:28.680 --> 00:05:34.114
+So whatever the time stamps will be there
+here for ATL data ingestion table,
+
+ed906122-ee08-41ec-8199-9de87c497fe1-1
+00:05:34.114 --> 00:05:39.407
+it will pick the those time stamps
+starting time and ending time and these
+
+ed906122-ee08-41ec-8199-9de87c497fe1-2
+00:05:39.407 --> 00:05:40.960
+are the audit columns.
+
+0e62f0bc-bca0-44e9-b17d-79b2131b075f-0
+00:05:42.160 --> 00:05:45.280
+This is the record that we have inserted
+for the CERC.
+
+c6eb92af-d87b-4ecd-852d-ca587de6dc5e-0
+00:05:47.040 --> 00:05:49.960
+So here you can see this batch run ID
+right?
+
+0041f997-b10f-4b11-b25c-d02b2923314a-0
+00:05:50.200 --> 00:05:57.800
+So this batch run ID is given in start
+input fields here.
+
+91fdd522-23c0-493e-af41-7c9a00b04935-0
+00:05:57.800 --> 00:05:59.960
+This is the one I have given that value
+here.
+
+f269a48a-307b-4c30-9967-39677763e7df-0
+00:06:04.680 --> 00:06:09.995
+So for the all other task flows on the
+tables that you are working,
+
+f269a48a-307b-4c30-9967-39677763e7df-1
+00:06:09.995 --> 00:06:14.920
+you can include these two parameters and
+this value that's it.
+
+a22759c8-6e87-4417-91db-eaec653684ac-0
+00:06:14.960 --> 00:06:20.944
+And here this is 11 place and other
+places that just we need to map these two
+
+a22759c8-6e87-4417-91db-eaec653684ac-1
+00:06:20.944 --> 00:06:26.698
+columns already we can see whenever you
+open the task flow or this subtask
+
+a22759c8-6e87-4417-91db-eaec653684ac-2
+00:06:26.698 --> 00:06:28.080
+preload component.
+
+8ebbccd3-1bbe-4184-9729-e9345d1a1405-0
+00:06:28.080 --> 00:06:32.840
+So here we can see these two that
+parameters that are coming in.
+
+c0f6a91d-7cb1-4a09-8f5b-d8dc735822f9-0
+00:06:33.160 --> 00:06:39.328
+We just need to map those two columns
+here by clicking on the field in dropdown
+
+c0f6a91d-7cb1-4a09-8f5b-d8dc735822f9-1
+00:06:39.328 --> 00:06:45.188
+we can click on that field button and
+after that we need to pick up the the
+
+c0f6a91d-7cb1-4a09-8f5b-d8dc735822f9-2
+00:06:45.188 --> 00:06:45.960
+parameter.
+
+96cc45e2-06ac-4cbc-9678-4b79af6dc883-0
+00:06:47.320 --> 00:06:53.500
+Can you like also share them like
+metadata entry sheet like which you used
+
+96cc45e2-06ac-4cbc-9678-4b79af6dc883-1
+00:06:53.500 --> 00:07:00.175
+to make entries here in this table for
+the new table Batch sourcing SAT table OK
+
+96cc45e2-06ac-4cbc-9678-4b79af6dc883-2
+00:07:00.175 --> 00:07:05.120
+this this is the only table we have to
+make an entry right?
+
+3b2d7745-f5ab-4906-a30d-dfbded9b2fc8-0
+00:07:06.640 --> 00:07:08.120
+Only one time entry is fine.
+
+7fc88476-d4e9-4169-b344-673dfd76f3af-0
+00:07:08.640 --> 00:07:10.160
+Already we have insert.
+
+942f9ab9-d1e0-4511-8ce2-e9df9c60fe21-0
+00:07:10.280 --> 00:07:12.400
+This is for like different asset we are
+working.
+
+72f737d2-bc5e-4295-add4-8130a9cb94b0-0
+00:07:12.400 --> 00:07:13.720
+So if you could share.
+
+3f2e21f0-affc-4e9f-a336-70929c2c123e-0
+00:07:13.720 --> 00:07:15.520
+OK, OK, fine.
+
+44eb386c-ae04-4012-a9d8-4c3aa4e47c12-0
+00:07:15.640 --> 00:07:18.840
+You can one second.
+
+1e1d75fe-527f-461f-abd0-3f9ebd66f3da-0
+00:07:25.820 --> 00:07:27.740
+Yeah, I'll check this and I'll share.
+
+4f4028f1-1213-4530-a62c-b9fc093bc4b0-0
+00:07:27.740 --> 00:07:29.620
+I have insert query somewhere.
+
+12a73554-829e-4b22-8a64-e853374f71d6-0
+00:07:35.370 --> 00:07:36.330
+Yeah, Kavya, I'll share.
+
+5d7bd0d6-2fac-46d3-b8da-1a834a26d68d-0
+00:07:36.570 --> 00:07:38.490
+It was somewhere in these tabs.
+
+ef5b92e5-9a03-43a8-ab53-8e6c2f6452af-0
+00:07:40.170 --> 00:07:45.120
+So is that clear or so these are the only
+changes we are making, right?
+
+d91bbab4-4e9b-485a-975e-6371bb4b06b4-0
+00:07:45.120 --> 00:07:47.915
+Yeah,
+at these two places only are for job
+
+d91bbab4-4e9b-485a-975e-6371bb4b06b4-1
+00:07:47.915 --> 00:07:52.400
+level already domain level changes that
+they are done by other team.
+
+c53b4a20-553d-4256-910e-377e23b4bd0d-0
+00:07:53.040 --> 00:07:53.400
+OK.
+
+1e932d2e-8558-4d2b-8156-07e987fc7968-0
+00:07:54.360 --> 00:08:01.279
+So in ABC folders in our clients domain,
+we can see the changes that they are done
+
+1e932d2e-8558-4d2b-8156-07e987fc7968-1
+00:08:01.279 --> 00:08:03.280
+only for job level only.
+
+4fc59344-2222-4ff9-a420-9668c20d23bb-0
+00:08:03.280 --> 00:08:11.447
+We need to do these changes in those two
+places like you are getting batch ID from
+
+4fc59344-2222-4ff9-a420-9668c20d23bb-1
+00:08:11.447 --> 00:08:14.400
+source bat batch stats, right?
+
+4e5bb6d0-abd3-4cdd-ad1b-99b30d42a98c-0
+00:08:15.520 --> 00:08:20.960
+We're copying the batch IDs I have taken
+from batch run stats.
+
+8407b681-d2cd-4587-941e-4e93821bba01-0
+00:08:21.560 --> 00:08:24.947
+OK,
+like currently what from where we have to
+
+8407b681-d2cd-4587-941e-4e93821bba01-1
+00:08:24.947 --> 00:08:28.040
+copy from source batch run stats like you.
+
+d53b05c6-9980-4622-a4ed-dc8425d6d535-0
+00:08:28.040 --> 00:08:31.200
+How in inside then we call actually.
+
+d52ff625-e4e9-4c84-ab78-0625c79872bb-0
+00:08:31.280 --> 00:08:35.171
+Yeah,
+actually in this sourcing stats table we
+
+d52ff625-e4e9-4c84-ab78-0625c79872bb-1
+00:08:35.171 --> 00:08:38.400
+need to enter only once for our assets.
+
+4a52132d-0904-4939-a153-daff7b8d5486-0
+00:08:38.840 --> 00:08:40.960
+So as our asset is CRC, right.
+
+68b5af67-03d4-4e36-96ba-ca89f4d56dd2-0
+00:08:40.960 --> 00:08:47.036
+So for CRC we have a target batch ID as
+455 and source batch ID is 151 and we are
+
+68b5af67-03d4-4e36-96ba-ca89f4d56dd2-1
+00:08:47.036 --> 00:08:50.000
+having only one source I think till now.
+
+e97dcc27-3a1d-4928-8333-46ed2aafa7c2-0
+00:08:50.400 --> 00:08:50.560
+Yeah.
+
+693689fb-29d9-4524-a01d-1b5b4cdb7171-0
+00:08:50.640 --> 00:08:58.707
+So I have taken that 455 batch ID from
+the batch run stats table and have copied
+
+693689fb-29d9-4524-a01d-1b5b4cdb7171-1
+00:08:58.707 --> 00:09:05.480
+batch run ID and batch execution ID all
+from batch run stats table.
+
+55caaddc-a792-4ca0-936c-62628063bf35-0
+00:09:06.080 --> 00:09:06.520
+OK.
+
+44b9b278-3fab-4e89-b473-5b75aa48fba6-0
+00:09:06.640 --> 00:09:11.680
+You copied from batch run like you have
+inserted into batch sourcing stats, right?
+
+537d81b1-c894-435e-8a8c-e06342b71a9c-0
+00:09:12.160 --> 00:09:12.400
+Yes.
+
+78f66b84-5165-4309-b649-dfe52c6a8096-0
+00:09:13.200 --> 00:09:17.880
+From that batch sourcing stats you have
+copied into the job task flow, right?
+
+7555f301-240b-4ce5-8814-709006bfe8be-0
+00:09:18.360 --> 00:09:20.960
+Yeah, yeah, batch run ID.
+
+83735865-4e71-4829-a7be-aea77f5986ed-0
+00:09:22.120 --> 00:09:25.738
+Oh,
+it would be same same for every task flow,
+
+83735865-4e71-4829-a7be-aea77f5986ed-1
+00:09:25.738 --> 00:09:26.200
+right?
+
+6d7eed9d-78a9-4a5d-9b1d-0669dcf9d9cf-0
+00:09:26.720 --> 00:09:30.605
+Every task flow, every, every,
+every asset, CRC asset, Yeah,
+
+6d7eed9d-78a9-4a5d-9b1d-0669dcf9d9cf-1
+00:09:30.605 --> 00:09:35.320
+whatever that whatever the task flows or
+the tables that you are working.
+
+2db81c97-aa59-4cdc-9312-1b9b83a00464-0
+00:09:35.640 --> 00:09:38.320
+So here in input fields,
+what is the value?
+
+e9da851d-7c07-40c7-8110-d640247cc84d-0
+00:09:38.400 --> 00:09:42.085
+Whatever the value that you will see here,
+right This one yeah,
+
+e9da851d-7c07-40c7-8110-d640247cc84d-1
+00:09:42.085 --> 00:09:43.640
+batch ID this will be same.
+
+01769a39-082d-4f5d-9daa-2dc9815fcf02-0
+00:09:44.400 --> 00:09:47.885
+So can you share that in the group or
+personally to No, no, no,
+
+01769a39-082d-4f5d-9daa-2dc9815fcf02-1
+00:09:47.885 --> 00:09:52.296
+you can you can copy you can copy take
+this as a reference claim payment record,
+
+01769a39-082d-4f5d-9daa-2dc9815fcf02-2
+00:09:52.296 --> 00:09:53.440
+claim payment record.
+
+8be68a98-8456-4082-a79f-84a36d59c55c-0
+00:09:54.120 --> 00:09:58.400
+You can take this task as a reference and
+you can copy it here.
+
+06d9dea8-7c54-4876-9f72-adef34d3229f-0
+00:09:58.840 --> 00:10:02.481
+OK,
+here batch type what you're taking batch
+
+06d9dea8-7c54-4876-9f72-adef34d3229f-1
+00:10:02.481 --> 00:10:08.066
+type, actually batch type,
+what RIA had said is that here we need to
+
+06d9dea8-7c54-4876-9f72-adef34d3229f-2
+00:10:08.066 --> 00:10:12.760
+give data share if we are working on that
+data share, OK.
+
+d2051198-f341-4490-bef8-24a258cc52ea-0
+00:10:13.440 --> 00:10:14.840
+But here we are not.
+
+60267b1e-db3f-46d7-acbf-ed9172563f00-0
+00:10:15.000 --> 00:10:18.360
+I mean the source is not data share,
+right In CRC.
+
+73026515-160e-407d-8c75-feff2d95fb0a-0
+00:10:18.360 --> 00:10:20.480
+That's why I haven't given any value.
+
+93d34853-7daa-450e-9381-190258b2da10-0
+00:10:20.920 --> 00:10:27.221
+But this is the value that I have taken
+from batch sourcing stats table, batch ID,
+
+93d34853-7daa-450e-9381-190258b2da10-1
+00:10:27.221 --> 00:10:32.080
+sourcing stats table,
+batch sourcing stats table, batch run ID.
+
+a36430d2-cb99-4e50-b08a-965158f822d1-0
+00:10:32.120 --> 00:10:33.360
+This is the batch run.
+
+edc14366-4a9f-4b28-82c3-72dbb5a9518e-0
+00:10:33.400 --> 00:10:35.320
+OK Batch sourcing stats table.
+
+2d191943-ac23-40a3-8f31-bac9d3eaca04-0
+00:10:35.320 --> 00:10:35.520
+OK.
+
+e2d27756-0a6e-424e-923a-9f6ac982767d-0
+00:10:37.400 --> 00:10:39.960
+You can copy by taking this as different.
+
+18267939-55dc-43c9-9f9d-eeb6eb6db7cc-0
+00:10:40.600 --> 00:10:40.840
+OK.
+
+1bbf91d5-1a48-4f0b-b2a5-a8646f1c6329-0
+00:10:54.230 --> 00:10:56.390
+OK, Everybody's clear with that.
+
+6a09bcca-cb3d-4666-beda-bfb49428c4c4-0
+00:10:56.630 --> 00:10:59.590
+Or if you had a,
+if you're having any doubts, ask me.
+
+0c301aa5-1541-45ff-ba3b-276023a1c919-0
+00:11:08.900 --> 00:11:09.660
+Yeah, Jayshree.
+
+1614f31e-afc3-48ad-a9c8-3a2b2ed3cbaf-0
+00:11:10.780 --> 00:11:11.420
+OK, fine.

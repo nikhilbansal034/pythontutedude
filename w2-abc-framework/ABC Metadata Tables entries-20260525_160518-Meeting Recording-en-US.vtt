@@ -1,0 +1,4374 @@
+WEBVTT
+
+2576753a-bd7e-4780-b9ea-fbb8d49229cc-0
+00:00:02.000 --> 00:00:09.880
+This call is 2 is about how to make
+entries in into ABC metadata tables.
+
+1dc426f7-4757-4951-9f36-0b631dec145d-0
+00:00:11.040 --> 00:00:11.440
+OK.
+
+c6230e63-c509-4033-944d-694b38ec8c7d-0
+00:00:13.680 --> 00:00:15.480
+I just think it's my voice.
+
+cc98f411-4309-41e2-b79d-45161e5f364d-0
+00:00:16.440 --> 00:00:16.760
+Yeah, yeah.
+
+689b6450-f7a5-4655-8b00-02c688b9040f-0
+00:00:16.760 --> 00:00:18.320
+And recordings of the starting drift.
+
+3d26ab88-6647-4aa9-bf83-230fefd0fdee-0
+00:00:18.800 --> 00:00:20.240
+Yeah, yeah.
+
+f2005826-e94b-466e-b302-313ed89c4401-0
+00:00:21.280 --> 00:00:23.440
+So first one is match metadata table.
+
+abb63815-e03a-4e72-86ee-f7aaf12e1c4e-0
+00:00:23.720 --> 00:00:27.560
+So in this in this table we'll make
+entries into.
+
+aa4c4a99-84a0-4840-93ee-3ee981cb48b7-0
+00:00:28.320 --> 00:00:30.440
+We'll make entries at the batch level.
+
+622a7c27-211c-4e7b-bc21-c8dd64fb68e6-0
+00:00:31.560 --> 00:00:33.400
+OK let me run this.
+
+f1479356-7fc6-4e09-a147-8f1f66ec35e2-0
+00:00:36.000 --> 00:00:41.890
+So batch ID will be a automated
+incremented begin value and we like while
+
+f1479356-7fc6-4e09-a147-8f1f66ec35e2-1
+00:00:41.890 --> 00:00:44.040
+making the entry DML entry.
+
+dc185164-97a7-4197-bf3f-552559c5f62f-0
+00:00:44.040 --> 00:00:45.440
+We don't need to specify this value.
+
+7728cba2-d7bc-439d-9920-bbccb1a4f6b4-0
+00:00:45.440 --> 00:00:47.920
+It will be auto increment batch name.
+
+3c1cae27-1fbf-4831-a4c6-68da0e77911e-0
+00:00:48.840 --> 00:00:54.998
+Batch name should have a structure like
+if it is zone 2,
+
+3c1cae27-1fbf-4831-a4c6-68da0e77911e-1
+00:00:54.998 --> 00:00:59.320
+it should be Z2_bash_source_domain name.
+
+ae78cce0-7f70-47e5-92ee-ef288b5039fd-0
+00:00:59.560 --> 00:01:05.098
+So currently we have this ABC framework
+first source single source to single
+
+ae78cce0-7f70-47e5-92ee-ef288b5039fd-1
+00:01:05.098 --> 00:01:08.120
+domain load, source source to domain load.
+
+979c51d6-e1a2-4b20-bd3e-e7039d4a0f3f-0
+00:01:09.920 --> 00:01:13.600
+So the batch name convention as of now is
+this.
+
+8a2795bb-6595-46c6-be2a-30c2ddaea85b-0
+00:01:13.920 --> 00:01:20.474
+But in case if we have any update in the
+standard format for this value,
+
+8a2795bb-6595-46c6-be2a-30c2ddaea85b-1
+00:01:20.474 --> 00:01:22.360
+we'll notify you, OK.
+
+51c753af-3377-49ac-83eb-b83c36b5f206-0
+00:01:22.800 --> 00:01:25.040
+And batch description should be something
+like this.
+
+c564987d-e254-4327-8381-27be96ad2174-0
+00:01:25.040 --> 00:01:30.128
+Batch to load data from CMPM is the
+source 2,
+
+c564987d-e254-4327-8381-27be96ad2174-1
+00:01:30.128 --> 00:01:34.000
+Broker is the broker is the domain.
+
+3e3bce72-544d-4eec-93fa-7e4ae9d39616-0
+00:01:35.080 --> 00:01:38.120
+So data domain is the layer within the
+zone 2.
+
+5106b5f7-2340-425a-b5d8-38931b22a90f-0
+00:01:38.120 --> 00:01:41.840
+So in zone 2, we have two zone 2 layers,
+right Data domain and functional.
+
+89ef0263-82b8-4ecc-a5c5-3a251bc19025-0
+00:01:42.440 --> 00:01:47.040
+So this match is related to CMPM source
+to broker data domain load.
+
+549fb89a-546c-4755-9181-b696345d8d40-0
+00:01:47.600 --> 00:01:53.280
+So description should be like this and is
+active field is just two.
+
+9fd9e809-465a-43ba-8fa8-6cf99e04a505-0
+00:01:55.440 --> 00:02:00.560
+I like indicate the active entry e-mail
+ID here.
+
+b4bdd209-acd2-4df0-84ea-34a3919bc42d-0
+00:02:00.800 --> 00:02:04.080
+As of now we are we are keeping our mail
+ID.
+
+7da1f7c5-dad4-42ed-9d48-e6d314b433c8-0
+00:02:04.520 --> 00:02:10.200
+In future we will keep the like e-mail ID.
+
+09c041cb-a897-4220-9c9d-b0d6cd9880d0-0
+00:02:11.520 --> 00:02:13.640
+I think we will get it in future.
+
+5771ef5d-115b-4ed7-bc93-4176e63092b6-0
+00:02:13.640 --> 00:02:17.795
+For now we can keep it for like we can
+keep our entry,
+
+5771ef5d-115b-4ed7-bc93-4176e63092b6-1
+00:02:17.795 --> 00:02:23.160
+our mail ID here and source name should
+be our June month source name.
+
+a30bf14c-0e20-4a53-921a-4663887e3be5-0
+00:02:23.160 --> 00:02:28.004
+Like if you also overseas June 1 then you
+have to keep your phone one source name
+
+a30bf14c-0e20-4a53-921a-4663887e3be5-1
+00:02:28.004 --> 00:02:29.600
+then domain name is rocker.
+
+eb153c73-c96c-4db1-b810-83dc0f4c6fe9-0
+00:02:31.040 --> 00:02:32.520
+Application name can be null.
+
+5bc81871-ccf7-497e-af99-704cdb5cbe95-0
+00:02:33.000 --> 00:02:36.000
+Like we're as of now we are not using
+this column so it can be null.
+
+43910762-6695-4712-80a1-8beac45f7475-0
+00:02:36.520 --> 00:02:38.360
+Application layer name would be data
+domain.
+
+53819abb-aaae-41c7-bc46-5feb2461bd82-0
+00:02:38.360 --> 00:02:41.280
+So in June 2 we have two layers right?
+
+aea0ec2b-ba3e-4e75-9032-85cbc79eaa28-0
+00:02:41.280 --> 00:02:42.320
+Data domain functional.
+
+3552315c-edb9-45d4-af39-4b87dbdceec7-0
+00:02:42.920 --> 00:02:46.587
+If you are loading to data domain then it
+can be data domain otherwise it will be
+
+3552315c-edb9-45d4-af39-4b87dbdceec7-1
+00:02:46.587 --> 00:02:47.080
+functional.
+
+5105aa24-7f47-45ee-8a98-7ffb9327a572-0
+00:02:48.520 --> 00:02:52.854
+My application dependency name this
+particular batch what is dependent on
+
+5105aa24-7f47-45ee-8a98-7ffb9327a572-1
+00:02:52.854 --> 00:02:55.080
+CMPM batch look so that's why we have.
+
+dfcde9cd-cf86-428e-b592-ef727aeadf2c-0
+00:02:55.120 --> 00:03:00.961
+I have given this here and we have to
+provide the corresponding CMPMS batch ID
+
+dfcde9cd-cf86-428e-b592-ef727aeadf2c-1
+00:03:00.961 --> 00:03:04.880
+here as application source batch ID and
+target zone.
+
+f3854046-0477-471a-9fed-b47712e8db77-0
+00:03:06.160 --> 00:03:11.364
+It will be either zone 2 or zone 3 and
+low frequency depend again it depends on
+
+f3854046-0477-471a-9fed-b47712e8db77-1
+00:03:11.364 --> 00:03:12.080
+your batch.
+
+90e4cd1f-2d99-4662-8881-e425b319c314-0
+00:03:12.080 --> 00:03:17.600
+If your batch is intended intended to be
+lowered daily, then it it should be daily.
+
+92b3f623-6d05-477b-8349-1e7580a9a7fb-0
+00:03:17.600 --> 00:03:25.102
+If it is weekly or monthly it it it has
+to be like weekly or monthly scheduling
+
+92b3f623-6d05-477b-8349-1e7580a9a7fb-1
+00:03:25.102 --> 00:03:26.040
+mechanism.
+
+637a3aa0-08c4-4d0d-b40d-7893330c110a-0
+00:03:26.040 --> 00:03:28.720
+As of now scheduler we have a stone
+branch.
+
+0dda0e28-15dd-4983-ad33-d5b69116d870-0
+00:03:28.720 --> 00:03:31.872
+Will you rate We have got this and load
+schedule time,
+
+0dda0e28-15dd-4983-ad33-d5b69116d870-1
+00:03:31.872 --> 00:03:34.280
+load expectation expected completion time.
+
+3e521062-cdaf-4270-b44e-b2c1065e06ef-0
+00:03:34.280 --> 00:03:40.454
+These details will be actual values will
+be populated once we started creating the
+
+3e521062-cdaf-4270-b44e-b2c1065e06ef-1
+00:03:40.454 --> 00:03:46.480
+jobs in the stone branch and once we get
+the actual schedule times and expected.
+
+1be07eef-0072-429c-826b-9fcd0112f82b-0
+00:03:46.680 --> 00:03:49.520
+For now I have made some dummy entries.
+
+939c7233-c288-44b6-92a3-c153e05f15f0-0
+00:03:50.040 --> 00:03:56.722
+So this has to be updated once the stone
+batch jobs are created for our batch to
+
+939c7233-c288-44b6-92a3-c153e05f15f0-1
+00:03:56.722 --> 00:04:02.580
+trigger audit create date time,
+audit update date time or just current
+
+939c7233-c288-44b6-92a3-c153e05f15f0-2
+00:04:02.580 --> 00:04:04.560
+timestamp value columns.
+
+f12c9d22-cbf0-4e23-9610-f04cfa608190-0
+00:04:04.880 --> 00:04:09.875
+You can use CURRENT our time stamp
+function in our already way to populate
+
+f12c9d22-cbf0-4e23-9610-f04cfa608190-1
+00:04:09.875 --> 00:04:14.737
+this and order created by user ID,
+audit updated by user ID or also just
+
+f12c9d22-cbf0-4e23-9610-f04cfa608190-2
+00:04:14.737 --> 00:04:18.800
+current user you can use your You can use
+your mail ID here.
+
+ffa425d6-665f-4799-b2b8-ac15e0d548c5-0
+00:04:19.520 --> 00:04:24.525
+Otherwise you can also use current user
+function but it is giving some token
+
+ffa425d6-665f-4799-b2b8-ac15e0d548c5-1
+00:04:24.525 --> 00:04:28.880
+number as username that is fine like
+whatever you are making here.
+
+101be625-0f55-4307-8947-c195e126ea52-0
+00:04:29.440 --> 00:04:38.200
+But we we can update it later like if any
+standard format is there.
+
+09519039-79af-44a5-9a22-29db7c26f459-0
+00:04:38.560 --> 00:04:41.894
+OK,
+kiosks column is it is related to June 1
+
+09519039-79af-44a5-9a22-29db7c26f459-1
+00:04:41.894 --> 00:04:43.080
+specific column.
+
+a24c999d-23c7-47c1-af66-b832f39121d0-0
+00:04:44.120 --> 00:04:48.556
+OK,
+is everyone good here or can I move on to
+
+a24c999d-23c7-47c1-af66-b832f39121d0-1
+00:04:48.556 --> 00:04:51.160
+the next or just one thing?
+
+7c133572-4123-4d8f-882d-24083fff9d76-0
+00:04:51.480 --> 00:04:54.960
+So source name and your application
+source name would be the same one.
+
+9ac315b1-ebe3-4d52-8c9e-db4690ee81c1-0
+00:04:56.400 --> 00:04:59.594
+Yeah,
+because source we are expecting one
+
+9ac315b1-ebe3-4d52-8c9e-db4690ee81c1-1
+00:04:59.594 --> 00:05:02.560
+source and password right And then job.
+
+1a302d11-3aa8-42df-b688-40ba460a62c3-0
+00:05:02.880 --> 00:05:07.920
+So here the source is CMPM and
+application source name is also CMPM.
+
+77191812-8b80-4762-96a7-ee065df1da5e-0
+00:05:08.120 --> 00:05:11.947
+So is it like yeah in both we are
+populating the source values like source
+
+77191812-8b80-4762-96a7-ee065df1da5e-1
+00:05:11.947 --> 00:05:12.560
+name values.
+
+08f6c259-eea5-4b53-b932-940f5127e04f-0
+00:05:12.560 --> 00:05:19.240
+So this proper domain whatever the load
+is just dependent on CMPM.
+
+19b8d308-607e-4543-88b7-2658a495b8bf-0
+00:05:19.800 --> 00:05:26.537
+So if we have any other you know any
+other application any other domain load
+
+19b8d308-607e-4543-88b7-2658a495b8bf-1
+00:05:26.537 --> 00:05:33.100
+which is depend which is loading from
+zone 1 but it's load is dependent on
+
+19b8d308-607e-4543-88b7-2658a495b8bf-2
+00:05:33.100 --> 00:05:36.600
+another zone 2 batch then we can add it.
+
+80a5a99d-9585-48b0-838c-d6f201a102e2-0
+00:05:36.760 --> 00:05:38.800
+We can add that particular batch also.
+
+4f356c16-1455-4101-a1e2-634469919e5d-0
+00:05:38.800 --> 00:05:46.213
+Here as of now we have only one source so
+and this particular application doesn't
+
+4f356c16-1455-4101-a1e2-634469919e5d-1
+00:05:46.213 --> 00:05:49.920
+have dependency on any other application.
+
+d5a9e538-7179-4a56-aa2d-be1b47a493e9-0
+00:05:50.560 --> 00:05:52.520
+So we have kept only CMPM.
+
+4311dba0-dee7-4860-b005-92b87b78fd6e-0
+00:05:52.600 --> 00:05:57.232
+But in future,
+if we have multiple sources or if we have
+
+4311dba0-dee7-4860-b005-92b87b78fd6e-1
+00:05:57.232 --> 00:06:03.652
+dependency on any other June 2 batch also
+we have to include the corresponding
+
+4311dba0-dee7-4860-b005-92b87b78fd6e-2
+00:06:03.652 --> 00:06:05.440
+dependency names here.
+
+c0cc9e3c-5fa7-4ef1-9893-373f06f011d0-0
+00:06:06.280 --> 00:06:09.751
+So if separated batch has multiple
+dependencies,
+
+c0cc9e3c-5fa7-4ef1-9893-373f06f011d0-1
+00:06:09.751 --> 00:06:12.160
+let's say it has multiple sources.
+
+ee7fc94d-4063-4c8d-9b3f-265401e6b135-0
+00:06:12.520 --> 00:06:20.520
+So then we'll have multiple entries over
+here like we haven't like discussed or
+
+ee7fc94d-4063-4c8d-9b3f-265401e6b135-1
+00:06:20.520 --> 00:06:26.120
+have the design for multiple sources for
+APC as of now.
+
+60aa0738-69f1-4544-8d64-dcfc59093d0d-0
+00:06:26.200 --> 00:06:32.586
+But like we plan to discuss on the design
+on multiple sources to single domain load
+
+60aa0738-69f1-4544-8d64-dcfc59093d0d-1
+00:06:32.586 --> 00:06:38.440
+whenever the scenario or any source
+system have that particular requirement.
+
+22572dda-2e2d-47a5-8176-1c46398b61a6-0
+00:06:38.920 --> 00:06:40.200
+As of now, we don't have that.
+
+e37f7ed1-1827-47d7-92e5-1fe722008d3b-0
+00:06:41.360 --> 00:06:43.835
+OK, for now,
+it's just that application dependency
+
+e37f7ed1-1827-47d7-92e5-1fe722008d3b-1
+00:06:43.835 --> 00:06:45.000
+name is the source name.
+
+0891edad-80e4-4098-a402-eecbf6cacc17-0
+00:06:45.000 --> 00:06:47.680
+So because one source, one matcher,
+it will be that.
+
+6e487675-506d-44d7-beb4-ef6dc02b8578-0
+00:06:47.840 --> 00:06:48.240
+Yeah, yeah.
+
+11528ddb-e278-42d5-8a86-f5518d8096f3-0
+00:06:49.240 --> 00:06:54.720
+And also not only source,
+but also if we have any equivalent June.
+
+0efdba9b-d710-46e8-995a-0294b994b257-0
+00:06:54.840 --> 00:07:00.261
+So if we if my broker domain load is
+dependent on any other brand,
+
+0efdba9b-d710-46e8-995a-0294b994b257-1
+00:07:00.261 --> 00:07:05.360
+any other batch of June 2 also that can
+also be included here.
+
+a1c8ff6f-635c-4573-9674-c261c7dff4c8-0
+00:07:05.440 --> 00:07:09.280
+But anyway the logic is not supporting
+currently.
+
+ed2b594a-6477-4ad5-8998-55e7a97a32d8-0
+00:07:09.280 --> 00:07:13.360
+Like we are considering a single source
+and single dependency.
+
+28fcf4b9-9443-42ad-ba82-81f35dc69f09-0
+00:07:14.560 --> 00:07:20.280
+OK and application source batch ID is the
+zone 1 batch ID right?
+
+ff87f945-b78c-4f76-835c-668e83e2507c-0
+00:07:20.760 --> 00:07:24.537
+Like the zone 1 whatever,
+whatever application name that we have
+
+ff87f945-b78c-4f76-835c-668e83e2507c-1
+00:07:24.537 --> 00:07:27.560
+given here, Yeah,
+corresponding batch ID should be.
+
+1c616237-98e1-4d46-bd79-9a086e167c70-0
+00:07:27.800 --> 00:07:32.904
+And while we are retrieving like while we
+are making entry,
+
+1c616237-98e1-4d46-bd79-9a086e167c70-1
+00:07:32.904 --> 00:07:37.327
+we are using source name, source name,
+domain name,
+
+1c616237-98e1-4d46-bd79-9a086e167c70-2
+00:07:37.327 --> 00:07:40.560
+application layer name and target job.
+
+173cd60f-674e-4cd9-9c9a-23db911db8ef-0
+00:07:41.720 --> 00:07:48.554
+We are using these 4 columns to fetch the
+batch ID corresponding batch area to make
+
+173cd60f-674e-4cd9-9c9a-23db911db8ef-1
+00:07:48.554 --> 00:07:51.240
+entries into job run stage table.
+
+3219445d-93b6-4537-9499-687a18c25876-0
+00:07:53.760 --> 00:07:57.480
+OK, we're good right?
+
+14ffd3df-3eb7-41fe-94b4-4d9bde7d2ef1-0
+00:07:58.120 --> 00:08:02.446
+OK,
+let's move on to the job metric data
+
+14ffd3df-3eb7-41fe-94b4-4d9bde7d2ef1-1
+00:08:02.446 --> 00:08:03.080
+table.
+
+65091b52-a3c3-44fe-8f89-298610746963-0
+00:08:03.360 --> 00:08:12.586
+So geometry data table here we'll make
+entries at job level with it like 1 batch
+
+65091b52-a3c3-44fe-8f89-298610746963-1
+00:08:12.586 --> 00:08:15.320
+will have multiple jobs.
+
+b7fb7665-7157-4481-82ff-65ce4f4cdc63-0
+00:08:15.320 --> 00:08:19.800
+So here I'm just taking one table load as
+a as a job.
+
+2a6fa394-f6b1-4d54-9b22-953bd7f99009-0
+00:08:19.800 --> 00:08:24.717
+So here job ID is also again it's a
+incremented value,
+
+2a6fa394-f6b1-4d54-9b22-953bd7f99009-1
+00:08:24.717 --> 00:08:27.400
+auto increment value job name.
+
+13779729-f0d7-487b-8c3f-cf07678ba608-0
+00:08:27.520 --> 00:08:30.960
+It's it is having a structure similar to
+batch name.
+
+cc61a103-ab8b-423a-aeaa-5d99fd1c561a-0
+00:08:30.960 --> 00:08:36.842
+It should have Z2 as we as this table
+load is happening in June 2,
+
+cc61a103-ab8b-423a-aeaa-5d99fd1c561a-1
+00:08:36.842 --> 00:08:41.583
+we have given Z2_job_CMPM,
+IS the source name broker,
+
+cc61a103-ab8b-423a-aeaa-5d99fd1c561a-2
+00:08:41.583 --> 00:08:48.256
+is the domain name and broker party
+address is the table name and then load
+
+cc61a103-ab8b-423a-aeaa-5d99fd1c561a-3
+00:08:48.256 --> 00:08:48.520
+so.
+
+5adb0ecd-447b-4498-a367-0c48a9fd85c7-0
+00:08:48.520 --> 00:08:55.392
+This is the standard format that that we
+have to follow for our job name and this
+
+5adb0ecd-447b-4498-a367-0c48a9fd85c7-1
+00:08:55.392 --> 00:09:01.678
+is not the final one we Need to discuss
+about batch name and job name with
+
+5adb0ecd-447b-4498-a367-0c48a9fd85c7-2
+00:09:01.678 --> 00:09:02.600
+netwika If.
+
+84c81e12-a2dd-4f7e-90ad-003dd406538f-0
+00:09:02.600 --> 00:09:07.360
+We have any changes in this in this
+format, we will we will notify.
+
+da206434-b4be-4e82-910c-30c9a8049da9-0
+00:09:08.840 --> 00:09:11.360
+OK, let's move on to this next one.
+
+d709037c-de23-421c-8b04-b25c1190251f-0
+00:09:11.360 --> 00:09:12.200
+Job description.
+
+016caa7f-57b4-47c8-b295-33065bf0cdc5-0
+00:09:12.200 --> 00:09:17.775
+It is also a job to load broker party
+address is the table name from CMP miss
+
+016caa7f-57b4-47c8-b295-33065bf0cdc5-1
+00:09:17.775 --> 00:09:23.493
+the source name in broker is the domain
+name and data domain is the application
+
+016caa7f-57b4-47c8-b295-33065bf0cdc5-2
+00:09:23.493 --> 00:09:24.280
+layer name.
+
+d95fb4d3-152e-4f75-99b0-d2d335b59f35-0
+00:09:26.560 --> 00:09:32.425
+It has to be like this job to load table
+name from source name in domain name data
+
+d95fb4d3-152e-4f75-99b0-d2d335b59f35-1
+00:09:32.425 --> 00:09:32.920
+domain.
+
+8acb9b31-d4c0-4350-b203-40abb3d1df1b-0
+00:09:32.920 --> 00:09:38.908
+This is the application layer is active
+indicators to use two indicate the active
+
+8acb9b31-d4c0-4350-b203-40abb3d1df1b-1
+00:09:38.908 --> 00:09:42.560
+entry and batch ID is the corresponding
+batch ID.
+
+e2e666ab-edda-4e3e-a16b-f18ed1728bd9-0
+00:09:42.560 --> 00:09:49.032
+So whatever the batch that we have for
+broker domain, CMPM to broker domain,
+
+e2e666ab-edda-4e3e-a16b-f18ed1728bd9-1
+00:09:49.032 --> 00:09:55.000
+so the corresponding batch ID should be
+kept here and then table name,
+
+e2e666ab-edda-4e3e-a16b-f18ed1728bd9-2
+00:09:55.000 --> 00:09:58.867
+table name and this is the target table
+name,
+
+e2e666ab-edda-4e3e-a16b-f18ed1728bd9-3
+00:09:58.867 --> 00:10:05.592
+whatever the target that we are that we
+are trying to load using using this job
+
+e2e666ab-edda-4e3e-a16b-f18ed1728bd9-4
+00:10:05.592 --> 00:10:10.720
+and scheme learning database name,
+job load type, task flow.
+
+1d9efae1-0f26-47a4-9c45-057682b8d31a-0
+00:10:11.240 --> 00:10:18.092
+So the workflow name and wrapper workflow
+name is in the sense like we'll have a
+
+1d9efae1-0f26-47a4-9c45-057682b8d31a-1
+00:10:18.092 --> 00:10:23.760
+task flow at the job level that is one
+translate at the job level.
+
+3b8f6312-edc3-4e0f-be79-ca22d287d7ae-0
+00:10:23.760 --> 00:10:27.799
+And on top of that,
+we'll have a another task flow which is
+
+3b8f6312-edc3-4e0f-be79-ca22d287d7ae-1
+00:10:27.799 --> 00:10:32.040
+batch translow which is nothing but the
+wrapper workflow name.
+
+e83c4622-0c90-4393-9bf0-dcae29fb09e5-0
+00:10:32.560 --> 00:10:36.187
+OK,
+these workflow names have the standard
+
+e83c4622-0c90-4393-9bf0-dcae29fb09e5-1
+00:10:36.187 --> 00:10:37.200
+like, right?
+
+f8e387ba-935d-4f88-a8c9-e43b21eac257-0
+00:10:37.200 --> 00:10:44.493
+It has already shared the format that
+needs to be followed for IACS components,
+
+f8e387ba-935d-4f88-a8c9-e43b21eac257-1
+00:10:44.493 --> 00:10:45.040
+right?
+
+a6cfbc04-1b89-4d35-ba87-31a8637f48c3-0
+00:10:45.400 --> 00:10:45.840
+Yeah, yeah.
+
+cf426341-cacb-4ca3-a815-1f79e7d134c2-0
+00:10:45.840 --> 00:10:54.040
+So there we have task flow.
+
+b8e1a5e7-5c6e-4f3b-b993-9dfe5dca5a84-0
+00:10:54.040 --> 00:10:59.800
+So it should be like this task T
+TSKFL_load target domain so.
+
+d4c290db-3b0f-46d2-8d34-611589387c7a-0
+00:10:59.800 --> 00:11:03.280
+Stable name two targetable this.
+
+2dec5c4c-d4f1-47c8-86a6-9fd0ba1ee23e-0
+00:11:03.280 --> 00:11:08.600
+Has to be like this task flow name OK IF
+it is batch so.
+
+af83e7ef-7bb1-40b5-a11d-aefe524cd810-0
+00:11:08.640 --> 00:11:17.920
+I CAN start preparing the TDs For those
+tables right if?
+
+e18c113d-9014-4aee-9639-a07b578db5e1-0
+00:11:17.920 --> 00:11:22.527
+It is batch task flow it,
+should follow this TSKFL load target
+
+e18c113d-9014-4aee-9639-a07b578db5e1-1
+00:11:22.527 --> 00:11:26.622
+domain source,
+domain to target zone target application
+
+e18c113d-9014-4aee-9639-a07b578db5e1-2
+00:11:26.622 --> 00:11:27.720
+layer batch so.
+
+a39fb000-07ef-4937-b822-d0d968f98f88-0
+00:11:27.720 --> 00:11:35.245
+This has to be like this task flow load
+draw curve, zone 1-2, zone two,
+
+a39fb000-07ef-4937-b822-d0d968f98f88-1
+00:11:35.245 --> 00:11:40.680
+data domain batch OK and count threshold
+indicator.
+
+13a6fd26-b1c0-4447-a502-d9cb8ccfc9d4-0
+00:11:40.680 --> 00:11:47.887
+In the sense if we have any balance
+reconciliation metric wherein we are
+
+13a6fd26-b1c0-4447-a502-d9cb8ccfc9d4-1
+00:11:47.887 --> 00:11:55.785
+trying to do a count count check then we
+have to like make this indicator as we
+
+13a6fd26-b1c0-4447-a502-d9cb8ccfc9d4-2
+00:11:55.785 --> 00:11:57.760
+else it can be ends.
+
+5f2a9b04-8da9-4735-a51a-00eb52d626ad-0
+00:11:58.360 --> 00:12:00.560
+For amount balance check indicator.
+
+5cbbd569-003f-4807-98d7-614a617193af-0
+00:12:01.920 --> 00:12:07.275
+This is all the same if we have any
+amount columns that needs to be validated
+
+5cbbd569-003f-4807-98d7-614a617193af-1
+00:12:07.275 --> 00:12:12.973
+validated with the like among the source
+between the source and target then it has
+
+5cbbd569-003f-4807-98d7-614a617193af-2
+00:12:12.973 --> 00:12:15.720
+to be by else it can be N auditory data.
+
+1fc8e888-512a-457d-b8d3-65b719699bd5-0
+00:12:15.920 --> 00:12:17.640
+These four are just normal columns.
+
+6d571d86-4055-44f3-b77d-83e7d5448dc9-0
+00:12:17.920 --> 00:12:21.400
+K Rs is just related to John one specific
+column.
+
+16204417-bfe0-48c7-b1d8-217a82a455ca-0
+00:12:21.760 --> 00:12:25.440
+Target to John layer should be like
+refined to John two data domains.
+
+a58d1e18-3633-41f7-baf9-48f182424fd7-0
+00:12:26.080 --> 00:12:31.522
+So for this particular broker,
+target to source to target layer is
+
+a58d1e18-3633-41f7-baf9-48f182424fd7-1
+00:12:31.522 --> 00:12:34.040
+refined to zone to data domain.
+
+bf87f9c8-c75e-4372-9c71-3a979de28ff8-0
+00:12:39.840 --> 00:12:42.160
+It's just like source layer to target
+layer.
+
+c263f74d-fa58-4d1f-8b87-aa1ea803065a-0
+00:12:42.160 --> 00:12:46.184
+Whatever the layers that from which we
+are give,
+
+c263f74d-fa58-4d1f-8b87-aa1ea803065a-1
+00:12:46.184 --> 00:12:49.880
+we are taking the data from to target
+layer.
+
+aa0b9bde-be70-4588-9170-5a339ef5221f-0
+00:12:49.920 --> 00:12:53.640
+Target layer is zone to data domain for
+this particular broker.
+
+6039bfe3-e4b3-4c97-a95a-13f8de44cbaa-0
+00:12:53.640 --> 00:12:53.760
+Yeah.
+
+869cf4b0-39e7-4030-aabc-8ab9aa5a53d5-0
+00:12:55.200 --> 00:12:56.640
+Does anyone have any questions?
+
+24b9baf8-5510-474e-859b-dcf35533beca-0
+00:12:56.640 --> 00:12:56.920
+Yes.
+
+8fdf28c7-6a87-4a5a-a6a4-85adc719dd46-0
+00:13:00.960 --> 00:13:02.320
+People have the tabs here.
+
+fb14a92d-6131-43e7-bf3b-d75e121afc79-0
+00:13:03.160 --> 00:13:03.440
+Hello.
+
+d525aaa9-218e-422e-b287-6da7ee0c3b7c-0
+00:13:05.440 --> 00:13:07.040
+OK, Sir.
+
+dbeeb317-fc31-430a-8b60-87574f22d8d8-0
+00:13:11.760 --> 00:13:12.160
+Hello.
+
+395701d8-09c8-4c41-a6ba-9a6d67f18524-0
+00:13:13.720 --> 00:13:14.560
+Yeah, sure does it.
+
+279e2acc-7834-4a33-b56d-a456092a8962-0
+00:13:14.960 --> 00:13:15.400
+Yes.
+
+6bd9457f-c4f2-413a-af8b-59a77c099d8a-0
+00:13:15.640 --> 00:13:15.920
+OK.
+
+3448f342-79bd-48f5-aa60-5d76de8a0c89-0
+00:13:15.920 --> 00:13:17.320
+Can we move on to the next one?
+
+d8edbffb-244d-44b9-9cae-35bbcafa5669-0
+00:13:18.920 --> 00:13:21.760
+This is config load.
+
+3e0f80a3-65c6-45d1-bc5f-701bcc380baf-0
+00:13:24.080 --> 00:13:30.840
+This particular table is related to you
+know like which will it is.
+
+a941a6aa-7157-4562-9c97-3ffaec852a3d-0
+00:13:30.840 --> 00:13:34.686
+It is just like a batch grid requisite
+for our actual batch,
+
+a941a6aa-7157-4562-9c97-3ffaec852a3d-1
+00:13:34.686 --> 00:13:39.794
+our flow we'll check whether the source
+batch is completed or whether our source
+
+a941a6aa-7157-4562-9c97-3ffaec852a3d-2
+00:13:39.794 --> 00:13:43.200
+batch is in now completed or partial
+state like that.
+
+e6978c1a-85eb-4618-ad34-6010cf5ebdad-0
+00:13:44.000 --> 00:13:49.891
+And also so there is a batch prerequisite
+wherein we'll check our whether our batch
+
+e6978c1a-85eb-4618-ad34-6010cf5ebdad-1
+00:13:49.891 --> 00:13:53.960
+current batch task flow is completed
+successfully or not.
+
+79315351-7278-470f-b251-d7f204dfc358-0
+00:13:54.920 --> 00:13:58.501
+If it is completed successfully then like
+previous run,
+
+79315351-7278-470f-b251-d7f204dfc358-1
+00:13:58.501 --> 00:14:03.491
+if it is completed successfully then we
+are going to check whether our source
+
+79315351-7278-470f-b251-d7f204dfc358-2
+00:14:03.491 --> 00:14:08.672
+batch within the given time window like
+within the given time if it is completed
+
+79315351-7278-470f-b251-d7f204dfc358-3
+00:14:08.672 --> 00:14:09.120
+or not.
+
+f5039d92-5a4b-4c86-b05b-9198f0291316-0
+00:14:09.640 --> 00:14:15.193
+So this way we will like if this if we
+have the source batch like expected
+
+f5039d92-5a4b-4c86-b05b-9198f0291316-1
+00:14:15.193 --> 00:14:20.969
+source batch which is in completed to
+partial state then we are go to starter
+
+f5039d92-5a4b-4c86-b05b-9198f0291316-2
+00:14:20.969 --> 00:14:22.080
+don't do batch.
+
+6fed8618-f285-408f-9dec-368c507cc2cd-0
+00:14:22.320 --> 00:14:27.480
+So for that check like readiness we are
+using this table.
+
+4df564ce-b978-4453-a829-057fc281dd91-0
+00:14:28.720 --> 00:14:33.280
+So this is having target batch ID,
+source batch ID, source name, domain name.
+
+18919e89-e354-490b-8594-1aa35724fc7a-0
+00:14:33.680 --> 00:14:38.662
+So target batch ID in the sense like our
+broker data domain batch ID,
+
+18919e89-e354-490b-8594-1aa35724fc7a-1
+00:14:38.662 --> 00:14:44.000
+source batch ID, CMPM batch ID,
+source name is CMPM domain name is broker.
+
+ad973798-1d91-4971-a7a4-dc968b7fdea4-0
+00:14:45.040 --> 00:14:50.617
+It's just like a mandatory time check is
+nothing but a active entry and dependency
+
+ad973798-1d91-4971-a7a4-dc968b7fdea4-1
+00:14:50.617 --> 00:14:51.760
+batch time stamp.
+
+02fcf3a0-fac2-4e07-80d0-638b10fe026e-0
+00:14:51.760 --> 00:14:54.000
+So here it's like a cut off time.
+
+76c6057e-e8cf-4b3b-a69f-b6286f8aaf0d-0
+00:14:54.560 --> 00:14:59.282
+So it's like if for for example,
+for CMPM 2,
+
+76c6057e-e8cf-4b3b-a69f-b6286f8aaf0d-1
+00:14:59.282 --> 00:15:07.154
+for CMPM load in June or for CMPM,
+let's say if we have 4 batches in a day
+
+76c6057e-e8cf-4b3b-a69f-b6286f8aaf0d-2
+00:15:07.154 --> 00:15:15.235
+and one batch for broker in June 2,
+we are planning to load our broker table
+
+76c6057e-e8cf-4b3b-a69f-b6286f8aaf0d-3
+00:15:15.235 --> 00:15:15.760
+once.
+
+230f0f21-9bef-4994-97f1-f4b03d8d57f8-0
+00:15:15.920 --> 00:15:23.920
+Once the 4th batch run or final batch run
+in a day of June 1 CMPM gets completed.
+
+e23a085d-6140-4ec1-8308-0cdbf3d832c0-0
+00:15:24.720 --> 00:15:29.264
+OK,
+let's say this CMPM June 1 batch gets
+
+e23a085d-6140-4ec1-8308-0cdbf3d832c0-1
+00:15:29.264 --> 00:15:36.080
+completed at 12:00 AM in the morning,
+12:00 AM in the morning.
+
+d41624d6-32b3-4e57-ba8e-b12654543cbd-0
+00:15:36.920 --> 00:15:41.983
+Then my batch batch start time stamp,
+dependency batch time stamp will be like
+
+d41624d6-32b3-4e57-ba8e-b12654543cbd-1
+00:15:41.983 --> 00:15:42.560
+12:00 PM.
+
+a1c8ecd8-05a6-4610-8eb7-f7e83418b6a2-0
+00:15:42.960 --> 00:15:49.151
+So every day before starting my broker
+batch, let's say my broker batch,
+
+a1c8ecd8-05a6-4610-8eb7-f7e83418b6a2-1
+00:15:49.151 --> 00:15:52.120
+I have scheduled it one PM 1:00 AM.
+
+319589a3-deea-46d8-b086-55d137feebea-0
+00:15:52.720 --> 00:15:55.360
+So my zone 2 batch is scheduled at 12:00
+AM.
+
+49864716-67b9-4798-9803-37245004416d-0
+00:15:55.840 --> 00:15:59.600
+So my dependency batch is having 12,
+right?
+
+7fc4b665-a000-4e09-8ab8-9e19a78c56e0-0
+00:15:59.720 --> 00:16:05.732
+So at every every day we will check
+whether the batch with the batch start
+
+7fc4b665-a000-4e09-8ab8-9e19a78c56e0-1
+00:16:05.732 --> 00:16:10.622
+time with the current,
+we will we'll concatenate the current
+
+7fc4b665-a000-4e09-8ab8-9e19a78c56e0-2
+00:16:10.622 --> 00:16:17.035
+date value with this and we will check if
+the 4th like 12 AM batch is either in
+
+7fc4b665-a000-4e09-8ab8-9e19a78c56e0-3
+00:16:17.035 --> 00:16:19.200
+completed or partial state.
+
+27b4b1f2-dcd4-41b8-b343-a63bce2683c2-0
+00:16:19.680 --> 00:16:24.640
+So if it is completed or partial state
+then we are good to go.
+
+4c792e68-9e24-4abb-8b10-4d429d4fd7d0-0
+00:16:24.640 --> 00:16:28.480
+We we are good to start the June 2 batch.
+
+c5ee38a8-062f-49da-943a-486adefe53fa-0
+00:16:29.440 --> 00:16:35.544
+OK so for this only we are having a POC
+going on to check whether the stone
+
+c5ee38a8-062f-49da-943a-486adefe53fa-1
+00:16:35.544 --> 00:16:39.320
+branch is able to take the ISES status or
+not.
+
+14eac06c-1267-40a2-a3e1-24b47ef8cba5-0
+00:16:40.000 --> 00:16:45.900
+So if the stone branch would be able to
+trigger once this like prerequisite batch
+
+14eac06c-1267-40a2-a3e1-24b47ef8cba5-1
+00:16:45.900 --> 00:16:51.368
+gets successfully completed then it
+whether it would be able to trigger the
+
+14eac06c-1267-40a2-a3e1-24b47ef8cba5-2
+00:16:51.368 --> 00:16:52.160
+next batch.
+
+ef603034-0407-45b8-af78-0353c325c66e-0
+00:16:52.520 --> 00:16:56.018
+If the prerequisite is failed due to due
+to any reason,
+
+ef603034-0407-45b8-af78-0353c325c66e-1
+00:16:56.018 --> 00:16:59.080
+it should not trigger the actual batch
+transfer.
+
+343b566f-b54e-4243-ac42-3e75c0be4baf-0
+00:16:59.800 --> 00:17:02.360
+OK this is related to the batch
+prerequisite.
+
+7ef3af33-95eb-436e-8372-c493c2f0d377-0
+00:17:03.120 --> 00:17:08.800
+OK the last four gesture audit columns.
+
+062c97bc-86e7-4052-a72f-f41263ea3abe-0
+00:17:08.840 --> 00:17:17.722
+The main thing is the we are getting here
+is this batch cut off time dependency
+
+062c97bc-86e7-4052-a72f-f41263ea3abe-1
+00:17:17.722 --> 00:17:20.720
+batch start there OK hello.
+
+dea57383-102c-4107-b0da-2e00d2e1d216-0
+00:17:22.000 --> 00:17:25.480
+If we are good on this,
+we can move on to the next multi trip.
+
+030b093d-4822-451b-aa31-1514cd7db588-0
+00:17:29.440 --> 00:17:32.590
+OK,
+let's move on to this ETL data ingestion
+
+030b093d-4822-451b-aa31-1514cd7db588-1
+00:17:32.590 --> 00:17:33.640
+metadata table.
+
+417aaeae-825f-48e2-ade9-8ebdc26495fc-0
+00:17:34.200 --> 00:17:39.600
+So this table is user for it.
+
+d1ca7bf0-9568-4c6f-a9ff-7c451092d93b-0
+00:17:39.640 --> 00:17:43.240
+It acts like a metadata for ETL ingestion
+sourcing window.
+
+81cbb042-4dbd-43b4-95f7-d5e30fefca28-0
+00:17:43.240 --> 00:17:50.899
+So for incremental load like this table,
+using this table we will create a
+
+81cbb042-4dbd-43b4-95f7-d5e30fefca28-1
+00:17:50.899 --> 00:17:57.640
+sourcing window entry in the ETL
+ingestion sourcing window table.
+
+75da7269-712a-4642-98f5-f8a9245d8fda-0
+00:17:58.680 --> 00:18:03.449
+So that from there we will pick the
+sourcing dates and we will fetch the
+
+75da7269-712a-4642-98f5-f8a9245d8fda-1
+00:18:03.449 --> 00:18:04.560
+incremental data.
+
+bac6cec4-7763-4c48-ac9e-70c09597d24d-0
+00:18:04.560 --> 00:18:06.120
+So this is the metadata for it.
+
+778abd4f-1d96-4b28-a69e-ac74984ea8c5-0
+00:18:06.120 --> 00:18:10.680
+It it is containing target batch ID which
+is nothing but the broker batch ID.
+
+06ada6d4-1f8a-4127-af75-a9cc5748e4fc-0
+00:18:11.000 --> 00:18:15.386
+In this case,
+target job ID is the our table loads job
+
+06ada6d4-1f8a-4127-af75-a9cc5748e4fc-1
+00:18:15.386 --> 00:18:22.166
+ID to state and then target table name is
+broker party address, source name is CMPM,
+
+06ada6d4-1f8a-4127-af75-a9cc5748e4fc-2
+00:18:22.166 --> 00:18:24.160
+source table name is ADW.
+
+d098c88e-5860-488a-b1f4-21e1d7c51d2b-0
+00:18:24.480 --> 00:18:30.483
+Whatever the source name from which we
+are taking, if we have multiple sources,
+
+d098c88e-5860-488a-b1f4-21e1d7c51d2b-1
+00:18:30.483 --> 00:18:32.960
+we can add multiple entries here.
+
+4d5324e6-a215-414f-ac16-7f6630c0ef87-0
+00:18:33.440 --> 00:18:34.800
+Multiple source tables.
+
+f81f2555-232d-47e4-ad5e-7d1f9d2e2561-0
+00:18:34.800 --> 00:18:36.720
+Sorry, multiple source tables.
+
+b1754649-3a32-4d0c-a184-7fa71340435b-0
+00:18:36.720 --> 00:18:38.400
+We can add multiple entries here.
+
+c88471e4-ea1d-4fa3-bf44-ddacc12f3028-0
+00:18:38.960 --> 00:18:42.781
+OK,
+so if these tables are currently our ABC
+
+c88471e4-ea1d-4fa3-bf44-ddacc12f3028-1
+00:18:42.781 --> 00:18:44.480
+framework will hold.
+
+14760c0c-b0e3-493b-9f73-c37ec7a6b0d0-0
+00:18:45.120 --> 00:18:51.668
+Will work fine if we have multiple source
+tables that are loading under a single
+
+14760c0c-b0e3-493b-9f73-c37ec7a6b0d0-1
+00:18:51.668 --> 00:18:52.720
+source batch.
+
+00981fb9-2d6e-4473-9489-6f6d5f5fc488-0
+00:18:52.960 --> 00:18:57.519
+So if I if I have multiple table entries
+which are coming from the same source,
+
+00981fb9-2d6e-4473-9489-6f6d5f5fc488-1
+00:18:57.519 --> 00:18:59.400
+then I can make multiple entries.
+
+94ea9f84-7187-4334-8969-c2c37d34415c-0
+00:18:59.800 --> 00:19:07.324
+So for every corresponding table,
+the corresponding table of corresponding
+
+94ea9f84-7187-4334-8969-c2c37d34415c-1
+00:19:07.324 --> 00:19:15.652
+sourcing stardom and sourcing entom will
+be pull from will be pulled and used here
+
+94ea9f84-7187-4334-8969-c2c37d34415c-2
+00:19:15.652 --> 00:19:24.080
+because John when is currently updating,
+it's just like a no like June 1 in June 1.
+
+d9e3082f-2dd5-48b4-9643-81963042efb2-0
+00:19:24.080 --> 00:19:30.044
+How the June 1 batch hacks like if any
+one of the table get is loaded completely
+
+d9e3082f-2dd5-48b4-9643-81963042efb2-1
+00:19:30.044 --> 00:19:35.640
+successfully and others have failed,
+they're marking the status as partial.
+
+45c98d4b-a8d8-45a3-afbf-e3d19e55d18e-0
+00:19:35.920 --> 00:19:39.121
+If all the tables in the batch get
+successfully completed,
+
+45c98d4b-a8d8-45a3-afbf-e3d19e55d18e-1
+00:19:39.121 --> 00:19:41.400
+then then they are making it as completed.
+
+56b04b76-5fba-4e3c-825d-073331c75a8b-0
+00:19:41.840 --> 00:19:47.425
+So if any one of the job gets failed in
+the June 1,
+
+56b04b76-5fba-4e3c-825d-073331c75a8b-1
+00:19:47.425 --> 00:19:55.802
+so then also they're making it as a
+partial entry based upon the job end time
+
+56b04b76-5fba-4e3c-825d-073331c75a8b-2
+00:19:55.802 --> 00:20:03.214
+and jobs load status where we are
+creating a sourcing window for the
+
+56b04b76-5fba-4e3c-825d-073331c75a8b-3
+00:20:03.214 --> 00:20:05.040
+particular table.
+
+3ba024a2-71d0-48ba-b232-87169200fd7e-0
+00:20:05.040 --> 00:20:08.760
+Instead of taking directly like standard
+source,
+
+3ba024a2-71d0-48ba-b232-87169200fd7e-1
+00:20:08.760 --> 00:20:13.087
+like single sourcing window for the
+entire entire batch,
+
+3ba024a2-71d0-48ba-b232-87169200fd7e-2
+00:20:13.087 --> 00:20:16.200
+we are taking it at the source job level.
+
+a5b2a70c-6fac-459f-9b81-3c46ed650ec9-0
+00:20:19.480 --> 00:20:24.172
+OK, so it should have like for this table,
+let's say ETL data, initial metadata,
+
+a5b2a70c-6fac-459f-9b81-3c46ed650ec9-1
+00:20:24.172 --> 00:20:24.520
+right?
+
+7d9e563c-3858-442e-9985-4c46c9145dfa-0
+00:20:25.800 --> 00:20:28.931
+Basically if one batch has multiple
+source tables,
+
+7d9e563c-3858-442e-9985-4c46c9145dfa-1
+00:20:28.931 --> 00:20:32.983
+it will have multiple entries and
+sourcing and start and end time
+
+7d9e563c-3858-442e-9985-4c46c9145dfa-2
+00:20:32.983 --> 00:20:33.720
+accordingly.
+
+f79f8945-e540-4910-bd12-d17c4d3da2ed-0
+00:20:34.160 --> 00:20:35.800
+Is that the correct time is coming?
+
+bac61ce9-03d6-444b-9aab-7840512ecbd0-0
+00:20:37.280 --> 00:20:37.560
+Yeah.
+
+a71ebfc3-9372-4661-b5f2-a3e1d12554bb-0
+00:20:37.720 --> 00:20:42.217
+If, if for example,
+if broker party address is my source
+
+a71ebfc3-9372-4661-b5f2-a3e1d12554bb-1
+00:20:42.217 --> 00:20:46.241
+target table,
+it is having dependency on ADW party
+
+a71ebfc3-9372-4661-b5f2-a3e1d12554bb-2
+00:20:46.241 --> 00:20:50.896
+address T and it is also getting data
+from ADW party T OK,
+
+a71ebfc3-9372-4661-b5f2-a3e1d12554bb-3
+00:20:50.896 --> 00:20:57.287
+so then I'll have two entries and based
+upon their particular load status in the
+
+a71ebfc3-9372-4661-b5f2-a3e1d12554bb-4
+00:20:57.287 --> 00:20:57.840
+zone 1.
+
+1b564118-e05c-47fa-b89d-fc0bac7044e2-0
+00:20:58.160 --> 00:21:03.100
+So all these job statuses and job end
+time will be available in the job run
+
+1b564118-e05c-47fa-b89d-fc0bac7044e2-1
+00:21:03.100 --> 00:21:03.880
+stats table.
+
+1d046121-c45e-4636-bc65-c8b9c4078a54-0
+00:21:05.080 --> 00:21:05.480
+OK.
+
+e76b9d04-3f6c-4729-8eb8-c7d50c8e0382-0
+00:21:06.240 --> 00:21:11.240
+We'll get the job end time and status
+from there and we will a populate
+
+e76b9d04-3f6c-4729-8eb8-c7d50c8e0382-1
+00:21:11.240 --> 00:21:15.200
+sourcing startum and sourcing and and the
+runtime table.
+
+f355ce2a-5760-4d58-bd18-6bfdacadc7f2-0
+00:21:15.600 --> 00:21:19.507
+So from there we can keep,
+we can pick the sourcing startum and
+
+f355ce2a-5760-4d58-bd18-6bfdacadc7f2-1
+00:21:19.507 --> 00:21:21.400
+sourcing entry during the load.
+
+ba37e9f4-e927-42de-bb03-e79cb6f6d0e9-0
+00:21:22.880 --> 00:21:26.957
+So that will be picked for the job
+preload as part of job preload there
+
+ba37e9f4-e927-42de-bb03-e79cb6f6d0e9-1
+00:21:26.957 --> 00:21:29.280
+which and that will be taken care, right?
+
+30884d39-601f-4c2f-8732-b89f082445bb-0
+00:21:29.280 --> 00:21:32.040
+Yeah, yeah, job preload,
+it will be taken care.
+
+eb592bce-3e36-434b-b94e-d42786a640f4-0
+00:21:33.800 --> 00:21:37.850
+So,
+so basically we will be using this table
+
+eb592bce-3e36-434b-b94e-d42786a640f4-1
+00:21:37.850 --> 00:21:40.280
+using these two parameters.
+
+51c8bebd-8bc0-4492-be9f-b79b295a57a1-0
+00:21:40.280 --> 00:21:46.106
+I I will get the source table name and
+target table name using source table name
+
+51c8bebd-8bc0-4492-be9f-b79b295a57a1-1
+00:21:46.106 --> 00:21:48.480
+and source batch source batch ID.
+
+4a8b035d-abcf-420f-8434-461a54a79f94-0
+00:21:48.520 --> 00:21:52.200
+We'll also get the source batch ID from
+the batch metadata table.
+
+85738138-9f6a-4d53-8327-a1aff5a4a03b-0
+00:21:52.440 --> 00:21:57.151
+So using into these two values,
+we will be looking up on the job metadata
+
+85738138-9f6a-4d53-8327-a1aff5a4a03b-1
+00:21:57.151 --> 00:21:58.680
+and getting the job IDs.
+
+c7254690-2fd7-4498-92c6-5efdabae7af6-0
+00:21:58.680 --> 00:22:01.280
+Using those job IDs we'll get the status
+and job and name.
+
+4d4ddd9c-c02f-4e18-b122-50130a45e0e2-0
+00:22:01.520 --> 00:22:07.036
+So all this logic will be already in is
+already in place in the gym ETL data
+
+4d4ddd9c-c02f-4e18-b122-50130a45e0e2-1
+00:22:07.036 --> 00:22:09.400
+initiation sourcing window table.
+
+811eabbf-04e1-4afe-919d-c4fdb61f4be8-0
+00:22:09.560 --> 00:22:11.960
+So it's already there.
+
+86c4b69b-310c-4a48-a76a-f0c4af76bb07-0
+00:22:12.400 --> 00:22:12.800
+OK.
+
+9665c660-f4ec-4657-9155-81b3305f09ae-0
+00:22:13.200 --> 00:22:16.360
+And then next moving on to the job role
+master.
+
+3db6a9e5-71f4-44bf-be30-385986331fba-0
+00:22:17.960 --> 00:22:22.280
+We are good here, right everyone sorry,
+ITL data initiation.
+
+e90cead2-e2bc-4cf8-a404-1e3b7ad12476-0
+00:22:25.400 --> 00:22:27.840
+OK, let's move on to the job role master.
+
+e0fcba85-6a9d-4e74-9d26-268d24db6678-0
+00:22:28.640 --> 00:22:35.240
+Job role master it's it's it's like a it
+it it's like it.
+
+6036b81b-f00b-4a67-87e0-b0049f2fdca3-0
+00:22:35.360 --> 00:22:38.280
+It holds all the list of DQ checks.
+
+76481d20-bea4-4091-b157-f5f42657fc53-0
+00:22:38.880 --> 00:22:40.840
+It's not at batch level or job level.
+
+38b84eae-2da5-49c5-85b8-a97e1f67bb81-0
+00:22:40.840 --> 00:22:46.794
+It's a it it contains different list of
+all the checks that needs to be performed
+
+38b84eae-2da5-49c5-85b8-a97e1f67bb81-1
+00:22:46.794 --> 00:22:52.240
+across all jobs or all all jobs,
+all jobs and across all batches and jobs.
+
+f921f35b-7ed1-48d8-9f29-33766a56722c-0
+00:22:53.040 --> 00:22:58.346
+OK so here rule ID will be an auto
+incremented value Rule name is For now I
+
+f921f35b-7ed1-48d8-9f29-33766a56722c-1
+00:22:58.346 --> 00:23:03.722
+have this consider null check and its
+scope is at the column level and audit
+
+f921f35b-7ed1-48d8-9f29-33766a56722c-2
+00:23:03.722 --> 00:23:08.400
+this folder just audit columns that's it
+rule name and rule scope.
+
+3808b6f1-ad9c-4748-ba3b-ede69d045165-0
+00:23:09.960 --> 00:23:14.938
+If you have any date format check then
+also we can we have to add first entry
+
+3808b6f1-ad9c-4748-ba3b-ede69d045165-1
+00:23:14.938 --> 00:23:18.960
+here then we can use this particular rule
+in our batch or job.
+
+945e221c-e114-4f81-a1e3-8886c5149425-0
+00:23:20.080 --> 00:23:23.360
+OK,
+similarly like not only date format not
+
+945e221c-e114-4f81-a1e3-8886c5149425-1
+00:23:23.360 --> 00:23:29.550
+check if we have any other like you check
+like length check whatever we can see we
+
+945e221c-e114-4f81-a1e3-8886c5149425-2
+00:23:29.550 --> 00:23:35.291
+have to 1st add the true here and then
+only we can use it in the next we can
+
+945e221c-e114-4f81-a1e3-8886c5149425-3
+00:23:35.291 --> 00:23:38.200
+assign that particular rule to our job.
+
+d2d124cc-8615-4153-adc4-fae4003b1151-0
+00:23:39.200 --> 00:23:42.944
+OK,
+this is the job rule assignment table
+
+d2d124cc-8615-4153-adc4-fae4003b1151-1
+00:23:42.944 --> 00:23:46.600
+where we'll assign the rules to our jobs.
+
+f9b26913-8a90-4428-884e-71ffc4b2d08a-0
+00:23:47.400 --> 00:23:52.840
+OK, job rule assignment ID,
+it's an auto incremental value.
+
+e18d0a17-4c44-4e8d-be01-b5084ec5794f-0
+00:23:53.040 --> 00:23:58.542
+Next validation type,
+we are performing the DQ check preload
+
+e18d0a17-4c44-4e8d-be01-b5084ec5794f-1
+00:23:58.542 --> 00:24:01.880
+only before loading the target table.
+
+4f46c453-09c1-42ca-ac87-4a7c324f6f3c-0
+00:24:01.880 --> 00:24:07.046
+That's why we have given the value as pre
+and whatever the target columns upon
+
+4f46c453-09c1-42ca-ac87-4a7c324f6f3c-1
+00:24:07.046 --> 00:24:10.185
+which we are planning to perform this DQ
+check,
+
+4f46c453-09c1-42ca-ac87-4a7c324f6f3c-2
+00:24:10.185 --> 00:24:14.240
+we are giving them these pattern
+available pattern available.
+
+e4c0afc6-61a6-4dfd-a027-338189a42566-0
+00:24:14.800 --> 00:24:19.280
+These two are related to zone one OK and
+error severity code.
+
+6c0b2b7b-82f2-4a5c-bba8-3ac910ca3dcf-0
+00:24:20.040 --> 00:24:21.720
+It is like it.
+
+946bffa5-20a3-4026-b9ef-8b8036f86f1f-0
+00:24:21.760 --> 00:24:27.956
+It can hold like critical or information,
+OK, if we if they it's like if,
+
+946bffa5-20a3-4026-b9ef-8b8036f86f1f-1
+00:24:27.956 --> 00:24:33.065
+if any DQ check that needs to be like
+that is very critical,
+
+946bffa5-20a3-4026-b9ef-8b8036f86f1f-2
+00:24:33.065 --> 00:24:36.080
+then we have to mark it as critical.
+
+a461388e-8dca-475a-bf4e-0bedb1245a67-0
+00:24:36.080 --> 00:24:41.783
+If it is just information we just need we
+can load it like we can if any record has
+
+a461388e-8dca-475a-bf4e-0bedb1245a67-1
+00:24:41.783 --> 00:24:44.160
+any informational DQ check failure.
+
+7191d78d-62fa-4692-9b27-3850ca66f143-0
+00:24:44.440 --> 00:24:49.716
+Like if if any error informational error
+record is there then we can load that
+
+7191d78d-62fa-4692-9b27-3850ca66f143-1
+00:24:49.716 --> 00:24:51.720
+particular record into target.
+
+69dd2f59-bdd6-41bb-989f-49f91a16d6ba-0
+00:24:51.720 --> 00:24:58.960
+But we'll inform we load that particular
+record into both target and error detail
+
+69dd2f59-bdd6-41bb-989f-49f91a16d6ba-1
+00:24:58.960 --> 00:25:06.200
+tables and we inform the we inform admin
+team regarding this informational error.
+
+f4ed103a-3492-44d3-b79f-65de416a17cb-0
+00:25:06.240 --> 00:25:08.280
+We'll notify them basically.
+
+8f63ab8a-d1d4-4d9b-8f67-0439d2f03733-0
+00:25:08.760 --> 00:25:11.440
+So here error text is as I'm doing a null
+check.
+
+9e2a2de8-e19f-4ba3-8908-36ee312045db-0
+00:25:11.680 --> 00:25:13.760
+I have just given null values found.
+
+d63ba80d-f718-44dc-99b1-3dcfd5ab2178-0
+00:25:14.440 --> 00:25:20.402
+You can take any error error message
+trick based upon your DQ is active as
+
+d63ba80d-f718-44dc-99b1-3dcfd5ab2178-1
+00:25:20.402 --> 00:25:27.000
+chest active indicator or create data all
+these portal audit columns and rule IDs.
+
+aabed135-a48f-41a6-9bff-44240551824a-0
+00:25:27.640 --> 00:25:29.480
+So this is null check right?
+
+aa17a74d-be22-43b3-aa1d-0be5bd1a5ea8-0
+00:25:30.000 --> 00:25:33.480
+And the rule master we have rule ID right
+for for null check it's one.
+
+b8829695-004f-48e2-ad9e-a3569e8468c4-0
+00:25:34.120 --> 00:25:39.883
+So the that corresponding rule ID should
+be kept here and the corresponding job ID
+
+b8829695-004f-48e2-ad9e-a3569e8468c4-1
+00:25:39.883 --> 00:25:41.480
+needs to be given here.
+
+18977f46-679d-4884-b1b2-0e045be42d9c-0
+00:25:43.080 --> 00:25:43.480
+OK.
+
+05e26f52-c20b-4207-9f28-3f7e50684d4d-0
+00:25:54.160 --> 00:26:00.600
+Here we have to provide the exact target
+table, target column values, OK.
+
+b3ee9970-4e3d-4f87-b59d-bbf402f91fd9-0
+00:26:03.040 --> 00:26:07.400
+And then if we go down this,
+we can move on to this balance
+
+b3ee9970-4e3d-4f87-b59d-bbf402f91fd9-1
+00:26:07.400 --> 00:26:09.000
+reconciliation metric.
+
+14191497-29a6-4a4e-8896-bbb92062a735-0
+00:26:13.480 --> 00:26:17.647
+So like if you have any balancing metrics
+needs to be reconciled,
+
+14191497-29a6-4a4e-8896-bbb92062a735-1
+00:26:17.647 --> 00:26:19.920
+we'll make an entry into this table.
+
+0011d7fe-88ec-445c-b032-a15f5f83f951-0
+00:26:20.400 --> 00:26:25.290
+So here it's an auto incremented value
+metric ID, balance check,
+
+0011d7fe-88ec-445c-b032-a15f5f83f951-1
+00:26:25.290 --> 00:26:29.955
+cancellation metric,
+metric description is just like here I'm
+
+0011d7fe-88ec-445c-b032-a15f5f83f951-2
+00:26:29.955 --> 00:26:35.372
+trying to get a word extend count check
+of this particular broker party
+
+0011d7fe-88ec-445c-b032-a15f5f83f951-3
+00:26:35.372 --> 00:26:36.200
+identifier.
+
+9ed617f2-4371-4ba2-9666-816b57a767b1-0
+00:26:36.640 --> 00:26:42.641
+And like I'm doing this a distinct count
+check of this column between source and
+
+9ed617f2-4371-4ba2-9666-816b57a767b1-1
+00:26:42.641 --> 00:26:43.160
+target.
+
+ffb6a893-a749-43ac-8252-2e9411e96c76-0
+00:26:43.560 --> 00:26:45.160
+So that's what I have written here.
+
+e59b09e6-e5d1-453e-85e4-d3edc27f7174-0
+00:26:45.160 --> 00:26:49.040
+Here we have to do reconcile distinct
+count of this column.
+
+7f114fe9-bdf9-41d9-bd75-5fbf7176dc2b-0
+00:26:49.200 --> 00:26:54.692
+If we have any amount column,
+we can directly write reconcile total
+
+7f114fe9-bdf9-41d9-bd75-5fbf7176dc2b-1
+00:26:54.692 --> 00:27:01.234
+broker amount value from source June 1 to
+like source June source to target John
+
+7f114fe9-bdf9-41d9-bd75-5fbf7176dc2b-2
+00:27:01.234 --> 00:27:01.800
+target.
+
+0e7b1797-4ae7-4bc4-9761-5d1504815e5c-0
+00:27:02.200 --> 00:27:06.050
+So it just like a reconcile listing count
+of broker party address from zone,
+
+0e7b1797-4ae7-4bc4-9761-5d1504815e5c-1
+00:27:06.050 --> 00:27:08.000
+one source to zone to target that's it.
+
+59e6761c-c7b8-4254-9ded-c99d3109915c-0
+00:27:08.800 --> 00:27:15.258
+Balancing type discount, if it is amount,
+we can keep it as amount source to target
+
+59e6761c-c7b8-4254-9ded-c99d3109915c-1
+00:27:15.258 --> 00:27:15.720
+layer.
+
+6432a1cb-7cfa-4fcb-a500-adf20292eecf-0
+00:27:15.720 --> 00:27:18.200
+It's again just source layer to target
+layer.
+
+c9de3684-b41b-4443-ae0a-3dc5cbbba8c4-0
+00:27:18.200 --> 00:27:22.800
+That's it refined to join to data domain,
+target database name.
+
+9de2e366-b854-4db2-852c-e68c3b77fa00-0
+00:27:22.960 --> 00:27:25.934
+So target data this is just a target
+database name,
+
+9de2e366-b854-4db2-852c-e68c3b77fa00-1
+00:27:25.934 --> 00:27:28.280
+target schema name and target table name.
+
+7938e641-6660-4b5a-befb-710591ab9820-0
+00:27:29.640 --> 00:27:36.403
+OK, this is target column,
+column name upon which we are trying to
+
+7938e641-6660-4b5a-befb-710591ab9820-1
+00:27:36.403 --> 00:27:41.451
+perform reconciliation OK and region
+source path,
+
+7938e641-6660-4b5a-befb-710591ab9820-2
+00:27:41.451 --> 00:27:44.479
+these are related to John one.
+
+510aa407-ae7a-4176-a3e4-0cfa73b15db6-0
+00:27:45.360 --> 00:27:47.280
+OK, source query, target query.
+
+a6ebed8b-bd73-4c30-a028-acec23766dda-0
+00:27:47.280 --> 00:27:48.680
+As of now we don't need this.
+
+d15326aa-bded-4fab-8454-3a5039c99313-0
+00:27:48.760 --> 00:27:52.800
+We have already implemented logic
+dynamically within the ETL itself.
+
+352ba608-e958-4a06-9ce2-048189a74b90-0
+00:27:55.080 --> 00:27:57.760
+Threshold type name is percentage.
+
+10b51ff5-5825-4e5c-8c11-96604507346f-0
+00:27:58.160 --> 00:28:01.400
+We can have threshold type as percentage
+or value.
+
+4a65298c-d658-435f-90c1-bb9854662ed4-0
+00:28:02.320 --> 00:28:06.080
+So if it is percentage,
+the calculation in the dynamic table like
+
+4a65298c-d658-435f-90c1-bb9854662ed4-1
+00:28:06.080 --> 00:28:08.360
+in the dynamic logic would be different.
+
+b122d4e1-c1f9-42c0-a2d0-3dc11198f138-0
+00:28:08.360 --> 00:28:12.251
+If it is valued directly,
+it will check threshold type and the
+
+b122d4e1-c1f9-42c0-a2d0-3dc11198f138-1
+00:28:12.251 --> 00:28:13.240
+threshold value.
+
+df93f6e0-59b0-47d1-8350-6c14860a6f69-0
+00:28:13.240 --> 00:28:14.560
+We have to provide the threshold.
+
+e39860a4-ac64-4572-9f45-34398fbf927b-0
+00:28:15.040 --> 00:28:19.247
+So if any metrics,
+source and target metrics are out of
+
+e39860a4-ac64-4572-9f45-34398fbf927b-1
+00:28:19.247 --> 00:28:22.477
+balance,
+we will like compare against this
+
+e39860a4-ac64-4572-9f45-34398fbf927b-2
+00:28:22.477 --> 00:28:23.680
+threshold value.
+
+782fad2a-6242-4bef-886b-c288d16f6e5a-0
+00:28:24.120 --> 00:28:28.495
+If it is within threshold,
+then we like based upon if it is within
+
+782fad2a-6242-4bef-886b-c288d16f6e5a-1
+00:28:28.495 --> 00:28:33.067
+threshold or out of threshold,
+we'll send out a message or update the
+
+782fad2a-6242-4bef-886b-c288d16f6e5a-2
+00:28:33.067 --> 00:28:38.488
+status in the job run starts so far that
+we will use this column and either add to
+
+782fad2a-6242-4bef-886b-c288d16f6e5a-3
+00:28:38.488 --> 00:28:41.754
+indicator,
+it's just add to indicator and then we
+
+782fad2a-6242-4bef-886b-c288d16f6e5a-4
+00:28:41.754 --> 00:28:44.040
+have to provide the job ID to date.
+
+4a98a3f8-4b02-4050-b4d7-c2b4bd1c9b38-0
+00:28:45.520 --> 00:28:45.640
+Yeah.
+
+3ad23e2d-2c56-492f-9c52-a633c3badb8c-0
+00:28:45.640 --> 00:28:48.480
+Are we good with the My Data tables?
+
+8d55d267-611b-46b4-8e64-c27475f8c869-0
+00:28:50.680 --> 00:28:55.800
+Anyone have any questions here in the
+metadata tables?
+
+cc1f2505-b678-4178-a604-55f8514275bf-0
+00:29:00.040 --> 00:29:01.680
+OK, I'll take it as no.
+
+2634384d-d454-4575-b765-a5d931e82747-0
+00:29:02.320 --> 00:29:03.160
+Let's move on.
+
+75bb148f-6e7a-4737-815f-0798d9106612-0
+00:29:03.520 --> 00:29:04.720
+OK, this is logged up.
+
+049b5f64-d206-4934-8661-017ab198a84c-0
+00:29:05.080 --> 00:29:07.440
+Let me log on to yes.
+
+185d9908-8f3a-448f-9852-129dd2d841d4-0
+00:29:07.440 --> 00:29:07.880
+Yes.
+
+4085aed2-f2c7-4a37-94eb-e7936c4b1ccb-0
+00:29:36.720 --> 00:29:42.499
+I'm just trying to give you a high level
+overview of the ABC integration where the
+
+4085aed2-f2c7-4a37-94eb-e7936c4b1ccb-1
+00:29:42.499 --> 00:29:44.240
+components are like that.
+
+1f696331-da48-4cb9-81a5-2b2612197913-0
+00:29:44.240 --> 00:29:53.440
+I just I'm just trying to do so we have
+different folders for different domains.
+
+b336db9e-c8f3-41af-84fc-26d3bde127a5-0
+00:29:54.200 --> 00:29:55.400
+DAA common?
+
+e9d13823-7cb0-44e2-9d4c-621f3aee19c8-0
+00:29:55.960 --> 00:30:00.740
+It's a folder where we are trying to keep
+ABC and config driven like which like
+
+e9d13823-7cb0-44e2-9d4c-621f3aee19c8-1
+00:30:00.740 --> 00:30:05.221
+whatever which is common for all the
+domain loads we are trying to keep it
+
+e9d13823-7cb0-44e2-9d4c-621f3aee19c8-2
+00:30:05.221 --> 00:30:05.520
+here.
+
+1af3ab1f-e641-4787-9367-f29abde22242-0
+00:30:06.280 --> 00:30:08.960
+We we are having all the ABC components
+here.
+
+41941f71-ab7f-4307-9904-7c814395203f-0
+00:30:09.200 --> 00:30:14.622
+But what I'll say is currently testing
+for the one of the table in the one of
+
+41941f71-ab7f-4307-9904-7c814395203f-1
+00:30:14.622 --> 00:30:17.960
+the tables in the broker domain is in
+progress.
+
+0cf8cbf1-0b86-4bc2-a00d-0d9a8d906b4a-0
+00:30:18.920 --> 00:30:26.120
+So I'm just making some changes in a
+basic component there.
+
+bec8e8a7-5af3-4640-8ae8-161ac788e3c0-0
+00:30:26.120 --> 00:30:31.978
+So what I'll what I'll recommend to you
+to you guys to use is whatever the ABC
+
+bec8e8a7-5af3-4640-8ae8-161ac788e3c0-1
+00:30:31.978 --> 00:30:35.760
+components which are present in the
+broker folder.
+
+e5abdcee-4153-4000-8c58-aec5114b7969-0
+00:30:39.000 --> 00:30:46.520
+Under every domain folder we again have
+ABC main, MVP stage folder subfolders.
+
+f57c0c64-b5f2-454d-a2ea-c8c859106e2f-0
+00:30:46.920 --> 00:30:52.040
+So all for every domain we will get the
+copy.
+
+b5dfbd64-dbde-44e3-af62-5d041e9dbe6c-0
+00:30:52.440 --> 00:30:58.531
+Usually it has to be like whatever the
+ABC components which are present in the
+
+b5dfbd64-dbde-44e3-af62-5d041e9dbe6c-1
+00:30:58.531 --> 00:31:04.160
+common folder should be copied into this
+folder and then we have to use.
+
+17f85949-00f0-4b19-ab6d-98a92722ea41-0
+00:31:05.160 --> 00:31:09.240
+As of now as the testing is in progress,
+I'm directly making the changes here.
+
+548f3e84-3491-45e6-87cf-add79633de03-0
+00:31:09.520 --> 00:31:10.120
+Once.
+
+0b5cd232-071a-4cad-91e8-5b99cfa5ba94-0
+00:31:10.680 --> 00:31:14.100
+If you want to use,
+you can use the components from this
+
+0b5cd232-071a-4cad-91e8-5b99cfa5ba94-1
+00:31:14.100 --> 00:31:15.120
+folder as of now.
+
+faf62435-ff9c-49f8-bcad-f49fe05e79f5-0
+00:31:15.600 --> 00:31:23.889
+But later I'll try to like make all the
+components in the common folder sync with
+
+faf62435-ff9c-49f8-bcad-f49fe05e79f5-1
+00:31:23.889 --> 00:31:26.720
+the with this with these OK.
+
+9a827953-4763-4cf5-a394-40ab0eea01cd-0
+00:31:27.200 --> 00:31:34.518
+And after that under main folders,
+I have created a task flow at the job
+
+9a827953-4763-4cf5-a394-40ab0eea01cd-1
+00:31:34.518 --> 00:31:35.120
+level.
+
+5a7811b9-36a6-4f20-b684-26d03914c314-0
+00:31:35.320 --> 00:31:39.027
+OK,
+so you don't need to do anything in the
+
+5a7811b9-36a6-4f20-b684-26d03914c314-1
+00:31:39.027 --> 00:31:42.988
+ABC,
+ABC components if you like if your domain
+
+5a7811b9-36a6-4f20-b684-26d03914c314-2
+00:31:42.988 --> 00:31:49.729
+have similar structure as that of broker,
+but for conflict driven we like we'll
+
+5a7811b9-36a6-4f20-b684-26d03914c314-3
+00:31:49.729 --> 00:31:56.386
+have we don't have these many component
+it it's somewhat simplified one we can
+
+5a7811b9-36a6-4f20-b684-26d03914c314-4
+00:31:56.386 --> 00:31:58.240
+discuss it at the end.
+
+7bc05e5d-ab7b-4c60-b261-14c212ef3f32-0
+00:31:59.920 --> 00:32:02.280
+OK, all the components will be here only.
+
+dc5526a4-707b-4a13-b848-685b7bc1a00c-0
+00:32:02.720 --> 00:32:08.754
+You just need to create just like take a
+reference of this just or otherwise take
+
+dc5526a4-707b-4a13-b848-685b7bc1a00c-1
+00:32:08.754 --> 00:32:14.642
+a copy of this task flow and you can just
+do what you have to do is if for this
+
+dc5526a4-707b-4a13-b848-685b7bc1a00c-2
+00:32:14.642 --> 00:32:19.720
+particular data broker domain,
+we have two hops within the same job.
+
+2c2a23f5-9db0-4b4e-952f-bbe39fb47263-0
+00:32:20.160 --> 00:32:25.310
+One is from source to stage and the other
+is from stage 2 actual main targeted
+
+2c2a23f5-9db0-4b4e-952f-bbe39fb47263-1
+00:32:25.310 --> 00:32:26.680
+broker party address.
+
+bec68fbf-1f68-4da3-a462-b100b83a474d-0
+00:32:27.240 --> 00:32:33.120
+So here first we first in the start step,
+we'll have input fields.
+
+a49a0368-1523-43f6-840a-5bac361c0fc7-0
+00:32:34.640 --> 00:32:37.040
+OK, let me open the batch task flow first.
+
+11cc8a12-3aa5-4933-8cb4-ecd4ea626047-0
+00:32:37.280 --> 00:32:43.360
+It's it's the highest one Painful.
+
+40205add-17d9-4caa-b633-77df77852cf8-0
+00:32:46.800 --> 00:32:51.760
+So this is the batch transfer which will
+hold all the jobs of task flows.
+
+882461be-bbfd-4e38-9a1b-ac3870f0b8ac-0
+00:32:52.720 --> 00:32:53.080
+OK.
+
+6aa8648a-d106-4e7b-92db-fcf5c787640b-0
+00:32:53.080 --> 00:32:56.360
+So this is our but job subtask flow.
+
+38a63a23-54af-4d18-877f-1cab3abea18a-0
+00:32:56.640 --> 00:33:00.360
+We have created this batch transfer with
+only one job.
+
+8fa3122d-5d88-457e-8947-9477143835eb-0
+00:33:00.920 --> 00:33:07.077
+But like upon the orchestration design,
+we can integrate all the job levels of
+
+8fa3122d-5d88-457e-8947-9477143835eb-1
+00:33:07.077 --> 00:33:11.520
+task flows based upon the orchestration
+and front order.
+
+9d8ab8c9-6c0b-463b-b84c-dcf898ad82ad-0
+00:33:12.240 --> 00:33:20.560
+OK, so first initially in the batch table,
+I I just want to show you 3 points here.
+
+9adabac2-e90d-4eb8-b93d-c86616e8ea53-0
+00:33:21.240 --> 00:33:25.160
+So param file should be created as per
+your domain.
+
+a541eaa7-3bf0-4054-8a5f-1d54c51084ef-0
+00:33:25.520 --> 00:33:25.800
+OK.
+
+6d10992a-c647-42d5-8f87-b158eaa9b70e-0
+00:33:26.080 --> 00:33:29.080
+And also DQ indicator is mandatory.
+
+48354468-162d-4c95-8e28-790c54213753-0
+00:33:29.840 --> 00:33:33.040
+It has to be provide I'll show you sample
+parameter file here.
+
+a497aaa5-c4fa-4fdb-98bb-e17f26a26076-0
+00:33:33.880 --> 00:33:36.360
+So here we have DQ check indicator, right?
+
+d0a96b28-6db4-49db-a37e-0b9717276ce9-0
+00:33:36.840 --> 00:33:39.400
+This has to be provided within the
+parameter file.
+
+51ff41be-18b0-4c71-89fc-bb27d7b6bf0e-0
+00:33:39.400 --> 00:33:47.248
+Based upon this we have a logic in the in
+the task flow whether to execute few task
+
+51ff41be-18b0-4c71-89fc-bb27d7b6bf0e-1
+00:33:47.248 --> 00:33:51.640
+flows which are related to this DQ
+validation.
+
+936d4a12-aef4-4566-b05f-64b31caf77cf-0
+00:33:52.520 --> 00:33:52.840
+OK.
+
+b3485903-74bb-4173-810f-fdd56869ab5f-0
+00:33:54.080 --> 00:34:00.132
+And in the common folder wherever we have
+snowflake snowflake connection,
+
+b3485903-74bb-4173-810f-fdd56869ab5f-1
+00:34:00.132 --> 00:34:05.040
+we have given as common ABC snowflake in
+the common folder.
+
+e2068686-df3d-4e58-93c6-1471886b61bb-0
+00:34:06.320 --> 00:34:13.894
+Once you copy them into your actual ABC
+folder like domain level ABC folder,
+
+e2068686-df3d-4e58-93c6-1471886b61bb-1
+00:34:13.894 --> 00:34:21.271
+you have to update the update this
+connection like connection PGT and pure
+
+e2068686-df3d-4e58-93c6-1471886b61bb-2
+00:34:21.271 --> 00:34:21.960
+domain.
+
+0f0f7e12-0d4e-4c6e-99fb-fd2dca435671-0
+00:34:24.760 --> 00:34:26.680
+This has to be this is the format.
+
+6b95dd31-0ff8-497e-89e0-d11405527ac3-0
+00:34:27.160 --> 00:34:31.560
+So what usually all our targets will be
+in Snowflake only, right?
+
+f8c0301e-370e-47d6-bf2e-7623e6ab0a98-0
+00:34:31.880 --> 00:34:39.205
+So I'm just try like I'll who have a
+single a connection name for a Snowflake
+
+f8c0301e-370e-47d6-bf2e-7623e6ab0a98-1
+00:34:39.205 --> 00:34:47.000
+database as a standard we are just like
+planning to have single connection across.
+
+5f1075b0-feb1-4f36-9fbd-f8715a097ae7-0
+00:34:47.160 --> 00:34:54.480
+So you will find this connections ABC in
+few mappings ETL data ingestion.
+
+a0dbf37c-8263-4d70-b14d-17493fc6ca87-0
+00:34:55.280 --> 00:35:02.880
+There are two components related to this
+ETL data ingestion sourcing window table.
+
+ee80d78b-7757-408e-ab4e-4bf543a0c3a9-0
+00:35:03.840 --> 00:35:08.378
+So there you will found job where a
+detail you will found balance
+
+ee80d78b-7757-408e-ab4e-4bf543a0c3a9-1
+00:35:08.378 --> 00:35:11.680
+reconciliation you'll found and postal
+success.
+
+47314f31-06cd-42b1-9b15-6c575a0d93cd-0
+00:35:12.680 --> 00:35:16.080
+So all these places in all these places
+you will found this connection.
+
+395917b6-28f2-4eb3-894e-14eebca80354-0
+00:35:16.160 --> 00:35:20.040
+Just update the connection name in the
+FPC component.
+
+795712ca-2ea2-420b-9f4e-8f8612a6cc52-0
+00:35:20.360 --> 00:35:20.920
+That's it.
+
+961bcc3a-89fe-430d-be6a-46d8f0e37d46-0
+00:35:22.000 --> 00:35:22.400
+OK.
+
+5d08f20c-85c7-4f87-85ab-e8ecfc023599-0
+00:35:23.000 --> 00:35:24.680
+And also one more.
+
+a059f78d-35e4-4664-a00d-947826b4b40b-0
+00:35:24.960 --> 00:35:29.713
+OK,
+let me tell you that whenever this comes,
+
+a059f78d-35e4-4664-a00d-947826b4b40b-1
+00:35:29.713 --> 00:35:31.160
+OK, that's it.
+
+c3fbe9d8-e668-4601-932e-0a39e81fd3de-0
+00:35:31.760 --> 00:35:37.000
+And here in the batch level task flow
+let's move on from the start step.
+
+3d33662d-c0cb-4196-b4d8-38d819a05143-0
+00:35:37.160 --> 00:35:39.160
+In the start step we have input fields.
+
+ebbd1022-66bc-40f0-be46-eadfdce02281-0
+00:35:39.160 --> 00:35:45.655
+Right here we have to provide the
+parameter file, directory name,
+
+ebbd1022-66bc-40f0-be46-eadfdce02281-1
+00:35:45.655 --> 00:35:51.560
+static value and parameter file and also
+you audit user ID.
+
+74e78f57-61ec-4613-afac-def522b305d1-0
+00:35:52.320 --> 00:35:56.280
+We are using the service account like
+which is triggering this job.
+
+4257d367-0cf6-4665-a844-b4bfd5d5342d-0
+00:35:56.280 --> 00:36:00.520
+Just using this and build function of
+IDMC OK.
+
+1b556501-17e0-4e1e-9194-a1323cbafa92-0
+00:36:01.080 --> 00:36:07.743
+And then I'm using some temporary fields
+like error count and batch status,
+
+1b556501-17e0-4e1e-9194-a1323cbafa92-1
+00:36:07.743 --> 00:36:12.040
+which will be used it to track the job
+failures.
+
+8b8ba4bd-e6ee-4032-af0e-97630ac4e9e4-0
+00:36:12.640 --> 00:36:14.080
+And batch status is nothing.
+
+712226bc-fd43-46e1-8113-026dae09057a-0
+00:36:14.080 --> 00:36:17.882
+But like based upon the error count,
+we are just we're,
+
+712226bc-fd43-46e1-8113-026dae09057a-1
+00:36:17.882 --> 00:36:22.840
+we're just getting the batch like we're
+just assigning the batch status.
+
+d8f880ec-1b7e-486b-b4b0-9860bf7e010a-0
+00:36:22.840 --> 00:36:27.326
+And we're using this batch status to
+update the status in our batch
+
+d8f880ec-1b7e-486b-b4b0-9860bf7e010a-1
+00:36:27.326 --> 00:36:29.240
+translation table, et cetera.
+
+b62aa3a2-eece-4700-910e-c936883d07a7-0
+00:36:30.360 --> 00:36:33.483
+Next component is batch transfers preload
+this,
+
+b62aa3a2-eece-4700-910e-c936883d07a7-1
+00:36:33.483 --> 00:36:36.411
+this component just holds some mapping
+test,
+
+b62aa3a2-eece-4700-910e-c936883d07a7-2
+00:36:36.411 --> 00:36:40.120
+which will make an entry into our batch
+transfers table.
+
+9b43d810-286d-4806-87ba-6c2fa49d79ec-0
+00:36:41.240 --> 00:36:45.697
+I'm just making a error handling so that
+if this task fails using the execution,
+
+9b43d810-286d-4806-87ba-6c2fa49d79ec-1
+00:36:45.697 --> 00:36:49.000
+it will throw an error and it will also
+fail the task flow.
+
+edf06be4-2265-4792-b1b4-58f4db97cd4f-0
+00:36:49.400 --> 00:36:53.400
+So this is our actual batch,
+our job level task flow.
+
+2cf0295b-5479-4489-bf1f-efd3be06ebf5-0
+00:36:53.880 --> 00:36:57.400
+I'll just go to this flow in a minute.
+
+923abac9-d062-419f-8fe5-a199559d9525-0
+00:36:57.840 --> 00:37:05.340
+If this is failed like if any job failed,
+I'm just using an assign assignment task
+
+923abac9-d062-419f-8fe5-a199559d9525-1
+00:37:05.340 --> 00:37:07.600
+to update my error count.
+
+4ebc2e55-1361-4a72-bd15-b04a5dcc1d9d-0
+00:37:07.640 --> 00:37:10.080
+So initially I have provided error count
+as zero.
+
+ae4afe18-b8f3-4e4f-8bdf-72aa0455b9bf-0
+00:37:10.280 --> 00:37:14.920
+If any of the job gets failed it will be
+incremented OK in the decision.
+
+62a2aefd-45ff-412f-8bbd-d0017511b47d-0
+00:37:15.400 --> 00:37:16.640
+I'm using this error count.
+
+e211a7c4-e04b-4407-b66e-8b7bf70ea74c-0
+00:37:16.760 --> 00:37:22.363
+So similarly if we have any other jobs
+like once all the job loads are completed
+
+e211a7c4-e04b-4407-b66e-8b7bf70ea74c-1
+00:37:22.363 --> 00:37:25.960
+then we we we will check for the error
+count value.
+
+eb46397c-6a7f-46d1-af44-06817e7acff7-0
+00:37:26.280 --> 00:37:33.495
+If it is equals to 0 then we will assign
+C to our batch status else it will be F
+
+eb46397c-6a7f-46d1-af44-06817e7acff7-1
+00:37:33.495 --> 00:37:39.374
+So based upon the status,
+the status in the batch and batch enter
+
+eb46397c-6a7f-46d1-af44-06817e7acff7-2
+00:37:39.374 --> 00:37:40.800
+will be updated.
+
+e6530603-1df1-41ba-be2a-48caffbfb81a-0
+00:37:41.000 --> 00:37:45.600
+See here I'm using this time status as as
+my as one parameter.
+
+94a39b85-d469-4106-b647-a656d1f0e537-0
+00:37:45.600 --> 00:37:49.490
+So using this it will be emulated OK if
+this component fails,
+
+94a39b85-d469-4106-b647-a656d1f0e537-1
+00:37:49.490 --> 00:37:52.000
+it's just I'm just doing error handling.
+
+cc1e26ed-e561-4acd-9b15-7a1952e05e38-0
+00:37:52.400 --> 00:37:55.400
+It will just throw an error and it will
+fail the task room.
+
+90267359-3170-4ae2-afa3-11b68d0e80cb-0
+00:37:56.640 --> 00:38:01.480
+OK yeah.
+
+7f1db8e7-37fd-45f1-b24d-79430c217578-0
+00:38:01.720 --> 00:38:06.156
+And also based upon the batch status,
+I'm sending out the success notification
+
+7f1db8e7-37fd-45f1-b24d-79430c217578-1
+00:38:06.156 --> 00:38:07.560
+and failure notification.
+
+e760eca4-0b91-4e51-bf9f-13de9fba676e-0
+00:38:07.800 --> 00:38:10.560
+If my batch is successful then it will
+just goes to end.
+
+5da3c2c5-f28c-420d-999b-ac19d0e2a58e-0
+00:38:10.560 --> 00:38:14.999
+If it is failed we will send out the
+failure notification and we will fail the
+
+5da3c2c5-f28c-420d-999b-ac19d0e2a58e-1
+00:38:14.999 --> 00:38:15.280
+task.
+
+df35743b-e7d0-47f6-b1e4-733fd9e03a05-0
+00:38:16.480 --> 00:38:17.920
+Are we good on the batch task flow?
+
+1aa5cc03-17fb-4431-9c18-1d598353756b-0
+00:38:19.800 --> 00:38:24.750
+So this is issue we have to can you just
+once you can explain what are parameters
+
+1aa5cc03-17fb-4431-9c18-1d598353756b-1
+00:38:24.750 --> 00:38:29.640
+it is expecting from a parameter file for
+as part of patch with manager preview.
+
+67636ec0-ae19-4293-8ad1-17f673368599-0
+00:38:30.840 --> 00:38:36.645
+OK,
+So if you see here like whatever the
+
+67636ec0-ae19-4293-8ad1-17f673368599-1
+00:38:36.645 --> 00:38:44.292
+values that I have provided here in the
+input fields,
+
+67636ec0-ae19-4293-8ad1-17f673368599-2
+00:38:44.292 --> 00:38:50.240
+it is expecting only those I can say here.
+
+7489d890-bc01-4f90-b3ec-46a393737213-0
+00:38:50.480 --> 00:38:56.104
+So ABC database name,
+ABC schema name and source name,
+
+7489d890-bc01-4f90-b3ec-46a393737213-1
+00:38:56.104 --> 00:39:01.319
+domain name,
+target zone source source join is not
+
+7489d890-bc01-4f90-b3ec-46a393737213-2
+00:39:01.319 --> 00:39:02.239
+required.
+
+491421f5-5a33-408f-a41e-62886686330c-0
+00:39:02.240 --> 00:39:05.360
+It is required for batch.
+
+b29ce417-064e-49da-9ba0-585f065cb579-0
+00:39:05.360 --> 00:39:08.840
+For that, OK, application layer name,
+that's it.
+
+b11c2f61-3efe-4802-b49c-60458f902787-0
+00:39:09.080 --> 00:39:12.975
+These four,
+these four application layer name,
+
+b11c2f61-3efe-4802-b49c-60458f902787-1
+00:39:12.975 --> 00:39:19.440
+target zone domain name, source name,
+ABC database name, ABC schema name, OK.
+
+a027695a-ff4e-4f78-817a-24383aa9a0fb-0
+00:39:20.600 --> 00:39:23.960
+This it is also expected.
+
+d1b3c2e4-0361-4688-8eb7-cc0b5b2698ec-0
+00:39:24.720 --> 00:39:29.990
+I told you right,
+We are just passing this service account
+
+d1b3c2e4-0361-4688-8eb7-cc0b5b2698ec-1
+00:39:29.990 --> 00:39:32.760
+value to our audit user ID, OK?
+
+30f805c1-ef57-41de-8607-274a284ea17c-0
+00:39:35.400 --> 00:39:39.344
+Batch post load Also,
+it's just getting the batch ID from the
+
+30f805c1-ef57-41de-8607-274a284ea17c-1
+00:39:39.344 --> 00:39:44.243
+batch preload and the status or you
+choose ID from the formula and these two
+
+30f805c1-ef57-41de-8607-274a284ea17c-2
+00:39:44.243 --> 00:39:46.280
+will be from the parameter file.
+
+75abbc8b-9a9f-4dce-a12a-e2601ba2348a-0
+00:39:48.320 --> 00:39:51.960
+OK, let's move on to this job level task.
+
+2ad9f248-dd6a-4e4f-b937-e6fb1ba7a834-0
+00:39:54.800 --> 00:39:59.550
+So in the job level task flow we'll have
+a job preload,
+
+2ad9f248-dd6a-4e4f-b937-e6fb1ba7a834-1
+00:39:59.550 --> 00:40:02.520
+actual main load and job post load.
+
+adb120ad-e1a9-42ee-b87a-cc215c615222-0
+00:40:03.320 --> 00:40:03.720
+OK.
+
+96acaa06-92e9-4dd4-acb4-34e4403c6f3e-0
+00:40:04.480 --> 00:40:07.966
+So we'll have all these job, task,
+job reload, task flow,
+
+96acaa06-92e9-4dd4-acb4-34e4403c6f3e-1
+00:40:07.966 --> 00:40:12.053
+whatever the task flow subtask flow that
+I have given here for ABC,
+
+96acaa06-92e9-4dd4-acb4-34e4403c6f3e-2
+00:40:12.053 --> 00:40:15.840
+all these 4 task flows will already
+present in the ABC folder.
+
+26ca1910-197d-4473-95a9-5ce2dd37111e-0
+00:40:16.240 --> 00:40:18.080
+You would just need to pull that.
+
+5719244e-e100-481e-bf95-3d8ea967a321-0
+00:40:18.320 --> 00:40:22.439
+So in the start step,
+we have to get the parameter file
+
+5719244e-e100-481e-bf95-3d8ea967a321-1
+00:40:22.439 --> 00:40:27.809
+directory, parameter file name, batch ID,
+execution, run ID, batch name,
+
+5719244e-e100-481e-bf95-3d8ea967a321-2
+00:40:27.809 --> 00:40:32.370
+execution runtime source, batch ID,
+source execution, run ID,
+
+5719244e-e100-481e-bf95-3d8ea967a321-3
+00:40:32.370 --> 00:40:35.240
+source end time and audit choose ready.
+
+4f88a477-b75a-49f7-a8ec-0e40b85c3554-0
+00:40:35.240 --> 00:40:38.073
+So if you go to this batch level task
+flow,
+
+4f88a477-b75a-49f7-a8ec-0e40b85c3554-1
+00:40:38.073 --> 00:40:41.680
+let me show I have already assigned
+whatever the input.
+
+49f17224-f732-4e90-99b1-fe80ed5926ce-0
+00:40:42.080 --> 00:40:47.640
+Input fields that are required in my task
+flow are already provided here.
+
+c436f7f9-449e-4713-a679-5fea00f6a9e6-0
+00:40:48.800 --> 00:40:53.995
+So you can refer to this task flow on how
+to like get the parameters from which
+
+c436f7f9-449e-4713-a679-5fea00f6a9e6-1
+00:40:53.995 --> 00:40:57.048
+component like mostly or from batch
+transfers,
+
+c436f7f9-449e-4713-a679-5fea00f6a9e6-2
+00:40:57.048 --> 00:41:00.880
+preload if you are from these three are
+from input fields.
+
+8afc6c17-ca96-42be-8c83-81bac1b52e5e-0
+00:41:00.880 --> 00:41:01.360
+That's it.
+
+c3131824-9c5f-4866-8bd3-2c54be4950de-0
+00:41:02.280 --> 00:41:08.548
+You can refer to this particular batch
+task flow while creating your domain
+
+c3131824-9c5f-4866-8bd3-2c54be4950de-1
+00:41:08.548 --> 00:41:11.600
+level, your domain's batch task flow.
+
+05a4211a-6dff-4f0b-a0b0-307beb0a0b81-0
+00:41:11.600 --> 00:41:14.450
+OK,
+so upon getting all these input parameter
+
+05a4211a-6dff-4f0b-a0b0-307beb0a0b81-1
+00:41:14.450 --> 00:41:17.238
+files,
+we we will use them in the downstream
+
+05a4211a-6dff-4f0b-a0b0-307beb0a0b81-2
+00:41:17.238 --> 00:41:17.920
+components.
+
+a84701c1-00a2-4a0d-a574-25f00da98384-0
+00:41:21.960 --> 00:41:24.840
+They're not time fields,
+we're just choosing improvements.
+
+6e990a4e-9393-4efd-b7c2-dd7d2f439943-0
+00:41:25.800 --> 00:41:30.640
+And this is the ABC job preload.
+
+d4feee37-6fba-49af-821c-a3df31eb9955-0
+00:41:31.840 --> 00:41:38.246
+So task to ABC job preload,
+this is the task to that we have to use
+
+d4feee37-6fba-49af-821c-a3df31eb9955-1
+00:41:38.246 --> 00:41:39.000
+for ABC.
+
+7e2bdcb0-7ed5-4ade-bd37-7108b3bd37f2-0
+00:41:39.200 --> 00:41:45.702
+So once you get the copy of all the ABC
+components in the respect to in your
+
+7e2bdcb0-7ed5-4ade-bd37-7108b3bd37f2-1
+00:41:45.702 --> 00:41:52.035
+respect to domain level ABC folder,
+you have to select that particular job
+
+7e2bdcb0-7ed5-4ade-bd37-7108b3bd37f2-2
+00:41:52.035 --> 00:41:58.199
+job preload component and you have to
+assign the input input parameters.
+
+65273964-e53c-4d6f-b028-e47c1d0945ca-0
+00:41:58.520 --> 00:42:04.185
+So it is expecting batch ID execution run
+ID, batch name execution run type source,
+
+65273964-e53c-4d6f-b028-e47c1d0945ca-1
+00:42:04.185 --> 00:42:08.637
+batch ID source execution run ID,
+source batching time parameter,
+
+65273964-e53c-4d6f-b028-e47c1d0945ca-2
+00:42:08.637 --> 00:42:12.280
+file directory parameter file name audit
+use rightly.
+
+b9f453d5-4584-421f-9505-dce3cbd2d159-0
+00:42:12.360 --> 00:42:20.553
+So these are the parameters that are
+expected that are needed in job ABC job
+
+b9f453d5-4584-421f-9505-dce3cbd2d159-1
+00:42:20.553 --> 00:42:28.853
+reload OK and then if this task flow
+fails during the execution and then this
+
+b9f453d5-4584-421f-9505-dce3cbd2d159-2
+00:42:28.853 --> 00:42:34.280
+will be triggered This is ABC job preload
+failure.
+
+6bb8dac1-f8f6-4f5f-8fd3-d2006b20d38f-0
+00:42:37.320 --> 00:42:41.302
+So it it is expecting these parameters
+that file parameter,
+
+6bb8dac1-f8f6-4f5f-8fd3-d2006b20d38f-1
+00:42:41.302 --> 00:42:44.753
+file directory parameter filing job run
+ID, job ID,
+
+6bb8dac1-f8f6-4f5f-8fd3-d2006b20d38f-2
+00:42:44.753 --> 00:42:49.400
+batch name BQ check all these we will get
+from them job preload only.
+
+09ec0d46-cf53-4f07-984d-e0c4f01e688f-0
+00:42:49.400 --> 00:42:53.798
+So if it's a job,
+so whatever the parameter values that we
+
+09ec0d46-cf53-4f07-984d-e0c4f01e688f-1
+00:42:53.798 --> 00:42:57.227
+get from the parameter from the job run
+sets,
+
+09ec0d46-cf53-4f07-984d-e0c4f01e688f-2
+00:42:57.227 --> 00:43:02.520
+we will we'll have those parameters and
+we'll send out a notification.
+
+bfc5315d-874c-4183-8c2b-2a72e1a0a518-0
+00:43:03.560 --> 00:43:08.600
+OK, OK.
+
+08027edb-1bc2-4887-bcdb-7c36337fb9b1-0
+00:43:08.600 --> 00:43:15.092
+And then so the there is a situation like
+there's a scenario like in case of free,
+
+08027edb-1bc2-4887-bcdb-7c36337fb9b1-1
+00:43:15.092 --> 00:43:20.803
+in case of free start of our batch,
+if any of the tables load is already
+
+08027edb-1bc2-4887-bcdb-7c36337fb9b1-2
+00:43:20.803 --> 00:43:24.480
+completed,
+then we should skip the table load.
+
+beb7d9fb-c2d5-47af-bbf0-fb508b432772-0
+00:43:24.880 --> 00:43:32.240
+So we'll get we'll have a skip flag from
+the ABC job preload.
+
+9a70176f-f109-4027-9c50-1ec2da396c48-0
+00:43:34.520 --> 00:43:38.280
+So if it is Y then we will skipping the
+entire load.
+
+180c5216-5648-461e-974a-26fc4a6e408d-0
+00:43:38.280 --> 00:43:39.680
+We're just going to the end.
+
+93f903a2-39df-47f2-8f1b-7c7f3094c9aa-0
+00:43:40.520 --> 00:43:47.688
+OK,
+If it is a device then we'll go and load
+
+93f903a2-39df-47f2-8f1b-7c7f3094c9aa-1
+00:43:47.688 --> 00:43:49.760
+OK like this.
+
+48160b39-b24e-4fb7-b33c-262c3d57e7a1-0
+00:43:49.760 --> 00:43:54.960
+Skip flag value will be settled in the
+job record only.
+
+3d30f216-5d46-48f5-8efb-964fa15a155b-0
+00:43:57.880 --> 00:44:00.520
+OK this is the mapping task.
+
+c0706155-3ccf-443e-b676-c43b163c749e-0
+00:44:01.240 --> 00:44:08.215
+First source to stage load OK,
+we have to just select our mapping task
+
+c0706155-3ccf-443e-b676-c43b163c749e-1
+00:44:08.215 --> 00:44:13.913
+and whatever the parameters that we are
+required will be,
+
+c0706155-3ccf-443e-b676-c43b163c749e-2
+00:44:13.913 --> 00:44:19.120
+will be will be assigned here mostly as
+part of ABC.
+
+d6bd8e90-1f57-44a4-96c7-138dcc963b72-0
+00:44:19.120 --> 00:44:25.649
+So we're implementing the ABC,
+ABC like ABC related integration in the
+
+d6bd8e90-1f57-44a4-96c7-138dcc963b72-1
+00:44:25.649 --> 00:44:28.040
+source to stage load only.
+
+4839e490-47c9-4da1-8e92-1e40a39e8e6d-0
+00:44:29.880 --> 00:44:34.880
+And also we're using snowflake timetables
+for this load in order to enable full PDO.
+
+601943da-2c78-4429-9ed0-540c710b14e1-0
+00:44:35.280 --> 00:44:40.360
+I'll just go on a minute about this task
+flow stage level 2.
+
+69fde7c8-d208-4efe-b03f-9a85c03dff06-0
+00:44:40.360 --> 00:44:42.640
+So otherwise I'll just open it to be over.
+
+d5e350ed-6ae0-445b-b842-4647e8273286-0
+00:44:43.440 --> 00:44:49.090
+So here what I need is audit user ID,
+execution run ID and job ID,
+
+d5e350ed-6ae0-445b-b842-4647e8273286-1
+00:44:49.090 --> 00:44:54.487
+job run ID that's ABC related ABC,
+Snowflake ABC database name,
+
+d5e350ed-6ae0-445b-b842-4647e8273286-2
+00:44:54.487 --> 00:44:56.680
+Snowflake ABC schema name.
+
+30e98d61-f1f0-484b-a352-61eafa446d8e-0
+00:44:57.160 --> 00:45:01.560
+And so system go to an AB.
+
+62ba3f85-97e0-454c-bc6b-da8172fd4e31-0
+00:45:01.840 --> 00:45:05.520
+Yeah, we,
+we are to use as we are using Snowflake
+
+62ba3f85-97e0-454c-bc6b-da8172fd4e31-1
+00:45:05.520 --> 00:45:08.760
+Temptables to populate ABC related
+entries.
+
+53fc4c6b-80ea-4751-b89b-57acbb2c7c55-0
+00:45:08.760 --> 00:45:11.470
+In order to enable full PDO,
+we are using ABC,
+
+53fc4c6b-80ea-4751-b89b-57acbb2c7c55-1
+00:45:11.470 --> 00:45:13.200
+a related database and scheme.
+
+c4528167-0a54-4f26-ba32-85aa85481422-0
+00:45:13.400 --> 00:45:16.081
+So we are already providing these two
+values here,
+
+c4528167-0a54-4f26-ba32-85aa85481422-1
+00:45:16.081 --> 00:45:18.920
+Snowflake ABC database name and Snowflake
+ABC scheme.
+
+dcd54ed4-5e43-4036-b0d7-e599b07bb005-0
+00:45:20.840 --> 00:45:23.320
+OK, let me open this.
+
+ab437041-0853-49e5-a94a-f03f5ada7712-0
+00:45:26.320 --> 00:45:32.800
+I'll just cover whatever we have for ABC
+integration.
+
+0f1ff312-d05b-4124-9281-27167e5bf5c4-0
+00:45:34.520 --> 00:45:40.925
+So as of now for this blocker party,
+we have implemented job run stats,
+
+0f1ff312-d05b-4124-9281-27167e5bf5c4-1
+00:45:40.925 --> 00:45:45.017
+balance,
+reconciliation and error handling DQ
+
+0f1ff312-d05b-4124-9281-27167e5bf5c4-2
+00:45:45.017 --> 00:45:45.640
+checks.
+
+114b0d69-9fa5-44b0-a925-f77eaa42c2a4-0
+00:45:45.880 --> 00:45:51.320
+So here in the expression transformation,
+we have expression tab.
+
+a3715ba3-1b27-43f6-be08-b42f43fb60bc-0
+00:45:51.760 --> 00:45:56.320
+So here we have different column names.
+
+ba061733-090b-4675-8525-215bb1f14123-0
+00:45:56.320 --> 00:46:03.280
+All these are user for error,
+error DQ checks.
+
+38457865-4c4a-47e5-b77e-08eb41b8fd27-0
+00:46:03.280 --> 00:46:10.400
+OK, so this error description column,
+we'll have a format like this.
+
+3470d047-96aa-430e-b479-e52ecd0c26fb-0
+00:46:19.030 --> 00:46:21.270
+So it's just checking.
+
+7000a2dd-dc5d-4dfc-b687-4af8eb455b7a-0
+00:46:21.270 --> 00:46:26.110
+So we have given 4 TQ checks for this
+particular job right?
+
+7b493c53-08c4-4c76-8a8b-20be661acc58-0
+00:46:26.350 --> 00:46:34.243
+So if any one of this is null then it
+will just concatenate its target column
+
+7b493c53-08c4-4c76-8a8b-20be661acc58-1
+00:46:34.243 --> 00:46:41.124
+value, source column value,
+source source value and the rule ID and
+
+7b493c53-08c4-4c76-8a8b-20be661acc58-2
+00:46:41.124 --> 00:46:42.440
+critical CBR.
+
+0f5ddf7c-1f85-4177-be94-4b4284bfc34b-0
+00:46:42.480 --> 00:46:48.498
+These two are hard coded OK like we have
+to look into the job sorry job rule
+
+0f5ddf7c-1f85-4177-be94-4b4284bfc34b-1
+00:46:48.498 --> 00:46:54.360
+master table and get this and we have to
+get this from job rule SMP table.
+
+5cca36a0-30b0-4bd1-9e7f-0d79be18cbeb-0
+00:46:54.360 --> 00:46:58.760
+These two are hard coded only OK if any
+one of this is fail.
+
+fc0720f2-67c6-4750-aff8-7a165335c838-0
+00:46:58.760 --> 00:47:03.824
+We are just making like we are just
+creating an entry into this table into
+
+fc0720f2-67c6-4750-aff8-7a165335c838-1
+00:47:03.824 --> 00:47:06.120
+this particular error description.
+
+98a01b41-f718-49d5-adaa-78f7eedf2b20-0
+00:47:06.240 --> 00:47:11.952
+So for every record it will create one
+entry into the like it will prepare 1
+
+98a01b41-f718-49d5-adaa-78f7eedf2b20-1
+00:47:11.952 --> 00:47:14.920
+error description for all the DQ checks.
+
+375d870f-18bb-4b74-9ba9-981a5398d673-0
+00:47:15.240 --> 00:47:19.448
+So if if my party ID so for a particular
+record,
+
+375d870f-18bb-4b74-9ba9-981a5398d673-1
+00:47:19.448 --> 00:47:26.490
+if I'm getting all these columns as null
+then my error description will look like
+
+375d870f-18bb-4b74-9ba9-981a5398d673-2
+00:47:26.490 --> 00:47:26.920
+this.
+
+e4af6532-e79e-497b-a267-770c558397f3-0
+00:47:29.920 --> 00:47:31.320
+It will have this.
+
+0abc0596-6131-4bda-b46d-16398699117a-0
+00:47:34.960 --> 00:47:36.200
+It will have this.
+
+a19b4916-1fb7-4522-a1e0-92a7e2f50d9e-0
+00:47:50.240 --> 00:47:55.955
+What will happens like this It will be so
+it will have all the error DQ check
+
+a19b4916-1fb7-4522-a1e0-92a7e2f50d9e-1
+00:47:55.955 --> 00:47:59.400
+related information for each and updated
+code.
+
+82a53065-6496-4c66-850b-5cd3ae1bbb5d-0
+00:47:59.520 --> 00:48:02.680
+OK error description will have we have
+like this.
+
+d0c33487-a4ba-4f73-a622-b4056911e0dd-0
+00:48:02.760 --> 00:48:08.295
+So in the error detail part it will just
+like split using this;
+
+d0c33487-a4ba-4f73-a622-b4056911e0dd-1
+00:48:08.295 --> 00:48:15.560
+And it will retrieve column source record
+and column level information like it will
+
+d0c33487-a4ba-4f73-a622-b4056911e0dd-2
+00:48:15.560 --> 00:48:21.960
+just transpose this particular record
+into 4 records in the error detail.
+
+14db8e8f-7736-4bef-9f65-b47c36c8ebeb-0
+00:48:21.960 --> 00:48:27.149
+So for each and every source record and
+column level information will be there in
+
+14db8e8f-7736-4bef-9f65-b47c36c8ebeb-1
+00:48:27.149 --> 00:48:30.440
+single record in in the actually BC job
+role label.
+
+5d1925ce-6169-48b5-b81f-0044e652f208-0
+00:48:30.440 --> 00:48:31.400
+It's a different logic.
+
+90a9212e-98c1-41dc-8093-91cbf3e0bc44-0
+00:48:31.400 --> 00:48:36.366
+I'm just like letting you know that this
+error description is intended,
+
+90a9212e-98c1-41dc-8093-91cbf3e0bc44-1
+00:48:36.366 --> 00:48:38.160
+intended for that purpose.
+
+79a36da3-9503-41f0-8bc6-1a00d7921f47-0
+00:48:38.480 --> 00:48:41.720
+OK, it is an is.
+
+015214fc-7c41-47b5-8fd5-9024c63b9757-0
+00:48:41.720 --> 00:48:43.080
+Is anyone having any question?
+
+584a8a43-b87c-4f0d-97cb-d4707c788cd0-0
+00:48:43.080 --> 00:48:46.920
+If we have only two,
+then we'll have we'll have this.
+
+089b8b28-cc7b-4f6e-856a-37abd22cef37-0
+00:48:47.240 --> 00:48:52.861
+We'll have only two if we have any like
+for a particular for a incoming source
+
+089b8b28-cc7b-4f6e-856a-37abd22cef37-1
+00:48:52.861 --> 00:48:53.360
+record.
+
+5d58159a-ff5d-4b52-85c2-bf1268c955d7-0
+00:48:53.360 --> 00:48:55.992
+If we have a nil value for only two
+columns,
+
+5d58159a-ff5d-4b52-85c2-bf1268c955d7-1
+00:48:55.992 --> 00:48:58.800
+then our error description will look like
+this.
+
+221056e9-feb8-4f9c-bcf8-19de719e2e26-0
+00:48:59.680 --> 00:49:03.452
+OK,
+this logic is already in place for rocker
+
+221056e9-feb8-4f9c-bcf8-19de719e2e26-1
+00:49:03.452 --> 00:49:04.600
+party address.
+
+92a64fe4-1889-4a62-98a0-9ecc7ea1c2ba-0
+00:49:04.600 --> 00:49:07.000
+You can just copy and use it for your
+trip.
+
+31d66f09-e906-43de-b0a3-4d4bd9053d79-0
+00:49:09.520 --> 00:49:10.920
+Is is everyone good here?
+
+b65cdc10-61f1-457c-862d-aa46b9b0d03c-0
+00:49:11.480 --> 00:49:13.520
+Can I move on to the next logic?
+
+735b532b-cf76-41bb-9918-9c0fafdbfc37-0
+00:49:18.160 --> 00:49:21.395
+OK,
+just move on to the next logic which is
+
+735b532b-cf76-41bb-9918-9c0fafdbfc37-1
+00:49:21.395 --> 00:49:23.160
+we critical error check.
+
+08af1108-5ef9-4080-a748-a8e9a12cab64-0
+00:49:23.640 --> 00:49:28.286
+So here as part of ABC,
+as part of Zone 2 design, if,
+
+08af1108-5ef9-4080-a748-a8e9a12cab64-1
+00:49:28.286 --> 00:49:34.998
+if there are any critical error records,
+we do not load them into the target,
+
+08af1108-5ef9-4080-a748-a8e9a12cab64-2
+00:49:34.998 --> 00:49:38.440
+we wrote them to the error detail table.
+
+763e8464-9991-4d79-a681-6bc65ef0e224-0
+00:49:39.600 --> 00:49:42.576
+If,
+if there are any informational error
+
+763e8464-9991-4d79-a681-6bc65ef0e224-1
+00:49:42.576 --> 00:49:48.747
+records, only informational error records,
+we'll route them to both target table and
+
+763e8464-9991-4d79-a681-6bc65ef0e224-2
+00:49:48.747 --> 00:49:50.200
+error trickle table.
+
+d2017cc8-324d-4306-ba54-7585054eba55-0
+00:49:50.920 --> 00:49:55.720
+Target table in the sense is just an
+informational record, informational error,
+
+d2017cc8-324d-4306-ba54-7585054eba55-1
+00:49:55.720 --> 00:49:56.080
+right?
+
+dd5e9139-71a8-4830-b558-99d7b2c303ce-0
+00:49:56.280 --> 00:50:02.596
+So we're routing them into the job rule
+error detail table so that we can using
+
+dd5e9139-71a8-4830-b558-99d7b2c303ce-1
+00:50:02.596 --> 00:50:08.992
+this record we can notify the admin team
+later like other whoever it is intended
+
+dd5e9139-71a8-4830-b558-99d7b2c303ce-2
+00:50:08.992 --> 00:50:11.440
+to be, we'll notify them later.
+
+2dd0d9d3-c9d3-4869-b8f0-3094e15980b1-0
+00:50:11.440 --> 00:50:14.000
+So that's the reason why we're routing to
+both channels.
+
+6063fa4e-b1f2-46fe-a385-aaefe0186d40-0
+00:50:14.880 --> 00:50:18.120
+OK, so here next is critical error check.
+
+926acbc9-e21b-4166-aa06-cc5ea9cc106e-0
+00:50:18.640 --> 00:50:24.291
+So whatever record,
+whatever columns that are marked as
+
+926acbc9-e21b-4166-aa06-cc5ea9cc106e-1
+00:50:24.291 --> 00:50:25.200
+critical.
+
+343c559e-ba9b-4f38-b102-568f85e831f6-0
+00:50:25.360 --> 00:50:30.612
+So those only I have taken if any one of
+this is null, then my critical check is Y,
+
+343c559e-ba9b-4f38-b102-568f85e831f6-1
+00:50:30.612 --> 00:50:31.800
+we'll set is north.
+
+df70d263-5271-4e04-9c8a-858d38bf65c7-0
+00:50:31.800 --> 00:50:37.880
+Yeah, this is a critical error check.
+
+385d9ea8-cc3f-4d63-860e-5cded412f69f-0
+00:50:38.440 --> 00:50:39.920
+I'm using this error check here.
+
+1422a84d-422a-41fc-98d4-9a4dfc3f9832-0
+00:50:39.920 --> 00:50:43.240
+If it is, if my critical check is N,
+then my record will be.
+
+0ea7e0ed-3e3f-429d-8d97-f34b78a88e83-0
+00:50:44.360 --> 00:50:47.280
+If it is N, my record will be valid.
+
+7c6f5da5-1832-41c4-8c60-ac6241f6eec9-0
+00:50:47.280 --> 00:50:50.040
+If it is Y then my record was will be
+invalid.
+
+639c866f-e304-4c2d-bc1a-074d229bcfeb-0
+00:50:50.440 --> 00:50:55.053
+Because if any one of this is null,
+I'm marking the critical error check as Y
+
+639c866f-e304-4c2d-bc1a-074d229bcfeb-1
+00:50:55.053 --> 00:50:56.000
+else it is Nash.
+
+fb9de14a-bc44-42e7-b35e-cb2224e5a693-0
+00:50:57.080 --> 00:50:59.880
+If it is N,
+my record is valid else it is invalid.
+
+1b3b59f4-e850-431d-8f89-6e8d010642fd-0
+00:51:00.160 --> 00:51:03.347
+OK source database name,
+source schema name, table name,
+
+1b3b59f4-e850-431d-8f89-6e8d010642fd-1
+00:51:03.347 --> 00:51:06.480
+source record identifier all these are
+hardware values.
+
+4dbc7c7a-c74f-4049-b9b6-b492d5104e3f-0
+00:51:06.480 --> 00:51:08.720
+Like these three are completely hardware
+values.
+
+3a45e664-3f70-4aa3-a9fe-ff126a2a5d8a-0
+00:51:08.720 --> 00:51:10.640
+It depends upon your table details.
+
+a1adb7b7-a08a-47d0-be2b-ba826e48e14e-0
+00:51:10.640 --> 00:51:11.520
+Just source details.
+
+b8b43fd3-51f3-470e-a1c7-b0e8fb2e9238-0
+00:51:11.800 --> 00:51:17.040
+And here we are populating the UUID value
+a source recorder identifier.
+
+e6d4771e-f83c-43f5-add6-39acd9fe81d9-0
+00:51:18.760 --> 00:51:26.703
+OK once this is done,
+there is a router and output and output
+
+e6d4771e-f83c-43f5-add6-39acd9fe81d9-1
+00:51:26.703 --> 00:51:27.600
+groups.
+
+56675463-4808-4695-83c9-f878165eebda-0
+00:51:28.360 --> 00:51:32.160
+So here we have error group and balance
+reconciliation group, right?
+
+488b74ab-3f8d-4244-9093-1153ab517a24-0
+00:51:32.160 --> 00:51:34.440
+These two,
+these two need to be considered.
+
+334b8847-1fe4-4451-84fa-35dfc2eb6bec-0
+00:51:35.000 --> 00:51:39.440
+So here I'm populating invalid records.
+
+d928e0f9-5a54-41e9-9e82-1e3bdfe84a45-0
+00:51:39.680 --> 00:51:45.680
+That means critical error records or not
+is not not is null of error description.
+
+f695df74-2269-4bf4-8250-98940aeef240-0
+00:51:45.680 --> 00:51:49.061
+So in case of error description logic,
+we are just populating,
+
+f695df74-2269-4bf4-8250-98940aeef240-1
+00:51:49.061 --> 00:51:52.120
+we are populating even the informational
+records, right?
+
+60a46c19-4cf1-423b-b7c5-4c67f152269c-0
+00:51:52.360 --> 00:51:56.913
+That's the reason why in order to
+populate even the informational records,
+
+60a46c19-4cf1-423b-b7c5-4c67f152269c-1
+00:51:56.913 --> 00:51:59.160
+I'm just taking this in my condition.
+
+55e208b5-5f04-48f2-8a76-29964cfdefe4-0
+00:51:59.760 --> 00:52:01.840
+OK, very good here.
+
+a9b4e2ff-604d-4680-b6a1-caff3f4436c9-0
+00:52:02.280 --> 00:52:07.152
+Let's so after this,
+we have created a a job rule,
+
+a9b4e2ff-604d-4680-b6a1-caff3f4436c9-1
+00:52:07.152 --> 00:52:12.120
+error detail, temp table,
+temp table and snowflake.
+
+7024996e-e869-48da-899c-4659492e5930-0
+00:52:15.080 --> 00:52:19.119
+So we'll just map all the columns here,
+job ID, execution, run ID, job run ID,
+
+7024996e-e869-48da-899c-4659492e5930-1
+00:52:19.119 --> 00:52:23.261
+source, database name, source schema name,
+source table name, source identifier,
+
+7024996e-e869-48da-899c-4659492e5930-2
+00:52:23.261 --> 00:52:25.000
+error description, and the source.
+
+bbce115c-8cca-48d9-a98a-5dd4de98788d-0
+00:52:25.680 --> 00:52:28.920
+These are audit columns,
+so we'll map all these columns.
+
+bd875336-b9d7-43ed-8b8e-08fe310e2d3c-0
+00:52:28.960 --> 00:52:35.820
+So here record level entries will be
+enter will be puff will be will be made
+
+bd875336-b9d7-43ed-8b8e-08fe310e2d3c-1
+00:52:35.820 --> 00:52:42.948
+into this job temp of snowflakes and from
+that snowflake rows transform rows to
+
+bd875336-b9d7-43ed-8b8e-08fe310e2d3c-2
+00:52:42.948 --> 00:52:50.076
+like this single row will be transposed
+to multiple rows and those that will be
+
+bd875336-b9d7-43ed-8b8e-08fe310e2d3c-3
+00:52:50.076 --> 00:52:53.639
+taken care in the job post loose exists.
+
+8c60fef9-2477-45fd-8593-1d95a94f83e8-0
+00:52:53.760 --> 00:52:55.640
+OK, that's it.
+
+eafab702-7df1-456c-ae94-48af50ab5c06-0
+00:52:55.880 --> 00:52:59.240
+This is how we have to do for DQ checks.
+
+eaf08133-834d-48bd-986c-4ecfd0a9bcdb-0
+00:52:59.520 --> 00:53:02.680
+OK, Yeah, if we have are we good here?
+
+12e91192-e404-4793-9481-2f8a61657c8a-0
+00:53:03.440 --> 00:53:05.680
+Are we good on DQ check implementation?
+
+a38e80fe-7d74-4e6d-8955-295959641c1f-0
+00:53:08.880 --> 00:53:11.320
+As of now,
+we are implementing everything in the ETL.
+
+b0045c82-124c-4544-8611-b9f98e9c00b5-0
+00:53:12.160 --> 00:53:13.480
+OK for DQ.
+
+502ef640-487c-40a1-9836-ca3123354857-0
+00:53:15.000 --> 00:53:16.600
+Does anyone have any question here?
+
+cbb18638-4ca9-4d67-a16d-4998e479c693-0
+00:53:19.800 --> 00:53:20.800
+No, Aishwarya, they are clear.
+
+8b590eec-5770-4c9d-b239-e74b9aa1bfd4-0
+00:53:23.960 --> 00:53:26.760
+OK and then balance reconciliation group.
+
+60705aa9-dd46-4912-ac36-1127906c4d38-0
+00:53:26.760 --> 00:53:30.920
+So here we are trying to perform the
+balance source,
+
+60705aa9-dd46-4912-ac36-1127906c4d38-1
+00:53:30.920 --> 00:53:33.040
+balance metric calculation.
+
+b3488952-f004-4f9f-87b9-a6bc12d72cf2-0
+00:53:33.960 --> 00:53:37.751
+We will be performing the metric
+calculation,
+
+b3488952-f004-4f9f-87b9-a6bc12d72cf2-1
+00:53:37.751 --> 00:53:42.120
+source metric calculation only on the
+valid records.
+
+82e4f60d-8740-40af-aca7-6dcf84dc1b45-0
+00:53:42.560 --> 00:53:49.005
+That means the records which are true
+like the records which which which don't
+
+82e4f60d-8740-40af-aca7-6dcf84dc1b45-1
+00:53:49.005 --> 00:53:54.309
+have any critical error,
+critical error issue and like no change
+
+82e4f60d-8740-40af-aca7-6dcf84dc1b45-2
+00:53:54.309 --> 00:54:00.184
+record whatever the records that are
+rejected will not be considered on
+
+82e4f60d-8740-40af-aca7-6dcf84dc1b45-3
+00:54:00.184 --> 00:54:03.040
+balance reconciliation calculation.
+
+eb092802-0844-46bd-8d01-ecf097648cab-0
+00:54:03.400 --> 00:54:11.796
+And we are also not considering the RA
+records here OK for source balance metric
+
+eb092802-0844-46bd-8d01-ecf097648cab-1
+00:54:11.796 --> 00:54:13.040
+calculation.
+
+61d66c4a-ddfb-41e0-84a1-eb420797c703-0
+00:54:13.440 --> 00:54:16.740
+So once we get those records,
+so like here,
+
+61d66c4a-ddfb-41e0-84a1-eb420797c703-1
+00:54:16.740 --> 00:54:21.240
+we are trying to do a diction count of a
+particular column.
+
+5cd3ea37-eed0-45ed-a7f1-6a86b5641546-0
+00:54:21.320 --> 00:54:22.760
+So that's why this is very long.
+
+4fea4515-c1d7-4b6b-8944-b0bc43443016-0
+00:54:22.760 --> 00:54:24.200
+Otherwise it will be very simple.
+
+51c3d93e-90fc-4760-b309-1db11543a993-0
+00:54:24.720 --> 00:54:27.920
+Directly we can use the aggregate
+transformation.
+
+391360eb-e515-4e9f-aae4-bc9b867f3c28-0
+00:54:27.920 --> 00:54:31.400
+We'll just group by using job run ID and
+we'll do an aggregate.
+
+33074a4c-3e7b-47e6-9f43-4986b0095657-0
+00:54:31.960 --> 00:54:36.735
+So it's just like, it's just like if,
+if we have any aggregator,
+
+33074a4c-3e7b-47e6-9f43-4986b0095657-1
+00:54:36.735 --> 00:54:39.160
+we just do a some of that column.
+
+e500459f-aed7-42e9-b4a9-bd5f7ecbf685-0
+00:54:39.160 --> 00:54:42.319
+So if we have any amount column,
+we'll just do a some of that amount
+
+e500459f-aed7-42e9-b4a9-bd5f7ecbf685-1
+00:54:42.319 --> 00:54:42.640
+column.
+
+d899a3a2-7aeb-4e0a-9a9d-e4c9bfbf657b-0
+00:54:43.120 --> 00:54:46.760
+If there are no records,
+then we'll we'll have it as zero.
+
+d95741f4-7895-4012-915b-884936d1e158-0
+00:54:48.160 --> 00:54:57.400
+Like I'm just doing it like to handle
+that null value OK for this particular.
+
+4ef42b41-ad7d-4453-8131-645512f72188-0
+00:54:59.280 --> 00:55:04.749
+For this particular distinct count we
+have an additional transformation like
+
+4ef42b41-ad7d-4453-8131-645512f72188-1
+00:55:04.749 --> 00:55:10.361
+sorted wherein we are we will be getting
+the getting only the only the columns
+
+4ef42b41-ad7d-4453-8131-645512f72188-2
+00:55:10.361 --> 00:55:11.640
+that are required.
+
+2bb86def-ea1d-46cd-b82e-794786af0413-0
+00:55:11.640 --> 00:55:19.103
+So here I'm trying to do get the distinct
+count of broker party identifier column
+
+2bb86def-ea1d-46cd-b82e-794786af0413-1
+00:55:19.103 --> 00:55:20.560
+from the source.
+
+20638537-b741-430a-860b-2bd945a1d657-0
+00:55:20.840 --> 00:55:25.040
+So for this I'm just bringing source
+party ID.
+
+e8fadc90-ffbd-43e9-8dfb-29f56e12a692-0
+00:55:25.040 --> 00:55:30.892
+Rest all are just audit columns like all
+these are ABC related columns and these
+
+e8fadc90-ffbd-43e9-8dfb-29f56e12a692-1
+00:55:30.892 --> 00:55:36.240
+two are just audit columns which will
+have same value for all the record.
+
+1995925e-ea66-44a2-9cdd-6d2e34cd0154-0
+00:55:37.080 --> 00:55:42.320
+So I'm using this column to perform
+extinct like I'm like we're extinct.
+
+9542fb69-0458-4247-8a3f-3af82daaaf0a-0
+00:55:42.600 --> 00:55:47.910
+We're doing a sort and in the advance I'm
+we have given extinct so that extinct
+
+9542fb69-0458-4247-8a3f-3af82daaaf0a-1
+00:55:47.910 --> 00:55:51.760
+will be performed on the using this
+broker party address.
+
+539b9d14-35d0-4157-a461-fb895237e8ff-0
+00:55:52.280 --> 00:55:57.307
+So this way we'll get this way,
+we'll get only the distinct values of
+
+539b9d14-35d0-4157-a461-fb895237e8ff-1
+00:55:57.307 --> 00:55:58.960
+source broker party ID.
+
+dae0f54d-ef33-43b3-bb06-a4a0c0327825-0
+00:55:59.240 --> 00:56:04.897
+And here in the aggregate transformation,
+I'm just doing the count of that
+
+dae0f54d-ef33-43b3-bb06-a4a0c0327825-1
+00:56:04.897 --> 00:56:07.160
+particular source party 8, OK.
+
+62da77fe-b4e0-47e2-a673-856c18aefbd5-0
+00:56:09.840 --> 00:56:13.120
+And then we'll have an expression
+transformation here.
+
+281c0b1f-f238-4ec0-bc86-f67b551c58ef-0
+00:56:13.120 --> 00:56:17.598
+Whatever the values that we get,
+we will try to congratulate all those
+
+281c0b1f-f238-4ec0-bc86-f67b551c58ef-1
+00:56:17.598 --> 00:56:18.040
+values.
+
+a8354075-16d8-4833-80d8-c8e447e31bdf-0
+00:56:18.280 --> 00:56:20.560
+So here we have only broker party ID.
+
+83e2fe5c-0056-4a68-bf68-8faa3555990c-0
+00:56:20.720 --> 00:56:24.040
+This, this is the target column next, OK.
+
+57d87558-6011-4844-ba9d-8bf2e45791bc-0
+00:56:24.360 --> 00:56:29.640
+And the corresponding corresponding
+source count value.
+
+8b7b7bc8-027d-49c1-8930-b702560dfe88-0
+00:56:30.200 --> 00:56:34.480
+As we are having only one balance
+translation check, we have this only one.
+
+8428b0c8-20fd-4ef3-8c3c-357e7d14d03d-0
+00:56:34.960 --> 00:56:37.880
+Otherwise we'll have it like this.
+
+9dbf10bf-6f99-4740-ad60-0a4b099c93d4-0
+00:56:39.920 --> 00:56:49.822
+If we have multiple balancing metrics,
+we'll just use our pipe symbol and we'll
+
+9dbf10bf-6f99-4740-ad60-0a4b099c93d4-1
+00:56:49.822 --> 00:56:58.240
+have another a party amount mainly then
+we'll have this management.
+
+7abdf579-0f2b-4475-90c8-51c1cfc87a5b-0
+00:57:01.080 --> 00:57:07.280
+So it's basically it will have like we'll
+have all the values separated by 5C.
+
+675812e5-dff1-44b4-94e1-1aad4aae81ef-0
+00:57:08.720 --> 00:57:11.080
+Yeah, that's it.
+
+4f3f6b7d-b574-42d1-9281-a2061e87748b-0
+00:57:11.080 --> 00:57:17.517
+And we will make,
+we will perform this and we will,
+
+4f3f6b7d-b574-42d1-9281-a2061e87748b-1
+00:57:17.517 --> 00:57:25.440
+we will like load it into our balance
+reconciliation timetable.
+
+35c72ef5-0b8d-4fa0-9a73-29ea6d478402-0
+00:57:26.520 --> 00:57:29.927
+It will have columns like job ID,
+execution, run ID, job run ID,
+
+35c72ef5-0b8d-4fa0-9a73-29ea6d478402-1
+00:57:29.927 --> 00:57:31.920
+source aggregate text and audit calls.
+
+1b9d3539-6aaa-4ac2-b743-f5ae35db56dd-0
+00:57:31.960 --> 00:57:34.320
+So source aggregate text is important
+here.
+
+1865c158-e653-48c0-b999-fb4c59a0937f-0
+00:57:34.320 --> 00:57:39.532
+So we'll just have all the balance,
+source balance metric values within a
+
+1865c158-e653-48c0-b999-fb4c59a0937f-1
+00:57:39.532 --> 00:57:40.800
+single text value.
+
+e6611c84-19f2-4f09-9143-1c8c306e618b-0
+00:57:40.800 --> 00:57:42.920
+And we,
+we are populating it into this text.
+
+3184b1af-cad4-49e0-9301-c8c2ed82eb8d-0
+00:57:44.360 --> 00:57:47.360
+OK, this is balance reconciliation part.
+
+7a6c2141-bc9a-4989-b247-bd8fe48028f3-0
+00:57:49.080 --> 00:57:50.960
+Does anyone have any question here?
+
+cf28c315-4299-4b0d-b581-99df63bc7512-0
+00:58:00.030 --> 00:58:03.151
+OK,
+let's move on to the next thing which is
+
+cf28c315-4299-4b0d-b581-99df63bc7512-1
+00:58:03.151 --> 00:58:04.470
+job run stats stem.
+
+27c05a11-1a2c-4d51-b826-eacea649e172-0
+00:58:04.790 --> 00:58:10.550
+So here we're directly routing the source
+records into this flow.
+
+7992e3b0-2ec7-405f-b1d2-ed642e7400e6-0
+00:58:10.990 --> 00:58:17.310
+We are not going after router here only
+for error bound reckon we have created
+
+7992e3b0-2ec7-405f-b1d2-ed642e7400e6-1
+00:58:17.310 --> 00:58:20.030
+groups and we have separate flows.
+
+fdba0f57-8e77-432e-b151-f0eeb4327a17-0
+00:58:20.670 --> 00:58:26.552
+But whereas for job run stats we are
+directly doing performing calculations on
+
+fdba0f57-8e77-432e-b151-f0eeb4327a17-1
+00:58:26.552 --> 00:58:31.690
+the direct source columns which is
+grouping by job run ID and in the
+
+fdba0f57-8e77-432e-b151-f0eeb4327a17-2
+00:58:31.690 --> 00:58:37.200
+aggregate we are trying to get the source
+record count and target reject.
+
+3b08ab58-da4b-4565-aa2a-6b109fb3f7d7-0
+00:58:37.600 --> 00:58:39.280
+Let me start get unchanged record forms.
+
+00bdf7d0-24d8-40ae-a07e-6badaaad96b1-0
+00:58:39.600 --> 00:58:44.532
+So count of one will give you all the
+source record form and the target
+
+00bdf7d0-24d8-40ae-a07e-6badaaad96b1-1
+00:58:44.532 --> 00:58:46.040
+unchanged record form.
+
+99b4a4e6-bffa-484c-ad00-dbc795db76a0-0
+00:58:46.160 --> 00:58:51.160
+So within the logic within the source
+query itself, we have a change flag.
+
+4d1b1644-cf2c-4c38-89d2-83a865677584-0
+00:58:51.480 --> 00:58:55.132
+If my change flag has as a value like no
+change,
+
+4d1b1644-cf2c-4c38-89d2-83a865677584-1
+00:58:55.132 --> 00:58:59.680
+then my V unchanged flag will will be 1
+otherwise it's zero.
+
+c4fecbcb-3fbf-45d3-9d22-03270a6a0f79-0
+00:59:00.080 --> 00:59:02.960
+So I'm just doing a sum of all the
+columns to get the target.
+
+abbf2b9d-ee57-463d-a809-a80dd871ed78-0
+00:59:03.800 --> 00:59:05.120
+Target unchanged report comes.
+
+22f23030-b760-45e4-a00e-d8b12610ce9a-0
+00:59:05.720 --> 00:59:11.977
+I'll just make an entry into this job run
+stats timetable which is in snowflake
+
+22f23030-b760-45e4-a00e-d8b12610ce9a-1
+00:59:11.977 --> 00:59:12.760
+like this.
+
+b85f7f6b-f10d-4c8f-9964-156645852f12-0
+00:59:12.760 --> 00:59:15.920
+So it will have a column like job ID,
+execution and a job run ID.
+
+87bb2bf8-def8-442d-88f5-33ecd9dc7671-0
+00:59:15.920 --> 00:59:18.760
+So super count,
+target engine count and odd columns.
+
+0d006e32-83a3-48e2-b96a-3655dc1acccc-0
+00:59:19.800 --> 00:59:23.040
+So all these are snowflake timetables.
+
+36e07a0f-4308-4254-82b1-8df75f55b237-0
+00:59:23.400 --> 00:59:29.974
+Using these snowflake timetables we will
+be loading the data there like the
+
+36e07a0f-4308-4254-82b1-8df75f55b237-1
+00:59:29.974 --> 00:59:34.040
+entries from snowflake to actual rotor
+tables.
+
+a072bd41-dab7-4a58-8ef9-dbabc5655fb3-0
+00:59:34.280 --> 00:59:42.280
+In case of DQ we are having actual error
+like normal error detail table in both
+
+a072bd41-dab7-4a58-8ef9-dbabc5655fb3-1
+00:59:42.280 --> 00:59:45.280
+snowflake and Aurora database.
+
+507de003-ff86-4f37-98d5-a7b8edb1a803-0
+00:59:45.480 --> 00:59:48.400
+So both will acts like a same.
+
+9370b849-38ce-4653-aa63-c58cdf9d9fc0-0
+00:59:48.480 --> 00:59:50.160
+Both will hold the same data.
+
+3d6137a2-1583-46c3-ad7e-ac3f19a01dff-0
+00:59:50.240 --> 00:59:54.406
+While we are making entries into Aurora
+we all we will be making entries into the
+
+3d6137a2-1583-46c3-ad7e-ac3f19a01dff-1
+00:59:54.406 --> 00:59:55.880
+snowflake error detail table.
+
+4b338d8c-189c-4465-927a-52332e0a5396-0
+00:59:57.000 --> 01:00:02.890
+OK, Apart from this,
+all these timetables should be cleaned
+
+4b338d8c-189c-4465-927a-52332e0a5396-1
+01:00:02.890 --> 01:00:04.560
+using the job ID.
+
+2a578860-e890-42ea-9248-e8fbd0e28698-0
+01:00:06.680 --> 01:00:11.263
+Job run stats, error, error detail,
+timetable and balance reconciliation
+
+2a578860-e890-42ea-9248-e8fbd0e28698-1
+01:00:11.263 --> 01:00:11.640
+table.
+
+951aa0f1-6608-4ef3-9df5-164dd5a7c170-0
+01:00:11.880 --> 01:00:20.770
+All this needs to be cleaned before
+before the load OK using the oh Oh no not
+
+951aa0f1-6608-4ef3-9df5-164dd5a7c170-1
+01:00:20.770 --> 01:00:22.480
+for everything.
+
+6b0b9b9d-8c41-442b-a85a-19848cb72d37-0
+01:00:23.440 --> 01:00:26.120
+The the job runs OK in case of restart.
+
+a5e16b98-bb44-43b6-8898-556860b3c9c4-0
+01:00:26.120 --> 01:00:34.280
+If we no I'll I'll get back on this using
+just job ID.
+
+d525d04f-e17f-4f24-9e45-3d53c3bd7675-0
+01:00:34.280 --> 01:00:41.121
+All these tables should be cleaned OK
+maybe this I have added as part of the
+
+d525d04f-e17f-4f24-9e45-3d53c3bd7675-1
+01:00:41.121 --> 01:00:45.920
+restart but we are handling it in in a
+different way.
+
+0b77cabc-35d2-4725-8c0b-c18cda75ebbd-0
+01:00:45.920 --> 01:00:51.629
+We are not in case of restart,
+we are not get loading the stage table
+
+0b77cabc-35d2-4725-8c0b-c18cda75ebbd-1
+01:00:51.629 --> 01:00:52.200
+itself.
+
+2ab9ff6b-f49e-4474-9fbf-734f4e68cfc3-0
+01:00:52.200 --> 01:00:53.560
+So we don't need this.
+
+16c51d23-9601-4cc9-b358-2352d81ae966-0
+01:00:54.000 --> 01:00:58.040
+We have just need to delete the records
+for our job.
+
+6fbe51e3-2ce4-46cd-b27c-eb0bb174c1ca-0
+01:00:58.040 --> 01:01:02.918
+It it's just a timetable right way whose
+details whose like job related details
+
+6fbe51e3-2ce4-46cd-b27c-eb0bb174c1ca-1
+01:01:02.918 --> 01:01:06.150
+are already in place in our actual order
+ABC tables,
+
+6fbe51e3-2ce4-46cd-b27c-eb0bb174c1ca-2
+01:01:06.150 --> 01:01:09.199
+so we don't need the entrance in them can
+delete.
+
+33369312-9698-4c96-ad9a-240fcc37abb9-0
+01:01:10.360 --> 01:01:11.680
+I'll just update this logic.
+
+297fafed-070b-46ad-a3b7-6f19ac5134ae-0
+01:01:12.800 --> 01:01:15.173
+OK,
+if there is any like any other
+
+297fafed-070b-46ad-a3b7-6f19ac5134ae-1
+01:01:15.173 --> 01:01:19.920
+information on this delete part,
+I'll I'll I'll note I'll inform you.
+
+590f6e0c-0192-446f-a1ee-8366976508c9-0
+01:01:20.360 --> 01:01:24.033
+But for now,
+whatever the records that are related to
+
+590f6e0c-0192-446f-a1ee-8366976508c9-1
+01:01:24.033 --> 01:01:29.000
+this particular job ID should be removed
+from the temp snowflake tables.
+
+87da22cd-734f-4c95-9917-9e5e2d336cf6-0
+01:01:29.000 --> 01:01:37.000
+OK if we are good on this test table
+let's more let's more.
+
+36e80e1e-3457-4884-9fbf-6ed418c9eb29-0
+01:01:41.880 --> 01:01:47.673
+And also one more thing if your table
+have error DQ checks then only implement
+
+36e80e1e-3457-4884-9fbf-6ed418c9eb29-1
+01:01:47.673 --> 01:01:48.920
+this job job job.
+
+0cdaf990-4f42-42fc-96bb-7b5749c36571-0
+01:01:50.000 --> 01:01:55.130
+If your table has balance reconciliation
+then only implement this flow otherwise
+
+0cdaf990-4f42-42fc-96bb-7b5749c36571-1
+01:01:55.130 --> 01:01:56.080
+you can ignore.
+
+0911d254-3438-4253-91bc-9f714e10af9e-0
+01:01:56.400 --> 01:01:59.440
+You can just every table will have job
+run stats time table.
+
+32974fde-4f27-4e16-b491-b36a53f656b4-0
+01:01:59.920 --> 01:02:03.840
+But these two depends upon your
+functionality of the table.
+
+1d899a85-01d7-4159-a0d5-d32c3eda1157-0
+01:02:05.800 --> 01:02:09.040
+OK, OK.
+
+dbf8b69e-024c-4f00-aee5-8520f3d7b86f-0
+01:02:09.040 --> 01:02:15.746
+We are implementing all the ABC stuff in
+the main mapping in the sorry related to
+
+dbf8b69e-024c-4f00-aee5-8520f3d7b86f-1
+01:02:15.746 --> 01:02:20.000
+our table in the source to stage load
+mapping only.
+
+be2ebb6a-147d-4938-97c3-c974927ae817-0
+01:02:20.360 --> 01:02:23.000
+OK, this is sorry.
+
+e6a1aea1-70ad-44b7-90ca-d67992db46a8-0
+01:02:23.720 --> 01:02:25.040
+Yeah, OK.
+
+6b19710c-fc95-48c8-9a58-42a5ceb67c4a-0
+01:02:25.200 --> 01:02:29.265
+If this next,
+it's next coming onto this main load
+
+6b19710c-fc95-48c8-9a58-42a5ceb67c4a-1
+01:02:29.265 --> 01:02:35.562
+table, it's not having anything ABC,
+it's just loading from stage to main road
+
+6b19710c-fc95-48c8-9a58-42a5ceb67c4a-2
+01:02:35.562 --> 01:02:36.200
+mapping.
+
+10c33de1-b85f-4554-a011-7eb44bf218e2-0
+01:02:36.240 --> 01:02:37.840
+It again depends on the functionality.
+
+398077a5-7ce1-4c2b-95d5-0d14277a4598-0
+01:02:40.600 --> 01:02:47.323
+OK, so once this main load is completed,
+we have a job post loss access where
+
+398077a5-7ce1-4c2b-95d5-0d14277a4598-1
+01:02:47.323 --> 01:02:52.840
+we'll have job role error,
+detail load balance, reconciliation,
+
+398077a5-7ce1-4c2b-95d5-0d14277a4598-2
+01:02:52.840 --> 01:02:57.064
+table load,
+and the final update in the job role
+
+398077a5-7ce1-4c2b-95d5-0d14277a4598-3
+01:02:57.064 --> 01:03:01.720
+execution log update and then job role
+execution log.
+
+644e464d-859c-403a-ae51-91fd413d9349-0
+01:03:02.920 --> 01:03:06.340
+Sorry,
+job run starts final update based upon
+
+644e464d-859c-403a-ae51-91fd413d9349-1
+01:03:06.340 --> 01:03:09.760
+the status and notification will be sent
+out.
+
+945cc72d-5e9b-477b-8629-4ed145cd4d9c-0
+01:03:10.040 --> 01:03:13.960
+So if any of this task fails,
+if the stage load fails,
+
+945cc72d-5e9b-477b-8629-4ed145cd4d9c-1
+01:03:13.960 --> 01:03:15.600
+this will be triggered.
+
+905705e1-31aa-4ff8-bd29-dc1332467b18-0
+01:03:15.600 --> 01:03:16.760
+This task flow will be triggered.
+
+fe825867-c7a1-403c-bca9-c143c1dcd254-0
+01:03:16.760 --> 01:03:18.280
+If this fails, this will be triggered.
+
+e94a17bc-6422-4e97-bbf8-6fe5ebe5701c-0
+01:03:20.080 --> 01:03:24.576
+OK,
+this is just a job post load failure
+
+e94a17bc-6422-4e97-bbf8-6fe5ebe5701c-1
+01:03:24.576 --> 01:03:26.880
+failure subtask flow.
+
+e8c9d3b7-ca7d-439b-afda-6705e7dcd04a-0
+01:03:28.040 --> 01:03:30.160
+So it's just expecting these parameters.
+
+c731bb54-6f18-4869-8078-7f309f3adcbd-0
+01:03:35.520 --> 01:03:37.280
+OK, this is that's it.
+
+e3ef0472-2a72-4b55-9624-4660b24f204b-0
+01:03:37.280 --> 01:03:42.880
+I think we are good and notification of
+the job will be handled here only.
+
+cd736200-26ef-4ef1-b05c-8b81013a32e2-0
+01:03:43.400 --> 01:03:45.640
+I just want to show it at at a high level.
+
+9f4bc6fb-d8c4-415b-a1ac-51020925734f-0
+01:03:47.960 --> 01:03:50.360
+So this is job post load failure.
+
+a25546b9-7f08-4f35-97bc-3d54069e2d41-0
+01:03:50.480 --> 01:03:58.360
+So if our source to stage or so stage 2
+stage 2 main load.
+
+32710490-ae92-48fe-a28a-1931ec4e14a8-0
+01:03:58.520 --> 01:04:04.520
+If any of these loads fail during the
+execution maybe due to some data issue or
+
+32710490-ae92-48fe-a28a-1931ec4e14a8-1
+01:04:04.520 --> 01:04:10.370
+any any issue due to some data issue
+execution error basically then this this
+
+32710490-ae92-48fe-a28a-1931ec4e14a8-2
+01:04:10.370 --> 01:04:15.320
+will be trigger where we will just if we
+if we have any DQ check.
+
+747c5433-8cf8-468f-9e88-053d917f889e-0
+01:04:15.320 --> 01:04:20.486
+So this is what I'm trying to say like
+this is the DQ indicator we have to
+
+747c5433-8cf8-468f-9e88-053d917f889e-1
+01:04:20.486 --> 01:04:22.760
+provide it in the parameter file.
+
+40fa5bab-593a-4bed-9e3d-303f93cdc66a-0
+01:04:23.040 --> 01:04:25.560
+So if it is why then only this will be
+performed.
+
+5d922b9a-b2ba-48dd-a792-98a2d099b60c-0
+01:04:26.040 --> 01:04:33.266
+So before for every job rule assignment
+there will be an entry into this job re
+
+5d922b9a-b2ba-48dd-a792-98a2d099b60c-1
+01:04:33.266 --> 01:04:40.492
+execution log table and after the load
+the status and corresponding log will be
+
+5d922b9a-b2ba-48dd-a792-98a2d099b60c-2
+01:04:40.492 --> 01:04:42.479
+updated in this table.
+
+bc46c24b-c85d-45df-964f-57408c1346ff-0
+01:04:43.000 --> 01:04:47.278
+OK, if my stage load gets failed,
+whatever the entries that are made into
+
+bc46c24b-c85d-45df-964f-57408c1346ff-1
+01:04:47.278 --> 01:04:51.326
+this table as part of my job reload
+should be updated to fail and the
+
+bc46c24b-c85d-45df-964f-57408c1346ff-2
+01:04:51.326 --> 01:04:54.160
+corresponding error message should be
+populated.
+
+d5d9b537-ef18-44b3-9c9f-6ad0bcafba04-0
+01:04:54.360 --> 01:04:57.520
+So for that purpose I'm I have to update
+the entries.
+
+6eb3a6af-ada1-45a4-9243-f8cf2f586927-0
+01:04:57.600 --> 01:04:59.720
+I have used this task to update it.
+
+6825278e-de72-41bd-bdc4-df6ed3b884e5-0
+01:05:00.360 --> 01:05:05.885
+If this execution fails there will be a
+notification sign out and it will throw
+
+6825278e-de72-41bd-bdc4-df6ed3b884e5-1
+01:05:05.885 --> 01:05:11.480
+an error and after that we have job post
+load, Job run starts post load failure.
+
+ab17f28c-59a0-452c-a104-f8fba3a03839-0
+01:05:11.560 --> 01:05:16.142
+Whatever the entry that is made into the
+job run starts table before during the
+
+ab17f28c-59a0-452c-a104-f8fba3a03839-1
+01:05:16.142 --> 01:05:20.840
+preload will be updated to fail in this
+table and also it will make an entry into
+
+ab17f28c-59a0-452c-a104-f8fba3a03839-2
+01:05:20.840 --> 01:05:22.960
+the job error log error stress table.
+
+0030de8b-7a3f-4fc8-92b3-da7ea5c1f002-0
+01:05:23.600 --> 01:05:28.560
+So it's just like a error error log table
+for every job failure.
+
+ca82349f-e140-4c46-91e5-4aa61cff978d-0
+01:05:29.440 --> 01:05:33.160
+Like for any job failure we are making an
+entry into this table.
+
+6e59c0f5-0788-4ce8-a33b-5ca0eee02ac0-0
+01:05:34.240 --> 01:05:35.160
+OK have this failed.
+
+9de1b134-1122-4b9e-894f-f6c820d0370c-0
+01:05:35.280 --> 01:05:38.360
+It's just a notification ask if this if
+it's execution it's with it.
+
+1c2c2dab-0ba7-41fa-af7b-332076b9a977-0
+01:05:38.880 --> 01:05:44.003
+Once we are updating the statuses in into
+these two tables to fail,
+
+1c2c2dab-0ba7-41fa-af7b-332076b9a977-1
+01:05:44.003 --> 01:05:48.600
+we are sending out that this particular
+job load has failed.
+
+9be1bd04-bce2-4303-9800-4c3c9c2a75fc-0
+01:05:49.360 --> 01:05:53.600
+OK job load of this and we are also
+adding job name, job ID, job and ID.
+
+ac99893e-5a59-45d9-a6f5-4678b4ed5aa8-0
+01:05:54.240 --> 01:05:59.821
+OK this is failed like the we are sending
+out a failure notification at the job
+
+ac99893e-5a59-45d9-a6f5-4678b4ed5aa8-1
+01:05:59.821 --> 01:06:00.240
+level.
+
+2b3fbda4-906f-498b-9940-2dacc5675fa2-0
+01:06:01.080 --> 01:06:07.871
+If it is successful the notification is
+taken care in the task flow in this job
+
+2b3fbda4-906f-498b-9940-2dacc5675fa2-1
+01:06:07.871 --> 01:06:09.400
+post the task law.
+
+b090365a-a6ad-4e27-97db-e4bcc1345e12-0
+01:06:10.000 --> 01:06:14.753
+So what it is doing it will just load the
+our records from RA time to RME
+
+b090365a-a6ad-4e27-97db-e4bcc1345e12-1
+01:06:14.753 --> 01:06:19.891
+Referential integrated report and then it
+will load records from job rule error
+
+b090365a-a6ad-4e27-97db-e4bcc1345e12-2
+01:06:19.891 --> 01:06:24.709
+details claim to actual job rule error
+details and then it will update the
+
+b090365a-a6ad-4e27-97db-e4bcc1345e12-3
+01:06:24.709 --> 01:06:27.599
+entries in the job rule execution log
+table.
+
+7d57be07-d038-4b27-ab99-539bc778069a-0
+01:06:28.200 --> 01:06:33.998
+And so these two will be performed only
+when the decision indicator is Y like
+
+7d57be07-d038-4b27-ab99-539bc778069a-1
+01:06:33.998 --> 01:06:36.600
+sorry dictate check indicator is Y.
+
+a24ee6db-f848-441c-bfb8-f128fa7f1dae-0
+01:06:36.920 --> 01:06:41.167
+And after that it will check for the
+amount the balance check indicator or
+
+a24ee6db-f848-441c-bfb8-f128fa7f1dae-1
+01:06:41.167 --> 01:06:42.640
+count threshold indicator.
+
+e5d21994-54cb-4b73-974e-9341adbfeb7a-0
+01:06:42.640 --> 01:06:46.738
+If any one of this is Y,
+then only it will perform the balance
+
+e5d21994-54cb-4b73-974e-9341adbfeb7a-1
+01:06:46.738 --> 01:06:48.040
+reconciliation step.
+
+89501dba-387f-4231-b481-e2018f8644e6-0
+01:06:48.040 --> 01:06:49.080
+Otherwise it won't perform.
+
+459ed0cf-cd25-46d5-a540-d2af943b5f1f-0
+01:06:49.080 --> 01:06:56.120
+It will it will get it will be skipped OK
+and OK.
+
+a3e29aec-9e45-460c-9e55-a067a461a554-0
+01:06:56.120 --> 01:06:58.880
+If OK once after this balance
+reconciliation,
+
+a3e29aec-9e45-460c-9e55-a067a461a554-1
+01:06:58.880 --> 01:07:00.680
+we have job run stress update.
+
+23daf998-28e3-4963-a9d5-1a412cd39dc8-0
+01:07:02.320 --> 01:07:07.920
+After that we will send out a
+notification based upon the status.
+
+442fdc8d-c59a-4a98-a0f4-7d1cd822112c-0
+01:07:07.920 --> 01:07:13.560
+So there is a like there are some
+parameters we like.
+
+72d5b95c-7f98-4625-a7fb-03514bbc8c9f-0
+01:07:13.560 --> 01:07:19.446
+Result parameters I have already like
+have the logic within the job branch set
+
+72d5b95c-7f98-4625-a7fb-03514bbc8c9f-1
+01:07:19.446 --> 01:07:22.800
+post load,
+post load success mapping itself.
+
+55061f6b-8530-43c3-aec5-49fad4be9a49-0
+01:07:22.800 --> 01:07:27.400
+So I'm using all the subjects and results
+to frame this notification.
+
+6b850713-2e3b-4dd1-a3a9-0d36901844f0-0
+01:07:27.680 --> 01:07:31.897
+Whatever the status is,
+it will frame everything and it will send
+
+6b850713-2e3b-4dd1-a3a9-0d36901844f0-1
+01:07:31.897 --> 01:07:33.240
+out the notification.
+
+98241863-d53e-4696-942a-5e1bc2e0e85d-0
+01:07:33.240 --> 01:07:39.036
+If it is success, warning,
+failure it will send out and here it will
+
+98241863-d53e-4696-942a-5e1bc2e0e85d-1
+01:07:39.036 --> 01:07:41.640
+check my actual job job status.
+
+a63a0b7f-7446-4a5b-8160-d5df3703a722-0
+01:07:41.760 --> 01:07:48.440
+If it is failed then it will it will fail
+this task as it else it will go to end.
+
+8c006f37-36ff-4ed6-85cb-8363ea615796-0
+01:07:49.000 --> 01:07:52.720
+So here I'm having some additional tasks
+right?
+
+2e69526e-a341-470a-99af-cce1d58976d9-0
+01:07:53.000 --> 01:07:59.626
+So if any of these executions,
+any of these components execution failed
+
+2e69526e-a341-470a-99af-cce1d58976d9-1
+01:07:59.626 --> 01:08:04.872
+in the middle,
+it will just update the statuses and send
+
+2e69526e-a341-470a-99af-cce1d58976d9-2
+01:08:04.872 --> 01:08:11.038
+out sends out a notification and throw
+this is just trying the OK,
+
+2e69526e-a341-470a-99af-cce1d58976d9-3
+01:08:11.038 --> 01:08:13.800
+I'll it is going to this step.
+
+b23394f7-0ce9-479e-a6c8-1f23e56cbbde-0
+01:08:17.120 --> 01:08:19.440
+OK, this is going to this step.
+
+c6536725-0977-4056-8ad9-b1fe1fc6d10b-0
+01:08:19.480 --> 01:08:22.920
+So here it it is again sending out a
+notification.
+
+1fc30c71-9e37-4d79-be9c-028817595d0c-0
+01:08:22.920 --> 01:08:27.471
+So in case of any failure,
+we are trying to send out a notification,
+
+1fc30c71-9e37-4d79-be9c-028817595d0c-1
+01:08:27.471 --> 01:08:30.440
+any execution failure at any step that's
+it.
+
+3fe56062-2416-4085-90d7-952535712a46-0
+01:08:36.010 --> 01:08:37.410
+Yeah, I think we are good.
+
+8720f161-2a76-43aa-9658-e269247ccfc7-0
+01:08:37.410 --> 01:08:38.730
+This is this is what you have.
+
+eebfb749-6653-468b-91b0-907465f75332-0
+01:08:38.810 --> 01:08:41.810
+We have to implement like ABC integrate.
+
+bc0e231d-65bc-4612-9b33-ff14007f3a6d-0
+01:08:41.810 --> 01:08:45.210
+We have to integrate ABC on our actual
+table load.
+
+08789cb3-95b0-4a46-87c6-1b6ab6123e38-0
+01:08:48.010 --> 01:08:51.330
+Let me know if anyone has any question on
+this end to end flow.

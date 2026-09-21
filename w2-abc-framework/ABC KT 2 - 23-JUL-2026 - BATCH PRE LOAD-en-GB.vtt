@@ -1,0 +1,7069 @@
+WEBVTT
+
+39ae5f9a-c410-4cd1-9bc7-7fe65e53d7dd-0
+00:00:08.200 --> 00:00:19.813
+OK so first batch play with the site so
+you will find this lucid flow chart link
+
+39ae5f9a-c410-4cd1-9bc7-7fe65e53d7dd-1
+00:00:19.813 --> 00:00:28.560
+from here OK so first cover the batch
+create quiz side part.
+
+955755b3-2a37-4282-9c4c-ac9fb5af4936-0
+00:00:28.760 --> 00:00:34.378
+So this batch create quiz I process
+cheques whether the latest target on
+
+955755b3-2a37-4282-9c4c-ac9fb5af4936-1
+00:00:34.378 --> 00:00:40.612
+batch run has been completed or not OK so
+this will be happened in every regular
+
+955755b3-2a37-4282-9c4c-ac9fb5af4936-2
+00:00:40.612 --> 00:00:40.920
+run.
+
+d14ab411-fc5b-494e-aa5a-0f436151604f-0
+00:00:40.920 --> 00:00:44.204
+First batch would be checked based upon
+this,
+
+d14ab411-fc5b-494e-aa5a-0f436151604f-1
+00:00:44.204 --> 00:00:47.560
+our actual batch task flow would be
+triggered.
+
+8d3a84cf-9baf-473a-a73c-715a2bf8d5c7-0
+00:00:47.600 --> 00:00:50.164
+OK,
+here it will just check whether our
+
+8d3a84cf-9baf-473a-a73c-715a2bf8d5c7-1
+00:00:50.164 --> 00:00:52.280
+latest batch is completed or not.
+
+b2cd610d-6444-40e4-ba37-36cb9c1fbc64-0
+00:00:52.320 --> 00:00:58.010
+OK,
+now we latest target back my I mean like
+
+b2cd610d-6444-40e4-ba37-36cb9c1fbc64-1
+00:00:58.010 --> 00:01:07.368
+by which columns it will say, yeah,
+so it will let's go through it in the
+
+b2cd610d-6444-40e4-ba37-36cb9c1fbc64-2
+00:01:07.368 --> 00:01:08.759
+core level.
+
+bc544675-ccf0-4823-ab03-934726b9fb63-0
+00:01:08.960 --> 00:01:11.120
+So here I'll just give you high level
+details.
+
+9764f258-3a73-41b3-a28c-9c77cd71bc2c-0
+00:01:11.120 --> 00:01:15.516
+So if the latest if John is completed,
+the batch pre requisite task flow will
+
+9764f258-3a73-41b3-a28c-9c77cd71bc2c-1
+00:01:15.516 --> 00:01:17.320
+would be completed successfully.
+
+7df5046f-4f5b-4382-8ce8-d8766bb49fee-0
+00:01:17.600 --> 00:01:22.190
+And don't do batch task flow will be
+triggered automatically for the regular
+
+7df5046f-4f5b-4382-8ce8-d8766bb49fee-1
+00:01:22.190 --> 00:01:26.839
+run and storm ranch OK for a regular run,
+if the if the target zone batch and
+
+7df5046f-4f5b-4382-8ce8-d8766bb49fee-2
+00:01:26.839 --> 00:01:31.668
+status is not completed and notification
+would be sent and the batch because the
+
+7df5046f-4f5b-4382-8ce8-d8766bb49fee-3
+00:01:31.668 --> 00:01:35.960
+task flow will fail and it must be
+triggered manually after validation.
+
+b4ab9573-f795-4ee2-b1d4-70967af3a19d-0
+00:01:36.480 --> 00:01:38.920
+OK, OK.
+
+63a86763-430b-4a9f-9166-90a6026e9235-0
+00:01:38.920 --> 00:01:43.885
+And for restart rerun zone 1 rerun and
+also for first time incremental also we
+
+63a86763-430b-4a9f-9166-90a6026e9235-1
+00:01:43.885 --> 00:01:46.400
+don't first time incremental one second.
+
+351edb5f-be4c-400c-af5c-3d0df3f52331-0
+00:01:46.400 --> 00:01:50.720
+So if the job fails in that case suppose
+it is fixed.
+
+54a1e79c-89d5-46a1-8894-160e1e23c893-0
+00:01:50.720 --> 00:01:55.232
+OK, so manually we have to run,
+miss prerequisite task we have to run or
+
+54a1e79c-89d5-46a1-8894-160e1e23c893-1
+00:01:55.232 --> 00:01:57.520
+the actual bad process we have to do.
+
+b9ea4307-a3f8-4f24-a49b-4e19daefc721-0
+00:01:57.520 --> 00:02:00.400
+It depends upon the IT depends upon the
+situation.
+
+920de758-c4b5-4c2d-9200-8002a34e041e-0
+00:02:00.400 --> 00:02:06.376
+Yeah, if they are like after validation,
+if they are marking the status of the
+
+920de758-c4b5-4c2d-9200-8002a34e041e-1
+00:02:06.376 --> 00:02:11.218
+latest batches completed,
+then they they can trigger this batch
+
+920de758-c4b5-4c2d-9200-8002a34e041e-2
+00:02:11.218 --> 00:02:13.640
+prerequisite task flow directly.
+
+d59f4d0e-dae9-46fa-9d11-b44bf667387e-0
+00:02:14.000 --> 00:02:18.700
+Otherwise if they are just trying to
+ignore the failure but it will affect
+
+d59f4d0e-dae9-46fa-9d11-b44bf667387e-1
+00:02:18.700 --> 00:02:21.646
+again,
+like if they want to ignore the failure
+
+d59f4d0e-dae9-46fa-9d11-b44bf667387e-2
+00:02:21.646 --> 00:02:26.659
+but just now and they want to start the
+batch and they can directly trigger the
+
+d59f4d0e-dae9-46fa-9d11-b44bf667387e-3
+00:02:26.659 --> 00:02:27.600
+batch transfer.
+
+886adc7b-1308-4b71-840e-e84c1fab8b05-0
+00:02:28.800 --> 00:02:31.560
+It depends upon the situation.
+
+ab1a3a07-4c23-4d81-9d28-56e090525d85-0
+00:02:47.640 --> 00:02:53.381
+But let gets the get this confirmation
+from also this is what I'm saying OK,
+
+ab1a3a07-4c23-4d81-9d28-56e090525d85-1
+00:02:53.381 --> 00:02:58.376
+OK for restart rerun zone 1 rerun
+scenario and also for first time
+
+ab1a3a07-4c23-4d81-9d28-56e090525d85-2
+00:02:58.376 --> 00:03:04.640
+incremental historical and catch up also
+this is not required is what I'm thinking.
+
+500fee1b-27e2-4306-bb6c-ee124d6224ec-0
+00:03:06.360 --> 00:03:08.320
+OK, let's let's ask this question.
+
+a8d3152f-ccbc-4964-b1aa-6218d15c3237-0
+00:03:08.520 --> 00:03:08.800
+OK.
+
+68c5976d-7b0b-4aa7-b066-8e29c7bc348e-0
+00:03:09.480 --> 00:03:15.715
+For first time incremental history and as
+you would be developing right have this
+
+68c5976d-7b0b-4aa7-b066-8e29c7bc348e-1
+00:03:15.715 --> 00:03:16.400
+question.
+
+64ce7767-6674-4cae-8288-8b164c91b974-0
+00:03:16.760 --> 00:03:22.419
+So do we need to like trigger this batch
+prerequisite task flow if we are loading
+
+64ce7767-6674-4cae-8288-8b164c91b974-1
+00:03:22.419 --> 00:03:26.560
+for historical catch up on first time
+incremental load, OK.
+
+3afcfdbf-6386-4a7d-906c-88a2464a9afc-0
+00:03:27.360 --> 00:03:33.382
+But for restart rerun zone 1 rerun,
+we don't directly target zone batch task
+
+3afcfdbf-6386-4a7d-906c-88a2464a9afc-1
+00:03:33.382 --> 00:03:36.120
+flow can can be triggered manually.
+
+88f0e62d-008a-4ab6-a702-e79f221aaa1b-0
+00:03:36.400 --> 00:03:39.830
+OK,
+so in the lucid chart also I have just
+
+88f0e62d-008a-4ab6-a702-e79f221aaa1b-1
+00:03:39.830 --> 00:03:46.292
+given like this first June 2 table load
+will be scheduled on stone branch as per
+
+88f0e62d-008a-4ab6-a702-e79f221aaa1b-2
+00:03:46.292 --> 00:03:50.839
+the scheduled time check for the June 2
+late two months.
+
+9cf56eee-1987-420d-8b13-8c3783f73cbc-0
+00:03:50.840 --> 00:03:54.120
+Is the scheduling app stone rich?
+
+8693316c-cafc-43d6-8648-1cb550b2509e-0
+00:03:54.120 --> 00:03:57.320
+Yes, yes, it's the scheduling dot here.
+
+d25da26f-8fe5-4e63-8a06-432fc0060530-0
+00:03:57.320 --> 00:03:58.840
+It will check for the latest run.
+
+596b5b3d-3bfb-4cad-abcb-ed329207e8e8-0
+00:03:58.920 --> 00:04:01.480
+If it is completed,
+it will move on to the batch load.
+
+eecca5f6-59da-4281-bb55-b7a2b0094f8a-0
+00:04:01.480 --> 00:04:05.514
+If it is failed,
+it will just send out a mail and manually,
+
+eecca5f6-59da-4281-bb55-b7a2b0094f8a-1
+00:04:05.514 --> 00:04:10.085
+manually we have to do this trigger
+manually till the job completes
+
+eecca5f6-59da-4281-bb55-b7a2b0094f8a-2
+00:04:10.085 --> 00:04:10.960
+successfully.
+
+2c3bd0eb-becf-45a4-9704-45eae97a9594-0
+00:04:12.600 --> 00:04:17.186
+OK,
+and let's let's go to the IDM soup for
+
+2c3bd0eb-becf-45a4-9704-45eae97a9594-1
+00:04:17.186 --> 00:04:18.360
+signed out.
+
+fce60b40-6d6c-4b2c-8853-d63aaf214d60-0
+00:04:58.400 --> 00:05:12.294
+OK,
+we'll have ABC components under each and
+
+fce60b40-6d6c-4b2c-8853-d63aaf214d60-1
+00:05:12.294 --> 00:05:18.470
+every domain folder.
+
+2067154a-1fb3-4bbe-aafc-963aed959b75-0
+00:05:18.670 --> 00:05:23.289
+So if you see Dia common,
+this will hold the common framework
+
+2067154a-1fb3-4bbe-aafc-963aed959b75-1
+00:05:23.289 --> 00:05:24.630
+related component.
+
+9be19965-c54d-4cd7-9e14-113c55aa88bf-0
+00:05:24.790 --> 00:05:29.837
+Whenever we need those component,
+those frameworks in any of our domain,
+
+9be19965-c54d-4cd7-9e14-113c55aa88bf-1
+00:05:29.837 --> 00:05:35.230
+then we have to copy them to our specific
+ABC folder and then we have to use.
+
+9643e29a-0d57-4e50-a91a-1854a583516a-0
+00:05:35.470 --> 00:05:37.510
+OK, for now I'll just give you.
+
+30debb01-de2c-45b7-95ec-a118083aaa9b-0
+00:05:38.280 --> 00:05:43.664
+So in the Dai comment folder only ABC
+components are there or other components
+
+30debb01-de2c-45b7-95ec-a118083aaa9b-1
+00:05:43.664 --> 00:05:48.844
+are also there even conflict driven
+related pipelines that details are also
+
+30debb01-de2c-45b7-95ec-a118083aaa9b-2
+00:05:48.844 --> 00:05:50.480
+there so so ABC folders.
+
+4d9f4ee9-ece4-4696-9637-f337264062bf-0
+00:05:52.480 --> 00:05:57.600
+So entire ABC folder folder needs to be
+copied in case of new domain correct?
+
+38274429-6b86-47e0-bf99-f61552532f6a-0
+00:06:09.240 --> 00:06:15.185
+This batch pay requisite should be copied
+to the main folder because it's a task
+
+38274429-6b86-47e0-bf99-f61552532f6a-1
+00:06:15.185 --> 00:06:15.920
+for right?
+
+bb89f587-da6c-4825-8e7c-c8afe6353438-0
+00:06:16.240 --> 00:06:21.800
+So every batch will have their own own
+batch prerequisite.
+
+4c34225c-d887-4ac5-9b29-dc3b97824fe8-0
+00:06:22.240 --> 00:06:29.247
+So this has to be copied based upon it
+because that will take the values to
+
+4c34225c-d887-4ac5-9b29-dc3b97824fe8-1
+00:06:29.247 --> 00:06:33.120
+fetch the latest job using few parameters.
+
+933fce45-a004-4d20-843b-92c3b50af5f8-0
+00:06:33.560 --> 00:06:36.000
+This has to be copied for each and every
+batch.
+
+42c34f61-a9dd-40d5-9629-eeea62786146-0
+00:06:37.080 --> 00:06:40.800
+OK, so in the start step what do we have?
+
+10282167-75c1-43f8-9f5f-8ee611a91e53-0
+00:06:42.360 --> 00:06:46.354
+So this previous website like this
+particular task flow,
+
+10282167-75c1-43f8-9f5f-8ee611a91e53-1
+00:06:46.354 --> 00:06:51.120
+is it a like task flow under something or
+it is the main task flow?
+
+57563827-bf53-4a01-80f9-e59d1effbe0a-0
+00:06:51.880 --> 00:07:05.280
+Main task flow let me show I can't run so
+this has to be copied to main task flow.
+
+42ae6264-2623-4fe9-9ab1-739e100811aa-0
+00:07:12.600 --> 00:07:16.576
+Once we copy it here,
+we'll just need to change the name
+
+42ae6264-2623-4fe9-9ab1-739e100811aa-1
+00:07:16.576 --> 00:07:18.320
+slightly based upon this.
+
+427bcb66-19b3-484a-8759-f26cf49543e5-0
+00:07:18.640 --> 00:07:24.444
+So in the input fields we have to provide
+the parameter file directory and
+
+427bcb66-19b3-484a-8759-f26cf49543e5-1
+00:07:24.444 --> 00:07:25.760
+parameter filing.
+
+625dc84c-341a-4d21-a732-cbf9211a05b1-0
+00:07:27.720 --> 00:07:34.827
+OK there is only one mapping task here
+which will check the latest latest latest
+
+625dc84c-341a-4d21-a732-cbf9211a05b1-1
+00:07:34.827 --> 00:07:35.880
+run details.
+
+49f30b4e-3e71-4545-ab0b-768049eb67b3-0
+00:07:36.280 --> 00:07:40.377
+So it will it will need input parameters
+like ABC, database name, schema name,
+
+49f30b4e-3e71-4545-ab0b-768049eb67b3-1
+00:07:40.377 --> 00:07:43.800
+application layer name, domain name,
+source name and target name.
+
+91abdf55-7013-45d6-a00a-5dcbecee7589-0
+00:07:44.520 --> 00:07:48.000
+OK so these are coming from the parameter
+file correct?
+
+31f0a125-74e4-4a7c-992f-8dc588157f32-0
+00:07:58.270 --> 00:08:05.430
+So all these things first let me give you
+a walk of the source code.
+
+18fe856b-b1bf-4c1b-9e3c-24aa06b3f506-0
+00:08:29.800 --> 00:08:36.840
+First here in this CTA we are trying to
+get the batch ID and source batch ID OK.
+
+829658a4-0a38-4619-9d41-fc34e48d6707-0
+00:08:37.880 --> 00:08:41.631
+So using source name, domain name,
+application layer name,
+
+829658a4-0a38-4619-9d41-fc34e48d6707-1
+00:08:41.631 --> 00:08:46.400
+target zone and EZ to philtre you asked
+me right about this EZ to philtre.
+
+3c64d88e-8420-403c-adc6-44e295f39fb1-0
+00:08:46.400 --> 00:08:54.626
+We will be trying to get the batch ID and
+source batch ID from batch metadata table
+
+3c64d88e-8420-403c-adc6-44e295f39fb1-1
+00:08:54.626 --> 00:08:54.920
+OK.
+
+23734eec-df51-4c48-97d6-fa9e5e00c58e-0
+00:08:55.240 --> 00:09:02.982
+After that in this latest run we would be
+using like we are trying to get the
+
+23734eec-df51-4c48-97d6-fa9e5e00c58e-1
+00:09:02.982 --> 00:09:10.824
+status batch ID and batch run ID from
+batch run stats table using the batch ID
+
+23734eec-df51-4c48-97d6-fa9e5e00c58e-2
+00:09:10.824 --> 00:09:14.199
+that we got in the tab of city OK.
+
+cc6a7f1a-0b4c-4f6b-aaee-eb78bc7e1aab-0
+00:09:14.720 --> 00:09:19.480
+We're just doing an order by on this
+descending OK.
+
+6174f37b-776d-4cf2-9cae-db7be6566ab0-0
+00:09:19.480 --> 00:09:23.486
+Now it's Flash OK and we,
+we are trying to just get the latest run
+
+6174f37b-776d-4cf2-9cae-db7be6566ab0-1
+00:09:23.486 --> 00:09:25.640
+from the batch run stats using that.
+
+025291d8-2e0b-49f5-9874-b4309c38764c-0
+00:09:26.040 --> 00:09:32.746
+We are just like we're we're just trying
+to or like send out this batch ID,
+
+025291d8-2e0b-49f5-9874-b4309c38764c-1
+00:09:32.746 --> 00:09:37.600
+application source batch,
+the status and batch run ID.
+
+16ff02b2-0468-40d1-9a26-2e699da1ab34-0
+00:09:38.320 --> 00:09:42.419
+OK,
+We're trying to fix work on just a moment
+
+16ff02b2-0468-40d1-9a26-2e699da1ab34-1
+00:09:42.419 --> 00:09:47.320
+from the batch, batch ID,
+application source batch ID.
+
+65e82438-644b-4397-9246-270a4b355382-0
+00:09:47.960 --> 00:09:53.131
+And then from this latest run,
+we are getting the latest status and
+
+65e82438-644b-4397-9246-270a4b355382-1
+00:09:53.131 --> 00:09:54.120
+batch run ID.
+
+78ae4402-d05a-4b65-bda5-23ae65645f79-0
+00:09:54.120 --> 00:09:55.680
+OK got it.
+
+e211742a-4631-4905-9d5c-ce6c6df3e386-0
+00:09:58.200 --> 00:09:58.520
+OK.
+
+b7dd348a-29f5-468f-bfb6-d5e6ec2fead9-0
+00:09:59.400 --> 00:10:07.933
+And then in the expression in the
+expression flag we have a like we have a
+
+b7dd348a-29f5-468f-bfb6-d5e6ec2fead9-1
+00:10:07.933 --> 00:10:14.760
+parameter called script flag skip in our
+param script flag.
+
+16c71b5d-edf5-42eb-9bd7-008a079bd667-0
+00:10:15.120 --> 00:10:22.138
+This is used to skip if to skip the batch
+run in case if my previous status is
+
+16c71b5d-edf5-42eb-9bd7-008a079bd667-1
+00:10:22.138 --> 00:10:22.760
+failed.
+
+d1d22d63-90b8-4e23-8e4d-cc3f49ea0afd-0
+00:10:23.400 --> 00:10:29.051
+So here I'm checking can you can you show
+me the parameter file side by side for
+
+d1d22d63-90b8-4e23-8e4d-cc3f49ea0afd-1
+00:10:29.051 --> 00:10:29.400
+this?
+
+bfcf8947-fa80-43a6-a3a0-543cbbac6c4e-0
+00:10:35.510 --> 00:10:41.230
+Here the parameter file is scattered
+actually, but I'll show you that one.
+
+a051cfef-c3d2-4bc2-a819-02a20221c998-0
+00:10:46.800 --> 00:10:50.754
+So we would be using the same parameter
+file whatever you're using for the batch
+
+a051cfef-c3d2-4bc2-a819-02a20221c998-1
+00:10:50.754 --> 00:10:54.562
+because whatever the input parameters
+that are required for this transfer are
+
+a051cfef-c3d2-4bc2-a819-02a20221c998-2
+00:10:54.562 --> 00:10:56.320
+already pressing in the global part.
+
+a1389dea-9a03-4cfa-a726-5f6484b5dccc-0
+00:10:57.320 --> 00:11:02.760
+So target zone, source name, domain name,
+target zone, application layer.
+
+f677b8ef-fd3d-42b7-b11d-4cbba87f2efb-0
+00:11:02.760 --> 00:11:09.367
+OK,
+So what sense is you domain name at all
+
+f677b8ef-fd3d-42b7-b11d-4cbba87f2efb-1
+00:11:09.367 --> 00:11:11.920
+target to rule 2?
+
+067dffa7-5163-430b-a71b-4ca0aa976ad9-0
+00:11:12.960 --> 00:11:16.440
+And what is the flag?
+
+fb79fe45-ae00-461a-b0d1-54dac4b6e936-0
+00:11:16.960 --> 00:11:23.517
+Some flag you were showing me that is
+flag or something and we are just using
+
+fb79fe45-ae00-461a-b0d1-54dac4b6e936-1
+00:11:23.517 --> 00:11:26.040
+it for the code for that time.
+
+b52c9e83-018b-4a90-ace6-3e842125cb9f-0
+00:11:26.040 --> 00:11:28.760
+You know parameter are getting from here
+is it?
+
+58d96f4c-1b9c-45ca-a209-f694e3e2ef37-0
+00:11:30.200 --> 00:11:36.480
+It's just a output parameter which would
+be used in the latest steps of the task.
+
+1f029c3d-1a43-47a3-8b6d-ee1fdf0ffb01-0
+00:11:36.480 --> 00:11:41.080
+OK so here we are trying to set 1 value
+to the skip flag.
+
+d80e0035-d4f8-4516-b721-d3a9bcd9d122-0
+00:11:41.480 --> 00:11:47.314
+So here is the expression if my status is
+either started or failed then I'm marking
+
+d80e0035-d4f8-4516-b721-d3a9bcd9d122-1
+00:11:47.314 --> 00:11:50.440
+it as AY as it is N then you got this
+right.
+
+78d3dcb1-74f2-4425-a366-f43c124bd869-0
+00:11:50.640 --> 00:11:56.820
+So in case if my latest batch run status
+is straight in started or failed straight
+
+78d3dcb1-74f2-4425-a366-f43c124bd869-1
+00:11:56.820 --> 00:12:02.480
+then I should not do a second run for my
+like next run for my target batch.
+
+b0ed8ca4-d014-47bd-a7f5-f14ac2ad59a9-0
+00:12:02.720 --> 00:12:04.360
+So that that is expression.
+
+6cba0ead-ef31-4d02-9f00-c9fa5412b6cc-0
+00:12:05.600 --> 00:12:13.760
+So started and failed means started and
+failed means it will be low right?
+
+9c901388-3859-4739-9838-b6ac9d62aa6b-0
+00:12:13.760 --> 00:12:16.840
+Like it should be low in that case, right?
+
+b4fbfb7f-841d-4c44-befc-a92526ea919d-0
+00:12:19.560 --> 00:12:24.362
+I mean the last run,
+if the last run was failed,
+
+b4fbfb7f-841d-4c44-befc-a92526ea919d-1
+00:12:24.362 --> 00:12:27.400
+the last it's automated failed.
+
+c4704187-4735-4d44-9ca1-a87f4af55d15-0
+00:12:27.400 --> 00:12:31.457
+Now it's automated regular run,
+we don't have any manual intervention,
+
+c4704187-4735-4d44-9ca1-a87f4af55d15-1
+00:12:31.457 --> 00:12:31.800
+right?
+
+6807802f-efaa-478d-97cd-f9490c08acd5-0
+00:12:32.160 --> 00:12:37.032
+So every time the system will check
+whether my latest batch run of of my
+
+6807802f-efaa-478d-97cd-f9490c08acd5-1
+00:12:37.032 --> 00:12:42.305
+current batch which I'm trying to load
+now whether its latest run is completed
+
+6807802f-efaa-478d-97cd-f9490c08acd5-2
+00:12:42.305 --> 00:12:43.640
+successfully or not.
+
+b111c371-2a98-41e7-91d1-beb74763ee4b-0
+00:12:43.640 --> 00:12:46.870
+If it is completed successfully,
+then only we have to proceed with the
+
+b111c371-2a98-41e7-91d1-beb74763ee4b-1
+00:12:46.870 --> 00:12:47.280
+next run.
+
+e654023d-39ee-4312-b7ee-84adb0fa6746-0
+00:12:47.480 --> 00:12:49.440
+Otherwise we have to fix that issue first.
+
+59691b0b-0798-4afa-9336-776d4f313bb3-0
+00:12:49.920 --> 00:12:55.823
+Otherwise for like for some like in order
+to have like add this next run,
+
+59691b0b-0798-4afa-9336-776d4f313bb3-1
+00:12:55.823 --> 00:13:01.887
+they have to decide and manipulate the
+entry in such a way so that next run
+
+59691b0b-0798-4afa-9336-776d4f313bb3-2
+00:13:01.887 --> 00:13:04.440
+would be you would be triggered.
+
+78db8719-bff8-40c6-a3f6-731ae6364ee8-0
+00:13:04.680 --> 00:13:11.234
+So whatever what what I can think of is
+in case it might status is started in in
+
+78db8719-bff8-40c6-a3f6-731ae6364ee8-1
+00:13:11.234 --> 00:13:15.280
+my previous one,
+but it is not handled by anyone.
+
+b4c15257-318f-4043-b447-9e3bdddee5ea-0
+00:13:15.920 --> 00:13:21.076
+It is as it is then a notification would
+be sent out stating that this patched 1
+
+b4c15257-318f-4043-b447-9e3bdddee5ea-1
+00:13:21.076 --> 00:13:25.850
+is not started because of this reason,
+because the previous one is already
+
+b4c15257-318f-4043-b447-9e3bdddee5ea-2
+00:13:25.850 --> 00:13:26.360
+started.
+
+f02ff6fa-f6fc-4163-a71f-ddfd5a435bf1-0
+00:13:26.720 --> 00:13:31.866
+They will they will validate and then
+they have to find a solution whether they
+
+f02ff6fa-f6fc-4163-a71f-ddfd5a435bf1-1
+00:13:31.866 --> 00:13:34.440
+have like based upon the scenario again.
+
+452e4850-0e95-4939-b055-5e2c0fea0f04-0
+00:13:34.960 --> 00:13:37.983
+So,
+so if they just want the bypass that if
+
+452e4850-0e95-4939-b055-5e2c0fea0f04-1
+00:13:37.983 --> 00:13:43.342
+they want to bypass that run they can
+directly upgrade the status to complete
+
+452e4850-0e95-4939-b055-5e2c0fea0f04-2
+00:13:43.342 --> 00:13:46.640
+and trigger this batch pre requested task
+flow.
+
+d475a3ea-48c4-46ae-84c1-28d055af1324-0
+00:13:46.640 --> 00:13:49.227
+Otherwise if they want to skip this and
+do a restart,
+
+d475a3ea-48c4-46ae-84c1-28d055af1324-1
+00:13:49.227 --> 00:13:51.240
+they can directly run the batch task flow.
+
+06f5c8da-c96e-486d-a133-87fc92659cbd-0
+00:13:51.640 --> 00:13:57.400
+This action should be done by the team
+whoever this notification is sent.
+
+c5a4b865-b4e9-4339-b373-ae8ea66a1edc-0
+00:13:58.480 --> 00:14:05.846
+But this skip plan means like what is the
+like ultimate goal of this this skip like,
+
+c5a4b865-b4e9-4339-b373-ae8ea66a1edc-1
+00:14:05.846 --> 00:14:08.360
+like skip like, like will it?
+
+91632418-7ffd-4adf-b33c-c2b7ab18145a-0
+00:14:09.200 --> 00:14:11.200
+If it is, why what happens?
+
+64cb49ac-17ba-4ead-8678-8626cf75b1fd-0
+00:14:11.200 --> 00:14:13.200
+And if it is no N, what happens?
+
+8359c6ea-f0f3-430a-a39f-530d6f48ecd7-0
+00:14:14.040 --> 00:14:14.400
+Yeah, yeah.
+
+9a2da10f-6794-49f8-a708-f959fc3ab75b-0
+00:14:14.920 --> 00:14:19.880
+So if my status is either started or
+failed, it will be why else it would be N?
+
+da767c5e-3409-447f-a83d-88301f4a8e6d-0
+00:14:19.880 --> 00:14:23.530
+OK,
+we'll we'll see how it is used in the
+
+da767c5e-3409-447f-a83d-88301f4a8e6d-1
+00:14:23.530 --> 00:14:24.400
+task flow.
+
+ee285c52-3e0c-4db9-87d6-56fd12ff4fee-0
+00:14:25.560 --> 00:14:26.000
+OK.
+
+171f1f39-de39-46a7-82ff-2481196db8f3-0
+00:14:26.680 --> 00:14:29.758
+This,
+we are setting this value to A and and
+
+171f1f39-de39-46a7-82ff-2481196db8f3-1
+00:14:29.758 --> 00:14:31.400
+our parameter skip flag.
+
+90ab480d-eaa6-4bcc-8ae8-ea6539e61372-0
+00:14:31.520 --> 00:14:34.680
+And we are also setting value for batch
+ID and batch generating.
+
+49dd83df-5811-40da-803c-fbb89476d2de-0
+00:14:35.600 --> 00:14:36.000
+OK.
+
+b232fadf-b4bb-4d92-a470-e07b333ecf07-0
+00:14:36.880 --> 00:14:41.381
+And then ID and ID whatever we are
+getting OK,
+
+b232fadf-b4bb-4d92-a470-e07b333ecf07-1
+00:14:41.381 --> 00:14:48.660
+then moving on to this back to here,
+whatever the other transformations are
+
+b232fadf-b4bb-4d92-a470-e07b333ecf07-2
+00:14:48.660 --> 00:14:55.651
+there are just have like added for
+standard purpose of Iscs as we need a
+
+b232fadf-b4bb-4d92-a470-e07b333ecf07-3
+00:14:55.651 --> 00:15:00.440
+targeted philtre,
+it will just block it is false.
+
+c65eaf13-be03-4b1d-b1e0-576649e37f42-0
+00:15:00.880 --> 00:15:02.560
+It won't make any interest.
+
+f111f079-8ecc-443a-b5b3-333c00994033-0
+00:15:02.840 --> 00:15:08.862
+We just added these two to to as per the
+ISS standard to have a target in the
+
+f111f079-8ecc-443a-b5b3-333c00994033-1
+00:15:08.862 --> 00:15:09.480
+mapping.
+
+3ad8becd-7633-454e-9e5f-c6d723e50c45-0
+00:15:10.280 --> 00:15:17.235
+OK, OK,
+going to this task loop 1 if here we are
+
+3ad8becd-7633-454e-9e5f-c6d723e50c45-1
+00:15:17.235 --> 00:15:21.920
+using that skip, skip flag value.
+
+93759ed1-8455-4cc5-88cb-120c7b3339e5-0
+00:15:22.280 --> 00:15:25.160
+If it is why when?
+
+5f990c2a-f668-4807-b759-121aff298935-0
+00:15:25.480 --> 00:15:26.200
+When it would be?
+
+9dbbfda0-1094-4fa6-9b44-e946cf547197-0
+00:15:26.200 --> 00:15:26.400
+Why?
+
+23ab67fe-7f32-47a8-a1c3-cd765681b904-0
+00:15:26.720 --> 00:15:31.760
+It would be Why when my batch status is
+either started or failed.
+
+1d1c706b-da75-4f62-b036-d42ed9cd5198-0
+00:15:32.160 --> 00:15:37.360
+If my latest batch status is started or
+failed then it will send a notification.
+
+eeef24a1-d8b8-4406-8d2b-8868ad238f34-0
+00:15:39.040 --> 00:15:44.480
+It will send a notification like this
+prerequisite failed like that.
+
+80d8ed89-59aa-4f01-8e31-1f63614e3701-0
+00:15:44.480 --> 00:15:45.760
+It will this.
+
+f78392d9-370a-4e6e-9702-8b4e1bb4bfca-0
+00:15:46.280 --> 00:15:49.480
+This is the subject like this is the body
+of the mail.
+
+eac2d9af-4b28-4c79-88c5-c0c9c1e53b17-0
+00:15:51.240 --> 00:15:54.400
+The latest batch run is has not been
+completed successfully.
+
+e10327d9-f4c3-4c05-80f5-42db8cf381d1-0
+00:15:54.560 --> 00:15:58.081
+Please check the batch status and rerun
+the task flow once the batch is completed
+
+e10327d9-f4c3-4c05-80f5-42db8cf381d1-1
+00:15:58.081 --> 00:15:58.640
+successfully.
+
+04e289fb-395e-4cd7-9041-0f27b1a5f60d-0
+00:15:58.640 --> 00:16:02.069
+We have to rerun the task flow only when
+the previous batch is completed
+
+04e289fb-395e-4cd7-9041-0f27b1a5f60d-1
+00:16:02.069 --> 00:16:02.680
+successfully.
+
+4cad9a43-7dda-4868-9f70-3f7a03dd4a56-0
+00:16:03.240 --> 00:16:07.382
+OK, if it is completed,
+if the status is not failed or not
+
+4cad9a43-7dda-4868-9f70-3f7a03dd4a56-1
+00:16:07.382 --> 00:16:09.840
+started then it would be completed.
+
+856a2c4d-1fd0-4ae3-b5d0-b983bdb0b4a6-0
+00:16:10.000 --> 00:16:14.920
+Then In that case it will just go to and
+and this task flow run would be complete
+
+856a2c4d-1fd0-4ae3-b5d0-b983bdb0b4a6-1
+00:16:14.920 --> 00:16:19.900
+it successfully then our batch task flow
+actual batch task flow would be triggered
+
+856a2c4d-1fd0-4ae3-b5d0-b983bdb0b4a6-2
+00:16:19.900 --> 00:16:23.080
+that this would be happen in the stone
+branch field.
+
+e3214518-d03c-409a-8055-207c0ab9b0ba-0
+00:16:23.680 --> 00:16:28.089
+But whenever my latest batch run is not
+completed successfully then it will fail
+
+e3214518-d03c-409a-8055-207c0ab9b0ba-1
+00:16:28.089 --> 00:16:30.920
+this task flow and it will send out a
+notification.
+
+d1b737b1-0598-41a0-929b-4d010456e92e-0
+00:16:31.560 --> 00:16:34.160
+So in that case my batch run won't start
+it.
+
+302a5551-9178-4889-8d92-7cdc86daaad0-0
+00:16:35.080 --> 00:16:37.240
+So that could that should be handled
+manually.
+
+7ca762dc-2998-4441-a3da-c6555bb88156-0
+00:16:38.760 --> 00:16:39.080
+OK.
+
+09fb4cc8-abc8-4bea-a909-dfe85de21494-0
+00:16:41.480 --> 00:16:46.539
+But it is like this is confusing for me
+because of the like, you know,
+
+09fb4cc8-abc8-4bea-a909-dfe85de21494-1
+00:16:46.539 --> 00:16:47.680
+parameter names.
+
+cb6d42bf-49fb-4d98-9c2f-c44e628c32a0-0
+00:16:47.760 --> 00:16:51.183
+It means generally if it is why it means
+like this,
+
+cb6d42bf-49fb-4d98-9c2f-c44e628c32a0-1
+00:16:51.183 --> 00:16:55.200
+this process needs to be skipped like in
+general, logically.
+
+a7301fab-3316-464a-b2f0-0742caf591ee-0
+00:16:55.840 --> 00:16:58.400
+So I,
+I that's why I ask like what it means.
+
+245c907b-e722-473c-9f5e-f5aaea68cb3d-0
+00:16:58.400 --> 00:17:00.840
+What is the intention behind having the
+risk?
+
+3ca1b910-dc3f-4f01-98d4-6ae9a9471ce3-0
+00:17:00.840 --> 00:17:02.360
+We are skipping the batch run.
+
+92058e88-6e94-4467-97a6-8cb41aa4abe2-0
+00:17:03.520 --> 00:17:05.200
+We are skipping the batch run, right.
+
+dadb7faf-f6f3-4147-aa48-f227df66a608-0
+00:17:05.640 --> 00:17:16.440
+So in that way I just calculate OK, next,
+next, coming to the batch preload.
+
+1b6dfc3b-513a-4cd5-b7e0-74cd24ceab6d-0
+00:17:17.880 --> 00:17:20.440
+So I'll show you batch task for as well.
+
+9d70ee8d-3488-4377-a4c7-fb5425319f5f-0
+00:17:24.640 --> 00:17:27.640
+And I'm showing you the batch task loafer
+account.
+
+07b4c659-8078-403e-bb63-42a538eb2a60-0
+00:17:27.800 --> 00:17:32.960
+So this is how the batch task will look
+like first.
+
+5845efca-9d3a-4139-b282-1c7be208e834-0
+00:17:32.960 --> 00:17:37.562
+So in the previous one,
+did we need to provide any table name or
+
+5845efca-9d3a-4139-b282-1c7be208e834-1
+00:17:37.562 --> 00:17:38.200
+anything?
+
+71c8a90f-dcc4-4880-b13e-69e456ffb7ed-0
+00:17:38.200 --> 00:17:38.720
+No, right.
+
+3f191741-9f07-4d5e-81c5-46bc5f991033-0
+00:17:39.320 --> 00:17:39.880
+No.
+
+c14db0c4-4b5c-40a6-a898-ab9356df5b5a-0
+00:17:40.880 --> 00:17:43.120
+We just need to provide the parameter
+file.
+
+f88f3203-1163-425c-b373-57abfd8f45b0-0
+00:17:43.400 --> 00:17:43.840
+That's it.
+
+a243756f-437f-4c0f-9a85-065743cc8a85-0
+00:17:44.040 --> 00:17:45.120
+Parameter file also.
+
+b7cf928c-7e9a-41af-9219-424791a07059-0
+00:17:45.120 --> 00:17:49.711
+We just need to have those four,
+four or five parameters we are having to
+
+b7cf928c-7e9a-41af-9219-424791a07059-1
+00:17:49.711 --> 00:17:51.200
+get the batch ID, right?
+
+0c4aff76-8624-440e-bd56-2f9b98e7a1b8-0
+00:17:51.360 --> 00:17:51.800
+That's it.
+
+1588b194-fbd2-48cc-9eda-f74aa26f2fcb-0
+00:17:52.640 --> 00:17:56.784
+So under here also under 1 batch,
+there could be multiple tables or jobs,
+
+1588b194-fbd2-48cc-9eda-f74aa26f2fcb-1
+00:17:56.784 --> 00:17:57.120
+right?
+
+d3f9bb8c-e889-4ef1-92d4-c5dec4a61c60-0
+00:17:58.240 --> 00:18:01.678
+Yeah,
+1 batch will have multiple table loads
+
+d3f9bb8c-e889-4ef1-92d4-c5dec4a61c60-1
+00:18:01.678 --> 00:18:03.360
+which are called jobs.
+
+9643e2d2-6088-4315-b556-48af2a27334a-0
+00:18:03.440 --> 00:18:05.040
+Yes, OK.
+
+b9ac6332-f4d2-4298-8eda-6485d59b8589-0
+00:18:06.480 --> 00:18:10.360
+So actually we'll have in a in in
+parameter in input field,
+
+b9ac6332-f4d2-4298-8eda-6485d59b8589-1
+00:18:10.360 --> 00:18:13.917
+we have parameter file directory,
+parameter file name,
+
+b9ac6332-f4d2-4298-8eda-6485d59b8589-2
+00:18:13.917 --> 00:18:16.440
+audit user ID and batch task flow name.
+
+7ae68b0e-791b-4a0a-8bb5-21b86855ed07-0
+00:18:16.600 --> 00:18:18.680
+So these four are the input parameters.
+
+cbfe0672-7f10-4bc1-a2ac-3fcf8d4c6bfa-0
+00:18:18.920 --> 00:18:22.470
+We have to provide the hardware and
+values for parameter file name and
+
+cbfe0672-7f10-4bc1-a2ac-3fcf8d4c6bfa-1
+00:18:22.470 --> 00:18:23.720
+parameter file directory.
+
+57e6e275-f97c-4c4b-8d3f-16ccff479efc-0
+00:18:24.000 --> 00:18:29.521
+From here these values are usually
+passing to the job level task force all
+
+57e6e275-f97c-4c4b-8d3f-16ccff479efc-1
+00:18:29.521 --> 00:18:32.760
+these OK,
+so then we'll have batch preload.
+
+435e2092-a2fa-494c-9203-a3c9ca70470b-0
+00:18:33.320 --> 00:18:34.560
+I'm just giving you high level.
+
+7c0b668e-8334-420e-8d1f-9759c8beaeb1-0
+00:18:34.600 --> 00:18:38.531
+If this is if this task gets failed
+because of any execution error,
+
+7c0b668e-8334-420e-8d1f-9759c8beaeb1-1
+00:18:38.531 --> 00:18:42.520
+a notification would be sent out and this
+task flow would be failed.
+
+5ed41cf5-8a62-45c5-9f98-e56d4d7cfd93-0
+00:18:43.240 --> 00:18:48.152
+OK and once if this is completed
+successfully then our actual batch task
+
+5ed41cf5-8a62-45c5-9f98-e56d4d7cfd93-1
+00:18:48.152 --> 00:18:53.334
+flow would sorry job level task flow
+would be triggered and all the job task
+
+5ed41cf5-8a62-45c5-9f98-e56d4d7cfd93-2
+00:18:53.334 --> 00:18:57.440
+flows would be arranged in the runtime as
+per the run order.
+
+92bc1dea-8945-404d-b385-7cdd5e270d99-0
+00:18:58.120 --> 00:18:58.320
+So.
+
+fdf48030-2bbb-4631-96b3-d35d0e825335-0
+00:18:58.320 --> 00:19:05.752
+But for here we have just taken 1 task
+flow because batch 1 can be assignment
+
+fdf48030-2bbb-4631-96b3-d35d0e825335-1
+00:19:05.752 --> 00:19:11.280
+this one error count OK here we have
+temporary variables.
+
+81f3bbf0-d7b7-4eb3-875d-8f8f3db7e58d-0
+00:19:11.280 --> 00:19:16.760
+Also we have temporary variables like
+error count and temporary batch status.
+
+5580e427-8f1d-4eba-8691-42602f4f2203-0
+00:19:17.040 --> 00:19:21.143
+The initial value which is provided for
+this is error count and batch status is
+
+5580e427-8f1d-4eba-8691-42602f4f2203-1
+00:19:21.143 --> 00:19:21.400
+null.
+
+86a3cb24-fbf1-4736-9528-9bc8b4ebcfe9-0
+00:19:21.800 --> 00:19:23.080
+We don't have any batch status.
+
+07e1d1ef-b04b-4f83-a2a1-956984456691-0
+00:19:23.440 --> 00:19:28.326
+So if this is if any batch task any job
+level task for gets paid error count
+
+07e1d1ef-b04b-4f83-a2a1-956984456691-1
+00:19:28.326 --> 00:19:30.040
+value would be incremented.
+
+8121a668-f56a-41b7-8c46-e74bedc97fba-0
+00:19:30.080 --> 00:19:31.360
+Initially it is 0 right?
+
+2a1870ec-ed63-41fc-902a-b4893c2189b8-0
+00:19:31.880 --> 00:19:34.757
+If any job level task flow gets
+incremented,
+
+2a1870ec-ed63-41fc-902a-b4893c2189b8-1
+00:19:34.757 --> 00:19:40.000
+it is it gets incremented OK based upon
+this error count if it is greater than 0.
+
+860756cc-51df-4a78-9d17-9bd93da86342-0
+00:19:40.120 --> 00:19:46.216
+If it is equal to 0 that means if no job
+task flow gets failed then then only its
+
+860756cc-51df-4a78-9d17-9bd93da86342-1
+00:19:46.216 --> 00:19:47.480
+value would be 0.
+
+6ebe7709-cccc-478d-950c-76ee885ad6f1-0
+00:19:48.640 --> 00:19:53.532
+In that case,
+temporary batch status would be assigned
+
+6ebe7709-cccc-478d-950c-76ee885ad6f1-1
+00:19:53.532 --> 00:20:00.203
+with C Otherwise it would be assigned
+with if OK based upon this temporary
+
+6ebe7709-cccc-478d-950c-76ee885ad6f1-2
+00:20:00.203 --> 00:20:01.360
+batch status.
+
+878083d5-51fa-4627-b3eb-7e8c221b5d57-0
+00:20:01.880 --> 00:20:06.720
+Our actual batch status in the batch
+transcripts would be updated here.
+
+47679a5b-e75a-4d7e-8180-85624b3a6066-0
+00:20:06.720 --> 00:20:09.440
+OK, OK.
+
+76bdc856-147d-4590-a4ad-ef07177bbe3d-0
+00:20:12.440 --> 00:20:16.477
+And then if if this component gets failed
+because of any some execution issue,
+
+76bdc856-147d-4590-a4ad-ef07177bbe3d-1
+00:20:16.477 --> 00:20:19.800
+a notification would be sent out and the
+staff flow gets failed.
+
+0d514648-36f3-43bd-9226-469d8c1f5890-0
+00:20:20.680 --> 00:20:23.920
+But these are just error handle at the
+task flow level set.
+
+15cb557e-046a-40fb-b580-9952dcf7fec8-0
+00:20:23.920 --> 00:20:26.760
+It's not like related to ABC.
+
+0cd7b6a7-6abe-484e-8f1d-cf8f2a407eaa-0
+00:20:27.040 --> 00:20:33.258
+So this batch task flow after this batch
+post load based upon the batch temp,
+
+0cd7b6a7-6abe-484e-8f1d-cf8f2a407eaa-1
+00:20:33.258 --> 00:20:38.520
+batch status C or F based upon that a
+notification would be sent.
+
+4dce05fe-83fc-41fa-9e88-499042cce753-0
+00:20:38.560 --> 00:20:42.026
+If it is C,
+this notification would be sent and the
+
+4dce05fe-83fc-41fa-9e88-499042cce753-1
+00:20:42.026 --> 00:20:44.760
+task flow would be executed successfully.
+
+b2ae2ec9-84e7-4499-b6cc-9ff44080fd90-0
+00:20:45.040 --> 00:20:48.009
+If it is FF failure,
+notification would be sent out and this
+
+b2ae2ec9-84e7-4499-b6cc-9ff44080fd90-1
+00:20:48.009 --> 00:20:49.080
+task flow gets failed.
+
+ebb3b8b7-d77d-4cef-91d5-1c44dce4ba37-0
+00:20:51.160 --> 00:20:52.640
+I'm just giving you high level status.
+
+191146aa-c150-462c-b960-aabc1f24578d-0
+00:20:52.640 --> 00:20:57.200
+Now go to let's let's have a walk through
+of the batch failure.
+
+ad6f6146-4881-4a02-a8fd-9f3b5df10126-0
+00:20:58.680 --> 00:21:02.619
+So for batch preload,
+these are the input parameters that is
+
+ad6f6146-4881-4a02-a8fd-9f3b5df10126-1
+00:21:02.619 --> 00:21:05.977
+required parameter file name,
+parameter file sorry,
+
+ad6f6146-4881-4a02-a8fd-9f3b5df10126-2
+00:21:05.977 --> 00:21:11.401
+directory file name and ABC database name,
+ABC schema name, application layer name,
+
+ad6f6146-4881-4a02-a8fd-9f3b5df10126-3
+00:21:11.401 --> 00:21:15.534
+audit user ID, domain name,
+source name and target whatever the
+
+ad6f6146-4881-4a02-a8fd-9f3b5df10126-4
+00:21:15.534 --> 00:21:19.280
+values that for which initial values not
+provided, right.
+
+1f411a71-e910-46c9-a4cd-b06889f3b3e7-0
+00:21:19.560 --> 00:21:23.000
+So those will be directly fetched from
+the static parameter file.
+
+a7ed71c6-0e23-417d-8140-2dbef25b4262-0
+00:21:24.080 --> 00:21:29.640
+OK, let's move on to this logic.
+
+ef163051-b957-4485-8fc9-bbbe15b777ee-0
+00:21:30.680 --> 00:21:34.495
+OK,
+here I want to explain you in the LLD
+
+ef163051-b957-4485-8fc9-bbbe15b777ee-1
+00:21:34.495 --> 00:21:35.040
+first.
+
+ca9e82ae-9f83-4996-a574-3b3c109d3706-0
+00:21:35.680 --> 00:21:37.640
+OK batch preload process.
+
+c235ccf0-cc07-4362-98f9-3cd7ce08ed2f-0
+00:21:37.640 --> 00:21:41.505
+The batch preload process will create a
+single record in the batch translation
+
+c235ccf0-cc07-4362-98f9-3cd7ce08ed2f-1
+00:21:41.505 --> 00:21:43.560
+table at the start of the batch execution.
+
+adac50d4-e330-42cb-976e-1243658b5186-0
+00:21:43.840 --> 00:21:46.920
+This process will perform the following
+steps in sequence.
+
+b905efc2-62a3-4422-a090-7b6d645347df-0
+00:21:47.200 --> 00:21:51.935
+It will using the input parameters like
+application layer name, force name,
+
+b905efc2-62a3-4422-a090-7b6d645347df-1
+00:21:51.935 --> 00:21:53.680
+domain name and target zone.
+
+7dca1841-345a-4fed-976a-f9a413264f77-0
+00:21:53.920 --> 00:21:58.817
+The system will vary for the batch
+metadata to retrieve the active batch ID
+
+7dca1841-345a-4fed-976a-f9a413264f77-1
+00:21:58.817 --> 00:22:00.880
+where is active flag equal to Y.
+
+d1aa05e3-8c44-4a38-8276-4d646450ed7e-0
+00:22:01.040 --> 00:22:05.920
+It will try to get the active batch ID
+based upon the retrieved batch ID.
+
+5f323492-89a5-4936-beab-3b6e5c8cdae3-0
+00:22:05.960 --> 00:22:10.640
+The system will identify the latest batch
+run from batch status OK.
+
+ee5fc10b-593c-4d1c-bfde-948554ca9cfa-0
+00:22:10.680 --> 00:22:16.573
+It will just get the latest batch one
+second first batch metadata it is getting
+
+ee5fc10b-593c-4d1c-bfde-948554ca9cfa-1
+00:22:16.573 --> 00:22:18.120
+the batch ID and all.
+
+5994f8ef-6e16-4602-9287-53ded18676a0-0
+00:22:18.600 --> 00:22:23.120
+Then after that based on the retrieved
+batch ID, there is only test, right?
+
+56e83119-1406-4320-9e3c-3c666d8f8a54-0
+00:22:23.120 --> 00:22:25.960
+There will be single batch ID only for
+that combination.
+
+16aa2d5b-6d53-41f5-946e-d846a1b115b7-0
+00:22:26.600 --> 00:22:29.200
+Yeah, there will be only single batch ID.
+
+5fc79809-bfb2-4ddb-b9be-de7fd04c906f-0
+00:22:29.200 --> 00:22:35.000
+There should be only single batch ID from
+the batch batch matrix with these details.
+
+fd5f1221-094f-4758-973a-3b03dcfb65f3-0
+00:22:35.400 --> 00:22:41.280
+So after that like these two are the
+common steps for what we got it got it.
+
+7eb55f89-18e7-44bf-9954-d8d752a70bff-0
+00:22:41.520 --> 00:22:44.720
+So it is basically using the input
+parameters.
+
+5a32c4c2-5beb-4fd3-ac09-63a06c2ff057-0
+00:22:44.720 --> 00:22:50.560
+It's time to get the latest batch run ID
+along with the batch ID.
+
+691c2bc3-3dda-4b45-8b62-c38688b37dfc-0
+00:22:51.360 --> 00:22:54.560
+Yeah,
+it will get the latest batch run details.
+
+99905f18-e340-4e0a-8b60-ae45f4c3a307-0
+00:22:54.720 --> 00:22:58.138
+OK,
+we will discuss how the details would be
+
+99905f18-e340-4e0a-8b60-ae45f4c3a307-1
+00:22:58.138 --> 00:23:03.000
+used for populating values into this
+table for historical load.
+
+d9c121f6-4f76-4b7f-9954-6ad2cf9f1c8a-0
+00:23:03.120 --> 00:23:04.480
+These are the execution types.
+
+11f0a258-ea8b-425c-b41f-74eeaca128a2-0
+00:23:04.520 --> 00:23:09.000
+Historical load, catch, upload,
+first time, incremental, regular run,
+
+11f0a258-ea8b-425c-b41f-74eeaca128a2-1
+00:23:09.000 --> 00:23:10.920
+restart, rerun, zone 1, rerun.
+
+4bcda77d-d8d8-469f-bdff-5772d759dc91-0
+00:23:10.920 --> 00:23:12.240
+These are the execution types.
+
+a2ed4456-4694-4a6c-92e0-695d37bb2585-0
+00:23:12.640 --> 00:23:13.920
+Let's discuss 1 by 1.
+
+23cb2367-3005-41c4-adc3-2b8f2e63c6f1-0
+00:23:14.240 --> 00:23:16.960
+So first historical historical load.
+
+8e42dcb6-575a-4451-972b-0893c78f2c14-0
+00:23:17.240 --> 00:23:22.440
+But one question historical load like you
+said it is it is not implemented, right.
+
+78cf4ded-9eed-42a1-96c4-ee5c10840ad3-0
+00:23:23.000 --> 00:23:27.742
+It is not implemented, yes,
+you would be taking care like I'm just
+
+78cf4ded-9eed-42a1-96c4-ee5c10840ad3-1
+00:23:27.742 --> 00:23:33.405
+giving you the points what which needs to
+be covered as part of bash so that it
+
+78cf4ded-9eed-42a1-96c4-ee5c10840ad3-2
+00:23:33.405 --> 00:23:36.520
+would be easier to compare and develop
+the.
+
+810d244e-ce69-402f-813e-719c281f20a0-0
+00:23:36.680 --> 00:23:41.280
+So I'll be needing what is currently and
+then what needs to be done both.
+
+9604b57c-1b33-423f-a655-eb0fc8262d1e-0
+00:23:41.560 --> 00:23:42.640
+Yeah, yeah, yeah.
+
+056ee46b-60fe-480f-bebf-9aafbb8e170d-0
+00:23:44.000 --> 00:23:45.960
+So historical load.
+
+9009f583-4dce-4436-9657-22fb3edd69d3-0
+00:23:45.960 --> 00:23:51.126
+How they are planning to have the
+historical load is if a batch needs to be
+
+9009f583-4dce-4436-9657-22fb3edd69d3-1
+00:23:51.126 --> 00:23:56.428
+processed for historical data from
+Teradata to Snowflake Zone 2 via zone one,
+
+9009f583-4dce-4436-9657-22fb3edd69d3-2
+00:23:56.428 --> 00:23:59.080
+this will also be done via zone 1 only.
+
+bc749500-60f4-419e-be76-ea6cdc3e28a3-0
+00:23:59.200 --> 00:24:06.005
+But in the historical data,
+data would be will be taken from Teradata
+
+bc749500-60f4-419e-be76-ea6cdc3e28a3-1
+00:24:06.005 --> 00:24:06.880
+directly.
+
+7f224735-7d11-48d7-9c35-93b9931df71e-0
+00:24:08.000 --> 00:24:11.120
+In the current state Teradata is the
+target database.
+
+078fee9e-e777-4b03-bce7-86d58df77a76-0
+00:24:12.640 --> 00:24:18.320
+In future state historical load Teradata
+is the source database.
+
+bdf7cb87-caf7-4964-84e1-cc6a2cc1b1c4-0
+00:24:19.120 --> 00:24:20.240
+You got the difference right.
+
+e5805712-7b92-4ca9-9d84-2fe9e8ec4888-0
+00:24:21.320 --> 00:24:24.080
+So the process will read that run as
+historical load.
+
+d4d9bead-415b-4de4-815c-0adf8efc743a-0
+00:24:24.160 --> 00:24:29.080
+For historical load a new record will be
+created manually in batch run stats.
+
+2c2caa11-6d6d-4d21-8aaa-4d366183beae-0
+00:24:29.200 --> 00:24:31.880
+So I record.
+
+e7c8502d-61df-4528-aa76-6e5040599f2d-0
+00:24:32.200 --> 00:24:36.440
+So batch entry would be one second this
+Arora table.
+
+888d2883-1ee8-41ae-a3fa-e3b19072db95-0
+00:24:36.440 --> 00:24:38.720
+So I haven't worked on this.
+
+515ffa78-3bee-49dc-8a79-0db08ea7bdf0-0
+00:24:38.720 --> 00:24:40.880
+So what is that Arora table?
+
+30a6423f-56f1-4e95-b4df-8ec59b50ef87-0
+00:24:41.000 --> 00:24:43.960
+All the ABC tables are in this Arora or
+something, right?
+
+0bad857c-a4af-42e5-8cdf-ee1a6c921efd-0
+00:24:44.440 --> 00:24:46.160
+So is it negative Mark, is it?
+
+b35c97b3-01d3-4d3f-84d5-4e5b7c84ce2b-0
+00:24:46.320 --> 00:24:48.600
+Yeah, yeah, all the ABC tables in Arora.
+
+fa3b7310-23b8-44d0-8c00-c98b9c879100-0
+00:24:48.800 --> 00:24:51.920
+We have few ABC temp tables in Snowflake.
+
+5ad6c942-6eaa-4b73-bf54-e0d6fa3f60e5-0
+00:24:52.280 --> 00:24:57.195
+I'll tell you the details of those temp
+tables later whenever the component
+
+5ad6c942-6eaa-4b73-bf54-e0d6fa3f60e5-1
+00:24:57.195 --> 00:25:01.400
+discussion comes, but for now,
+I'll show you the batch metadata.
+
+0a7a9259-433d-4945-a879-35dabb5d88e8-0
+00:25:01.400 --> 00:25:03.520
+OK, let's, let's have this.
+
+c7a8c0c1-877a-4770-890c-ad5b9ef2616e-0
+00:25:04.960 --> 00:25:05.680
+OK, let's.
+
+e64f03d6-e7a0-4b47-861d-be167e8b1cf3-0
+00:25:05.680 --> 00:25:10.600
+And this Arora table, like, is it like,
+is it completely different from data?
+
+84349f58-9950-4646-8a44-4b98abbe3824-0
+00:25:10.600 --> 00:25:14.080
+Data and software Arora is different.
+
+bd425b71-1eca-485d-8f30-a3f33886663c-0
+00:25:14.160 --> 00:25:14.680
+Arora.
+
+267c1e8a-9785-4a63-86a0-b35d07e6f45f-0
+00:25:15.280 --> 00:25:17.320
+Arora post Arora is relative.
+
+c2a5127a-6870-4927-b043-76a0db1239ff-0
+00:25:17.360 --> 00:25:22.800
+Arora is just a post sequel database of
+AWS service AWS.
+
+56106742-7b28-4ae6-ad80-7fef5675e0a1-0
+00:25:23.200 --> 00:25:26.480
+Arora is a service database of AWS.
+
+83019382-4d7b-41c6-b86b-0e540f5a6f85-0
+00:25:27.240 --> 00:25:29.800
+So it is currently having post pre sequel.
+
+fd8e2973-96ec-4c51-9088-a92f2bc79f10-0
+00:25:32.840 --> 00:25:34.800
+It is a sequel type post pre sequel.
+
+ebc72316-1273-43a8-877f-9e55b1a1787f-0
+00:25:35.560 --> 00:25:38.240
+OK, so batch metadata looks like this.
+
+a39065e2-47e9-4138-b4e5-b99c9004ec26-0
+00:25:39.280 --> 00:25:42.320
+So then why it is like this?
+
+1ff3cd93-adfd-4288-81ed-c2a83920935d-0
+00:25:42.360 --> 00:25:47.409
+ABC tables are in here and the source
+table in somewhere and then the target
+
+1ff3cd93-adfd-4288-81ed-c2a83920935d-1
+00:25:47.409 --> 00:25:52.655
+table is somewhere like like can really
+ABC tables remains in the same database
+
+1ff3cd93-adfd-4288-81ed-c2a83920935d-2
+00:25:52.655 --> 00:25:54.359
+where the target is right?
+
+c6717279-c8ae-40ae-ba87-d2077b6c9ef1-0
+00:25:54.880 --> 00:26:01.734
+OK this is because of June 1 as we are
+asked to leverage the same ABC tables
+
+c6717279-c8ae-40ae-ba87-d2077b6c9ef1-1
+00:26:01.734 --> 00:26:03.960
+which are used by June 1.
+
+cd5b48eb-e4e7-4666-8e2f-ff45cfbea79d-0
+00:26:04.280 --> 00:26:07.840
+So we are also using the same ABC tables
+which were in Aurora.
+
+6d78a3c4-25f9-4cb9-9fd6-b2619f1ac565-0
+00:26:08.320 --> 00:26:16.940
+There ABC code mostly lies in land,
+glue whatever like services related to
+
+6d78a3c4-25f9-4cb9-9fd6-b2619f1ac565-1
+00:26:16.940 --> 00:26:17.400
+AWS.
+
+4e5287f6-5077-4f23-af3e-fcb478876a55-0
+00:26:18.000 --> 00:26:20.800
+So arrow is also service of AWS right?
+
+f033b18b-7df5-4c2e-8761-aa1fd2ae492c-0
+00:26:21.120 --> 00:26:24.080
+So they are using the same database there.
+
+683fc910-d410-4fb2-8c53-14968c5b0577-0
+00:26:24.080 --> 00:26:24.360
+Also.
+
+86541a53-ac12-402f-9cd0-521d32a08703-0
+00:26:25.000 --> 00:26:30.960
+The purpose of June 1 is to bring the
+data from source to S3.
+
+e853e70c-67c8-4b25-aee1-21bf039ff2d5-0
+00:26:31.440 --> 00:26:35.440
+They they will just drop the files in S3
+from S3.
+
+cd7b8197-bfc4-458b-aa91-6cedb12106ac-0
+00:26:36.120 --> 00:26:43.021
+We'll have Snowflake managed iceberg
+tables in Snowflake which will directly
+
+cd7b8197-bfc4-458b-aa91-6cedb12106ac-1
+00:26:43.021 --> 00:26:45.800
+pointing to the S3 files there.
+
+d1f259c4-6b8a-41a0-b31f-09bbbc5d053d-0
+00:26:46.600 --> 00:26:46.720
+OK.
+
+03fc0813-9183-4cdc-88d1-304843debf8d-0
+00:26:47.440 --> 00:26:49.120
+Can you come again this one?
+
+dffb67ad-928e-4546-8c1d-2c35f6963d0d-0
+00:26:50.960 --> 00:26:52.560
+This is related to zone one.
+
+4bad37f2-1e99-4350-9b64-a8d6bc8b0451-0
+00:26:52.640 --> 00:26:54.960
+I'm just giving you the information
+whatever I know.
+
+3230a4cc-2bce-4ffe-9f17-230ee8ca9af0-0
+00:26:55.240 --> 00:27:04.661
+So zone one will bring data from direct
+source system to S3 S 3 is again AWA
+
+3230a4cc-2bce-4ffe-9f17-230ee8ca9af0-1
+00:27:04.661 --> 00:27:05.640
+service.
+
+2b799834-ae29-402d-8adf-1bd37056ba74-0
+00:27:05.760 --> 00:27:10.800
+I just wanted to know the zone 1 is more
+around AWA services.
+
+f9e047a9-7808-4249-a72a-25f607b11b74-0
+00:27:10.800 --> 00:27:16.565
+So that is the reason why they have ABC
+tables also in Arora service which is
+
+f9e047a9-7808-4249-a72a-25f607b11b74-1
+00:27:16.565 --> 00:27:17.600
+better to AWS.
+
+aac8ea9c-8bfd-445f-b6e8-ddc9b4168eb2-0
+00:27:17.840 --> 00:27:22.920
+And we are asked to leverage the same ABC
+tables even for John 2.
+
+42350ac8-316e-4e2a-b260-e0361f3db9b8-0
+00:27:23.200 --> 00:27:28.463
+We're using it even though if even though
+our target table database is not like
+
+42350ac8-316e-4e2a-b260-e0361f3db9b8-1
+00:27:28.463 --> 00:27:33.200
+we're leveraging as per the require like
+ask we are using these tables.
+
+5cf723c8-a42c-4431-9824-81e1774d77fe-0
+00:27:35.840 --> 00:27:36.760
+Hope you got the answer.
+
+76b235b3-e55a-4278-9a9f-30f3db87e307-0
+00:27:37.960 --> 00:27:38.240
+Yeah.
+
+34c3e236-cfe9-42f1-879c-0e68940ff639-0
+00:27:38.680 --> 00:27:42.433
+So how the full video working is working
+here, We'll,
+
+34c3e236-cfe9-42f1-879c-0e68940ff639-1
+00:27:42.433 --> 00:27:45.840
+we'll discuss this whenever this job load
+comes.
+
+708cee2a-3055-4c75-80e7-d0ee411d318a-0
+00:27:47.040 --> 00:27:49.840
+That is the reason why we are having the
+timetables.
+
+84489c8e-4d42-4c46-a5b7-ba7fd465523d-0
+00:27:50.080 --> 00:27:55.998
+We have timetables in Snowflake, OK,
+in order to enable full PDO,
+
+84489c8e-4d42-4c46-a5b7-ba7fd465523d-1
+00:27:55.998 --> 00:28:00.392
+have the full pushdown optimization in
+our load,
+
+84489c8e-4d42-4c46-a5b7-ba7fd465523d-2
+00:28:00.392 --> 00:28:03.800
+we are having timetables in Snowflake.
+
+891a75fb-ec99-4d77-aefa-db3062d900e9-0
+00:28:05.160 --> 00:28:06.680
+That is, that isn't OK.
+
+06b1ca17-b5af-4d0f-9078-ce66dca7f2bc-0
+00:28:06.960 --> 00:28:14.880
+And I'm just showing you the job metadata
+entry, which is made for CCO account, OK?
+
+ef9f2fd0-4eb1-4047-9ad6-5b6d51e27e6b-0
+00:28:15.520 --> 00:28:20.696
+So batch name, batch description,
+active flag, CCO dot data Roman,
+
+ef9f2fd0-4eb1-4047-9ad6-5b6d51e27e6b-1
+00:28:20.696 --> 00:28:24.560
+all these things, OK, And batch run stats,
+right?
+
+6171754c-e8ff-4792-a5a7-96681d49e496-0
+00:28:24.560 --> 00:28:26.400
+You asked me about batch run stats.
+
+49ce0858-af62-4f96-9c1d-4708f3d1b40a-0
+00:28:26.400 --> 00:28:26.960
+Let me show you.
+
+a743ca01-82f5-4c9f-b0d7-65e948c1ec37-0
+00:28:28.800 --> 00:28:35.507
+Oh OK so in case of first time
+incremental or any first time incremental
+
+a743ca01-82f5-4c9f-b0d7-65e948c1ec37-1
+00:28:35.507 --> 00:28:41.480
+history load catch up load an entry would
+be manually made here.
+
+7e580104-b73b-4294-966e-97137ba023d3-0
+00:28:41.960 --> 00:28:47.360
+So while making the manual entry what are
+the feeds to be populated?
+
+3659848d-3bfe-40d3-83a9-389a7960f8c4-0
+00:28:47.640 --> 00:28:52.760
+Those details I have provided here in
+batch run manual.
+
+9cfc6ed1-8a41-49b2-b0fa-5231e5052e4f-0
+00:28:53.120 --> 00:28:54.840
+Manual entry needs to be provided.
+
+29fc3849-bce1-45d2-9d55-fe027b1b1720-0
+00:28:54.840 --> 00:28:56.000
+Isn't it automatic?
+
+658e7051-b6a6-406c-9963-55b624676343-0
+00:28:57.480 --> 00:29:00.560
+It is automated for regular and restart
+run.
+
+367736f3-6416-4b06-ad9b-fbc9029732a5-0
+00:29:00.760 --> 00:29:06.242
+But for educate scenarios like historical
+load which is one time catch upload which
+
+367736f3-6416-4b06-ad9b-fbc9029732a5-1
+00:29:06.242 --> 00:29:11.071
+is one time first time incremental,
+it is one time and rerun of June 2 or
+
+367736f3-6416-4b06-ad9b-fbc9029732a5-2
+00:29:11.071 --> 00:29:13.160
+June 1 which is very occasional.
+
+bdb4bf24-486c-451f-8c6f-6f51d24b202f-0
+00:29:13.160 --> 00:29:17.760
+Whenever like this the situation comes,
+they have to do this right?
+
+994c4589-496a-4389-bcda-e8f3ba5f5d41-0
+00:29:18.080 --> 00:29:20.880
+So it means none of zone 1 and zone 2.
+
+ad9a0056-f7a0-4c6b-9158-a850d432a95a-0
+00:29:20.880 --> 00:29:21.760
+What does that mean?
+
+a397901c-caae-4e7c-945b-f5d829f72aca-0
+00:29:24.680 --> 00:29:25.520
+Don't do rerun?
+
+9012f755-f77e-4c13-8e81-a4e181564ba0-0
+00:29:25.520 --> 00:29:32.048
+It's it's just like scenarios whenever
+any code logics change or whenever they
+
+9012f755-f77e-4c13-8e81-a4e181564ba0-1
+00:29:32.048 --> 00:29:35.520
+want to reload the data for specific data.
+
+38ac9db9-aca4-4293-934e-21895f461f31-0
+00:29:36.480 --> 00:29:38.640
+Wait no no, it depends.
+
+7682fdc3-bd25-4c2e-a77b-08508e1bb445-0
+00:29:38.720 --> 00:29:40.080
+Depends on the requirement.
+
+eccd7781-f12f-4524-96d7-6ef6e859ad0c-0
+00:29:40.160 --> 00:29:45.128
+Whenever they want to do a rerun,
+basically rerun mean rerunning was
+
+eccd7781-f12f-4524-96d7-6ef6e859ad0c-1
+00:29:45.128 --> 00:29:50.960
+deletion of the old data and they want to
+have the new data for the time period.
+
+0b2dadcd-63a0-4599-836c-62b21adaf36c-0
+00:29:51.440 --> 00:29:55.160
+They have to mention the like they have
+to provide the time period also whenever
+
+0b2dadcd-63a0-4599-836c-62b21adaf36c-1
+00:29:55.160 --> 00:29:56.400
+they are doing their rerun.
+
+608f5ae1-d3bb-4054-b6ca-fe73a0e2e642-0
+00:29:57.080 --> 00:30:04.007
+And zone 1 rerun is whenever any rerun
+happened in the zone 1 table then we have
+
+608f5ae1-d3bb-4054-b6ca-fe73a0e2e642-1
+00:30:04.007 --> 00:30:07.600
+to reprocess that data right in our table.
+
+682b8422-cd22-4f1d-91a9-7c278cbce639-0
+00:30:08.320 --> 00:30:16.612
+So that is where this Zone 1 rerun comes,
+OK, that is more related to functional,
+
+682b8422-cd22-4f1d-91a9-7c278cbce639-1
+00:30:16.612 --> 00:30:22.984
+not related to ABC actually,
+but we are we have to handle that
+
+682b8422-cd22-4f1d-91a9-7c278cbce639-2
+00:30:22.984 --> 00:30:24.400
+scenario also.
+
+4586ab9a-57b9-4df3-b7ba-eaf21c49815e-0
+00:30:24.400 --> 00:30:28.280
+Now how we are handling that scenario as
+part of ABC, I'll, I'll tell you.
+
+2b54956f-b74a-4128-b654-3a4226323915-0
+00:30:29.200 --> 00:30:29.560
+OK.
+
+8229badc-d397-4796-b086-2433cb5b5fed-0
+00:30:29.960 --> 00:30:34.736
+So first coming to the historical load,
+if a batch needs to be processed OK for a
+
+8229badc-d397-4796-b086-2433cb5b5fed-1
+00:30:34.736 --> 00:30:37.998
+historical load,
+a manual entry should be made into the
+
+8229badc-d397-4796-b086-2433cb5b5fed-2
+00:30:37.998 --> 00:30:39.280
+batch run stats table.
+
+68f3b418-ffbf-46dc-b9f8-c930b4118ed9-0
+00:30:39.680 --> 00:30:43.753
+Whenever we are making the entry into the
+batch run stats table,
+
+68f3b418-ffbf-46dc-b9f8-c930b4118ed9-1
+00:30:43.753 --> 00:30:48.767
+a new execution run ID will be asset any
+entry which is made into the batch run
+
+68f3b418-ffbf-46dc-b9f8-c930b4118ed9-2
+00:30:48.767 --> 00:30:49.520
+stats right?
+
+01c4bdab-bbd4-4805-ac26-936183c8b041-0
+00:30:50.640 --> 00:30:55.091
+And you batch run ID would be assigned
+that means for sure because that's a
+
+01c4bdab-bbd4-4805-ac26-936183c8b041-1
+00:30:55.091 --> 00:30:55.560
+primary.
+
+d1aad4f8-8101-4218-9472-3f73f5870eae-0
+00:30:55.800 --> 00:30:57.480
+So I'm not giving that detail here.
+
+76394047-b9e1-400a-bf57-b923f28106c5-0
+00:30:57.960 --> 00:31:00.755
+And new execution run ID would be
+assigned,
+
+76394047-b9e1-400a-bf57-b923f28106c5-1
+00:31:00.755 --> 00:31:05.837
+rerun indicator would be H status would
+be started sourcing start time would be
+
+76394047-b9e1-400a-bf57-b923f28106c5-2
+00:31:05.837 --> 00:31:10.792
+1919 hundred 0101 sourcing end time would
+be maximum of GRS defined timestamp
+
+76394047-b9e1-400a-bf57-b923f28106c5-3
+00:31:10.792 --> 00:31:13.079
+across all tables for a given batch.
+
+943ca989-d0c4-4148-8e82-25606e1ca851-0
+00:31:13.440 --> 00:31:27.060
+So GRS timestamp column is present in all
+the target table OK in all the if you are
+
+943ca989-d0c4-4148-8e82-25606e1ca851-1
+00:31:27.060 --> 00:31:40.355
+a refined time stamp that is next OK you
+have something hello OK JRS refined time
+
+943ca989-d0c4-4148-8e82-25606e1ca851-2
+00:31:40.355 --> 00:31:49.760
+stamp is the column in all the target
+tables of zone one.
+
+402b2be7-f2e1-42df-baa6-24675bd30d54-0
+00:31:49.880 --> 00:31:51.600
+It would be there for all the tables.
+
+9e5c1a89-205f-4df2-b64e-fb896e793d5d-0
+00:31:51.960 --> 00:31:57.853
+So we have to like get get the maximum
+JRS time stamp across all tables for a
+
+9e5c1a89-205f-4df2-b64e-fb896e793d5d-1
+00:31:57.853 --> 00:31:58.760
+given batch.
+
+7aba691b-538c-48b0-a760-c8c0e688b5f5-0
+00:31:59.040 --> 00:32:04.727
+So like this is the this is how the our
+sourcing end time should be populated
+
+7aba691b-538c-48b0-a760-c8c0e688b5f5-1
+00:32:04.727 --> 00:32:07.280
+while we are making a manual entry.
+
+c63bf60c-8f78-4eac-9b42-51273421d7b7-0
+00:32:07.880 --> 00:32:10.791
+OK,
+so in the batch related details or anyone
+
+c63bf60c-8f78-4eac-9b42-51273421d7b7-1
+00:32:10.791 --> 00:32:14.400
+anywhere it is not there this year is
+define time stamp.
+
+ab9a1bce-febb-432c-9c45-3a0b0f64689a-0
+00:32:15.120 --> 00:32:16.080
+No, it is not there.
+
+91abb27f-7bae-46b6-8cfb-2a34a9ca3c96-0
+00:32:16.080 --> 00:32:18.160
+You can check which file once on this
+column.
+
+0352b2f4-1c2e-4d5e-a149-da2dca529215-0
+00:32:18.160 --> 00:32:20.640
+So it is kind of a real.
+
+dc5fd475-baba-473f-9041-7d8610cf8169-0
+00:32:20.920 --> 00:32:27.458
+So if if they are planning to do this
+historical load from 1st 19119 hundred to
+
+dc5fd475-baba-473f-9041-7d8610cf8169-1
+00:32:27.458 --> 00:32:34.242
+first or December 31st of 2026 till this
+time they want to do historical load like
+
+dc5fd475-baba-473f-9041-7d8610cf8169-2
+00:32:34.242 --> 00:32:39.799
+they want to get the data from you know
+from Teradata to Snowflake.
+
+2cc2d0f1-5f8b-4751-b7d4-cdeacf0b2177-0
+00:32:39.960 --> 00:32:46.240
+So then they will they are trying to load
+till December 31st.
+
+3adf517a-c4d7-4db0-b48b-e67ffab35ab0-0
+00:32:46.520 --> 00:32:51.818
+So they will check whether what is the
+maximum GRS refined time stamp that we
+
+3adf517a-c4d7-4db0-b48b-e67ffab35ab0-1
+00:32:51.818 --> 00:32:53.720
+have on that particular day.
+
+61299e27-9af0-46cc-a512-63cea33b3275-0
+00:32:53.720 --> 00:32:56.400
+They will check and they will assign that
+value to it.
+
+1ef82652-abf8-4919-b17f-5c189b59c275-0
+00:32:56.800 --> 00:33:00.560
+So for development and testing purpose
+you might take any value I guess.
+
+73cdb88d-357d-4d7c-84c6-04ff9b00d3a0-0
+00:33:00.840 --> 00:33:05.647
+But during the actual historical load,
+it's their responsibility to get the
+
+73cdb88d-357d-4d7c-84c6-04ff9b00d3a0-1
+00:33:05.647 --> 00:33:09.760
+maximum GRS refund different times of
+value from all the tables.
+
+16e4627a-4e69-41f2-9aaf-f3c16f3cb003-0
+00:33:09.840 --> 00:33:10.840
+And that's the only one.
+
+a1a5dc6a-9314-46c6-919c-1d580aea1648-0
+00:33:12.240 --> 00:33:12.480
+Yeah.
+
+43295e45-de79-4251-bbda-37ff8044df22-0
+00:33:14.160 --> 00:33:14.480
+OK.
+
+93af5a43-dffd-4fa3-8e21-e7005aa982d7-0
+00:33:15.560 --> 00:33:21.800
+So they'll be providing it to us for this
+entry right in that tier usually.
+
+2d905884-3fdb-4205-ad06-6d4ace8975f0-0
+00:33:21.800 --> 00:33:24.865
+Yeah,
+it depends like in real time scenario
+
+2d905884-3fdb-4205-ad06-6d4ace8975f0-1
+00:33:24.865 --> 00:33:26.120
+they have to take.
+
+ddfdbae3-5da4-4a8d-b16e-7543b01f210d-0
+00:33:26.160 --> 00:33:29.200
+But for testing purpose,
+you can check which one.
+
+dad8d238-5189-41db-89a4-9775287aeab1-0
+00:33:29.440 --> 00:33:34.693
+I think you can take any random value
+because what I'm thinking maybe today's
+
+dad8d238-5189-41db-89a4-9775287aeab1-1
+00:33:34.693 --> 00:33:39.880
+date you can take it for just for testing
+you can take is what I'm thinking.
+
+80335f74-2650-4308-98dd-58f422715753-0
+00:33:40.320 --> 00:33:46.264
+OK in real time during the production,
+they have to go configure like maybe like
+
+80335f74-2650-4308-98dd-58f422715753-1
+00:33:46.264 --> 00:33:48.320
+if they're asked, they will.
+
+9a41cc81-b3a4-40bc-951e-ff8f11e93461-0
+00:33:48.480 --> 00:33:49.560
+This is the process.
+
+c6ee22e8-9718-40bf-b826-9427bbf03173-0
+00:33:50.000 --> 00:33:55.628
+This is the value that needs to be
+populated into sourcing area OK which is
+
+c6ee22e8-9718-40bf-b826-9427bbf03173-1
+00:33:55.628 --> 00:34:01.404
+maximum refined time stamp across all
+tables that are coming under a specific
+
+c6ee22e8-9718-40bf-b826-9427bbf03173-2
+00:34:01.404 --> 00:34:02.960
+match specific match.
+
+8e1a6d13-79ba-49d8-b93c-679c732eb1b2-0
+00:34:03.880 --> 00:34:06.120
+During historical load processing.
+
+a9bae82a-a37a-46c5-8fad-90b458306b76-0
+00:34:06.120 --> 00:34:08.480
+Batch prerequisites will not be evaluated.
+
+dae521c9-144d-463e-87c2-e2fbf4bb0523-0
+00:34:08.680 --> 00:34:13.656
+Since the records are created manually,
+Batch preload will not perform any
+
+dae521c9-144d-463e-87c2-e2fbf4bb0523-1
+00:34:13.656 --> 00:34:17.240
+additional changes and execution will
+begin and stop.
+
+28f11eb4-6736-4faf-a579-da7d83398792-0
+00:34:17.280 --> 00:34:20.640
+It will not be evaluated.
+
+a0395ff9-a8bc-4617-a8e2-f11f81bdf600-0
+00:34:21.120 --> 00:34:23.080
+Batch preview site will not be validated.
+
+6782d5db-f316-4234-b442-0bdf11a36296-0
+00:34:23.080 --> 00:34:27.840
+Means like it's not it's not a regular
+run.
+
+cae8d892-20f8-4731-a417-c155929b1457-0
+00:34:28.040 --> 00:34:30.880
+So this would be for the first time.
+
+af811a5d-018f-4815-bbf6-f7fa0e6bf9e0-0
+00:34:31.240 --> 00:34:35.880
+What is the point of we have to directly
+trigger the batch flow?
+
+1bad62fc-fc49-4857-9786-46ff23b5f09b-0
+00:34:36.520 --> 00:34:37.440
+Yes, yeah.
+
+63076ef0-2c8c-4778-9130-71ebbe17c66b-0
+00:34:38.000 --> 00:34:45.258
+And also as the batch pre batch in like
+we have made an entry into the batch run
+
+63076ef0-2c8c-4778-9130-71ebbe17c66b-1
+00:34:45.258 --> 00:34:47.320
+stretch table manually.
+
+e05d3384-648b-4e13-bd0e-7a9fac73e92e-0
+00:34:47.320 --> 00:34:52.320
+We don't need to do anything as part of
+batch batch preload like we do.
+
+ead0facf-5ec4-462e-b1fb-53bd340ebc4d-0
+00:34:52.320 --> 00:34:55.850
+We should not make any entry,
+we should not make any change to the
+
+ead0facf-5ec4-462e-b1fb-53bd340ebc4d-1
+00:34:55.850 --> 00:34:57.800
+entry which is already made manually.
+
+1013f446-564a-4ba6-b59f-a39ad47c75ff-0
+00:34:58.040 --> 00:35:00.400
+That's what this sentence means.
+
+f2b82402-ec2e-4271-ab4d-17ef705bfe2f-0
+00:35:00.400 --> 00:35:03.600
+OK,
+so we and is that logic there or is
+
+f2b82402-ec2e-4271-ab4d-17ef705bfe2f-1
+00:35:03.600 --> 00:35:04.560
+implemented?
+
+1aee164a-f232-4614-b2ee-5397bf83bb04-0
+00:35:05.160 --> 00:35:06.720
+It has to be, it has to be there.
+
+51195380-27ba-49ae-bfd5-429e08f7f80b-0
+00:35:07.680 --> 00:35:08.360
+It has to be there.
+
+56b76f62-2b84-4764-8767-1ac131024448-0
+00:35:08.360 --> 00:35:11.880
+It's not implemented, right, RIA,
+it's not.
+
+a7f22a38-c57d-420b-8f4e-d84c95ab1436-0
+00:35:11.920 --> 00:35:15.180
+So just let me know like I like,
+I guess like nothing,
+
+a7f22a38-c57d-420b-8f4e-d84c95ab1436-1
+00:35:15.180 --> 00:35:18.560
+none of this is implemented,
+but still just let me know.
+
+2a169d82-00fa-4d14-8da0-08d234df9db4-0
+00:35:18.880 --> 00:35:23.264
+So in case anything among these points
+are already implemented,
+
+2a169d82-00fa-4d14-8da0-08d234df9db4-1
+00:35:23.264 --> 00:35:24.840
+that's not implemented.
+
+9641b3a6-d5b8-4855-8f0e-6731a8befc98-0
+00:35:25.400 --> 00:35:30.553
+History catch up first time incremental
+whatever related to this has not been
+
+9641b3a6-d5b8-4855-8f0e-6731a8befc98-1
+00:35:30.553 --> 00:35:34.320
+implemented at any step of the at any
+stage of the ABCD.
+
+7785177b-56fa-4066-bab6-591d748b7b0a-0
+00:35:34.880 --> 00:35:36.621
+OK,
+this has to be implemented and ABC
+
+7785177b-56fa-4066-bab6-591d748b7b0a-1
+00:35:36.621 --> 00:35:39.926
+runtime tables required for historical
+loader pass transfer, job run set,
+
+7785177b-56fa-4066-bab6-591d748b7b0a-2
+00:35:39.926 --> 00:35:42.293
+job error, stress job rule, execution log,
+job rule,
+
+7785177b-56fa-4066-bab6-591d748b7b0a-3
+00:35:42.293 --> 00:35:44.080
+error detail and balance reconstruction.
+
+9c5163c1-e924-4eeb-b44a-2cdd275b3f1b-0
+00:35:44.680 --> 00:35:46.720
+Because why I have provided all these
+details, right?
+
+d255aa85-9430-494f-b895-78a2c343f67c-0
+00:35:46.720 --> 00:35:52.112
+This is LLD like whoever looking at this
+for the first time should have all the
+
+d255aa85-9430-494f-b895-78a2c343f67c-1
+00:35:52.112 --> 00:35:56.493
+details like if anyone,
+if anyone is having any question if they
+
+d255aa85-9430-494f-b895-78a2c343f67c-2
+00:35:56.493 --> 00:36:00.200
+are looking into this,
+they have to understand, right?
+
+b0af031c-7747-4446-ab98-89a2c95e93f0-0
+00:36:00.200 --> 00:36:05.834
+That is the reason why I'll try to keep
+every point possible like every possible
+
+b0af031c-7747-4446-ab98-89a2c95e93f0-1
+00:36:05.834 --> 00:36:06.600
+point here.
+
+42df522c-f661-480d-a071-8d9fdeec2569-0
+00:36:08.320 --> 00:36:11.725
+If we see runtime tables required for
+yeah, yeah,
+
+42df522c-f661-480d-a071-8d9fdeec2569-1
+00:36:11.725 --> 00:36:15.266
+not choosing ETL data ingestion source
+window here,
+
+42df522c-f661-480d-a071-8d9fdeec2569-2
+00:36:15.266 --> 00:36:19.080
+they are not using ETL data ingestion
+source window OK.
+
+54aa90d8-b6d8-4db9-9982-8f8546ad181b-0
+00:36:19.360 --> 00:36:24.000
+The historical load would be executed
+based on one time range provided in the.
+
+84c83ea8-4b44-4f7d-8bbe-99d8cbe2f3f9-0
+00:36:24.080 --> 00:36:27.800
+So there is no need for the table ETL
+data ingestion source window.
+
+ebd388e7-8e26-4cb9-9194-4eb5fa5b477e-0
+00:36:28.160 --> 00:36:31.645
+The main significance of this ETL data
+ingestion source window table is to
+
+ebd388e7-8e26-4cb9-9194-4eb5fa5b477e-1
+00:36:31.645 --> 00:36:34.480
+provide the sourcing window for the
+incremental load, right?
+
+5e30a5d0-d7b5-43b2-a952-13cea9512929-0
+00:36:34.960 --> 00:36:37.200
+But in the historical load,
+we are not using it.
+
+18abad48-ad62-4ce4-85c9-de7fc1a28c7c-0
+00:36:37.520 --> 00:36:41.643
+We are using the dates provided in the
+patch and stats directly for for
+
+18abad48-ad62-4ce4-85c9-de7fc1a28c7c-1
+00:36:41.643 --> 00:36:42.560
+historical load.
+
+0f8bdfd5-7dd7-41ce-9c1d-6070a46d9b53-0
+00:36:43.360 --> 00:36:43.720
+OK, OK.
+
+91d680b8-3a2c-4281-81a8-1e646803e8f1-0
+00:36:44.040 --> 00:36:48.808
+And the the data which is like takes from
+the source,
+
+91d680b8-3a2c-4281-81a8-1e646803e8f1-1
+00:36:48.808 --> 00:36:55.785
+it is always stored in the batch run
+status table as the source sourcing start
+
+91d680b8-3a2c-4281-81a8-1e646803e8f1-2
+00:36:55.785 --> 00:37:00.995
+time and in time right here that is the
+window like sorry,
+
+91d680b8-3a2c-4281-81a8-1e646803e8f1-3
+00:37:00.995 --> 00:37:07.972
+what come again this sourcing start time
+and sourcing in time that is the like
+
+91d680b8-3a2c-4281-81a8-1e646803e8f1-4
+00:37:07.972 --> 00:37:15.214
+window by using which the source table is
+like data is safe and in general OK and
+
+91d680b8-3a2c-4281-81a8-1e646803e8f1-5
+00:37:15.214 --> 00:37:18.040
+in normal load, sorry, go ahead.
+
+bca3fe27-c00d-4927-b803-2ec3b21a06fc-0
+00:37:18.040 --> 00:37:21.280
+And in normal load, so regular load.
+
+9cfc3022-de76-4756-86bb-4de666686a14-0
+00:37:21.680 --> 00:37:27.348
+So are these two fields loaded by using
+values from some those EPL data ingestion
+
+9cfc3022-de76-4756-86bb-4de666686a14-1
+00:37:27.348 --> 00:37:28.800
+or something correct?
+
+9464330f-26fb-49b3-bb34-bb4d225fe7d1-0
+00:37:31.160 --> 00:37:36.200
+OK so here this is what I'm thinking.
+
+848bdc4f-24cf-47c7-b0c2-c84a53df6c97-0
+00:37:36.360 --> 00:37:42.355
+If my execution type is historical or my
+batch latest batch to even indicator
+
+848bdc4f-24cf-47c7-b0c2-c84a53df6c97-1
+00:37:42.355 --> 00:37:45.661
+research,
+then in that case let's have two
+
+848bdc4f-24cf-47c7-b0c2-c84a53df6c97-2
+00:37:45.661 --> 00:37:50.120
+parameters, yeah,
+sourcing stratum and sourcing end time.
+
+42b113ca-e64d-4f07-9f00-a077fd96aa44-0
+00:37:50.440 --> 00:37:55.091
+So whatever the latest sourcing stratum
+and sourcing end time we have in the best,
+
+42b113ca-e64d-4f07-9f00-a077fd96aa44-1
+00:37:55.091 --> 00:37:59.070
+otherwise let's discuss it at the last
+whatever that logic needs to be
+
+42b113ca-e64d-4f07-9f00-a077fd96aa44-2
+00:37:59.070 --> 00:38:00.359
+implemented as part of.
+
+ae09908c-8751-4923-92c6-52059bb41877-0
+00:38:00.360 --> 00:38:03.403
+Yeah,
+I think that will be better if we talk it
+
+ae09908c-8751-4923-92c6-52059bb41877-1
+00:38:03.403 --> 00:38:03.720
+last.
+
+d97e41e4-86f0-4c5c-a460-64ed551a2851-0
+00:38:03.880 --> 00:38:08.562
+We you can give suggestion now like,
+but finally we'll need to either way have
+
+d97e41e4-86f0-4c5c-a460-64ed551a2851-1
+00:38:08.562 --> 00:38:12.000
+a like discussion about that one,
+what is needed and all.
+
+795db393-1806-447f-a85f-be14b79a1adb-0
+00:38:12.600 --> 00:38:13.720
+Yeah, OK.
+
+4b27336a-156a-41d8-9369-d4e6cb5821c7-0
+00:38:14.080 --> 00:38:18.922
+So then critical check there only here
+what are the cheques that are performing
+
+4b27336a-156a-41d8-9369-d4e6cb5821c7-1
+00:38:18.922 --> 00:38:23.704
+is null check should be performed on key
+columns for the load happened between
+
+4b27336a-156a-41d8-9369-d4e6cb5821c7-2
+00:38:23.704 --> 00:38:25.519
+zone one source to zone route.
+
+34eac4da-ab6a-4105-9c59-fb4104aa43d1-0
+00:38:25.760 --> 00:38:29.100
+As historical load is also happening via
+zone one,
+
+34eac4da-ab6a-4105-9c59-fb4104aa43d1-1
+00:38:29.100 --> 00:38:31.720
+we have to do a historic critical check.
+
+d1db6595-d270-4d9a-8c1e-cb45d0dfef6d-0
+00:38:31.920 --> 00:38:36.018
+So just like normal regular route how we
+are doing null cheques for key column,
+
+d1db6595-d270-4d9a-8c1e-cb45d0dfef6d-1
+00:38:36.018 --> 00:38:39.655
+we have to do the same for this and
+source and target count validation
+
+d1db6595-d270-4d9a-8c1e-cb45d0dfef6d-2
+00:38:39.655 --> 00:38:42.320
+between source and source and target
+should happen.
+
+04319252-9c3a-4d69-b139-918a27832230-0
+00:38:42.440 --> 00:38:47.368
+This will be taken care by job and stress
+table that so one question before at this
+
+04319252-9c3a-4d69-b139-918a27832230-1
+00:38:47.368 --> 00:38:47.720
+point.
+
+b6bd0442-60df-43ed-a197-dfff00ae5689-0
+00:38:47.720 --> 00:38:49.560
+So this critical check thing.
+
+ad6b416b-1280-41ff-a0b1-f63d6801fd43-0
+00:38:49.560 --> 00:38:55.592
+So generally in all the target table we
+like how how the primary key is our key
+
+ad6b416b-1280-41ff-a0b1-f63d6801fd43-1
+00:38:55.592 --> 00:39:01.473
+column is like is is it one particular
+column or there could be like multiple
+
+ad6b416b-1280-41ff-a0b1-f63d6801fd43-2
+00:39:01.473 --> 00:39:02.680
+records for one.
+
+6803e0f2-1382-4fa2-9586-9afceebe4435-0
+00:39:04.000 --> 00:39:06.160
+It will be provided by data modelling
+team.
+
+ac1872e0-781f-432c-b860-f98abb343ea4-0
+00:39:07.200 --> 00:39:10.480
+And these are all like which type of
+tables is it?
+
+e15bf1e1-48ea-4a61-b301-d0ef4275e5e6-0
+00:39:10.480 --> 00:39:12.680
+Like is it type 1, type 2 or what type 2?
+
+fa5b0899-9d65-4375-84a4-a8a4c7cd30b9-0
+00:39:13.680 --> 00:39:17.040
+It depends on the functionality of the of
+the asset.
+
+53724718-ebf2-45b0-bbbe-d118d2f49d3d-0
+00:39:18.200 --> 00:39:24.280
+But in producer and CCO all tables are
+SCD type 2 and fewer static tables.
+
+f64106a9-99e8-41f9-b078-770e0eb67747-0
+00:39:24.360 --> 00:39:26.160
+I think 3 tables are static tables.
+
+073ee7ad-01f9-4a5d-a2a1-388a129ce9ca-0
+00:39:27.240 --> 00:39:29.800
+I don't know how they are handling that
+static table.
+
+f408d8ef-ae97-4346-8114-91f1121883b5-0
+00:39:30.200 --> 00:39:32.160
+I don't know whether they're using ABC or
+not.
+
+60ba9d25-4756-46d3-a0ce-2c291316650c-0
+00:39:32.160 --> 00:39:35.720
+Also I don't directly using some migrate
+or something.
+
+dc9dd392-84db-4c30-a266-05fe4cd6d0f5-0
+00:39:35.840 --> 00:39:37.680
+I don't know about those details.
+
+ac82c300-2e57-4a2d-882f-5ee396a34700-0
+00:39:37.920 --> 00:39:42.034
+But as of now in the build,
+whatever happening in the IDMC,
+
+ac82c300-2e57-4a2d-882f-5ee396a34700-1
+00:39:42.034 --> 00:39:44.160
+they're using SAT type 2 table.
+
+e14ad882-2efb-40b7-a466-4c1752fe2921-0
+00:39:45.600 --> 00:39:50.801
+As of now being in the future state,
+we might come across different flow types
+
+e14ad882-2efb-40b7-a466-4c1752fe2921-1
+00:39:50.801 --> 00:39:53.040
+OK and balance sheet cancellation.
+
+675b8897-3279-4480-aba0-9cc5da25f31c-0
+00:39:53.040 --> 00:39:57.811
+Also if there are any amount columns,
+then we have to perform the balance
+
+675b8897-3279-4480-aba0-9cc5da25f31c-1
+00:39:57.811 --> 00:40:02.969
+reconciliation also for the data load
+happening between the zone and source and
+
+675b8897-3279-4480-aba0-9cc5da25f31c-2
+00:40:02.969 --> 00:40:06.838
+zone to source OK,
+zone to target OK and then coming to the
+
+675b8897-3279-4480-aba0-9cc5da25f31c-3
+00:40:06.838 --> 00:40:11.481
+catch up load, catch up load,
+if our data needs to be processed for the
+
+675b8897-3279-4480-aba0-9cc5da25f31c-4
+00:40:11.481 --> 00:40:16.639
+for the data to load from Teradata to
+Snowflake zone one second this source and
+
+675b8897-3279-4480-aba0-9cc5da25f31c-5
+00:40:16.639 --> 00:40:20.960
+target count validation between zone one
+source and zone 2 target.
+
+d1d0bd78-526f-4f25-a696-10b1a98fac80-0
+00:40:20.960 --> 00:40:24.440
+So is it done in the regular load as well?
+
+17bbbee9-2b85-4c63-89ce-169126bda118-0
+00:40:25.440 --> 00:40:28.125
+Yeah,
+it it will be done in the job run stats,
+
+17bbbee9-2b85-4c63-89ce-169126bda118-1
+00:40:28.125 --> 00:40:30.240
+right in the job run stats post load.
+
+be8311be-0bd7-45f3-b559-85cc726f6ea3-0
+00:40:30.240 --> 00:40:30.920
+Oh, OK, OK.
+
+4e88bd2e-26e0-429c-8294-5088e994c3d6-0
+00:40:30.920 --> 00:40:34.160
+Normal source and target count validation
+it is yeah.
+
+a8f5fb09-8121-4bd5-81cc-51a2e0d9f684-0
+00:40:34.320 --> 00:40:36.600
+Normal thing Zone 1 and zone 2 it is
+mentioned.
+
+242f0d2b-8dea-471c-b622-409e52b974bf-0
+00:40:36.600 --> 00:40:37.720
+That's very good conversation.
+
+4ca0b4dd-24ba-494c-bba5-1bb33c0cd5fe-0
+00:40:38.160 --> 00:40:41.376
+Yeah,
+it's just normal thing only because my
+
+4ca0b4dd-24ba-494c-bba5-1bb33c0cd5fe-1
+00:40:41.376 --> 00:40:45.880
+siti mentioned this point in her notes in
+in the design steps.
+
+16dc1cd8-fd4f-47c7-b9a0-879ffd89ef51-0
+00:40:45.880 --> 00:40:49.440
+So I thought it would be better to have
+this.
+
+675b0683-4681-4568-a555-580c6a8faa28-0
+00:40:49.600 --> 00:40:51.240
+But one question right.
+
+c8648b9f-a88b-4c65-a166-b683628f07f5-0
+00:40:51.520 --> 00:40:58.781
+Account validation is between like in the
+job it and down status it is between zone
+
+c8648b9f-a88b-4c65-a166-b683628f07f5-1
+00:40:58.781 --> 00:41:01.720
+1 target and zone 2 target, right?
+
+fc255665-bd51-4c9e-b73d-fef162d0b814-0
+00:41:02.520 --> 00:41:07.240
+Because zone 1 target is our source,
+correct, correct.
+
+be2bd946-fdc5-483c-beed-df6cd67f1def-0
+00:41:08.960 --> 00:41:12.440
+So like if this one, this statement,
+is it correct?
+
+7feac88a-7dbd-4c33-9ff9-ffdf18aab4cc-0
+00:41:12.560 --> 00:41:18.560
+Like zone one source and zone 2 target
+correct?
+
+2bf02a36-d5f0-4df6-b483-ec7d9661495e-0
+00:41:18.560 --> 00:41:19.080
+How many?
+
+7975a464-4d1c-4361-a612-3acc6c2291aa-0
+00:41:19.800 --> 00:41:20.240
+OK.
+
+c858e914-2f9b-49db-ae62-202e8cbbd88b-0
+00:41:20.760 --> 00:41:21.000
+Yeah.
+
+feb7d320-d6d9-4872-895d-1273d9ede2a5-0
+00:41:21.480 --> 00:41:28.201
+So we are having this ABC framework for
+the historical load happening from
+
+feb7d320-d6d9-4872-895d-1273d9ede2a5-1
+00:41:28.201 --> 00:41:30.800
+Teradata to Zone 2 table, OK.
+
+2c04c5dd-0a09-4c48-ab0a-f7f9e4c44dca-0
+00:41:31.240 --> 00:41:33.840
+This is business requirement.
+
+2ee17ba2-2905-411c-87f0-5abcabee6e29-0
+00:41:34.320 --> 00:41:35.800
+How we are doing this?
+
+7cb3bb54-9fc2-467c-8f1e-03687ceebbed-0
+00:41:36.160 --> 00:41:42.889
+We are doing the Teradata to zone one
+load using some demigrator framework that
+
+7cb3bb54-9fc2-467c-8f1e-03687ceebbed-1
+00:41:42.889 --> 00:41:44.320
+is different, OK.
+
+6635f801-9675-4725-bd9e-caa32eaa01bf-0
+00:41:44.560 --> 00:41:48.040
+Our purpose is to load from zone 1 to
+zone 2.
+
+c57bf985-9642-40b4-89cb-681d488b558d-0
+00:41:49.120 --> 00:41:54.198
+OK,
+So our ABC framework should should idea
+
+c57bf985-9642-40b4-89cb-681d488b558d-1
+00:41:54.198 --> 00:41:57.200
+here for this requirement.
+
+431d89fc-2192-41bc-b892-4d85d690ba2d-0
+00:41:57.360 --> 00:41:59.080
+Zone 1-2, Zone 2, that's it.
+
+95c61f98-89a0-4880-b0bd-083650302f35-0
+00:41:59.520 --> 00:42:01.440
+So zone 1 would be always our source.
+
+68cddd6b-fed3-4679-b2af-dbd19a7ec076-0
+00:42:01.440 --> 00:42:05.000
+Zone 2 is our target for historical as of
+now.
+
+b6ef2e6c-973c-4f25-9da1-252cf320ca34-0
+00:42:06.120 --> 00:42:12.080
+OK, one second.
+
+07811837-1a07-4741-9e9d-19aee48c7068-0
+00:42:20.840 --> 00:42:22.080
+OK, OK.
+
+20f163a0-bf16-4c7c-92c6-71e40d97e08c-0
+00:42:22.240 --> 00:42:23.800
+I bought you what you are trying to say.
+
+03d91fd5-b81c-4ad5-8649-41ef0fdcbcc9-0
+00:42:23.800 --> 00:42:27.480
+But this particular like statement is
+like it is.
+
+8ea1dc1e-7073-476d-9f67-1e2b6f5ba46d-0
+00:42:27.800 --> 00:42:32.622
+It is like indicating like zone 1 like
+source code zone 1 because basically data
+
+8ea1dc1e-7073-476d-9f67-1e2b6f5ba46d-1
+00:42:32.622 --> 00:42:32.920
+data.
+
+0e738a8d-ffce-4546-b72f-48e6c48c4894-0
+00:42:34.200 --> 00:42:41.360
+It seems like that that means we can keep
+like this zone 1 which is source.
+
+1cd71723-7736-4e28-8986-6d45f7be53d1-0
+00:42:50.000 --> 00:42:56.740
+It's better, yeah,
+because it was implying like zone one
+
+1cd71723-7736-4e28-8986-6d45f7be53d1-1
+00:42:56.740 --> 00:43:02.299
+source,
+like source for zone 1 and then target
+
+1cd71723-7736-4e28-8986-6d45f7be53d1-2
+00:43:02.299 --> 00:43:03.600
+for zone 2.
+
+3ebbef76-a1e7-414e-afb6-0048186b4f5d-0
+00:43:05.600 --> 00:43:08.200
+Yeah, Oh my God.
+
+3dc3d3f7-2b74-4e90-84c3-f87d2e77a620-0
+00:43:08.240 --> 00:43:10.200
+I'm just for it.
+
+af63c39d-0924-4479-9763-dacb7339da32-0
+00:43:10.760 --> 00:43:15.960
+This preload cash preload is also taking
+very much of OK, then catch upload.
+
+fcf33a22-81e1-44a6-97f4-9bead340c3d9-0
+00:43:16.640 --> 00:43:20.536
+OK, you,
+you were there then if you were there
+
+fcf33a22-81e1-44a6-97f4-9bead340c3d9-1
+00:43:20.536 --> 00:43:25.760
+like then it would have like it would not
+take that much time.
+
+f9d52d1d-f48b-4df7-856f-6659c390d907-0
+00:43:25.760 --> 00:43:29.640
+But if if kind of I have to take that I'm
+taking from you.
+
+285133a8-5ad2-4aed-acbe-63c752526daa-0
+00:43:30.120 --> 00:43:31.760
+And the one kind of thing that yeah.
+
+bfc273e3-fb4f-48a2-90ef-ce7c4211402b-0
+00:43:32.200 --> 00:43:38.210
+But what I want to like inform leads is
+about this time that it is taking for
+
+bfc273e3-fb4f-48a2-90ef-ce7c4211402b-1
+00:43:38.210 --> 00:43:42.680
+reverse Kitty and Kitty it is taking more
+than two hours.
+
+b8afbd07-3131-4393-aefa-c037bb59147d-0
+00:43:43.080 --> 00:43:43.440
+Yeah.
+
+92b8321d-a1e3-4296-9cbf-862b3bcf13c2-0
+00:43:43.440 --> 00:43:47.207
+That that you need to infer especially
+you need to inform because you were
+
+92b8321d-a1e3-4296-9cbf-862b3bcf13c2-1
+00:43:47.207 --> 00:43:49.920
+working on some other important steps as
+well, right?
+
+5cd4995c-f808-488e-bbe8-f6b1ee25f945-0
+00:43:49.920 --> 00:43:52.440
+Yeah, yeah, I'll inform them.
+
+cc6b05f7-d5b6-462b-adc9-ddd86ea21cb4-0
+00:43:52.520 --> 00:43:53.360
+I'll inform them.
+
+43182931-20c7-48ee-bc5b-6a154d090f92-0
+00:43:54.440 --> 00:43:54.720
+Yeah.
+
+1c7f7c5f-fc94-4c8e-b46f-e56185ae9473-0
+00:43:55.320 --> 00:43:57.280
+Like let's have this discussion.
+
+bdc14598-1949-4b42-8727-ee13ab4a86a4-0
+00:43:57.280 --> 00:44:01.000
+That's why I'm first if a batch needs to
+be processed for that.
+
+664a0027-3c0c-405e-b5c2-8b5cd9fd3f65-0
+00:44:01.000 --> 00:44:06.346
+So actually if they are trying to load
+from they're trying to get all the data
+
+664a0027-3c0c-405e-b5c2-8b5cd9fd3f65-1
+00:44:06.346 --> 00:44:10.271
+from Teradata to Snowflake,
+then December 31st Aishwarya,
+
+664a0027-3c0c-405e-b5c2-8b5cd9fd3f65-2
+00:44:10.271 --> 00:44:15.753
+like is it possible for the historical
+load to add that statement that you said,
+
+664a0027-3c0c-405e-b5c2-8b5cd9fd3f65-3
+00:44:15.753 --> 00:44:16.159
+right?
+
+e0a1bdab-6c06-456e-bcc1-c47c5ce9a154-0
+00:44:16.160 --> 00:44:21.680
+That the like total name is data data to
+Snowflake.
+
+65c994b8-b457-4eda-a112-a96890070103-0
+00:44:21.680 --> 00:44:27.148
+This historical load,
+but from a data data to like zone 1 is
+
+65c994b8-b457-4eda-a112-a96890070103-1
+00:44:27.148 --> 00:44:34.320
+basically loading by using the migrator
+tool and which part the ABC will cover.
+
+d5336882-784e-4050-a61e-de317e542cb0-0
+00:44:34.360 --> 00:44:36.800
+If you can add that as well,
+that will be helpful.
+
+692df78a-9639-4221-8742-1c614111c20e-0
+00:44:37.680 --> 00:44:48.028
+Zone 2 is responsible,
+but the load happening up from zone 1 to
+
+692df78a-9639-4221-8742-1c614111c20e-1
+00:44:48.028 --> 00:44:49.160
+zone 1.
+
+31acbb79-c54d-4490-8a61-95051afcad52-0
+00:44:49.160 --> 00:44:53.720
+And also about the D migrator tool also
+you can mention that that's OK.
+
+309c6d40-f4c3-438d-b844-933edf8b9a9a-0
+00:44:53.720 --> 00:44:55.600
+Like we don't need that.
+
+d9d3223d-911e-41ec-bcb1-b08d79e046d2-0
+00:44:56.880 --> 00:45:02.640
+I don't know whether the framework is
+exactly just D migrator rod.
+
+27ec9958-3227-4332-8f5a-4a5d6d2b2b1d-0
+00:45:03.120 --> 00:45:04.280
+This is document right?
+
+6dd1446e-5db7-4c50-9786-4cde0d59803e-0
+00:45:06.200 --> 00:45:09.200
+So I just don't want to have it.
+
+47bd8c53-19ad-4604-90bd-972115d20342-0
+00:45:09.280 --> 00:45:15.800
+But we can check with FAM and we can add
+OK zone is responsible zone to ABC.
+
+b341965f-096f-477b-babc-f9988349549c-0
+00:45:15.960 --> 00:45:21.280
+Let me ABC is responsible for the load
+happening from zone 1 to zone 2.
+
+a2870b5b-78f6-4f4a-ab94-6f4a6d14565a-0
+00:45:21.280 --> 00:45:26.650
+OK, So catch up load is nothing,
+but it is also,
+
+a2870b5b-78f6-4f4a-ab94-6f4a6d14565a-1
+00:45:26.650 --> 00:45:34.760
+it is also load related to the data load
+from Teradata to Snowflake only.
+
+0f6ff693-ba41-4f48-9959-e8a5a6cb6f45-0
+00:45:35.000 --> 00:45:40.240
+But here I'll give you a difference
+between this to historical and catch up.
+
+aff99583-096d-4af8-a8b7-d9504e60a28e-0
+00:45:40.400 --> 00:45:42.800
+So we're running till December 31st,
+right?
+
+a20ad3be-6e43-45e4-8450-1cd0db449fbc-0
+00:45:43.280 --> 00:45:48.781
+There would be huge volume of data which
+cannot be loaded into our Snowflake
+
+a20ad3be-6e43-45e4-8450-1cd0db449fbc-1
+00:45:48.781 --> 00:45:51.640
+tables in a day, in a day or two, right.
+
+067ee46b-dd5c-43f6-b218-645ecc972962-0
+00:45:51.880 --> 00:45:54.800
+So it might take another 10 days or 20
+days.
+
+7f571855-0d3c-457c-8b48-7ef76c1c1ec9-0
+00:45:55.200 --> 00:45:58.196
+We we are not sure depending upon the
+volume of the data,
+
+7f571855-0d3c-457c-8b48-7ef76c1c1ec9-1
+00:45:58.196 --> 00:46:01.400
+it will take time to load data from
+direct data to Snowflake.
+
+29dd04e2-9026-4560-810e-de94cce17058-0
+00:46:01.400 --> 00:46:04.000
+The initial historical what I'm talking
+about.
+
+0fd0e404-f3c7-483e-a32a-2cc0fe24e174-0
+00:46:04.160 --> 00:46:09.800
+So whatever the so I'm on the December
+31st I triggered the historical load.
+
+13033a73-4c69-492e-b8c8-7716b00248b6-0
+00:46:09.800 --> 00:46:12.520
+Now I am on John 10.
+
+45e698b4-6d14-457f-8a43-5eb74cd3e9ca-0
+00:46:12.720 --> 00:46:19.357
+So my historical load has completed
+whatever the data that is not loaded is
+
+45e698b4-6d14-457f-8a43-5eb74cd3e9ca-1
+00:46:19.357 --> 00:46:22.240
+from John first to John 10 right?
+
+39870680-6292-4b1e-9251-87915947c554-0
+00:46:22.680 --> 00:46:27.840
+I will be loading this data using a run
+called catch it load.
+
+5b096acf-b745-4d45-830c-57b5e4920ccb-0
+00:46:28.280 --> 00:46:30.651
+OK,
+this would be happened because it's just
+
+5b096acf-b745-4d45-830c-57b5e4920ccb-1
+00:46:30.651 --> 00:46:33.760
+10 days of data which which can be done
+within one hour 2.
+
+3bdf1815-b0c3-4286-9068-ce99a3ec8396-0
+00:46:34.000 --> 00:46:37.840
+So from the next day onwards first time
+incremental would be started.
+
+9f5bec76-1bb1-4b4d-bc85-66fed9c87e51-0
+00:46:37.920 --> 00:46:44.763
+But for the first time incremental in
+order to have that data like in order to
+
+9f5bec76-1bb1-4b4d-bc85-66fed9c87e51-1
+00:46:44.763 --> 00:46:49.873
+avoid any data loss,
+we are taking the sourcing start time
+
+9f5bec76-1bb1-4b4d-bc85-66fed9c87e51-2
+00:46:49.873 --> 00:46:51.000
+from Jan 7th.
+
+6911f086-71b0-4a7f-b167-37fbd62feb5e-0
+00:46:51.760 --> 00:46:54.800
+Even though the catch upload is happened
+till Jan 10th.
+
+5f880e86-a5e0-4ce8-81da-fcbacb3774ae-0
+00:46:55.080 --> 00:47:01.135
+We would be taking sourcing starting from
+the for the this the first time
+
+5f880e86-a5e0-4ce8-81da-fcbacb3774ae-1
+00:47:01.135 --> 00:47:04.000
+incremental is from Jan 7th or 8th.
+
+7674446f-b366-4d9e-b1b8-333439f86a1d-0
+00:47:04.240 --> 00:47:07.744
+Because if anyway if the records are
+already present in the target,
+
+7674446f-b366-4d9e-b1b8-333439f86a1d-1
+00:47:07.744 --> 00:47:09.600
+they would be marked data unchanged.
+
+47abbe99-8424-4cbd-88ab-761034d5ad69-0
+00:47:09.920 --> 00:47:14.221
+But we just to ensure that there is no
+data loss,
+
+47abbe99-8424-4cbd-88ab-761034d5ad69-1
+00:47:14.221 --> 00:47:19.040
+we are using this technique for first
+time incremental.
+
+037970cf-522e-45df-8b83-a3acd4a78ccd-0
+00:47:19.320 --> 00:47:21.040
+OK, so just one second.
+
+928c71c4-7d47-4123-9680-65f61b5a7929-0
+00:47:21.320 --> 00:47:25.506
+Can you come again with the just just the
+timeline Like I got the concept just the
+
+928c71c4-7d47-4123-9680-65f61b5a7929-1
+00:47:25.506 --> 00:47:25.960
+timeline.
+
+213e30bd-28e6-407b-9255-0cf0ae64c348-0
+00:47:26.000 --> 00:47:31.760
+Just give me example how like what will
+be my date of historical load?
+
+560e8c7d-1792-477b-928c-d957d8d01faf-0
+00:47:31.760 --> 00:47:34.160
+What will be the my time frame for the
+catch up load?
+
+eecee1df-69b6-4312-a83e-9002ef3580d6-0
+00:47:34.160 --> 00:47:35.640
+What will be for the incremental load?
+
+cfa34808-b907-44bb-871e-c78cd3550059-0
+00:47:37.080 --> 00:47:42.360
+I'll give you a date from 1900 to
+December 31st 2026.
+
+42343775-60dd-43f0-8ebb-59112f49142d-0
+00:47:42.480 --> 00:47:43.880
+I'm loading historical data.
+
+e70f532d-6298-4631-93fd-5d738cd0988f-0
+00:47:44.520 --> 00:47:46.640
+OK, I triggered my historical task flow.
+
+b548b5f2-c3c6-4305-8086-a258bbd3f92e-0
+00:47:47.040 --> 00:47:50.560
+So the load completed on Jan 10th.
+
+e99c377f-9c82-4426-b110-7bbde62ba1d8-0
+00:47:51.320 --> 00:47:57.336
+So on John 10th I will be loading data
+from December 31st whatever sourcing
+
+e99c377f-9c82-4426-b110-7bbde62ba1d8-1
+00:47:57.336 --> 00:48:02.640
+January 10th data loaded till January
+10th historical data loaded.
+
+9b2a9451-b994-4485-b8f1-37e8a8effd2e-0
+00:48:02.760 --> 00:48:06.200
+It took it took ten days to load data.
+
+2b2f49e5-6082-4257-a707-08cf51c9af57-0
+00:48:07.200 --> 00:48:08.120
+This is an assumption.
+
+fe7ed08f-f11d-419e-a812-993e1f655375-0
+00:48:08.640 --> 00:48:13.200
+It took data it took to load data from
+Teradata to Snowflake.
+
+137710d3-8e42-47db-aae1-ab5a7838b86e-0
+00:48:13.480 --> 00:48:13.760
+OK.
+
+751e80b2-4798-4121-908a-5d3bf346af65-0
+00:48:14.200 --> 00:48:17.052
+On John 10th,
+whatever the sourcing end time,
+
+751e80b2-4798-4121-908a-5d3bf346af65-1
+00:48:17.052 --> 00:48:21.827
+which I use it for historical load,
+that would be my sourcing end time in my
+
+751e80b2-4798-4121-908a-5d3bf346af65-2
+00:48:21.827 --> 00:48:23.440
+cache upload and sourcing.
+
+7127ac30-49dc-41e7-857a-35f38ce0d3b4-0
+00:48:24.200 --> 00:48:26.800
+Sourcing end time would be my current
+time stamp value.
+
+af6de304-74f7-41c9-925e-61e6f2b11f14-0
+00:48:27.560 --> 00:48:30.819
+OK,
+this event catch up entry that needs to
+
+af6de304-74f7-41c9-925e-61e6f2b11f14-1
+00:48:30.819 --> 00:48:35.560
+be populated into the batch run stretch
+is also a manual entry.
+
+ca59d9b4-e5ff-4dda-bc40-d09301335038-0
+00:48:35.880 --> 00:48:40.103
+OK,
+I'm just giving you the dates here on
+
+ca59d9b4-e5ff-4dda-bc40-d09301335038-1
+00:48:40.103 --> 00:48:45.030
+John 10th from from January 1st to
+January 10th,
+
+ca59d9b4-e5ff-4dda-bc40-d09301335038-2
+00:48:45.030 --> 00:48:52.772
+I'll be loading data from Teradata to
+Snowflake as part of catcher execution
+
+ca59d9b4-e5ff-4dda-bc40-d09301335038-3
+00:48:52.772 --> 00:48:58.604
+after that OK After that,
+for the first time incremented,
+
+ca59d9b4-e5ff-4dda-bc40-d09301335038-4
+00:48:58.604 --> 00:49:05.542
+I'll be loading from January 7th to
+current time one second profiles
+
+ca59d9b4-e5ff-4dda-bc40-d09301335038-5
+00:49:05.542 --> 00:49:08.760
+historical 1900 to 31st January.
+
+62d3e32c-3963-4d84-9a31-283c6276e683-0
+00:49:08.840 --> 00:49:09.160
+OK.
+
+4070bb67-01fe-4b0e-a4b9-a7d41e7aefd1-0
+00:49:09.800 --> 00:49:12.440
+Oh, 31st December, 31st December, sorry.
+
+3a1141d1-0d7a-4f44-af32-050a4b4e5b9c-0
+00:49:12.440 --> 00:49:13.200
+Yeah, December.
+
+7d11d154-d3bc-4ebf-85c9-c8a2e91586ca-0
+00:49:13.440 --> 00:49:13.720
+Yeah.
+
+82d9bb9b-3257-4ebb-a5b6-efb2314de4e4-0
+00:49:13.720 --> 00:49:18.734
+Then the sourcing start date,
+start date for catch that will be,
+
+82d9bb9b-3257-4ebb-a5b6-efb2314de4e4-1
+00:49:18.734 --> 00:49:24.288
+it would be something around like
+December 31st at 12:00 AM or 1:00 AM,
+
+82d9bb9b-3257-4ebb-a5b6-efb2314de4e4-2
+00:49:24.288 --> 00:49:27.760
+whatever, whatever,
+whenever they triggered,
+
+82d9bb9b-3257-4ebb-a5b6-efb2314de4e4-3
+00:49:27.760 --> 00:49:32.080
+whatever the time that they want to keep,
+they keep OK.
+
+49be3a34-5ae2-4e97-b219-b959de918505-0
+00:49:32.480 --> 00:49:38.109
+And for catch upload my sourcing end time
+start time would be my previous sourcing
+
+49be3a34-5ae2-4e97-b219-b959de918505-1
+00:49:38.109 --> 00:49:38.720
+end time.
+
+fd7a4c05-7928-4f57-9692-36771ac39d90-0
+00:49:38.960 --> 00:49:43.447
+Whatever the sourcing end time that is
+there for historical load that would be
+
+fd7a4c05-7928-4f57-9692-36771ac39d90-1
+00:49:43.447 --> 00:49:45.720
+my sourcing start time for catch upload.
+
+7bb2d973-88eb-4fec-9500-f253794af8fe-0
+00:49:50.480 --> 00:49:55.280
+And what will be the insight end time?
+
+0f1f17b8-f82b-44d5-9803-7aea566aaf62-0
+00:49:56.080 --> 00:49:59.800
+End time would be depends upon the
+requirement only.
+
+d6416989-bf8d-4298-87a6-7fe963e052ee-0
+00:50:00.600 --> 00:50:06.644
+But as as per my assumption historical
+load took 10 days right on January 10th,
+
+d6416989-bf8d-4298-87a6-7fe963e052ee-1
+00:50:06.644 --> 00:50:08.760
+I want to do a catch upload.
+
+cf86f145-be89-4fca-914f-48f4c7691e60-0
+00:50:08.760 --> 00:50:14.988
+So then I would be taking January 10th
+current time stamp as my end time for
+
+cf86f145-be89-4fca-914f-48f4c7691e60-1
+00:50:14.988 --> 00:50:16.040
+catch upload.
+
+f2144349-1f6c-49d8-a8ec-db5a03c7b24f-0
+00:50:19.240 --> 00:50:24.180
+Like all these decisions might differ at
+the production environment,
+
+f2144349-1f6c-49d8-a8ec-db5a03c7b24f-1
+00:50:24.180 --> 00:50:29.120
+but this is the basic assumption that we
+are having for this design.
+
+43c73adf-ecf3-40b2-a45a-85151f7c5094-0
+00:50:31.360 --> 00:50:31.720
+OK.
+
+1dfb9e35-2838-4480-99d3-29509537660a-0
+00:50:32.040 --> 00:50:37.824
+And for first time incremental I would be
+loading from three days prior to the
+
+1dfb9e35-2838-4480-99d3-29509537660a-1
+00:50:37.824 --> 00:50:40.680
+sourcing end time of the catch up load.
+
+dfba070d-7461-4123-be8e-0c01de419c68-0
+00:50:40.960 --> 00:50:45.400
+So we would be doing three days prior.
+
+e96d0fcc-f832-44e4-817e-e54b7f13fde5-0
+00:50:45.600 --> 00:50:50.403
+So that means first time incremental load
+would happen from January 7th to current
+
+e96d0fcc-f832-44e4-817e-e54b7f13fde5-1
+00:50:50.403 --> 00:50:51.040
+time stamp.
+
+cf1f850d-ca98-4df2-8691-11125d814dba-0
+00:50:52.520 --> 00:50:56.216
+So whatever the date is,
+it will be like it needs to be 3 day
+
+cf1f850d-ca98-4df2-8691-11125d814dba-1
+00:50:56.216 --> 00:50:58.720
+prior to the catch up load, catch up load.
+
+0a1f3aee-47c7-4fc4-9eee-a24dc5fed798-0
+00:50:59.800 --> 00:51:04.871
+So that that includes the time stamp like
+if it is like today,
+
+0a1f3aee-47c7-4fc4-9eee-a24dc5fed798-1
+00:51:04.871 --> 00:51:11.391
+if it is supposed the sourcing and time
+for catch up load was 7:00 PM seventh of
+
+0a1f3aee-47c7-4fc4-9eee-a24dc5fed798-2
+00:51:11.391 --> 00:51:16.704
+18th of January, 7:00 PM,
+then the incremental load should be 7th
+
+0a1f3aee-47c7-4fc4-9eee-a24dc5fed798-3
+00:51:16.704 --> 00:51:19.280
+of January, 7:00 PM only, right?
+
+d57b835a-017a-4887-ad05-a17a1cf325e5-0
+00:51:19.280 --> 00:51:21.280
+Or it needs to be from 12:00 AM?
+
+73d928b8-d8bc-4bcc-937f-4518d2ec8432-0
+00:51:22.120 --> 00:51:23.200
+Yeah, it depends.
+
+28dcdb5b-251b-4cf7-9c4d-fa9537349b9c-0
+00:51:24.200 --> 00:51:31.637
+Seven 7th of January they can take any
+anytime because they can even take 2:12
+
+28dcdb5b-251b-4cf7-9c4d-fa9537349b9c-1
+00:51:31.637 --> 00:51:31.920
+AM.
+
+5183d781-2075-4e65-929b-1719417b1c4b-0
+00:51:32.400 --> 00:51:36.579
+So if they are doing historical load
+every day at 1:00 AM,
+
+5183d781-2075-4e65-929b-1719417b1c4b-1
+00:51:36.579 --> 00:51:38.280
+it's also my assumption.
+
+0b825c08-50d5-416e-bf3c-e39092fa95f3-0
+00:51:38.280 --> 00:51:45.610
+So they can take July, sorry,
+January 7th 1:00 AM to January 11th 1:00
+
+0b825c08-50d5-416e-bf3c-e39092fa95f3-1
+00:51:45.610 --> 00:51:45.920
+AM.
+
+72f3af2a-070c-48cf-a6b2-9050cac1fd8b-0
+00:51:46.360 --> 00:51:48.120
+So this is my first time incremental load.
+
+5ba5ffd3-753c-4c59-9751-8a8b93c5fdcf-0
+00:51:50.480 --> 00:51:55.207
+So if they are planning to do the
+incremental load from the next from the
+
+5ba5ffd3-753c-4c59-9751-8a8b93c5fdcf-1
+00:51:55.207 --> 00:52:00.191
+very next day of this catch up load, OK,
+this historical load, catch up load,
+
+5ba5ffd3-753c-4c59-9751-8a8b93c5fdcf-2
+00:52:00.191 --> 00:52:03.641
+incremental load,
+all these are handling using manual
+
+5ba5ffd3-753c-4c59-9751-8a8b93c5fdcf-3
+00:52:03.641 --> 00:52:04.599
+entries, right?
+
+e155d35c-803d-4a23-8edd-217d8c336e2d-0
+00:52:04.800 --> 00:52:09.845
+These date might be different,
+but this is the basic assumption behind
+
+e155d35c-803d-4a23-8edd-217d8c336e2d-1
+00:52:09.845 --> 00:52:10.840
+the that's OK.
+
+09edaaef-a289-4905-a9ff-c2cf01dba9a7-0
+00:52:10.840 --> 00:52:12.935
+OK,
+and how should be the surfing in time for
+
+09edaaef-a289-4905-a9ff-c2cf01dba9a7-1
+00:52:12.935 --> 00:52:14.120
+an incremental first time?
+
+dc0e9050-acc3-4f02-af5a-e3cd71779eab-0
+00:52:14.840 --> 00:52:20.283
+It can be current time stamp Anyway that
+is also handled using manual entry so
+
+dc0e9050-acc3-4f02-af5a-e3cd71779eab-1
+00:52:20.283 --> 00:52:21.800
+they can keep anytime.
+
+06c9cba0-da4a-44f3-b305-f05c550d9a5f-0
+00:52:21.840 --> 00:52:26.837
+But what I'm thinking is because from if
+they are decided,
+
+06c9cba0-da4a-44f3-b305-f05c550d9a5f-1
+00:52:26.837 --> 00:52:33.105
+if they decided to have the batch run
+regular batch run daily at 1:00 AM,
+
+06c9cba0-da4a-44f3-b305-f05c550d9a5f-2
+00:52:33.105 --> 00:52:39.543
+then they would prefer to have the batch
+end time at at 1:00 AM even though
+
+06c9cba0-da4a-44f3-b305-f05c550d9a5f-3
+00:52:39.543 --> 00:52:46.150
+they're triggering at 2:00 AM or 3:00 AM
+or even in the 9:00 AM any time they
+
+06c9cba0-da4a-44f3-b305-f05c550d9a5f-4
+00:52:46.150 --> 00:52:47.760
+might be taking it.
+
+eec37b2c-25f8-4480-83e1-0b322a9f4cfc-0
+00:52:47.920 --> 00:52:48.720
+It depends.
+
+1e695ae1-1817-4c86-b976-c992aebee532-0
+00:52:49.000 --> 00:52:51.960
+OK, you're getting right.
+
+089b4399-c387-4991-8e1f-49c3d71df246-0
+00:52:52.080 --> 00:52:55.480
+These would be yeah, added manually.
+
+262c899d-66dc-4bdd-ba33-22a840c54449-0
+00:52:55.520 --> 00:52:56.840
+So we don't need to worry much.
+
+838d3a7a-3b4c-4e1f-a32c-4081aa4cca6e-0
+00:52:56.840 --> 00:53:02.227
+But from from the Jan 12th onwards our
+ABC framework should handle that our
+
+838d3a7a-3b4c-4e1f-a32c-4081aa4cca6e-1
+00:53:02.227 --> 00:53:06.480
+stone branch based upon the scheduling it
+will be automate.
+
+b1e8a74c-ff38-4aaa-bfe2-ef44e807b188-0
+00:53:08.240 --> 00:53:13.411
+But this all also needs to be these three
+cases is needs to be implemented in ABC
+
+b1e8a74c-ff38-4aaa-bfe2-ef44e807b188-1
+00:53:13.411 --> 00:53:18.520
+like man entry will be manual but the job
+load and everything will be done, yes.
+
+c6ffa006-a67c-445c-9382-15f20ff1ad05-0
+00:53:18.520 --> 00:53:22.966
+So for historical and catch,
+we like the sourcing stratum and end time
+
+c6ffa006-a67c-445c-9382-15f20ff1ad05-1
+00:53:22.966 --> 00:53:26.160
+should be populated from batched and
+stats, right?
+
+1c7c8ff7-2095-445b-99bc-571eb5963094-0
+00:53:26.160 --> 00:53:30.318
+So far that we have to have in our
+parameters in order to pass to the job
+
+1c7c8ff7-2095-445b-99bc-571eb5963094-1
+00:53:30.318 --> 00:53:30.600
+load.
+
+4c2122ee-a0a0-4b0b-aaa9-47cbaa4af384-0
+00:53:31.560 --> 00:53:35.547
+In case of first time incremental,
+we just don't need to do anything,
+
+4c2122ee-a0a0-4b0b-aaa9-47cbaa4af384-1
+00:53:35.547 --> 00:53:40.218
+but we just need to pass some batch ID,
+batch and ID execution and ID to the next
+
+4c2122ee-a0a0-4b0b-aaa9-47cbaa4af384-2
+00:53:40.218 --> 00:53:40.560
+steps.
+
+98434339-0b73-4d7e-9d0f-c5fad4e5ded5-0
+00:53:41.000 --> 00:53:41.440
+That's it.
+
+fa24f257-e805-4e6e-a9f2-6d89c300d5b7-0
+00:53:42.080 --> 00:53:45.470
+Usually for any type of the load,
+for any type of execution,
+
+fa24f257-e805-4e6e-a9f2-6d89c300d5b7-1
+00:53:45.470 --> 00:53:48.971
+we would be passing batch ID,
+batch run ID, execution, run ID,
+
+fa24f257-e805-4e6e-a9f2-6d89c300d5b7-2
+00:53:48.971 --> 00:53:53.139
+all those batch and then 4th batch
+execution and a few details we would be
+
+fa24f257-e805-4e6e-a9f2-6d89c300d5b7-3
+00:53:53.139 --> 00:53:54.640
+passing from job run stats.
+
+afa6240a-7584-4579-bf0b-f23cd9b26e9d-0
+00:53:54.640 --> 00:53:56.560
+OK, sorry, batch run stats preload.
+
+fbf9e7ba-e565-4f07-a905-2d7e1acdb33b-0
+00:53:56.560 --> 00:53:59.880
+OK, so you'll get it.
+
+d63bce1f-43b8-4794-bcda-e83696fa4a3a-0
+00:54:00.400 --> 00:54:03.760
+Like where to make the change even even I
+would be there, right?
+
+d214886f-ad31-41f6-9058-86b32bbda70d-0
+00:54:04.680 --> 00:54:04.800
+Uh huh.
+
+a54b8022-acd8-4889-a039-3e4b55ae8ca6-0
+00:54:05.400 --> 00:54:08.360
+OK, OK, let's let's again go back here.
+
+18668b54-4c28-4e58-ad5d-e52e647669ce-0
+00:54:08.400 --> 00:54:11.600
+Then during catch upload processing,
+I think catch upload the answer.
+
+c7b7b169-b4e5-4c97-87c3-9dd7422b8a57-0
+00:54:11.600 --> 00:54:14.492
+So catch upload,
+I'm just giving here the definition about
+
+c7b7b169-b4e5-4c97-87c3-9dd7422b8a57-1
+00:54:14.492 --> 00:54:14.640
+it.
+
+abcd8927-1d33-4a41-b094-a90ae1b0c1d8-0
+00:54:14.840 --> 00:54:18.253
+So for a catch upload,
+a new record will be created manually in
+
+abcd8927-1d33-4a41-b094-a90ae1b0c1d8-1
+00:54:18.253 --> 00:54:21.400
+batch run stats and new execution run ID
+will be assigned.
+
+c65c0496-3fed-4f42-9013-41aede541b23-0
+00:54:21.640 --> 00:54:22.800
+Read and indicator would be seen.
+
+80bfda88-0e95-4b4f-925b-71164e95794f-0
+00:54:22.800 --> 00:54:26.280
+Status would be started sourcing,
+start time sourcing and time sourcing.
+
+fa52d266-f8fc-416c-8387-73aec6d95031-0
+00:54:26.280 --> 00:54:30.564
+Start time would be sourcing end time of
+prior prior successfully completed batch
+
+fa52d266-f8fc-416c-8387-73aec6d95031-1
+00:54:30.564 --> 00:54:32.080
+which would be my historical.
+
+823ba376-aaef-4dd7-8e2a-1e7c13802a40-0
+00:54:32.080 --> 00:54:32.680
+That's wrong.
+
+519e61b1-7b65-4729-b3e3-e4bc5e520420-0
+00:54:33.360 --> 00:54:42.840
+In the bracket you add historical it
+would be historical only anyways.
+
+b933edbb-5dd4-4c17-b19b-8194fb87d8a4-0
+00:54:42.840 --> 00:54:45.040
+But yeah I'm giving it sourcing.
+
+a0719aa2-788c-4d54-86f6-7ffe42fb812d-0
+00:54:45.040 --> 00:54:48.880
+End time will be populated as Max of GRS
+refined time stamp like this.
+
+dcfc2246-b877-4968-9e34-af9b43dad430-0
+00:54:49.320 --> 00:54:54.775
+So they are not giving the exact this has
+to be taken like current time stamp would
+
+dcfc2246-b877-4968-9e34-af9b43dad430-1
+00:54:54.775 --> 00:54:55.360
+be taken.
+
+03fdf75c-b4a6-4c32-8f62-ffa9fd211a0e-0
+00:54:55.360 --> 00:54:57.720
+They are taking maximum GRS refined time
+stamp.
+
+29cecbd5-3b0e-4515-a194-0886f56c484c-0
+00:54:58.200 --> 00:55:01.341
+OK,
+so that will they will be only providing
+
+29cecbd5-3b0e-4515-a194-0886f56c484c-1
+00:55:01.341 --> 00:55:05.600
+or we have to check it out that you have
+to check with spam.
+
+0a4ed90b-121e-4b7d-aece-f31e0cc12c88-0
+00:55:07.560 --> 00:55:10.236
+Yeah,
+most probably whoever in the production
+
+0a4ed90b-121e-4b7d-aece-f31e0cc12c88-1
+00:55:10.236 --> 00:55:14.425
+support, I think they think if they are,
+if we have to trigger the run,
+
+0a4ed90b-121e-4b7d-aece-f31e0cc12c88-2
+00:55:14.425 --> 00:55:17.160
+then we have to take care of all these
+things.
+
+59c98a83-50df-401b-99d0-7a502fa435bf-0
+00:55:20.080 --> 00:55:23.949
+No, Bing MC is fine,
+but I'm I'm talking about this GRS
+
+59c98a83-50df-401b-99d0-7a502fa435bf-1
+00:55:23.949 --> 00:55:24.640
+timestamp.
+
+dd198b64-aaa5-4975-9ab1-0a37ddd9fe34-0
+00:55:24.920 --> 00:55:29.887
+Yeah, yeah, we can check this file this,
+but make a note of it like whatever the
+
+dd198b64-aaa5-4975-9ab1-0a37ddd9fe34-1
+00:55:29.887 --> 00:55:34.486
+questions you have now which we which
+which we get to get the answers from
+
+dd198b64-aaa5-4975-9ab1-0a37ddd9fe34-2
+00:55:34.486 --> 00:55:39.453
+Swami because just jot all of them and
+send send those questions in that mail to
+
+dd198b64-aaa5-4975-9ab1-0a37ddd9fe34-3
+00:55:39.453 --> 00:55:39.760
+spam.
+
+ae77aaf2-93d5-4fc7-a859-af4b25b9ee4d-0
+00:55:43.920 --> 00:55:44.040
+OK.
+
+80453d90-575a-4305-a310-fea13dbc9997-0
+00:55:44.120 --> 00:55:49.090
+And during catch upload processing,
+batch prerequisites will not be evaluated
+
+80453d90-575a-4305-a310-fea13dbc9997-1
+00:55:49.090 --> 00:55:53.360
+since the records are manually created
+into the job batch inserts.
+
+175acc2c-e9ab-42cf-8797-b4ae1239da97-0
+00:55:53.360 --> 00:55:57.720
+No additional changes would be done to
+this in batch preload.
+
+e0bbe61d-03a8-4683-9b4d-2ed9415808ea-0
+00:55:58.160 --> 00:56:00.120
+OK execution will be begin at job preload.
+
+d1ed876a-9a01-435c-85c7-4d89eee478a3-0
+00:56:00.160 --> 00:56:03.960
+This is the same thing every CE runtime
+tables are use space the same.
+
+177f9933-dda9-4b62-863c-b7562478e444-0
+00:56:04.160 --> 00:56:08.360
+We are not using this ETL data edition 01
+second since just a moment.
+
+e6926f84-a4bd-480b-9405-bf9720e7b1ee-0
+00:56:08.640 --> 00:56:12.781
+Since the records are created manually,
+batch preload will not perform any
+
+e6926f84-a4bd-480b-9405-bf9720e7b1ee-1
+00:56:12.781 --> 00:56:16.040
+additional changes and execution will
+begin at job reload.
+
+ec312703-1cf1-4fe8-bea5-b727cc39a84d-0
+00:56:16.880 --> 00:56:19.758
+Additional changes made like what you
+were implying,
+
+ec312703-1cf1-4fe8-bea5-b727cc39a84d-1
+00:56:19.758 --> 00:56:24.320
+like it is already insert is already made
+that's why it shouldn't insert any entry.
+
+a248ac5b-329e-44f9-832f-6fa5d5270da1-0
+00:56:24.320 --> 00:56:27.200
+So it should insert 0 in records in that
+case.
+
+ba5d1c21-1cb1-4ba7-beeb-765c637e167f-0
+00:56:28.360 --> 00:56:29.360
+Yeah, that's it.
+
+457f1047-ba5e-43a9-adb3-f35e18ccd0f2-0
+00:56:30.720 --> 00:56:33.040
+OK, OK, these are the same, I got it.
+
+b7d2581c-b49b-4742-94fa-bb977ed6220e-0
+00:56:33.040 --> 00:56:38.000
+But you can provide like one line of
+statement around that OK here,
+
+b7d2581c-b49b-4742-94fa-bb977ed6220e-1
+00:56:38.000 --> 00:56:43.397
+which will not perform any additional
+changes for the and true additional
+
+b7d2581c-b49b-4742-94fa-bb977ed6220e-2
+00:56:43.397 --> 00:56:46.680
+changes additional yeah,
+additional entries.
+
+c975f38f-198b-462b-af35-63adf25436c6-0
+00:56:46.680 --> 00:56:48.760
+I think it will be it's OK.
+
+56b20702-c250-4f64-bb88-9291a5aa8044-0
+00:56:48.920 --> 00:56:52.080
+Like even for the entry also we should
+not make any change, right?
+
+053f92fb-4d49-4cc7-a205-5c8ce2d3f2a0-0
+00:56:52.080 --> 00:56:57.520
+And we won't be performing as the end it
+it implies spray, OK?
+
+c8da016e-d0d0-491b-94b0-ab4054859e13-0
+00:57:01.680 --> 00:57:04.920
+We're we are making that entry manually
+for this purpose only, right?
+
+acabd283-2726-45f8-9127-61b200085c81-0
+00:57:05.160 --> 00:57:08.369
+We should not, Yeah,
+but but in the normal regular one,
+
+acabd283-2726-45f8-9127-61b200085c81-1
+00:57:08.369 --> 00:57:11.120
+this job preload will be making a entry,
+right?
+
+08f959e7-62fc-4570-a8ca-f63673483c8f-0
+00:57:12.560 --> 00:57:12.800
+Correct.
+
+17491fa7-38ea-445d-bb70-7536673a06f1-0
+00:57:13.720 --> 00:57:21.217
+And in case the previous batch was failed,
+in that case what will it do that will be
+
+17491fa7-38ea-445d-bb70-7536673a06f1-1
+00:57:21.217 --> 00:57:27.480
+taken care of by P drop the request batch
+or something process, right?
+
+72deceed-91ec-451f-80c6-ac1cc3339e25-0
+00:57:28.600 --> 00:57:34.000
+So each time this batch batch preload
+will each time will make a new NC only.
+
+c54c146e-5a49-4816-8b00-55e854665dba-0
+00:57:34.000 --> 00:57:39.280
+There is no case of like loading 0
+records otherwise, right?
+
+2c7a4a69-74f2-499a-8ecd-0924746c28ab-0
+00:57:40.200 --> 00:57:42.920
+OK, yeah, it won't, It won't.
+
+7b556b6a-0b97-49e2-985c-46a27588dcb3-0
+00:57:43.280 --> 00:57:45.600
+Like we are handling the scenario using
+manual entry.
+
+4243c059-052b-4f92-a6bd-dc56ce5fd91f-0
+00:57:45.600 --> 00:57:49.480
+So in that Case No wonder it would be
+created as part of.
+
+eb30477c-385f-45ae-b274-c5ca5ed37ab2-0
+00:57:49.480 --> 00:57:50.720
+That's what it is taking.
+
+38317a46-4c2d-42a5-9539-da2fb8a539d4-0
+00:57:51.240 --> 00:58:01.040
+It is saying then batch will not will not
+perform this.
+
+bb067e98-c686-4c5a-8c29-ff19938212a5-0
+00:58:01.040 --> 00:58:02.800
+This statement is not correct.
+
+ea1783a4-3938-4e93-b811-5b06e47bbadd-0
+00:58:05.000 --> 00:58:07.720
+I'll just copy the statement from the
+notes.
+
+2d5bedd5-e5ca-4581-834b-7f4724a46007-0
+00:58:08.040 --> 00:58:11.944
+Let let it be like once you develop it
+right,
+
+2d5bedd5-e5ca-4581-834b-7f4724a46007-1
+00:58:11.944 --> 00:58:17.800
+whatever you feel that would be suited,
+we can add that area funnel.
+
+0f1332f7-a9bc-4d4e-844d-3176c5807324-0
+00:58:17.800 --> 00:58:18.800
+Let it be OK.
+
+589dda44-fc16-4c62-8e7f-27ae3415c31b-0
+00:58:19.920 --> 00:58:22.269
+We,
+we can update this as per our design
+
+589dda44-fc16-4c62-8e7f-27ae3415c31b-1
+00:58:22.269 --> 00:58:26.453
+later, like as per our implementation, OK,
+Otherwise you can suggest me,
+
+589dda44-fc16-4c62-8e7f-27ae3415c31b-2
+00:58:26.453 --> 00:58:27.600
+I'll just update it.
+
+0fb527d4-b23c-42d8-9fc2-767edf759f12-0
+00:58:30.520 --> 00:58:36.542
+So many additional changes instead of
+additional changes or or you can add one
+
+0fb527d4-b23c-42d8-9fc2-767edf759f12-1
+00:58:36.542 --> 00:58:41.040
+line that or or it will not make a new
+entry or something.
+
+d428e357-5872-46ce-ae81-cfc9946b09af-0
+00:58:41.480 --> 00:58:45.188
+Because this this a little bit vague my I
+don't know, like the notes,
+
+d428e357-5872-46ce-ae81-cfc9946b09af-1
+00:58:45.188 --> 00:58:47.520
+maybe some kind of functional or
+something.
+
+808ab9fa-e32d-4822-a6aa-3d87483702f1-0
+00:58:47.880 --> 00:58:50.440
+But this is the low level design, right?
+
+3c39d013-cc5a-42c5-abeb-cc9c8061144c-0
+00:58:50.440 --> 00:58:55.112
+So at least one line should be there that
+it will not make any new entry as it is
+
+3c39d013-cc5a-42c5-abeb-cc9c8061144c-1
+00:58:55.112 --> 00:58:56.480
+already existing, right.
+
+d1ed8e0b-7759-4b58-afc7-14a102be6220-0
+00:58:59.920 --> 00:59:02.400
+So you can add it and highlight it.
+
+e9e4df2d-91e8-4ad8-8c86-80fff74c1d46-0
+00:59:02.560 --> 00:59:15.535
+Like if you want,
+I can check and rewrite the philtre and
+
+e9e4df2d-91e8-4ad8-8c86-80fff74c1d46-1
+00:59:15.535 --> 00:59:28.510
+properly you can highlight this,
+but I will just take it.
+
+8ef7b895-64d3-46e5-9b69-ead646a9577f-0
+00:59:32.870 --> 00:59:33.470
+Yeah, it's OK.
+
+dcba96ab-fe7d-422b-8d84-2f4d8da0758c-0
+00:59:34.390 --> 00:59:39.030
+Do you want me to help any any one of
+them just highlight.
+
+59c84732-c5f4-437c-8478-f2a88575f02f-0
+00:59:39.110 --> 00:59:39.910
+I will take one of them.
+
+8fb328a9-7aa4-4912-9727-284a5e3fb433-0
+00:59:45.280 --> 00:59:50.350
+So ABC runtime we're not using ETL data
+integration source window because we are
+
+8fb328a9-7aa4-4912-9727-284a5e3fb433-1
+00:59:50.350 --> 00:59:54.920
+using the sourcing start and sourcing
+from the bastion stretch directly.
+
+11f3858e-7776-4cf0-82e0-544eefe6b998-0
+00:59:54.920 --> 00:59:58.520
+So we are not using it and then critical
+X needs to be performed for that.
+
+49f8e99b-85a1-4070-9bcd-5b71946a4896-0
+00:59:59.000 --> 01:00:02.236
+One question here,
+this data integration I know you will
+
+49f8e99b-85a1-4070-9bcd-5b71946a4896-1
+01:00:02.236 --> 01:00:06.040
+cover it later but like when it is
+triggered like is it automated?
+
+31fac8aa-80ab-4a1f-a46c-d91d1a25847f-0
+01:00:06.040 --> 01:00:10.520
+Like when is the time this particular
+data integration is triggered flow?
+
+2d5b962f-1250-4cdf-9848-657490304c80-0
+01:00:14.120 --> 01:00:16.240
+It will be in the job task two.
+
+00679eb8-8c91-49b9-a08c-c9f023e8d48a-0
+01:00:17.440 --> 01:00:18.720
+It will be in the job preload.
+
+6dce57cb-7b11-419a-92bf-2aebfac7d036-0
+01:00:19.520 --> 01:00:25.089
+It would be after job run stats preload
+after making the entry into the job run
+
+6dce57cb-7b11-419a-92bf-2aebfac7d036-1
+01:00:25.089 --> 01:00:26.760
+stats preload this week.
+
+f7308813-208c-4944-a318-50ac462c3597-0
+01:00:28.040 --> 01:00:29.760
+So I don't know how to skip this.
+
+7d3ba71a-d687-47d4-9b49-ba09c5476a70-0
+01:00:29.760 --> 01:00:39.140
+We have to figure out OK and from that
+like this data integration table again my
+
+7d3ba71a-d687-47d4-9b49-ba09c5476a70-1
+01:00:39.140 --> 01:00:46.320
+batch reload source,
+sourcing start time and time is updated.
+
+d21b3c2e-1cc6-4ed8-8bed-b5894a99a567-0
+01:00:47.600 --> 01:00:50.834
+Sourcing start time,
+sourcing end time columns are present in
+
+d21b3c2e-1cc6-4ed8-8bed-b5894a99a567-1
+01:00:50.834 --> 01:00:52.400
+ETL attention sourcing window.
+
+a58425f4-e59d-4111-aa79-3057c71581e1-0
+01:00:53.760 --> 01:00:58.560
+Batch translation is also having sourcing
+start time and sourcing window.
+
+bc957872-063f-4845-9f6b-51c1d4a7c47e-0
+01:00:59.000 --> 01:01:03.153
+We are using the sourcing start time,
+sourcing end time of batch translation
+
+bc957872-063f-4845-9f6b-51c1d4a7c47e-1
+01:01:03.153 --> 01:01:04.880
+for historical and ink catch up.
+
+cdb82a44-caf4-477b-927b-6ba3538b0aa9-0
+01:01:05.440 --> 01:01:09.548
+Whereas sources start time and sourcing
+end time in the ETL data injection is
+
+cdb82a44-caf4-477b-927b-6ba3538b0aa9-1
+01:01:09.548 --> 01:01:11.760
+used for the rest of the execution rights.
+
+9d7dba9f-4ca4-4ad3-b8d2-5e2660510e82-0
+01:01:14.040 --> 01:01:14.320
+OK.
+
+c906a5b3-1850-40cd-a364-84f6a0c7d4b5-0
+01:01:14.520 --> 01:01:18.098
+But for the regular case,
+in that case how this sourcing in time
+
+c906a5b3-1850-40cd-a364-84f6a0c7d4b5-1
+01:01:18.098 --> 01:01:19.640
+and start time is populated?
+
+34a10e71-e618-4faf-aa5a-38edcd74b76f-0
+01:01:20.000 --> 01:01:22.280
+Is it not populated for the regular load?
+
+b3e41109-6ffc-4195-a202-94711d6f7a78-0
+01:01:23.840 --> 01:01:26.080
+For regular load also it is populated.
+
+7b7358bc-dbad-4f82-a047-448c35736db3-0
+01:01:26.560 --> 01:01:31.511
+OK in ******* structure you are talking
+it may be populated but the values won't
+
+7b7358bc-dbad-4f82-a047-448c35736db3-1
+01:01:31.511 --> 01:01:32.000
+be used.
+
+2db6db1d-2d3b-4a96-b4a2-8be4eed7d839-0
+01:01:32.840 --> 01:01:39.080
+Nedika asked her to populate populated
+from the like so for that population.
+
+840a98d9-26cd-4aef-8842-552df3297a72-0
+01:01:39.120 --> 01:01:44.770
+So will it be like, yeah, well,
+suppose in the preload this entry is made
+
+840a98d9-26cd-4aef-8842-552df3297a72-1
+01:01:44.770 --> 01:01:46.680
+in the batch down status.
+
+35a2e086-73c8-4ce0-b05f-5f8177545db3-0
+01:01:46.680 --> 01:01:47.080
+OK, in the.
+
+adbb022a-e1b5-4ce7-8386-15b2027598a8-0
+01:01:47.160 --> 01:01:50.295
+I got your question yeah, I,
+I'll show you in the code like what is
+
+adbb022a-e1b5-4ce7-8386-15b2027598a8-1
+01:01:50.295 --> 01:01:53.200
+the value that needs to be populated for
+sourcing startum and.
+
+c0d213db-540c-49df-88fc-0f4f49d6f553-0
+01:01:53.200 --> 01:01:53.640
+And yeah.
+
+9bb2c111-f1e9-4696-aac7-77870fa8ea54-0
+01:01:53.800 --> 01:01:56.880
+And when it is populated, yeah, I, I,
+I'll tell you.
+
+5a0c52fa-1bae-459d-a8f5-47198dfcfc5e-0
+01:01:57.280 --> 01:01:59.948
+OK, let's OK,
+if you're good on this like same critical
+
+5a0c52fa-1bae-459d-a8f5-47198dfcfc5e-1
+01:01:59.948 --> 01:02:02.378
+cheques, count validation,
+balance reconstruction,
+
+5a0c52fa-1bae-459d-a8f5-47198dfcfc5e-2
+01:02:02.378 --> 01:02:06.000
+whatever we are doing for historical load,
+we would be doing the same here.
+
+bc0062d4-00db-4b2e-9381-127a05b6d41c-0
+01:02:06.160 --> 01:02:07.897
+OK,
+Then moving on to the first time
+
+bc0062d4-00db-4b2e-9381-127a05b6d41c-1
+01:02:07.897 --> 01:02:10.385
+incremental load,
+first time incremental load either
+
+bc0062d4-00db-4b2e-9381-127a05b6d41c-2
+01:02:10.385 --> 01:02:14.000
+initial incremental run after the
+historical and catch up load is completed.
+
+6b765ae3-c204-4b9b-a8a6-d776085abe38-0
+01:02:14.280 --> 01:02:17.157
+OK, this,
+this will also be from zone 1 to zone 2,
+
+6b765ae3-c204-4b9b-a8a6-d776085abe38-1
+01:02:17.157 --> 01:02:20.937
+but zone 1 is taking data from direct
+source system this time, OK,
+
+6b765ae3-c204-4b9b-a8a6-d776085abe38-2
+01:02:20.937 --> 01:02:24.548
+for incremental load,
+a new entry would be created in batch and
+
+6b765ae3-c204-4b9b-a8a6-d776085abe38-3
+01:02:24.548 --> 01:02:25.000
+stretch.
+
+4bbafe67-ab23-4659-a4f0-05c691343c5f-0
+01:02:25.520 --> 01:02:30.043
+A new execution run ID would be assigned,
+rerun indicator would be I status would
+
+4bbafe67-ab23-4659-a4f0-05c691343c5f-1
+01:02:30.043 --> 01:02:34.622
+be started and sourcing start time would
+be overall start time from the last three
+
+4bbafe67-ab23-4659-a4f0-05c691343c5f-2
+01:02:34.622 --> 01:02:35.560
+days of catching.
+
+eae8ffff-e852-4488-ba69-3f9ff28d5b4d-0
+01:02:35.600 --> 01:02:36.720
+This is what I mentioned to you.
+
+3c3669ff-4196-47f2-8923-8eb49649d959-0
+01:02:37.320 --> 01:02:39.960
+And sourcing end time would be my zone 1
+batch end time.
+
+3f8975bf-4d61-46bc-8291-36733f058347-0
+01:02:40.240 --> 01:02:43.520
+OK, zone 1 batch end time.
+
+86397e54-0cfe-4526-ae5c-25b8d4419109-0
+01:02:43.520 --> 01:02:50.728
+So whatever the source source batch,
+let me check source in bracket LGB zone,
+
+86397e54-0cfe-4526-ae5c-25b8d4419109-1
+01:02:50.728 --> 01:02:56.920
+highlight this particular line in yellow,
+OK this particular line.
+
+5e4daa4a-589e-4256-83ee-dd952ccb1db1-0
+01:03:03.160 --> 01:03:13.160
+And during the incremental load crossing
+during the first time incremental.
+
+ddd9bfb1-01c8-4c5f-ba6a-eeee9a682f9e-0
+01:03:19.640 --> 01:03:23.280
+Using the faster incremental load costing,
+batch predict site will not be evaluated.
+
+6cbae47d-5059-4113-a0c9-1a902ff0f49e-0
+01:03:23.280 --> 01:03:26.835
+Since the records are created manually,
+Batch preload will not perform any
+
+6cbae47d-5059-4113-a0c9-1a902ff0f49e-1
+01:03:26.835 --> 01:03:29.680
+additional changes and execution will
+start at job preload.
+
+187086f5-1e89-4211-afe2-67114010f43f-0
+01:03:29.680 --> 01:03:34.520
+No new entry would be made into job run
+stats OK and ABC runtime tables.
+
+9e790d33-96bf-4a53-9d19-bc8851212146-0
+01:03:34.520 --> 01:03:39.306
+We will use all the ABC runtime tables OK
+ATL DATA INJECTION in the table ATL DATA
+
+9e790d33-96bf-4a53-9d19-bc8851212146-1
+01:03:39.306 --> 01:03:42.939
+INJECTION source window,
+but the source indecent source window
+
+9e790d33-96bf-4a53-9d19-bc8851212146-2
+01:03:42.939 --> 01:03:43.920
+will not be used.
+
+aa712c85-05bf-4472-a442-931d23e0dfad-0
+01:03:45.880 --> 01:03:53.001
+Sorry EPL data injection source window
+will not be used right for this data set
+
+aa712c85-05bf-4472-a442-931d23e0dfad-1
+01:03:53.001 --> 01:03:54.960
+we for this load type.
+
+0133602b-1ed6-46f0-80b1-9a77283b3d76-0
+01:03:55.000 --> 01:03:58.679
+For this execution type first time
+incremental we would be using detailed
+
+0133602b-1ed6-46f0-80b1-9a77283b3d76-1
+01:03:58.679 --> 01:04:00.320
+data ignition source window only.
+
+dd553f64-fd9e-4e78-9948-855f0c878107-0
+01:04:01.280 --> 01:04:06.098
+Here we like Spyam has given the details
+like sourcing start time should be
+
+dd553f64-fd9e-4e78-9948-855f0c878107-1
+01:04:06.098 --> 01:04:09.840
+populated from the sourcing start time of
+batch run stats.
+
+54363736-8e54-46a1-99ad-5eca887febaf-0
+01:04:10.480 --> 01:04:16.440
+What we are doing a manual entry right
+into batch, into the batch acceptable.
+
+dbd81104-c551-430c-af3f-717de0e04834-0
+01:04:16.720 --> 01:04:21.912
+So whatever the sourcing end time that we
+have provided during that manual entry
+
+dbd81104-c551-430c-af3f-717de0e04834-1
+01:04:21.912 --> 01:04:26.591
+that needs to be populated to this,
+so to this ETL data injection source
+
+dbd81104-c551-430c-af3f-717de0e04834-2
+01:04:26.591 --> 01:04:27.040
+window.
+
+82e09d79-6e37-4a7d-8a3a-f97a03ef1445-0
+01:04:27.400 --> 01:04:32.355
+This value should be consistent across
+all tables for the batch OK and stored in
+
+82e09d79-6e37-4a7d-8a3a-f97a03ef1445-1
+01:04:32.355 --> 01:04:32.600
+UTC.
+
+c1eb9cc0-1ab3-4d74-911c-2eb8753b9290-0
+01:04:32.680 --> 01:04:36.080
+It should be in UTC whatever the sourcing
+stratum while we are making entry, right?
+
+e45ed528-570d-4935-a6ae-2fe5cbf48630-0
+01:04:37.360 --> 01:04:40.320
+Follow the new or regular new scenes,
+new or regular scenario.
+
+2c9c8830-b3b7-473f-a133-780743523f28-0
+01:04:41.280 --> 01:04:41.520
+OK.
+
+2a298cfc-37c2-4946-99c3-3274690f3bf8-0
+01:04:41.720 --> 01:04:45.058
+And this EPL data ingression source
+window like this,
+
+2a298cfc-37c2-4946-99c3-3274690f3bf8-1
+01:04:45.058 --> 01:04:49.880
+this table will be loaded automatically
+right from the from where drop below.
+
+a1ce5f13-6970-4683-96c3-4d5c19ba0672-0
+01:04:52.920 --> 01:04:56.885
+Yeah,
+it it would be loaded automatically for
+
+a1ce5f13-6970-4683-96c3-4d5c19ba0672-1
+01:04:56.885 --> 01:04:57.920
+regular run.
+
+402ca695-dc07-4cfd-aa5f-6109a834909f-0
+01:04:58.280 --> 01:05:02.400
+But for first time incremental we have to
+add these logics.
+
+b91eaa2b-dda5-482a-81ee-9c88e9734839-0
+01:05:03.400 --> 01:05:06.325
+If my execution type is first time
+incremental,
+
+b91eaa2b-dda5-482a-81ee-9c88e9734839-1
+01:05:06.325 --> 01:05:09.800
+then we have to update the code in the
+ATL data initial.
+
+8ad60c6c-32a8-4d8a-932f-178ed7f04779-0
+01:05:09.920 --> 01:05:10.320
+Yeah, OK.
+
+cbd7c40d-7ecc-495b-9661-271c06553924-0
+01:05:10.320 --> 01:05:14.950
+Basically we need to this logic which you
+are saying we need to apply in in the
+
+cbd7c40d-7ecc-495b-9661-271c06553924-1
+01:05:14.950 --> 01:05:15.240
+code.
+
+5461b88e-961a-4087-a5e7-fc5043d6a1e3-0
+01:05:15.280 --> 01:05:17.320
+Yeah, it has to apply, yes.
+
+74715afd-bf60-4281-b60a-4f25a1b06a6b-0
+01:05:17.920 --> 01:05:21.190
+So and then critical cheques,
+source cheques, balance cheques,
+
+74715afd-bf60-4281-b60a-4f25a1b06a6b-1
+01:05:21.190 --> 01:05:22.280
+it's it is just same.
+
+cff2902a-41e7-4e95-a807-98c4dd48e49a-0
+01:05:22.680 --> 01:05:26.600
+And in in our param exhibition type would
+be zone 2 first time incremental.
+
+25879be7-ef7a-493d-b4e4-b4d58684ccc2-0
+01:05:26.600 --> 01:05:32.665
+This would be the execution type like
+this has to be the format and then new or
+
+25879be7-ef7a-493d-b4e4-b4d58684ccc2-1
+01:05:32.665 --> 01:05:38.200
+regular batch execution when is the
+latest just so just let me be clear.
+
+631cc7d6-1e78-43fe-93cf-d81e77d3494b-0
+01:05:38.200 --> 01:05:39.800
+So for historical 1.
+
+86bd8b07-9e33-4327-8963-b5050aafef2f-0
+01:05:40.320 --> 01:05:45.640
+So my batch force and in time will be
+populated from the batch run status table.
+
+e67e76f8-b755-484c-b052-a2af73eca208-0
+01:05:46.400 --> 01:05:52.121
+Then from first time incremental load it
+will be populated from the batch like it
+
+e67e76f8-b755-484c-b052-a2af73eca208-1
+01:05:52.121 --> 01:05:55.680
+will be populated from the data
+integration table.
+
+0f0caec8-3c1e-45e3-8279-7d2bab556697-0
+01:05:55.680 --> 01:06:00.042
+But the data integration tables start
+time and end time will be populated from
+
+0f0caec8-3c1e-45e3-8279-7d2bab556697-1
+01:06:00.042 --> 01:06:03.080
+the batch run status thing which was
+manually entered.
+
+d025d759-2fe5-40ea-b83c-e26a132e2aa8-0
+01:06:03.800 --> 01:06:07.511
+No,
+only start time would be would be
+
+d025d759-2fe5-40ea-b83c-e26a132e2aa8-1
+01:06:07.511 --> 01:06:11.320
+populated from the from there end time.
+
+0536d575-b91d-407f-b1d7-6d09e644493d-0
+01:06:12.760 --> 01:06:18.880
+It end time would be populated from
+source job end time.
+
+c1244d3a-938c-4770-9e38-5bc6b9549cb4-0
+01:06:19.080 --> 01:06:23.666
+So this is different just sourcing start
+time would be populated from the batch
+
+c1244d3a-938c-4770-9e38-5bc6b9549cb4-1
+01:06:23.666 --> 01:06:24.240
+and stats.
+
+15438c76-6cc8-4f56-8df4-d03d4a6bb3ad-0
+01:06:24.440 --> 01:06:26.640
+OK, sourcing end time, we will take it.
+
+07af7062-86e6-4a93-9e32-14ba574c35aa-0
+01:06:26.720 --> 01:06:32.702
+We'll like we'll we will like we will get
+we will discuss about this in that
+
+07af7062-86e6-4a93-9e32-14ba574c35aa-1
+01:06:32.702 --> 01:06:33.480
+component.
+
+b02497e3-5edb-447c-8237-d565f6695f94-0
+01:06:33.480 --> 01:06:37.200
+Yeah, OK, bad.
+
+d37b6ac6-e623-4292-82a4-690b041514f4-0
+01:06:37.560 --> 01:06:47.802
+So don't think but in time is populated
+from posting in time will be done work
+
+d37b6ac6-e623-4292-82a4-690b041514f4-1
+01:06:47.802 --> 01:06:48.840
+through.
+
+7ac113a5-717e-4940-8652-343ec550e8d8-0
+01:06:49.120 --> 01:06:51.840
+And what about the catch up law from
+where it is?
+
+a8bfecfe-a628-4456-b605-edee32b108c3-0
+01:06:51.880 --> 01:07:00.143
+It will be which in which step both
+history and catch up,
+
+a8bfecfe-a628-4456-b605-edee32b108c3-1
+01:07:00.143 --> 01:07:04.560
+then coming to new and regular.
+
+9e3f961f-d374-4fb4-b506-bfa9685fd9e6-0
+01:07:04.560 --> 01:07:07.280
+From here onwards the code is already
+implemented.
+
+46047afb-b4b3-4ad5-bab8-e67ac9920216-0
+01:07:07.480 --> 01:07:12.544
+If the latest June 2 batch is completed,
+the process will insert a new record with
+
+46047afb-b4b3-4ad5-bab8-e67ac9920216-1
+01:07:12.544 --> 01:07:14.680
+status started sourcing start time.
+
+f9e2fd9a-f231-4303-8e29-447cd3c3129b-0
+01:07:14.920 --> 01:07:18.724
+Sourcing start time would be previous
+June 2 batch sourcing end time like just
+
+f9e2fd9a-f231-4303-8e29-447cd3c3129b-1
+01:07:18.724 --> 01:07:19.640
+previous batch run.
+
+0f7f9354-c2d6-4bf5-a9d6-74173239c5b9-0
+01:07:19.640 --> 01:07:21.640
+Sourcing end time would be it's a
+sourcing start time.
+
+cf7d26f3-68f8-400c-bfa5-9bb3f857c28f-0
+01:07:21.640 --> 01:07:26.804
+Sourcing end time would be latest June 1
+batch end time with status completed or
+
+cf7d26f3-68f8-400c-bfa5-9bb3f857c28f-1
+01:07:26.804 --> 01:07:30.120
+partial OK and execution run ID but it
+will be new.
+
+f4abb457-e61c-4538-9b7b-15247cb2bc4f-0
+01:07:30.120 --> 01:07:35.599
+Execution and audit columns would be
+operated and batch and flag would be N
+
+f4abb457-e61c-4538-9b7b-15247cb2bc4f-1
+01:07:35.599 --> 01:07:40.862
+This is for regular scenario and
+execution type would be new OK and then
+
+f4abb457-e61c-4538-9b7b-15247cb2bc4f-2
+01:07:40.862 --> 01:07:42.160
+restart execution.
+
+fd39b9c2-3b58-4cf8-83f0-aeda0f767335-0
+01:07:42.160 --> 01:07:48.158
+If the latest zone 2 batch run is failed
+or started and rerun indicator equal to
+
+fd39b9c2-3b58-4cf8-83f0-aeda0f767335-1
+01:07:48.158 --> 01:07:53.120
+north then the process will treat will
+treat the run as a restart.
+
+fbd352a0-2fca-4b2f-8133-841168a10b07-0
+01:07:53.160 --> 01:07:57.914
+If my previous status is failed or
+started and rerun indicator equal to
+
+fbd352a0-2fca-4b2f-8133-841168a10b07-1
+01:07:57.914 --> 01:08:01.480
+north then the process will treat the run
+as restart.
+
+5ae0cbc6-c29b-4459-b2d0-0bf81da8ef99-0
+01:08:02.120 --> 01:08:09.965
+For restart a new batch run stats record
+would be inserted with same execution run
+
+5ae0cbc6-c29b-4459-b2d0-0bf81da8ef99-1
+01:08:09.965 --> 01:08:15.069
+ID, source,
+starting and sourcing item as well as the
+
+5ae0cbc6-c29b-4459-b2d0-0bf81da8ef99-2
+01:08:15.069 --> 01:08:22.914
+latest zone 2 batch run status is filled
+or started and redone indicator is in the
+
+5ae0cbc6-c29b-4459-b2d0-0bf81da8ef99-3
+01:08:22.914 --> 01:08:27.639
+process field status run as a restart OK
+and and.
+
+88f93469-4fe6-474f-9f58-0de6d2035519-0
+01:08:27.720 --> 01:08:32.600
+And that means like the prerequisite
+batch will be triggered or no?
+
+9e7fcb8d-e02b-48a8-b325-2021be60f25b-0
+01:08:35.880 --> 01:08:38.160
+No, if the return indicator is in no.
+
+85450198-38d5-4694-8b75-7fb3c69abda3-0
+01:08:38.200 --> 01:08:45.601
+I told you right here for restart OK,
+for restart rerun zone 1 rerun directly
+
+85450198-38d5-4694-8b75-7fb3c69abda3-1
+01:08:45.601 --> 01:08:51.200
+the target zone batch task for must be
+triggered manually.
+
+c74aab71-6b42-4e7b-ba44-148a3683e76b-0
+01:08:51.680 --> 01:08:52.840
+No prerequisite.
+
+be6280e0-9c14-4089-a98f-d67b9ff083be-0
+01:08:53.760 --> 01:08:54.640
+Yeah, there is a no.
+
+7bc35cd8-6d04-44ec-9e63-bde00c86ecad-0
+01:09:02.760 --> 01:09:03.600
+OK, are you good?
+
+164279f7-25af-4e7e-8940-770adcc48539-0
+01:09:04.120 --> 01:09:09.880
+Can I continue this 1?
+
+e359e849-cf8f-4f9d-8605-ef38f53538a5-0
+01:09:26.200 --> 01:09:32.280
+This we done indicator like was it
+mentioned the values like Y&amp;N?
+
+0c3ee3ff-9019-491d-8535-25102ed3eb3a-0
+01:09:32.280 --> 01:09:35.680
+What is the like meaning of this values
+for Y&amp;N?
+
+06c28562-7edc-41c5-acaa-b06b0338dd3c-0
+01:09:36.760 --> 01:09:38.440
+Is it mentioned anywhere?
+
+00799106-a6c9-4368-8130-21b532fb6d2c-0
+01:09:41.600 --> 01:09:44.160
+Sorry this we done indicator.
+
+94012fd7-db3d-467e-982a-8d0e2abe72c4-0
+01:09:45.040 --> 01:09:46.520
+What happens if it is Y?
+
+3f841ddb-d4c3-45d7-95e3-6d6a37f1b2d7-0
+01:09:46.520 --> 01:09:47.800
+What happens if it is N?
+
+4c622c8d-df93-401c-b973-0c688761b463-0
+01:09:47.880 --> 01:09:49.080
+Is it mentioned anywhere?
+
+b69cb952-5ff9-4032-8b64-f72dc0454938-0
+01:09:50.240 --> 01:09:51.240
+Yeah, it is mentioned.
+
+df959306-9f35-47be-bfd9-72fbcf104ca2-0
+01:09:51.240 --> 01:09:54.285
+For now,
+just use this like if my status is
+
+df959306-9f35-47be-bfd9-72fbcf104ca2-1
+01:09:54.285 --> 01:09:58.437
+started or failed and I don't need to go
+trip one to north,
+
+df959306-9f35-47be-bfd9-72fbcf104ca2-2
+01:09:58.437 --> 01:10:01.760
+then this run would be considered as tray
+star.
+
+ff3f8a37-e331-4791-ad18-36e4d04b7103-0
+01:10:02.120 --> 01:10:05.720
+I'll tell you about why in the below
+below.
+
+a38968dd-8bac-4d74-bbc2-5d0b125201e6-0
+01:10:05.840 --> 01:10:10.040
+It's OK.
+
+2029c992-dbee-41de-8295-e648090068da-0
+01:10:10.360 --> 01:10:16.528
+And I've also mentioned read an indicator
+for these Also read an indicator C then
+
+2029c992-dbee-41de-8295-e648090068da-1
+01:10:16.528 --> 01:10:18.560
+try read an indicator here.
+
+de6c9715-7ad6-410f-9402-f1252e3acada-0
+01:10:18.560 --> 01:10:21.120
+Read an indicator would be N while making
+the entry.
+
+140adeef-ea16-42a2-9945-613133d22480-0
+01:10:21.440 --> 01:10:24.240
+If my previous T run indicator is equal
+to N then it will start.
+
+adb7e331-37d1-49d5-941e-6ade77486648-0
+01:10:25.680 --> 01:10:28.600
+Assume that run as a restart.
+
+1e50eb66-a65c-436e-8aeb-f16b4019ff5f-0
+01:10:28.640 --> 01:10:33.053
+For a restart and you batch run it would
+be inserted with the same insufficient
+
+1e50eb66-a65c-436e-8aeb-f16b4019ff5f-1
+01:10:33.053 --> 01:10:36.859
+run ID sourcing start time,
+sourcing entom as per the previous prior
+
+1e50eb66-a65c-436e-8aeb-f16b4019ff5f-2
+01:10:36.859 --> 01:10:37.080
+run.
+
+8edf021d-6b2b-4cc3-9703-2ab46dba5156-0
+01:10:37.080 --> 01:10:40.938
+Whatever the prior run is having values
+for these three fields right,
+
+8edf021d-6b2b-4cc3-9703-2ab46dba5156-1
+01:10:40.938 --> 01:10:44.080
+the same values would be populated for
+the new entry OK.
+
+2f3b37a1-8209-4407-845c-a2a8567164c2-0
+01:10:44.320 --> 01:10:48.389
+If the previous record for the same
+execution done ID is in status status,
+
+2f3b37a1-8209-4407-845c-a2a8567164c2-1
+01:10:48.389 --> 01:10:52.080
+the record will be updated to fail before
+inserting the new record.
+
+106838bf-a51f-4851-8814-d41c4c50e2ee-0
+01:10:52.080 --> 01:10:56.906
+So if the previous status is started,
+then it will update the status to fail
+
+106838bf-a51f-4851-8814-d41c4c50e2ee-1
+01:10:56.906 --> 01:11:00.480
+and also it will make a new entry with
+status status OK.
+
+f1eeccf6-cbb9-4f3c-a23d-ce1fbbd02f49-0
+01:11:00.840 --> 01:11:03.320
+Data processing will resume from the
+point of failure.
+
+8af9ed41-0746-4d21-b29b-2ed1666b1df7-0
+01:11:03.480 --> 01:11:08.603
+Jobs already completed successfully will
+not be reprocessed OK Job's already
+
+8af9ed41-0746-4d21-b29b-2ed1666b1df7-1
+01:11:08.603 --> 01:11:10.200
+completed if the if the.
+
+9a29b901-a69e-4cb9-8700-10e169d314ee-0
+01:11:10.280 --> 01:11:14.307
+If the file job has already loaded data
+into the target table,
+
+9a29b901-a69e-4cb9-8700-10e169d314ee-1
+01:11:14.307 --> 01:11:17.120
+cleanup will be performed prior to
+restart.
+
+a49e2a0e-291f-49de-bf01-14fdfbcfed25-0
+01:11:17.360 --> 01:11:23.000
+OK prior to restart in the sense prior to
+the restart job role.
+
+bb46dd2d-6e65-4f42-ada2-680b40bbcbf0-0
+01:11:23.600 --> 01:11:28.760
+So it would be automated OK and batch run
+flag would be end for this entry.
+
+ba27e017-8ca5-4003-bcec-5b141a40c107-0
+01:11:28.760 --> 01:11:32.498
+Whatever we are making batch run flag
+would be END only in the scenario
+
+ba27e017-8ca5-4003-bcec-5b141a40c107-1
+01:11:32.498 --> 01:11:34.160
+execution type would be restart.
+
+67879506-47c8-4d74-b0e5-5c320d0c67a7-0
+01:11:34.160 --> 01:11:37.440
+Batch tree requisite will not be
+evaluated during restart processing.
+
+4cacc79b-b08d-459b-a37f-f590dd4a570c-0
+01:11:37.960 --> 01:11:40.040
+OK restart the handling rules.
+
+1a17549c-7220-4564-9830-482b37a33489-0
+01:11:40.040 --> 01:11:45.560
+If the latest batch run is failed,
+insert a new record with the same like.
+
+81db7526-3a2b-4ead-ad9e-4174fb0736c4-0
+01:11:45.560 --> 01:11:50.120
+The system will insert a new record with
+same run ID as per the latest batch run.
+
+d314e877-3dcf-46c8-bb03-9eaabb7a85a5-0
+01:11:50.400 --> 01:11:54.160
+If the batch run status is failed,
+update the execution.
+
+6fb30bd7-fd45-4753-abb0-98353b79f591-0
+01:11:55.520 --> 01:12:08.254
+The process let me write the process
+updates the existing record status to
+
+6fb30bd7-fd45-4753-abb0-98353b79f591-1
+01:12:08.254 --> 01:12:19.630
+fail 1st and then it inserts a new record
+with the same execution.
+
+d17cc0e3-342d-4882-ad9b-14399a12b440-0
+01:12:20.030 --> 01:12:23.550
+So I'm just giving you high level
+information here.
+
+14c9e1c0-5bd0-4289-9118-c27c0a3e34af-0
+01:12:23.550 --> 01:12:23.670
+Good.
+
+8ace6913-11ed-4266-9b26-f7b299ed2bd5-0
+01:12:26.630 --> 01:12:27.110
+I'll be good.
+
+4473c565-d2d7-460a-a1eb-8a74b5127f21-0
+01:12:27.110 --> 01:12:32.000
+Yeah, restart and rerun.
+
+5d8b96c9-9316-4b7c-93ae-4ca476365ae5-0
+01:12:32.000 --> 01:12:36.360
+What is the difference between Yeah,
+let me let me complete rerun also.
+
+950f5aea-bd66-40c9-bf96-68fde650c94f-0
+01:12:36.520 --> 01:12:38.720
+Then we'll discuss the like.
+
+f73697f3-9c7a-404f-8c09-e2b980c08658-0
+01:12:38.720 --> 01:12:43.238
+If you if you still have confusion,
+we can discuss read and execution if a
+
+f73697f3-9c7a-404f-8c09-e2b980c08658-1
+01:12:43.238 --> 01:12:47.756
+batch must be reprocessed for any bag
+dated date range or any control date
+
+f73697f3-9c7a-404f-8c09-e2b980c08658-2
+01:12:47.756 --> 01:12:48.720
+range scenarios.
+
+275c74a5-e0fc-434b-9014-7c3c03efb97e-0
+01:12:49.000 --> 01:12:51.428
+OK,
+here you're getting right any bag dated
+
+275c74a5-e0fc-434b-9014-7c3c03efb97e-1
+01:12:51.428 --> 01:12:51.760
+range.
+
+66184824-e02c-410a-9d0f-930d970847f0-0
+01:12:51.880 --> 01:12:57.871
+So I'm on July 23rd,
+but there is a like there is a change in
+
+66184824-e02c-410a-9d0f-930d970847f0-1
+01:12:57.871 --> 01:13:02.800
+the some some change happened in my
+source system.
+
+61e0bca6-1f37-49f2-9b96-a208716b1b53-0
+01:13:03.040 --> 01:13:09.464
+They want to do a rerun,
+rerun for from July 1st to to July 23rd I
+
+61e0bca6-1f37-49f2-9b96-a208716b1b53-1
+01:13:09.464 --> 01:13:10.040
+think.
+
+6e0c6edc-1d3a-434c-869f-c2ade8936f3e-0
+01:13:10.320 --> 01:13:14.875
+So for this scenario,
+I'll consider this scenario as a rerun
+
+6e0c6edc-1d3a-434c-869f-c2ade8936f3e-1
+01:13:14.875 --> 01:13:20.701
+and then what I'll do as far so rerun
+will will only be considered when there
+
+6e0c6edc-1d3a-434c-869f-c2ade8936f3e-2
+01:13:20.701 --> 01:13:22.120
+is a change, right?
+
+06365931-bd16-4e3e-a8dd-fd0e19a74082-0
+01:13:22.840 --> 01:13:23.600
+We don't know.
+
+42be3792-7f5f-4132-af84-8a1999c9a049-0
+01:13:23.600 --> 01:13:25.280
+We don't know it.
+
+be15179b-0ff9-4795-8f5e-3ecf61203d0d-0
+01:13:25.400 --> 01:13:31.400
+It is basically if we want to do a
+control a rerun like a data for a batch
+
+be15179b-0ff9-4795-8f5e-3ecf61203d0d-1
+01:13:31.400 --> 01:13:37.960
+run must be processed for a specific bag
+dated date range or a control date range
+
+be15179b-0ff9-4795-8f5e-3ecf61203d0d-2
+01:13:37.960 --> 01:13:38.680
+scenario.
+
+a0cb3724-7242-47d2-81b4-52c484fb1eb5-0
+01:13:39.120 --> 01:13:40.720
+Here you are, you are getting right.
+
+d066bfb0-34d4-4d55-a31f-eda4f0beb010-0
+01:13:40.720 --> 01:13:45.525
+If we want to do any data load for a
+specific date range,
+
+d066bfb0-34d4-4d55-a31f-eda4f0beb010-1
+01:13:45.525 --> 01:13:47.680
+it can be due to anything.
+
+fa128f30-2f79-4036-88ae-df8914c4927f-0
+01:13:48.280 --> 01:13:53.863
+Anything any change but that in that case
+the first time incremental also comes
+
+fa128f30-2f79-4036-88ae-df8914c4927f-1
+01:13:53.863 --> 01:13:55.120
+under this, right?
+
+2eca71ea-097b-401c-9f6f-481d07a21949-0
+01:13:55.160 --> 01:14:00.833
+For those three days,
+first time incremental is different RIA
+
+2eca71ea-097b-401c-9f6f-481d07a21949-1
+01:14:00.833 --> 01:14:08.427
+that is different that that run is where
+we are trying to load from source to zone
+
+2eca71ea-097b-401c-9f6f-481d07a21949-2
+01:14:08.427 --> 01:14:15.656
+to like from first time incremental is
+related to the data load happening from
+
+2eca71ea-097b-401c-9f6f-481d07a21949-3
+01:14:15.656 --> 01:14:22.518
+zone 1 to zone 2 where zone 1 would be
+getting data from directly from the
+
+2eca71ea-097b-401c-9f6f-481d07a21949-4
+01:14:22.518 --> 01:14:23.800
+source system.
+
+893daa19-a27d-4b00-84ca-283e65be2048-0
+01:14:24.160 --> 01:14:25.680
+OK, that is different.
+
+43c7f876-5f8e-444a-845c-4cfa8fa86840-0
+01:14:25.840 --> 01:14:26.640
+This is different.
+
+4be81c89-6eee-4338-a88b-abe31010d6d5-0
+01:14:26.760 --> 01:14:27.880
+Rerun is different.
+
+996b8804-4728-4a95-9c05-1de824800786-0
+01:14:29.440 --> 01:14:32.360
+That is only one time process.
+
+4fb2bcff-4f9b-4cbb-b8d0-7311920432e4-0
+01:14:32.680 --> 01:14:35.640
+This rerun can happen multiple times in
+the future.
+
+297aa825-e0ff-4e03-828f-44603b3761db-0
+01:14:35.920 --> 01:14:38.247
+OK,
+that is we are how how like we are
+
+297aa825-e0ff-4e03-828f-44603b3761db-1
+01:14:38.247 --> 01:14:42.901
+getting the data like how the let me
+complete let me complete the below steps
+
+297aa825-e0ff-4e03-828f-44603b3761db-2
+01:14:42.901 --> 01:14:43.200
+also.
+
+caf662cb-600b-42dd-9989-72129601fd96-0
+01:14:43.200 --> 01:14:45.905
+Yeah,
+so affair like this is the scenario then
+
+caf662cb-600b-42dd-9989-72129601fd96-1
+01:14:45.905 --> 01:14:50.509
+we'll take that run as a rerun and new
+record will be created manually in batch
+
+caf662cb-600b-42dd-9989-72129601fd96-2
+01:14:50.509 --> 01:14:53.559
+run stats and new execution run ID will
+be assigned.
+
+27830628-dea0-4c9f-84c9-d1574f6f2f86-0
+01:14:53.640 --> 01:14:57.238
+Rerun indicator would be why status would
+be started sourcing start time sourcing
+
+27830628-dea0-4c9f-84c9-d1574f6f2f86-1
+01:14:57.238 --> 01:15:00.616
+end time will be populated as required
+because we don't know the date range,
+
+27830628-dea0-4c9f-84c9-d1574f6f2f86-2
+01:15:00.616 --> 01:15:00.880
+right.
+
+54741e65-d64d-4667-af1a-0f3219601b27-0
+01:15:00.920 --> 01:15:03.200
+So this will be populated as per
+requirement.
+
+2154f5ca-4e55-4164-9a40-cd8abce6707a-0
+01:15:03.520 --> 01:15:07.400
+Next during read and processing batch
+prerequisite will not be evaluated.
+
+3bf4cef1-b036-4814-8066-ab8c7a4d4d36-0
+01:15:07.640 --> 01:15:12.692
+Previous executed tables associated with
+the batch will be reexecuted after the
+
+3bf4cef1-b036-4814-8066-ab8c7a4d4d36-1
+01:15:12.692 --> 01:15:13.640
+manual cleanup.
+
+9bd4c4cf-b31a-4fb0-bfec-5a68fd92898f-0
+01:15:14.520 --> 01:15:18.820
+Existing target records will be hard
+deleted based on the application load
+
+9bd4c4cf-b31a-4fb0-bfec-5a68fd92898f-1
+01:15:18.820 --> 01:15:23.120
+type and impacted audit job ID,
+create date, time and audit update values.
+
+334b5602-e48f-489e-a235-531e5fe4308f-0
+01:15:23.120 --> 01:15:31.434
+All these will be hard deleted OK since
+the records are created manually in in 2
+
+334b5602-e48f-489e-a235-531e5fe4308f-1
+01:15:31.434 --> 01:15:36.771
+batch run stats,
+batch preload will not perform any
+
+334b5602-e48f-489e-a235-531e5fe4308f-2
+01:15:36.771 --> 01:15:42.519
+additional change and execution will
+additional change.
+
+5bad4dcb-c2c2-4527-ad2c-39b5d241ad9f-0
+01:15:42.520 --> 01:15:42.920
+Yes.
+
+335fbd73-1344-4cf2-983b-afb0b1ea0454-0
+01:15:45.840 --> 01:15:50.689
+OK will not perform any additional
+changes and execution will begin at drop
+
+335fbd73-1344-4cf2-983b-afb0b1ea0454-1
+01:15:50.689 --> 01:15:51.200
+preload.
+
+84f79177-1bf9-49b3-ad49-fc90cdd2ffc3-0
+01:15:52.440 --> 01:15:53.080
+It means no.
+
+11d09154-befb-4b7d-9a5b-59cd46171259-0
+01:15:53.440 --> 01:15:54.360
+So here it is.
+
+ff0b3863-9700-4258-afd0-ed4010b7097d-0
+01:15:54.400 --> 01:15:54.800
+It is.
+
+4359bd4c-bf54-4607-ad8f-e59fe96aa2dc-0
+01:15:55.000 --> 01:15:58.800
+It is already stating that entry is
+creating manually.
+
+308bf42d-0076-46c8-9c6f-ea833a6d65a9-0
+01:15:58.800 --> 01:16:00.080
+That means it it is.
+
+d1a0c457-5e4c-44ee-bd7e-4c638885fe21-0
+01:16:00.080 --> 01:16:01.000
+It won't do that.
+
+7ed9177e-3c70-46c8-9c02-a306b5191483-0
+01:16:01.000 --> 01:16:02.960
+Batch reload won't do any entry here.
+
+3779a0b9-2ad9-45c9-a5d9-d2f22c378e40-0
+01:16:03.000 --> 01:16:05.400
+OK, what is this audit batch ID?
+
+6729bef1-0e06-43df-a3ab-a6d782f97964-0
+01:16:07.440 --> 01:16:13.040
+This this is related to this is an audit
+column in target tables.
+
+abd47fb2-b1b6-4351-b500-6233e576b23a-0
+01:16:14.280 --> 01:16:16.880
+OK, it is name and audit batch ID.
+
+bbdf1c80-da86-4890-8c1f-663b9732e276-0
+01:16:19.640 --> 01:16:23.400
+OK,
+so I'm just given here like target
+
+bbdf1c80-da86-4890-8c1f-663b9732e276-1
+01:16:23.400 --> 01:16:27.160
+request deletion would be there, right?
+
+f7ee7b3f-9538-4297-bc9c-14b4841b39ee-0
+01:16:27.520 --> 01:16:33.989
+It would be based on the load type audit
+unpacked, audit batch ID, create data,
+
+f7ee7b3f-9538-4297-bc9c-14b4841b39ee-1
+01:16:33.989 --> 01:16:34.960
+update data.
+
+28397df6-1747-4420-ac35-ee4686150938-0
+01:16:35.720 --> 01:16:40.722
+I'm just I'm just giving that we might
+need use these tables for deleting the
+
+28397df6-1747-4420-ac35-ee4686150938-1
+01:16:40.722 --> 01:16:43.160
+records from targeted for the cleanup.
+
+a5d3e3f4-89b4-42d3-8be7-cf4c21efe7e0-0
+01:16:43.600 --> 01:16:46.229
+OK,
+so manually we need to delete records
+
+a5d3e3f4-89b4-42d3-8be7-cf4c21efe7e0-1
+01:16:46.229 --> 01:16:47.920
+from target table, correct?
+
+d552520d-a7b3-4ef4-a38f-c4b968e0cce1-0
+01:16:48.040 --> 01:16:48.840
+And execution time.
+
+5a050784-ed25-4c4f-a376-b106d50ab9ea-0
+01:16:48.840 --> 01:16:51.320
+And what is the second point?
+
+2d7105d4-5905-4c41-8e34-749e03b442f3-0
+01:16:51.560 --> 01:16:52.600
+This manual cleanup?
+
+0ba21bde-974f-43c0-859d-e876935d81c8-0
+01:16:52.600 --> 01:16:54.000
+What is this manual cleanup?
+
+cb2015d3-51c7-45b7-bf09-47f3d319a8c0-0
+01:16:56.120 --> 01:16:56.680
+Both the same.
+
+946731c5-2f77-42c0-b0b0-ecd313d4dde9-0
+01:16:59.720 --> 01:17:06.584
+So both the same is wait, sorry, yeah,
+for rerun whatever the tables that are
+
+946731c5-2f77-42c0-b0b0-ecd313d4dde9-1
+01:17:06.584 --> 01:17:12.480
+loaded successfully in the previous run,
+those will also be daily.
+
+58935642-6f16-4a0c-bd2a-530cf47efb32-0
+01:17:12.640 --> 01:17:18.115
+Those will also be reprocessed for that
+reprocess before the rerun itself we have
+
+58935642-6f16-4a0c-bd2a-530cf47efb32-1
+01:17:18.115 --> 01:17:20.520
+to delete the data from our targets.
+
+fb70f4b4-028b-4712-acab-29b08373f546-0
+01:17:20.800 --> 01:17:25.913
+But the based upon the requirement
+whatever the data or whatever the batch
+
+fb70f4b4-028b-4712-acab-29b08373f546-1
+01:17:25.913 --> 01:17:28.640
+related information needs to be deleted.
+
+40d2017e-0ce2-45ac-8b3c-e06c5756c876-0
+01:17:29.000 --> 01:17:33.200
+Based upon that information we have like
+manual cleanup should be performed.
+
+b62e2246-6254-4184-aad1-b5b47337cc9c-0
+01:17:33.880 --> 01:17:40.501
+I am describing how that manual cleanup
+can be done using load type and impacted
+
+b62e2246-6254-4184-aad1-b5b47337cc9c-1
+01:17:40.501 --> 01:17:46.714
+audit, Batch ID audit create them,
+updated these using these target columns
+
+b62e2246-6254-4184-aad1-b5b47337cc9c-2
+01:17:46.714 --> 01:17:48.840
+we can do the hard delete.
+
+9531cff3-17f0-4fb9-9c37-bfa72518357a-0
+01:17:48.960 --> 01:17:51.280
+This is what I'm mentioning OK here.
+
+4e63ff73-2f7e-43cb-b6be-7fecb26d5317-0
+01:17:52.280 --> 01:17:57.508
+And last point is just as a record is
+already created manually,
+
+4e63ff73-2f7e-43cb-b6be-7fecb26d5317-1
+01:17:57.508 --> 01:18:03.144
+batch window will not perform any
+additional changes or any entry or
+
+4e63ff73-2f7e-43cb-b6be-7fecb26d5317-2
+01:18:03.144 --> 01:18:03.880
+anything.
+
+c9073c3a-6858-4af2-a9d2-54eea727d1d6-0
+01:18:04.000 --> 01:18:11.514
+The the process will be manual clean up
+process entirely for reason it is manual
+
+c9073c3a-6858-4af2-a9d2-54eea727d1d6-1
+01:18:11.514 --> 01:18:12.720
+clean up, OK.
+
+6e93215b-151d-4037-bb52-d6fd1df27054-0
+01:18:12.720 --> 01:18:14.040
+And this is already implemented.
+
+0aaafc57-9fba-4772-8218-245fca76da8a-0
+01:18:14.040 --> 01:18:15.920
+There is no change needed for this, right?
+
+884b7e8f-8aea-4a9c-9158-e51177752e03-0
+01:18:15.920 --> 01:18:19.972
+Yeah, no,
+you don't need to do it is already
+
+884b7e8f-8aea-4a9c-9158-e51177752e03-1
+01:18:19.972 --> 01:18:27.448
+implemented will not perform any changes,
+additional changes or any any new and OK
+
+884b7e8f-8aea-4a9c-9158-e51177752e03-2
+01:18:27.448 --> 01:18:30.240
+execution time would be redone.
+
+593bca01-e876-402f-afaa-0d9bd7667312-0
+01:18:30.760 --> 01:18:31.120
+OK.
+
+403aa9b7-2673-4f92-97a8-99169f8a839b-0
+01:18:31.600 --> 01:18:35.855
+And like I would with redone and restart,
+Yeah,
+
+403aa9b7-2673-4f92-97a8-99169f8a839b-1
+01:18:35.855 --> 01:18:40.200
+for now we'll check through the document,
+right?
+
+bf425551-3834-4a70-9ca5-adf0f106db29-0
+01:18:40.880 --> 01:18:41.120
+OK.
+
+66ccbae3-a436-4924-b410-01a3be6c49f2-0
+01:18:41.120 --> 01:18:44.600
+Yeah, if you have any question,
+just go through this recording again.
+
+45ef964b-a4ef-4c52-b375-4bd6aec8f154-0
+01:18:44.880 --> 01:18:50.040
+And like most of the questions I felt is
+which is already covered yesterday.
+
+6d6a2190-4cfd-4704-b540-a208a1bc8742-0
+01:18:50.320 --> 01:18:54.040
+So if you have any, anything,
+just go through this recording again.
+
+d08d56c9-7d8a-460f-bb32-de02e3fb675b-0
+01:18:54.040 --> 01:18:57.253
+I think most of your questions would be
+answered if anything,
+
+d08d56c9-7d8a-460f-bb32-de02e3fb675b-1
+01:18:57.253 --> 01:19:01.348
+which I have not covered like we can
+discuss this tomorrow because the call is
+
+d08d56c9-7d8a-460f-bb32-de02e3fb675b-2
+01:19:01.348 --> 01:19:02.799
+taking a lot of time, right?
+
+64255c3f-0876-4ed1-86e3-ad0b2319e9d3-0
+01:19:02.800 --> 01:19:04.720
+That is the reason why I'm asking you who
+are you?
+
+3b79d848-8ad0-4065-a5db-283d37dec4df-0
+01:19:06.880 --> 01:19:08.440
+So zone 1 rerun execution.
+
+0a5428c9-870c-41a6-9e66-5bd4af007bbf-0
+01:19:08.440 --> 01:19:13.024
+If zone 2 must be rerun because due to a
+rerun of zone 2 then this process is
+
+0a5428c9-870c-41a6-9e66-5bd4af007bbf-1
+01:19:13.024 --> 01:19:14.200
+called zone 1 rerun.
+
+92fd7178-e8b9-4087-bd77-480bc0d3a1a4-0
+01:19:14.440 --> 01:19:17.367
+For this,
+as part of ABC we would be creating a
+
+92fd7178-e8b9-4087-bd77-480bc0d3a1a4-1
+01:19:17.367 --> 01:19:22.184
+manual entry into batch and stats and
+your execution run ID would be assigned,
+
+92fd7178-e8b9-4087-bd77-480bc0d3a1a4-2
+01:19:22.184 --> 01:19:25.600
+rerun indicator would be Z and status
+would be started.
+
+bf5f8286-b7e1-437f-ad99-3ae300e250ee-0
+01:19:25.880 --> 01:19:29.360
+During a zone 1 rerun,
+batch prerequisites will not be evaluated.
+
+71edcc5c-3012-400e-8910-968f2b39d9a6-0
+01:19:29.360 --> 01:19:33.560
+Batch will not perform any additional
+because the entry is created manually and
+
+71edcc5c-3012-400e-8910-968f2b39d9a6-1
+01:19:33.560 --> 01:19:35.240
+execution becomes at job reload.
+
+7e686bf0-3112-4bac-ac5b-e3300b6dbc56-0
+01:19:35.240 --> 01:19:37.640
+No target table will be done here.
+
+a1b5edd2-56e4-4e8c-8a6d-45d46abb269d-0
+01:19:39.400 --> 01:19:43.612
+No target table cleanup would be done in
+case of a zone 1 rerun and the value for
+
+a1b5edd2-56e4-4e8c-8a6d-45d46abb269d-1
+01:19:43.612 --> 01:19:44.640
+this execution time.
+
+938a9349-4f63-4835-b11d-53052c9f1fd1-0
+01:19:44.720 --> 01:19:48.720
+But in that case also there could be some
+changes in data, right?
+
+f9fcc7c3-936e-4b3a-b7a5-70bacca49771-0
+01:19:48.880 --> 01:19:50.280
+So why is not done?
+
+933fcf82-ffd7-4970-aea0-070842be4f47-0
+01:19:50.360 --> 01:19:52.440
+Yeah, like I don't know.
+
+56d424fb-6996-4f35-8dbd-10c9205939cd-0
+01:19:52.440 --> 01:19:55.720
+This is the information that I got for a
+zone 1 rerun.
+
+b7a49dd2-66fc-4ce7-b6c2-e380e2a7a87d-0
+01:19:55.720 --> 01:19:58.600
+They are saying there is no need to do a
+data cleanup.
+
+367b9aa5-abb6-483a-894b-44cd6cc07654-0
+01:19:58.640 --> 01:20:00.280
+They're handling everything.
+
+664cb07c-c108-4916-b962-f1afd92015cb-0
+01:20:00.880 --> 01:20:03.640
+Within the source to stage code only.
+
+90f93878-754b-4217-b7b1-b4d1daf10d4f-0
+01:20:03.840 --> 01:20:07.421
+So in case of a zoneman rerun,
+if the data for a particular key is
+
+90f93878-754b-4217-b7b1-b4d1daf10d4f-1
+01:20:07.421 --> 01:20:09.560
+changing, they are updating that record.
+
+8181d776-ae5d-42b8-8b02-8e11e41b0837-0
+01:20:09.560 --> 01:20:15.388
+They are having the logic in place to
+handle backdated data within the source
+
+8181d776-ae5d-42b8-8b02-8e11e41b0837-1
+01:20:15.388 --> 01:20:16.360
+query itself.
+
+2f28b43e-c5ee-473d-b299-d7841b26e227-0
+01:20:16.760 --> 01:20:20.716
+So that is the reason why they are not
+doing this target data cleanup in case of
+
+2f28b43e-c5ee-473d-b299-d7841b26e227-1
+01:20:20.716 --> 01:20:21.400
+Zoneman rerun.
+
+1ff2a765-ba12-4b9e-82ca-caca085466f9-0
+01:20:23.240 --> 01:20:32.800
+OK hello I thought I thought you got a
+network issue.
+
+82a18fda-afc9-4e90-8a0b-d8e8bb6bd116-0
+01:20:35.040 --> 01:20:42.303
+OK let me so I I don't know Ishwari if
+there is any like table or something but
+
+82a18fda-afc9-4e90-8a0b-d8e8bb6bd116-1
+01:20:42.303 --> 01:20:49.657
+if not can you after this redone zone 1
+rerun step in the LD can you add a table
+
+82a18fda-afc9-4e90-8a0b-d8e8bb6bd116-2
+01:20:49.657 --> 01:20:52.200
+with different redone flags?
+
+d53a8076-cde5-4695-ab6b-232bb539c6cb-0
+01:20:52.200 --> 01:20:55.920
+What is the significance of it one day
+like 3 columns?
+
+9176a2ff-221c-403f-bc01-9057fa9abcf3-0
+01:20:56.320 --> 01:21:02.000
+What is the value of the redone flag and
+what is the complete name of that?
+
+e2d0ad9e-912d-41ba-a3da-cfa29c809d59-0
+01:21:03.680 --> 01:21:03.920
+Yeah.
+
+83b48cb8-1b99-4e12-8788-124f17c0cb34-0
+01:21:04.040 --> 01:21:07.120
+And what is the purpose of display one
+table?
+
+fe29455b-ba54-4849-9734-45624d6ffeb8-0
+01:21:07.120 --> 01:21:11.440
+I just with all the flow and then code
+also.
+
+2c3b29d5-509f-471a-a14f-40652179d258-0
+01:21:11.560 --> 01:21:17.240
+Yeah, I'll give you that table,
+but I need some time because I have to
+
+2c3b29d5-509f-471a-a14f-40652179d258-1
+01:21:17.240 --> 01:21:18.280
+work on also.
+
+cdc0555c-6fbb-4c4f-92dd-dc3b25c82d7c-0
+01:21:18.560 --> 01:21:18.760
+So.
+
+a4443d73-6879-49cb-aa84-9a04263c5805-0
+01:21:18.760 --> 01:21:20.520
+Oh no, that that is fine.
+
+99ff1444-415f-4895-83ee-133b59810b10-0
+01:21:20.520 --> 01:21:23.559
+I'm just telling you,
+just keep a note of it so it will be
+
+99ff1444-415f-4895-83ee-133b59810b10-1
+01:21:23.559 --> 01:21:23.920
+easier.
+
+6865ecc3-b57a-4a03-9cbc-55babaeea3cd-0
+01:21:25.120 --> 01:21:28.477
+OK,
+So here based upon whatever the base of
+
+6865ecc3-b57a-4a03-9cbc-55babaeea3cd-1
+01:21:28.477 --> 01:21:33.360
+so we'll get the batch ID from the batch
+metadata table, right?
+
+7e97cb5f-cdd1-476e-9718-3f62dd270b04-0
+01:21:33.600 --> 01:21:38.016
+Based upon the batch ID,
+we will be looking into the batch run
+
+7e97cb5f-cdd1-476e-9718-3f62dd270b04-1
+01:21:38.016 --> 01:21:40.680
+stretch to get the latest run details.
+
+4f560f63-7a40-4699-bfbf-22a3a8f94ace-0
+01:21:40.680 --> 01:21:44.240
+Like we'll take a status and trade run
+flag mostly high level.
+
+8e531ff9-7c50-4113-b92b-6ed7e4610e90-0
+01:21:44.240 --> 01:21:45.400
+I'm telling you here.
+
+7196c3a0-29c6-4bf6-b61d-d6e604685055-0
+01:21:45.600 --> 01:21:49.973
+So if my batch to run flag is N,
+then I'll check if my status is failed or
+
+7196c3a0-29c6-4bf6-b61d-d6e604685055-1
+01:21:49.973 --> 01:21:50.440
+started.
+
+b33fa2ce-e628-446f-9721-dcd3d89688ac-0
+01:21:50.760 --> 01:21:55.041
+If it is either failed or started then it
+will check if my status is failed it
+
+b33fa2ce-e628-446f-9721-dcd3d89688ac-1
+01:21:55.041 --> 01:21:55.800
+started again.
+
+7fc69116-eb78-44a1-ae6c-4ff7687748a0-0
+01:21:56.040 --> 01:22:02.051
+If it is started then it will just update
+the entry in the batch run states from
+
+7fc69116-eb78-44a1-ae6c-4ff7687748a0-1
+01:22:02.051 --> 01:22:07.914
+started to fail and then it will make a
+new entry with a same execution run ID
+
+7fc69116-eb78-44a1-ae6c-4ff7687748a0-2
+01:22:07.914 --> 01:22:13.479
+and status has started and it will assume
+this execution type has restart.
+
+6aa50c86-c550-4082-96a8-c1db779bd0bc-0
+01:22:13.800 --> 01:22:18.665
+If the status is not equal to started
+then it would be failed right here as I'm
+
+6aa50c86-c550-4082-96a8-c1db779bd0bc-1
+01:22:18.665 --> 01:22:19.760
+getting from this.
+
+01604602-8aa5-457c-ad90-d8692e9c69cb-0
+01:22:20.240 --> 01:22:25.348
+So if it is failed then my I'll just make
+a new entry into the batch run stats with
+
+01604602-8aa5-457c-ad90-d8692e9c69cb-1
+01:22:25.348 --> 01:22:29.849
+the same execution run ID with status
+started and execution type would be
+
+01604602-8aa5-457c-ad90-d8692e9c69cb-2
+01:22:29.849 --> 01:22:30.640
+restart here.
+
+4a0bea91-0829-41ee-b561-9ccefc100fce-0
+01:22:30.880 --> 01:22:32.400
+OK moving back.
+
+4b1edb33-03b5-4430-b5a6-6800e7dd22f1-0
+01:22:32.520 --> 01:22:41.176
+So if my batch run stats is not failed,
+not started then it will make an insert
+
+4b1edb33-03b5-4430-b5a6-6800e7dd22f1-1
+01:22:41.176 --> 01:22:47.560
+in a new entry in batch transacts with
+status has started.
+
+6d2f1f70-54d9-4bff-b4c3-076bb1ad3a57-0
+01:22:47.560 --> 01:22:51.120
+So if it is not failed or not started
+then it would be completed right?
+
+f3f3a1e4-e68a-409d-839a-5816e91fcfda-0
+01:22:51.280 --> 01:22:55.400
+So if my previous status is completed
+then it it is my regular run.
+
+835dfc8f-aa30-41cb-8e63-56af3dbbae60-0
+01:22:55.720 --> 01:23:02.040
+So we are passing the execution type as
+new and then coming one step back again.
+
+4af6acf9-a1a7-4e57-ac6f-01458d07f90e-0
+01:23:02.040 --> 01:23:10.558
+If my rerun flag is not equal to north
+then it can be a scenario of rerun read
+
+4af6acf9-a1a7-4e57-ac6f-01458d07f90e-1
+01:23:10.558 --> 01:23:11.960
+and scenario.
+
+8d5eb319-f459-48bf-aebf-9acc2345cf58-0
+01:23:11.960 --> 01:23:19.593
+So here we have implemented for as this
+historical came now like they like we are
+
+8d5eb319-f459-48bf-aebf-9acc2345cf58-1
+01:23:19.593 --> 01:23:22.200
+we are actually implemented.
+
+c80ff2d9-c154-4cc7-bdb7-565775812fa1-0
+01:23:22.360 --> 01:23:26.320
+So we don't have that logic in place and
+this is also not updated.
+
+91d5a433-97d4-4323-8963-9e0795e74f5c-0
+01:23:27.520 --> 01:23:30.568
+OK, I have just sorry,
+this flow is not updated,
+
+91d5a433-97d4-4323-8963-9e0795e74f5c-1
+01:23:30.568 --> 01:23:35.733
+but I have just added those details in so
+that it would be easy for me to give you
+
+91d5a433-97d4-4323-8963-9e0795e74f5c-2
+01:23:35.733 --> 01:23:36.480
+the details.
+
+294b6270-d098-4bc4-b7d6-c80abb7e33d0-0
+01:23:38.080 --> 01:23:38.200
+OK.
+
+d812dda1-dfae-4fe3-89b7-f7ce2c480b25-0
+01:23:38.200 --> 01:23:42.040
+And then we would be passing execution
+type as a rerun.
+
+cfb1a9e8-9462-47d3-9787-b092f9260932-0
+01:23:42.480 --> 01:23:44.920
+If the batch data and flag equal to Y.
+
+563c7e3b-22b2-4a0e-9675-61bb5a7a9607-0
+01:23:45.520 --> 01:23:47.911
+If if the execution type is zone 1
+written,
+
+563c7e3b-22b2-4a0e-9675-61bb5a7a9607-1
+01:23:47.911 --> 01:23:50.684
+then if exactly if batch data and flag
+equal to C,
+
+563c7e3b-22b2-4a0e-9675-61bb5a7a9607-2
+01:23:50.684 --> 01:23:54.000
+then we would passing the execution type
+as zone one reader.
+
+cb925a7c-5ffd-4280-a82e-84df061c307f-0
+01:23:54.400 --> 01:23:57.588
+We'll pass batch ID execution,
+run ID execution,
+
+cb925a7c-5ffd-4280-a82e-84df061c307f-1
+01:23:57.588 --> 01:24:01.493
+type all those to the next component,
+downstream component,
+
+cb925a7c-5ffd-4280-a82e-84df061c307f-2
+01:24:01.493 --> 01:24:03.120
+and we'll exit the batch.
+
+105ad975-be33-4f37-a733-f20b53e170dc-0
+01:24:03.280 --> 01:24:09.480
+Batch failures, then we'll have OK,
+now let me go to IDMC.
+
+962c61a3-9a55-4ec7-b84d-ad455eeb1eda-0
+01:24:10.160 --> 01:24:11.960
+Let me log in again.
+
+66160117-43e6-4721-afd1-947cebbda058-0
+01:24:13.240 --> 01:24:18.314
+I'll show you the code for the batch
+preload so that we can end our call post
+
+66160117-43e6-4721-afd1-947cebbda058-1
+01:24:18.314 --> 01:24:18.640
+this.
+
+6a4422b1-78d6-4bee-aaae-88193c276c62-0
+01:24:22.640 --> 01:24:25.200
+The preload is scheduled for tomorrow.
+
+25655160-c91b-4d1d-853d-0fa447620b6b-0
+01:24:25.200 --> 01:24:31.160
+I think you just can show me the inputs
+and all whatever it is from the batch.
+
+51fbd112-f38e-4d8e-8253-93085c7df824-0
+01:24:31.280 --> 01:24:35.279
+Yeah,
+but batch batch preload is not completed
+
+51fbd112-f38e-4d8e-8253-93085c7df824-1
+01:24:35.279 --> 01:24:35.960
+rightly.
+
+9ee2daf4-e63a-4f80-bc76-fb19ed0ce1f9-0
+01:24:35.960 --> 01:24:38.920
+I haven't showed you the code for batch
+preload.
+
+8e8e0daa-ebb7-4ed9-aeba-29dd366e11df-0
+01:24:39.400 --> 01:24:40.480
+Let's come first.
+
+1bea624a-1523-4162-845f-1e2a7bb23bc8-0
+01:24:41.360 --> 01:24:46.914
+OK,
+post that like let's let's wrap this code
+
+1bea624a-1523-4162-845f-1e2a7bb23bc8-1
+01:24:46.914 --> 01:24:47.880
+to even.
+
+873d2a18-bb00-4d1d-9033-b8cb23166020-0
+01:24:48.040 --> 01:24:51.960
+I'm not feeling like I'm not able to
+explain you.
+
+1fc89f0a-7c10-408d-a38f-31c8c820f527-0
+01:24:51.960 --> 01:24:53.440
+I'm feeling hungry already.
+
+1e1bdb4d-3fc4-40eb-94cc-1b52db60ff65-0
+01:24:56.840 --> 01:25:00.406
+You, you, you,
+you can inform like that it is taking
+
+1e1bdb4d-3fc4-40eb-94cc-1b52db60ff65-1
+01:25:00.406 --> 01:25:01.080
+such time.
+
+84624ae0-1d89-4f40-8161-ad2df6933385-0
+01:25:01.080 --> 01:25:05.203
+And also like if you,
+if you need like you can break,
+
+84624ae0-1d89-4f40-8161-ad2df6933385-1
+01:25:05.203 --> 01:25:09.098
+break it down to two sessions because it
+is, yeah,
+
+84624ae0-1d89-4f40-8161-ad2df6933385-2
+01:25:09.098 --> 01:25:15.360
+difficult for everyone to what I feeling
+is if I cover ABC in the fastest half or
+
+84624ae0-1d89-4f40-8161-ad2df6933385-3
+01:25:15.360 --> 01:25:20.323
+before lunch so that I can focus
+peacefully on CCO, because CCO,
+
+84624ae0-1d89-4f40-8161-ad2df6933385-4
+01:25:20.323 --> 01:25:22.920
+I cannot estimate the time on CCO.
+
+6280c4b3-5448-4120-ba85-84d26def7ded-0
+01:25:22.960 --> 01:25:24.600
+I don't know how it is going.
+
+a2f4774d-3c4e-4e99-8524-017e1af61ba9-0
+01:25:25.600 --> 01:25:26.120
+Oh my God.
+
+277b8eb8-0835-4cd8-b092-033de36d1222-0
+01:25:31.440 --> 01:25:33.160
+OK, let me take.
+
+57bcedcf-119e-4d26-8f01-b258ba2581d7-0
+01:25:34.280 --> 01:25:35.760
+I took it from you.
+
+74563752-b622-4de1-ab02-eff645fcdd86-0
+01:25:41.400 --> 01:25:43.920
+But for today's like it is 2 1/2 hour.
+
+330143b3-3035-4cdb-8a22-9a43bdef8f2b-0
+01:25:43.920 --> 01:25:44.720
+It already took.
+
+c177ecf7-4495-4373-a31e-91d82b773a16-0
+01:25:47.520 --> 01:25:50.370
+Yeah,
+let's inform like it is taking around 3
+
+c177ecf7-4495-4373-a31e-91d82b773a16-1
+01:25:50.370 --> 01:25:54.954
+hours because reverse KDS itself is
+taking time and also this like it's a
+
+c177ecf7-4495-4373-a31e-91d82b773a16-2
+01:25:54.954 --> 01:25:59.849
+very small thing only this is only taking
+this much of time, then job preload,
+
+c177ecf7-4495-4373-a31e-91d82b773a16-3
+01:25:59.849 --> 01:26:02.080
+I don't know, yeah, will take a lot.
+
+c7989a7e-c42e-4740-b073-b91d8ebb443a-0
+01:26:03.440 --> 01:26:08.871
+But if I do not understand individually
+then like in case any surprise comes
+
+c7989a7e-c42e-4740-b073-b91d8ebb443a-1
+01:26:08.871 --> 01:26:13.032
+right in the way,
+then that will be difficult and I do not
+
+c7989a7e-c42e-4740-b073-b91d8ebb443a-2
+01:26:13.032 --> 01:26:15.360
+want to disturb special occasion.
+
+340b0921-a417-40d4-b0f6-f74931471554-0
+01:26:21.920 --> 01:26:27.831
+OK so here first it we are passing source
+source name, domain name,
+
+340b0921-a417-40d4-b0f6-f74931471554-1
+01:26:27.831 --> 01:26:32.960
+application layer name,
+target zone in the parameter file.
+
+36a52994-e44a-4304-8619-8c23fe485462-0
+01:26:33.080 --> 01:26:36.771
+So,
+and also I'm using Ease active flag OK if
+
+36a52994-e44a-4304-8619-8c23fe485462-1
+01:26:36.771 --> 01:26:42.389
+it is Y Based upon these values,
+I would be fetching the batch ID and
+
+36a52994-e44a-4304-8619-8c23fe485462-2
+01:26:42.389 --> 01:26:45.760
+source batch ID from batch metadata table.
+
+09412b0e-2ec4-40d9-baec-551f28a036da-0
+01:26:46.600 --> 01:26:49.279
+Source batch ID,
+application source batch ID means the
+
+09412b0e-2ec4-40d9-baec-551f28a036da-1
+01:26:49.279 --> 01:26:50.400
+zone 1 batch ID, right?
+
+1b30af5b-d9a4-4d20-af8d-6727b08aa129-0
+01:26:51.400 --> 01:26:52.120
+Correct, Correct.
+
+cc350111-8946-46a1-a9af-16739b5a8a8b-0
+01:26:52.360 --> 01:26:52.560
+Yeah.
+
+73588de6-c015-4832-bc97-2b8c19f2ce4d-0
+01:26:53.680 --> 01:26:55.080
+And then latest run.
+
+fea7b5bd-d0f8-47dc-bf42-21a34b6a5579-0
+01:26:55.600 --> 01:27:02.577
+So we are trying to get the latest run
+from batch run stats table using the
+
+fea7b5bd-d0f8-47dc-bf42-21a34b6a5579-1
+01:27:02.577 --> 01:27:06.800
+batch ID that we got from the metadata
+table.
+
+618939e1-bd96-412a-9014-ddfa3d280acd-0
+01:27:06.800 --> 01:27:09.320
+No, it's OK.
+
+fe1ecedd-1b0f-464b-abbd-d1a1034c4817-0
+01:27:09.360 --> 01:27:10.080
+This is the same.
+
+74a48d71-8e9a-48f0-b2d0-aedf2dafd967-0
+01:27:10.080 --> 01:27:11.520
+I think this in this one.
+
+9b7c3894-4f90-408a-ab6e-36401276b962-0
+01:27:12.280 --> 01:27:13.320
+Yeah, earlier also.
+
+5097fbbf-d6b8-4656-80f3-39ccd027aba9-0
+01:27:13.720 --> 01:27:19.714
+So here I am,
+I'm trying to do fetch from metadata
+
+5097fbbf-d6b8-4656-80f3-39ccd027aba9-1
+01:27:19.714 --> 01:27:28.529
+table by doing a left join with latest
+run where my batch ID equal to this
+
+5097fbbf-d6b8-4656-80f3-39ccd027aba9-2
+01:27:28.529 --> 01:27:30.880
+latest run batch ID.
+
+09de78e6-6abd-4e7a-a641-3a783cc177c4-0
+01:27:32.360 --> 01:27:41.770
+What is this that is different?
+
+bb4c93a8-c116-4d13-bbe0-892f8664d8a2-0
+01:27:44.480 --> 01:27:45.120
+Sorry RIA.
+
+c48652f6-f32b-45de-aaf4-2bf67bce03e3-0
+01:27:45.640 --> 01:27:50.962
+So first time getting the batch details
+OK using these parameters only I'm trying
+
+c48652f6-f32b-45de-aaf4-2bf67bce03e3-1
+01:27:50.962 --> 01:27:54.922
+to bring the batch ID,
+application source batch ID and batch
+
+c48652f6-f32b-45de-aaf4-2bf67bce03e3-2
+01:27:54.922 --> 01:27:56.480
+name OK and previous so.
+
+03148aac-9d9a-4fd8-b8b2-9daadffe8b41-0
+01:27:57.640 --> 01:28:01.520
+So here I'm trying to get the most recent
+run details for this batch.
+
+32dc6ed1-1bb8-447f-aec9-94e47e0b53aa-0
+01:28:01.880 --> 01:28:08.585
+So using the batch ID that I've got above,
+I'm trying to get the latest batch run
+
+32dc6ed1-1bb8-447f-aec9-94e47e0b53aa-1
+01:28:08.585 --> 01:28:09.240
+details.
+
+5b1a3e2b-ecd8-485f-81c4-457ed1b151c6-0
+01:28:09.280 --> 01:28:13.888
+Like I'm trying to get the batch run ID
+execution run ID status free run flag
+
+5b1a3e2b-ecd8-485f-81c4-457ed1b151c6-1
+01:28:13.888 --> 01:28:18.320
+sourcing start and sourcing antenna from
+from the latest entry latest run.
+
+0f09e57c-bbd4-4468-9fb2-265db1281432-0
+01:28:18.840 --> 01:28:19.000
+OK.
+
+96b14965-afb2-4bd9-8bb0-d9b1e302863b-0
+01:28:19.400 --> 01:28:21.960
+And I'm also getting the latest source
+run.
+
+7addd9a8-db50-483e-9dfe-e12cf8c5daf5-0
+01:28:23.560 --> 01:28:27.520
+OK, in the second in the third city,
+I'm trying to get the latest source run.
+
+64862375-cfd5-4319-a29c-0237a3e792a4-0
+01:28:27.520 --> 01:28:32.915
+So here I'm trying to get yeah,
+you will get an why I'm doing all these
+
+64862375-cfd5-4319-a29c-0237a3e792a4-1
+01:28:32.915 --> 01:28:33.440
+things.
+
+5002451b-249d-4b8c-811e-3d468fd33e9d-0
+01:28:33.440 --> 01:28:35.880
+You'll get you'll get it once I complete
+it.
+
+2ab6f88c-e512-47de-8179-6fcaa7c438aa-0
+01:28:36.640 --> 01:28:40.325
+OK,
+get the latest completed or partial run
+
+2ab6f88c-e512-47de-8179-6fcaa7c438aa-1
+01:28:40.325 --> 01:28:42.000
+of the source batch.
+
+b6c978eb-c5c1-48d2-843c-d4d620738f7d-0
+01:28:42.200 --> 01:28:48.895
+OK so we are trying to based upon the
+application source batch ID which I got
+
+b6c978eb-c5c1-48d2-843c-d4d620738f7d-1
+01:28:48.895 --> 01:28:50.440
+in the first city.
+
+0a161e17-e133-4bfe-947e-9f5984d41fab-0
+01:28:50.560 --> 01:28:59.680
+Using that I'm trying to get the get the
+latest source back strand details.
+
+dab4c50a-c951-4af6-bc8f-dec9739866c2-0
+01:28:59.920 --> 01:29:10.420
+So latest not like my requirement here is
+I'm trying to get the latest completed or
+
+dab4c50a-c951-4af6-bc8f-dec9739866c2-1
+01:29:10.420 --> 01:29:11.920
+partial run.
+
+2bda3425-ebda-4ebc-a67c-f87df9f31d81-0
+01:29:12.640 --> 01:29:16.223
+So that is the reason why in philtre
+condition I'm taking status equal to
+
+2bda3425-ebda-4ebc-a67c-f87df9f31d81-1
+01:29:16.223 --> 01:29:17.240
+completed or partial.
+
+aa932ba6-76ff-476c-beb7-3c9adeab2f61-0
+01:29:19.120 --> 01:29:25.760
+It's like for the source base I I'm
+trying to get the latest no.
+
+1de08ff8-2cba-4dc9-8e7d-e1c5cd4d1090-0
+01:29:25.760 --> 01:29:32.222
+Here in case of target batch we are
+directly getting the latest batch run but
+
+1de08ff8-2cba-4dc9-8e7d-e1c5cd4d1090-1
+01:29:32.222 --> 01:29:38.520
+in source we are trying to get the latest
+completed or partial run details.
+
+14f9ac5c-8ac1-4a58-a582-fb5ab8ad8540-0
+01:29:39.360 --> 01:29:42.527
+OK,
+so this that is the reason why we are
+
+14f9ac5c-8ac1-4a58-a582-fb5ab8ad8540-1
+01:29:42.527 --> 01:29:43.960
+using this philtre.
+
+1bdeb3f4-bc4e-43c9-b86e-015eddd399b0-0
+01:29:44.440 --> 01:29:47.628
+We are just bringing execution and ID job
+and time,
+
+1bdeb3f4-bc4e-43c9-b86e-015eddd399b0-1
+01:29:47.628 --> 01:29:51.000
+sorry batch and time and application
+source batch IDs.
+
+4b61a4d0-fc90-44c7-8ed6-3a0fa7be2092-0
+01:29:53.520 --> 01:29:59.371
+And then here in the final select clause,
+we're trying to join all the three CTS
+
+4b61a4d0-fc90-44c7-8ed6-3a0fa7be2092-1
+01:29:59.371 --> 01:30:04.500
+above and trying to bring batch ID,
+batch name from the first city and
+
+4b61a4d0-fc90-44c7-8ed6-3a0fa7be2092-2
+01:30:04.500 --> 01:30:10.352
+previous batch run ID execution and ID
+state test data and flag from the This is
+
+4b61a4d0-fc90-44c7-8ed6-3a0fa7be2092-3
+01:30:10.352 --> 01:30:15.770
+these are related to the previous run of
+this batch and this is the latest
+
+4b61a4d0-fc90-44c7-8ed6-3a0fa7be2092-4
+01:30:15.770 --> 01:30:17.360
+completed run details.
+
+33a8e0e9-1699-4c82-84cf-5e6bd2d3edca-0
+01:30:19.680 --> 01:30:19.960
+OK.
+
+5099d833-faa9-47cf-bcd1-377a1271e7d0-0
+01:30:20.320 --> 01:30:21.760
+And these are audit columns.
+
+5078a122-5e40-40dd-b46d-9f33e6891430-0
+01:30:21.760 --> 01:30:26.600
+So we have to populate current timestamp
+at UTC to this audit fields.
+
+d11a6235-ae73-4ac4-8125-beb15dba95a4-0
+01:30:26.840 --> 01:30:31.480
+So and also we need we are using Gen
+random UAID.
+
+0cbf2b35-7105-481c-9c01-46dcd663acbd-0
+01:30:31.480 --> 01:30:36.240
+This is a function in order of post which
+is used it to generate UAID value.
+
+e5a70d6c-1112-4f41-aee5-92b535a044c1-0
+01:30:36.520 --> 01:30:40.813
+So I'll be using it in case of any new
+entry I have like sometimes I have to
+
+e5a70d6c-1112-4f41-aee5-92b535a044c1-1
+01:30:40.813 --> 01:30:43.880
+populate new execution and ID new batch
+and ID, right.
+
+1fce4eaa-af4b-42a9-b43e-ab054b02ec4b-0
+01:30:44.160 --> 01:30:45.880
+So for that purpose,
+I'm just getting them.
+
+396ca54c-37b8-4b9e-916c-57e4c84bc85a-0
+01:30:46.280 --> 01:30:52.100
+And then then my answer to my question is
+this like new and this execution and ID
+
+396ca54c-37b8-4b9e-916c-57e4c84bc85a-1
+01:30:52.100 --> 01:30:55.720
+and batch run ID then we'll never the
+same, right?
+
+5dfa1112-9781-456d-8c25-e704fe097c51-0
+01:30:55.880 --> 01:30:59.520
+In that case, no, no,
+it will be always different.
+
+213a9be6-eb83-4b5c-8e47-bd0258994903-0
+01:30:59.520 --> 01:31:05.596
+That's back then for the first time and
+low end it I'm just giving this but it it
+
+213a9be6-eb83-4b5c-8e47-bd0258994903-1
+01:31:05.596 --> 01:31:06.560
+is of no use.
+
+d24a2e06-4f60-40fc-84e9-9be71a5594c9-0
+01:31:06.560 --> 01:31:11.780
+But as this first time incremental has
+and historical catch up related logic has
+
+d24a2e06-4f60-40fc-84e9-9be71a5594c9-1
+01:31:11.780 --> 01:31:15.968
+not been implemented it,
+I'm just using this so that my sourcing
+
+d24a2e06-4f60-40fc-84e9-9be71a5594c9-2
+01:31:15.968 --> 01:31:18.160
+and time won't be null every time.
+
+f9fcdf73-a059-405c-9d1c-92222f01318a-0
+01:31:18.440 --> 01:31:21.440
+OK, this is all it used, right?
+
+2ce03da9-8c6a-4a97-b6ae-f1a30757b1d0-0
+01:31:21.680 --> 01:31:22.120
+That's it.
+
+b5aabd54-806f-46d1-946b-18bfceffac0f-0
+01:31:22.120 --> 01:31:23.440
+This is the source query.
+
+47642835-a5e9-47ea-b0bf-ed7661985654-0
+01:31:23.600 --> 01:31:27.920
+So here whatever we are drinking out of
+the source query,
+
+47642835-a5e9-47ea-b0bf-ed7661985654-1
+01:31:27.920 --> 01:31:32.240
+we would be using in the latest steps of
+the mapping, OK.
+
+a02acbd9-126d-4e22-ade6-83a670dc0360-0
+01:31:32.240 --> 01:31:38.946
+And then here in the expression
+transformation in the expression first
+
+a02acbd9-126d-4e22-ade6-83a670dc0360-1
+01:31:38.946 --> 01:31:40.080
+insert flag.
+
+82563e13-153e-4f22-abfa-1ba2f608f873-0
+01:31:40.640 --> 01:31:46.880
+So if my previous status is either
+started, OK let me open this.
+
+a5ed5493-3d25-442c-89f0-16e08c56ec3a-0
+01:31:47.920 --> 01:31:55.716
+If my previous status that means previous
+status in the sense this is related to
+
+a5ed5493-3d25-442c-89f0-16e08c56ec3a-1
+01:31:55.716 --> 01:32:02.261
+this batch, current batch,
+whatever target batch shown to batch it,
+
+a5ed5493-3d25-442c-89f0-16e08c56ec3a-2
+01:32:02.261 --> 01:32:07.940
+if it is started and my batch rerun flag
+is either Y or N,
+
+a5ed5493-3d25-442c-89f0-16e08c56ec3a-3
+01:32:07.940 --> 01:32:15.640
+then my insert flag I use a ZZ means what
+Y is shown to rerun OK, zone 1 rerun.
+
+682d172b-9d66-47d3-be41-a373649e52b2-0
+01:32:16.080 --> 01:32:20.454
+So in these cases, in these two cases,
+as I have implemented only for new
+
+682d172b-9d66-47d3-be41-a373649e52b2-1
+01:32:20.454 --> 01:32:22.760
+restart zone one return zone to return.
+
+8e19d673-6224-41ee-b90d-5916957687f4-0
+01:32:23.520 --> 01:32:25.480
+That is the reason why I I have only
+these.
+
+bf070bfc-716b-41c2-bfe6-353837b94fbd-0
+01:32:25.560 --> 01:32:27.788
+So in case of zone one return or zone 2
+return,
+
+bf070bfc-716b-41c2-bfe6-353837b94fbd-1
+01:32:27.788 --> 01:32:30.760
+I should not make any entry as part of
+batch speed load, right?
+
+e7a60dd5-9b0c-4e97-a4e2-33b148c74361-0
+01:32:30.960 --> 01:32:36.280
+That is the reason why I'm just using
+this not flag not to make any insert OK.
+
+f3ce8197-b8ae-478e-adb2-3b10d60875a8-0
+01:32:37.840 --> 01:32:46.160
+I'm keeping this flag value as 0 OK and
+then insert status.
+
+f00af27a-2a01-4c5c-ac1f-b7c38390a6fe-0
+01:32:46.160 --> 01:32:51.952
+So if I like I'm just using this status
+whenever I I have to make any insert
+
+f00af27a-2a01-4c5c-ac1f-b7c38390a6fe-1
+01:32:51.952 --> 01:32:56.240
+always my status would be started right
+in case of here.
+
+422b0999-db36-49fc-8ccc-a3aa427768ed-0
+01:32:56.480 --> 01:33:04.002
+So that is that is why I kept it as hard
+put it and insert execution and ID OK if
+
+422b0999-db36-49fc-8ccc-a3aa427768ed-1
+01:33:04.002 --> 01:33:06.480
+my previous status is null.
+
+5a649def-de6d-4a99-b710-5ff6580c025b-0
+01:33:06.520 --> 01:33:10.447
+So if for my drone to batch,
+if my previous status is null,
+
+5a649def-de6d-4a99-b710-5ff6580c025b-1
+01:33:10.447 --> 01:33:12.280
+that should not be the case.
+
+3e60fb9f-ef31-42a3-87be-8376c89efd65-0
+01:33:12.680 --> 01:33:18.167
+But if my previous status is equal to
+null or previous status equal to
+
+3e60fb9f-ef31-42a3-87be-8376c89efd65-1
+01:33:18.167 --> 01:33:21.800
+completed then it is a regular scenario
+right?
+
+e45413ff-aa14-4732-8966-c00a25f52588-0
+01:33:21.800 --> 01:33:23.120
+It is a regular scenario.
+
+dee03ae0-5039-43d8-adba-ed7985ad937c-0
+01:33:23.120 --> 01:33:29.390
+The previous status like it is the target
+zone, zone 2 map status, Yeah,
+
+dee03ae0-5039-43d8-adba-ed7985ad937c-1
+01:33:29.390 --> 01:33:33.600
+Zone 2 batch status is either null or
+completed.
+
+acc7548b-fa3f-4e48-b7c4-30cbb34164f0-0
+01:33:33.920 --> 01:33:36.560
+Then we have to populate new execution
+run ID.
+
+19d49586-e7d5-4922-a06b-4943e426ebec-0
+01:33:36.560 --> 01:33:39.120
+Else we have to use previous execution
+run ID.
+
+caa06ac1-f2b7-4ea7-acc3-08dd4619fee1-0
+01:33:39.480 --> 01:33:45.914
+So we would be making entry into this
+batch run stats only during new or
+
+caa06ac1-f2b7-4ea7-acc3-08dd4619fee1-1
+01:33:45.914 --> 01:33:49.440
+regular run and during restart, correct.
+
+95306ca8-a368-4654-a577-f6599d54d6df-0
+01:33:49.840 --> 01:33:53.484
+So we're just in case of new run,
+we have to use a new execution run ID,
+
+95306ca8-a368-4654-a577-f6599d54d6df-1
+01:33:53.484 --> 01:33:56.280
+otherwise we have to use the previous
+execution run ID.
+
+aabcfb53-dbff-4768-81ed-1fe09d3877d0-0
+01:33:56.280 --> 01:34:03.917
+In case of restart we have to use the
+previous execution run ID OK so OK and
+
+aabcfb53-dbff-4768-81ed-1fe09d3877d0-1
+01:34:03.917 --> 01:34:11.753
+the the insurance flat can I go back to
+that one second which one OK first one
+
+aabcfb53-dbff-4768-81ed-1fe09d3877d0-2
+01:34:11.753 --> 01:34:15.920
+first No no first one first expression OK.
+
+dbb53ced-c9a4-40bf-8ff3-00cf8b581e91-0
+01:34:16.400 --> 01:34:22.529
+So this means if previous status is
+started and if if it is a zone one or
+
+dbb53ced-c9a4-40bf-8ff3-00cf8b581e91-1
+01:34:22.529 --> 01:34:26.920
+zone 2D run that means 0 means that is
+not a insert.
+
+3057bc17-42e2-4db9-ab45-0651e87c0850-0
+01:34:26.920 --> 01:34:29.080
+Is it like what is the significance on
+this?
+
+8c8b6c1e-cdb3-42f4-94da-ec659fcd7db3-0
+01:34:30.440 --> 01:34:32.600
+Yeah, we would be using this flag later.
+
+a6924fcf-a48d-4efc-b17f-2774f395d855-0
+01:34:33.440 --> 01:34:36.280
+OK, OK.
+
+20a32a6e-dae3-4c15-a5ec-9f8558c64ca3-0
+01:34:38.000 --> 01:34:43.385
+And then what is it insert execution and
+whatever the execution run ID that like
+
+20a32a6e-dae3-4c15-a5ec-9f8558c64ca3-1
+01:34:43.385 --> 01:34:48.040
+during insert, whatever the execution run,
+I'm just applying it here.
+
+4a8ea65c-5a72-4587-b1a0-f64304ec00f9-0
+01:34:48.360 --> 01:34:50.800
+And then read and flag would be end.
+
+96e40d3e-c96a-440b-943f-a7b3e1bdbff5-0
+01:34:50.800 --> 01:34:56.610
+So either in during restart or new run
+whatever we are making we're doing insert
+
+96e40d3e-c96a-440b-943f-a7b3e1bdbff5-1
+01:34:56.610 --> 01:35:01.201
+using this component,
+using this mapping read and flag would be
+
+96e40d3e-c96a-440b-943f-a7b3e1bdbff5-2
+01:35:01.201 --> 01:35:01.560
+wise.
+
+20231332-3d5a-4e1c-a809-14293f347bca-0
+01:35:01.600 --> 01:35:02.400
+It would be end.
+
+90bf8c57-f4d6-4f89-95b8-a3666dbca35e-0
+01:35:02.400 --> 01:35:05.440
+So that is the given output value update
+flag.
+
+07195d70-43c6-4470-9803-136ae7710254-0
+01:35:05.600 --> 01:35:10.374
+So in case of restart if my previous
+status is started then I have to update
+
+07195d70-43c6-4470-9803-136ae7710254-1
+01:35:10.374 --> 01:35:11.800
+get it to failed right?
+
+b2737a6f-9d05-4d16-8ecb-9fd8671311d4-0
+01:35:12.840 --> 01:35:13.720
+That is on me right?
+
+b33c228b-c25a-41d1-8f42-c5fc1e4d3851-0
+01:35:13.880 --> 01:35:15.840
+That is on right.
+
+75d93cfc-5aa8-40eb-8731-56225c0f1ff6-0
+01:35:15.840 --> 01:35:22.920
+So the here I'm doing status is stay
+started then we have to make it as failed.
+
+0831dd2e-cff2-4b39-a96e-62a365b55a4e-0
+01:35:23.240 --> 01:35:29.345
+OK I'm using previous status as started
+and previous read and flag is equal to
+
+0831dd2e-cff2-4b39-a96e-62a365b55a4e-1
+01:35:29.345 --> 01:35:32.360
+north then this is my restart scenario.
+
+699e1524-8cdd-46b2-9717-82c7201fbb1c-0
+01:35:32.920 --> 01:35:39.754
+OK then I'm I need to do 1 update this is
+update flag I think why then it is
+
+699e1524-8cdd-46b2-9717-82c7201fbb1c-1
+01:35:39.754 --> 01:35:42.240
+restarts the scenario right?
+
+3f079e99-455a-4121-98be-fb95e36a9770-0
+01:35:42.240 --> 01:35:44.720
+Rerun, rerun scenario?
+
+ab4d606d-d657-4cce-a03d-baeb19a3bfb4-0
+01:35:44.720 --> 01:35:49.581
+If it is,
+why then it is rerun scenario OK, OK,
+
+ab4d606d-d657-4cce-a03d-baeb19a3bfb4-1
+01:35:49.581 --> 01:35:57.178
+OK N meets restart scenario OK While
+updating we are using the previous to
+
+ab4d606d-d657-4cce-a03d-baeb19a3bfb4-2
+01:35:57.178 --> 01:36:02.040
+update it OK and update status would be
+failed.
+
+fce9911c-e58b-488b-bb7e-7a4695b95c79-0
+01:36:02.040 --> 01:36:03.760
+We have to update the starter to fail now.
+
+f1f2957c-42cd-4993-831f-4c9ec0e80b64-0
+01:36:03.920 --> 01:36:06.360
+So update status is failed set execution
+right?
+
+4583330a-ec58-43ba-83fb-3dee02663eb0-0
+01:36:06.480 --> 01:36:11.320
+So we have to pass few parameters to next
+component from this component.
+
+0ca26fd6-3b4b-4e36-bf70-88fc8845d3be-0
+01:36:11.640 --> 01:36:14.000
+So I'm just setting those values.
+
+ac145b6c-7d03-4152-8bf9-7b3a93d5564e-0
+01:36:14.000 --> 01:36:17.360
+So using parameters for for those
+parameters using set variable.
+
+162d083d-98ef-489e-8870-eedbf53e44d8-0
+01:36:17.720 --> 01:36:22.482
+So first I'm setting execution run ID
+which is whatever the execution run ID
+
+162d083d-98ef-489e-8870-eedbf53e44d8-1
+01:36:22.482 --> 01:36:25.080
+which I'm passing I'm I'm setting it here.
+
+cf7c19e8-7a2f-421c-a3fa-62490229af7a-0
+01:36:30.560 --> 01:36:34.847
+Give me this address previous extreme run
+ID, OK,
+
+cf7c19e8-7a2f-421c-a3fa-62490229af7a-1
+01:36:34.847 --> 01:36:41.450
+So OK in any other cases whatever the
+previous execution run ID that I have,
+
+cf7c19e8-7a2f-421c-a3fa-62490229af7a-2
+01:36:41.450 --> 01:36:44.280
+in case of rerun also this value.
+
+c3c4ecb4-79df-4670-8089-faa7586140f1-0
+01:36:44.560 --> 01:36:48.966
+So let's consider it's a rerun scenario
+then this V execution run ID,
+
+c3c4ecb4-79df-4670-8089-faa7586140f1-1
+01:36:48.966 --> 01:36:52.680
+what it will hold,
+it will hold previous execution run ID.
+
+4da9224d-8be0-4926-9776-908edc38d80a-0
+01:36:52.840 --> 01:36:58.568
+So in this case, we don't make any entry,
+but whatever the previous execution run
+
+4da9224d-8be0-4926-9776-908edc38d80a-1
+01:36:58.568 --> 01:37:04.086
+ID which we have would be assigned to
+this particular variable would be set to
+
+4da9224d-8be0-4926-9776-908edc38d80a-2
+01:37:04.086 --> 01:37:07.160
+this particular variable and batch ID
+also.
+
+2f6f5002-7976-499a-a59c-704ce234c7cf-0
+01:37:07.160 --> 01:37:13.742
+I'm setting the batch ID OK,
+whatever the batch ID that I got from my
+
+2f6f5002-7976-499a-a59c-704ce234c7cf-1
+01:37:13.742 --> 01:37:16.000
+and sourcing start time.
+
+5cf96143-9c5c-4b7f-8021-f599335604e7-0
+01:37:17.560 --> 01:37:22.545
+Here I'm just trying to give the output
+expression for populating the sourcing
+
+5cf96143-9c5c-4b7f-8021-f599335604e7-1
+01:37:22.545 --> 01:37:23.240
+start time.
+
+2e53e090-f980-4058-825f-91dec6b8902f-0
+01:37:24.080 --> 01:37:28.344
+OK,
+let me open this sourcing start and if my
+
+2e53e090-f980-4058-825f-91dec6b8902f-1
+01:37:28.344 --> 01:37:31.960
+status is null so I'm giving low ended.
+
+31059ac7-9c54-4b04-bf43-e83420d86f7c-0
+01:37:32.240 --> 01:37:38.464
+Otherwise if my previous status is
+completed then I'm giving previous
+
+31059ac7-9c54-4b04-bf43-e83420d86f7c-1
+01:37:38.464 --> 01:37:44.600
+sources started else the previous source
+OK, OK, OK, you got it now.
+
+d494a426-3c62-4103-b41a-7fb7f5ea3869-0
+01:37:44.720 --> 01:37:50.640
+OK, then previous source batch end time.
+
+b527af86-954f-4913-8011-11f6e4f35d86-0
+01:37:51.920 --> 01:37:55.981
+So whatever the source patch end time
+that we got from this query,
+
+b527af86-954f-4913-8011-11f6e4f35d86-1
+01:37:55.981 --> 01:38:00.830
+now we are just like assigning that to
+this parameter and then source execution
+
+b527af86-954f-4913-8011-11f6e4f35d86-2
+01:38:00.830 --> 01:38:05.316
+run ID is also same whatever the
+execution run ID that we got out of that
+
+b527af86-954f-4913-8011-11f6e4f35d86-3
+01:38:05.316 --> 01:38:05.680
+query.
+
+fc9ccebc-f4b8-4452-a11f-3d126d126686-0
+01:38:06.080 --> 01:38:07.960
+What is the sourcing ended time?
+
+a80d364e-85fa-474e-abc2-a97ab82c6606-0
+01:38:08.360 --> 01:38:10.760
+Source Standard Time I got what is the
+end?
+
+78072648-7649-41eb-b812-c4550ee10a85-0
+01:38:11.960 --> 01:38:13.000
+OK, here we are.
+
+141891d8-2057-4066-922e-b50c27db6cc4-0
+01:38:13.000 --> 01:38:16.120
+No, no, sorry I skipped sourcing end time.
+
+1cd164b3-79ac-4233-b827-ae519e2b340c-0
+01:38:17.160 --> 01:38:24.870
+If it is new new new scenario then we
+would be using previous then we would be
+
+1cd164b3-79ac-4233-b827-ae519e2b340c-1
+01:38:24.870 --> 01:38:26.920
+using batch end time.
+
+1370d31c-8114-40d0-9ab0-4479b2d23490-0
+01:38:27.280 --> 01:38:28.840
+Otherwise previous sourcing end time.
+
+53e98e60-c73c-4e53-b946-88066e70f018-0
+01:38:29.200 --> 01:38:32.920
+So here I'm like while populating the
+value.
+
+47e59b5b-d728-4a7f-9af4-360f6b779de8-0
+01:38:32.920 --> 01:38:34.240
+My intention is here.
+
+fc51cbc8-466b-4925-acaa-fe8844f51e64-0
+01:38:34.240 --> 01:38:39.200
+Here is if it is regular run then use
+source batch end time.
+
+56a7d8ac-7296-41e3-80dc-2fcab67be538-0
+01:38:39.360 --> 01:38:43.505
+Source batch end time in the sense join
+one batch end time OK that is for regular
+
+56a7d8ac-7296-41e3-80dc-2fcab67be538-1
+01:38:43.505 --> 01:38:43.960
+scenario.
+
+9a48ced9-79de-447c-aa20-7926481947d9-0
+01:38:43.960 --> 01:38:49.328
+That is the requirement in case if I am
+doing restart then use the previous
+
+9a48ced9-79de-447c-aa20-7926481947d9-1
+01:38:49.328 --> 01:38:50.600
+sourcing end type.
+
+6df965d7-2ba5-4b03-8734-2ac708f063fb-0
+01:38:51.440 --> 01:38:53.160
+That's what I mentioned in the document.
+
+ce11c2be-d2f7-4de7-b15d-6b33d8d4d34a-0
+01:38:55.200 --> 01:38:57.640
+OK and moving on to this.
+
+4350f3cb-f953-4e05-a226-9bc4a55da775-0
+01:38:57.880 --> 01:39:07.880
+So execution type here I have handled
+rerun zone 1, rerun new and restart there.
+
+0919ba94-819b-445b-875e-c99999de4da9-0
+01:39:08.160 --> 01:39:13.285
+There are 4 execution types I have
+handled and three are yet to be
+
+0919ba94-819b-445b-875e-c99999de4da9-1
+01:39:13.285 --> 01:39:14.280
+incorporated.
+
+4005a65f-c47f-4707-8234-0a12fc1372af-0
+01:39:14.960 --> 01:39:19.880
+If my previous flag equal to rerun flag
+equal to Y then it is rerun.
+
+15807d15-6865-4a3f-aaba-aae2ffaeb330-0
+01:39:20.440 --> 01:39:25.520
+If my previous batch T run flag equal to
+Z then it is zone 1 rerun.
+
+4199f441-7ff3-483a-96ab-d169da2297c4-0
+01:39:25.760 --> 01:39:31.200
+If my previous status is null or if it is
+completed then it is a new.
+
+5dad8aaf-f2b7-469e-9d55-99f61a432aa2-0
+01:39:32.480 --> 01:39:37.431
+If my previous status is started or
+previous status is failed then it is a
+
+5dad8aaf-f2b7-469e-9d55-99f61a432aa2-1
+01:39:37.431 --> 01:39:37.960
+restart.
+
+ee4bf2fe-9445-497d-a895-0a93d0116d08-0
+01:39:38.720 --> 01:39:40.240
+Otherwise it is not OK.
+
+9f0c0288-b3e9-4476-8898-7d7b7b81ece6-0
+01:39:41.520 --> 01:39:47.061
+This is the execution type,
+OK and we are keeping it in a variable
+
+9f0c0288-b3e9-4476-8898-7d7b7b81ece6-1
+01:39:47.061 --> 01:39:52.768
+field and we are sending it to output
+field where is we are setting,
+
+9f0c0288-b3e9-4476-8898-7d7b7b81ece6-2
+01:39:52.768 --> 01:39:59.633
+we are setting the execution runtime here
+this side OK have to like go through 1st
+
+9f0c0288-b3e9-4476-8898-7d7b7b81ece6-3
+01:39:59.633 --> 01:40:01.039
+or go through it.
+
+938e2f3f-852c-4b1d-bb82-8d6b6f798b97-0
+01:40:01.080 --> 01:40:01.520
+Yeah, yeah, yeah.
+
+fd7016ed-d520-496d-98f7-7887b6635708-0
+01:40:02.800 --> 01:40:03.000
+Source.
+
+0515ec56-fa9b-4588-9c75-d76e1f4c6bc8-0
+01:40:03.320 --> 01:40:09.045
+But whenever you get some time like even
+if you're not able to like with
+
+0515ec56-fa9b-4588-9c75-d76e1f4c6bc8-1
+01:40:09.045 --> 01:40:13.908
+formatting and all,
+you're not able to update it in MLD right
+
+0515ec56-fa9b-4588-9c75-d76e1f4c6bc8-2
+01:40:13.908 --> 01:40:17.360
+now,
+but you can send me a doc or anything.
+
+b11fc0d8-d6cd-45bd-9522-d55d8a811658-0
+01:40:17.360 --> 01:40:17.600
+OK?
+
+34200758-da40-4eb7-8ca5-c3b2be828c3d-0
+01:40:17.600 --> 01:40:20.584
+For this different,
+we don't flags or match,
+
+34200758-da40-4eb7-8ca5-c3b2be828c3d-1
+01:40:20.584 --> 01:40:22.840
+we don't flag or something, right?
+
+8aaf7103-9bee-4280-8132-eff53c181f66-0
+01:40:23.240 --> 01:40:26.603
+So this is very confusing for,
+I know like you were used to it,
+
+8aaf7103-9bee-4280-8132-eff53c181f66-1
+01:40:26.603 --> 01:40:27.760
+that's why it is easy.
+
+c7ac68f6-bdaf-4db7-847f-2cda4e055293-0
+01:40:27.800 --> 01:40:29.160
+But for me it is yeah.
+
+d18ab44c-71fa-4855-a852-85c2f9e68017-0
+01:40:29.600 --> 01:40:32.711
+Like even after this,
+like while you are going through the
+
+d18ab44c-71fa-4855-a852-85c2f9e68017-1
+01:40:32.711 --> 01:40:36.720
+recording or going through the code,
+right, you can also make a note of it.
+
+23f7a459-70fa-423d-9b19-5b7779556946-0
+01:40:37.560 --> 01:40:40.090
+I'll,
+I can check and I'll let you know if it
+
+23f7a459-70fa-423d-9b19-5b7779556946-1
+01:40:40.090 --> 01:40:44.325
+is correct or anyway you are making the
+notes doing like preparing the notes
+
+23f7a459-70fa-423d-9b19-5b7779556946-2
+01:40:44.325 --> 01:40:45.920
+after this discussion, right.
+
+23633118-b5e6-4c21-9322-85bdb321b5b6-0
+01:40:46.720 --> 01:40:52.400
+And not everything like overall like what
+I understood this one like this.
+
+4b1380bb-b0d0-4dde-849c-48087f82dd6c-0
+01:40:52.400 --> 01:40:53.680
+I can give him plans.
+
+ef3040c9-c47f-4ebb-af4f-f9d883581f82-0
+01:40:53.840 --> 01:40:58.240
+But like I I'm just telling you because
+all the details are here.
+
+9306d36f-45ee-4f8e-8029-e56b12e64f08-0
+01:40:58.240 --> 01:41:01.570
+So if you will look at this expression,
+if you give this to Copilot also,
+
+9306d36f-45ee-4f8e-8029-e56b12e64f08-1
+01:41:01.570 --> 01:41:02.920
+it will it can also create it.
+
+32167419-b258-4778-ad6a-94a07be4d8c7-0
+01:41:03.240 --> 01:41:07.040
+I can also create it using Copilot just
+giving this expression.
+
+d19f0152-5648-4d0d-8655-1d1c9945d185-0
+01:41:08.240 --> 01:41:11.920
+Yeah, I, I can give that OK.
+
+d89c24e3-6933-4832-9a8a-00c357d98e48-0
+01:41:12.200 --> 01:41:14.500
+And source execution and ID,
+source batch ID,
+
+d89c24e3-6933-4832-9a8a-00c357d98e48-1
+01:41:14.500 --> 01:41:16.850
+whatever we are getting from the source
+query,
+
+d89c24e3-6933-4832-9a8a-00c357d98e48-2
+01:41:16.850 --> 01:41:20.200
+we are sending it here and source batch
+ID also and batch ID also.
+
+ccdbeb3b-3f7d-46a1-831b-66786c150ae4-0
+01:41:20.360 --> 01:41:24.220
+So whatever we are getting from the batch
+metadata table,
+
+ccdbeb3b-3f7d-46a1-831b-66786c150ae4-1
+01:41:24.220 --> 01:41:28.080
+we're sending it and we are passing all
+this value slate.
+
+550cdc87-723c-4c92-97ec-a901fede9d4d-0
+01:41:28.760 --> 01:41:31.582
+And here in the router,
+we are using two output groups,
+
+550cdc87-723c-4c92-97ec-a901fede9d4d-1
+01:41:31.582 --> 01:41:33.800
+one with insert flag 11 with update flag
+1.
+
+ff52be7c-4313-4563-9025-af2d852736ec-0
+01:41:33.800 --> 01:41:37.840
+So whatever record that needs to be
+inserted would be inserted here.
+
+df5208ba-1ad6-4954-ad8a-be0900e1fd2c-0
+01:41:37.840 --> 01:41:40.720
+Whatever that needs to be updated would
+be updated here.
+
+0feefcaa-5907-489a-8d5e-7751758c9058-0
+01:41:41.000 --> 01:41:42.840
+OK, based off what?
+
+f1cbbd36-5ff4-4298-8ea2-e6af60f1fd2a-0
+01:41:42.920 --> 01:41:46.255
+Whatever the feeds that needs to be
+inserted,
+
+f1cbbd36-5ff4-4298-8ea2-e6af60f1fd2a-1
+01:41:46.255 --> 01:41:48.720
+I mapped only those feeds in here.
+
+d0564bd5-3618-461c-8e49-794821500c6e-0
+01:41:49.880 --> 01:41:50.880
+You can go through it.
+
+f30b3400-9f97-407d-aa9c-b6bcee07a3a9-0
+01:41:51.200 --> 01:41:58.944
+Let me if you have any questions here in
+one quick question in which case like it
+
+f30b3400-9f97-407d-aa9c-b6bcee07a3a9-1
+01:41:58.944 --> 01:42:06.689
+will be like more things that an update
+will be happening in case of restart with
+
+f30b3400-9f97-407d-aa9c-b6bcee07a3a9-2
+01:42:06.689 --> 01:42:09.240
+previous status as started.
+
+169efd3c-141a-4b34-b2af-fd49c274cec2-0
+01:42:21.960 --> 01:42:24.080
+OK, I have to go through this code.
+
+16e0af4f-d8e2-461e-a90e-4be9477474ca-0
+01:42:24.600 --> 01:42:35.320
+What is happening and expect Yeah, yeah,
+that's what they are here.
+
+6a2a4c48-e87e-417e-9d98-db516ba770a7-0
+01:42:35.440 --> 01:42:40.786
+Also while updating we will be using the
+previous batch run ID and we we will be
+
+6a2a4c48-e87e-417e-9d98-db516ba770a7-1
+01:42:40.786 --> 01:42:46.000
+updating batch end time status and audit
+updated and audit updated by user ID.
+
+37cf4c75-3403-4dae-bd76-de5f04d7ed40-0
+01:42:46.240 --> 01:42:49.200
+We can go through this logic you you will
+get it.
+
+89e3c4a8-b437-4162-821e-c5d7a41b005a-0
+01:42:50.600 --> 01:42:50.840
+Got it.
+
+cd73aa7a-ea66-4cba-bda1-76d1cbe7268b-0
+01:42:52.600 --> 01:42:55.823
+That's it, Ria,
+like if you have any questions, right,
+
+cd73aa7a-ea66-4cba-bda1-76d1cbe7268b-1
+01:42:55.823 --> 01:42:57.640
+just go through this recording.
+
+99fcafcb-400d-480b-8095-29448ecc4ab1-0
+01:42:57.720 --> 01:43:00.028
+I,
+I think I have covered almost everything
+
+99fcafcb-400d-480b-8095-29448ecc4ab1-1
+01:43:00.028 --> 01:43:02.600
+and you have,
+you have almost all the questions.
+
+d3b2ebce-a427-4273-8185-1a1acd2de4c3-0
+01:43:02.840 --> 01:43:07.320
+So whatever the questions that you marked
+as code, walk through, right.
+
+74013cac-58d9-45dc-808b-3133488709ed-0
+01:43:07.680 --> 01:43:13.440
+Just like go,
+go through the recording and try to give
+
+74013cac-58d9-45dc-808b-3133488709ed-1
+01:43:13.440 --> 01:43:15.640
+the answers for them.
+
+fe07dbc9-b8e9-4841-b5ac-65bc76826a4e-0
+01:43:15.640 --> 01:43:16.600
+We can validate it too.
+
+9c29d195-8b1f-4ab9-96a0-36c4ee1b937f-0
+01:43:16.600 --> 01:43:21.240
+OK, Yeah, OK.
+
+c7f404ea-b2e2-4d6e-992a-b17413ce9209-0
+01:43:21.240 --> 01:43:22.480
+Yeah, then thank you.
+
+bca287b6-f3ef-4f9c-a0ac-390cab79342c-0
+01:43:24.040 --> 01:43:31.320
+OK, Thank you for yeah, yeah,
+I give you my, Yeah, my.

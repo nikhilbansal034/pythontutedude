@@ -1,0 +1,1634 @@
+WEBVTT
+
+5ce527c9-dc06-4665-bfff-6d59d2cf0f4e-0
+00:00:03.640 --> 00:00:05.360
+Regarding statutory issue.
+
+dabfc764-87eb-44c9-8f65-3b4658182b01-0
+00:00:12.840 --> 00:00:18.360
+So for ballot reconciliation there are
+few things need to be performed.
+
+e0a81465-3655-4663-8807-dbee06fcbdfd-0
+00:00:18.640 --> 00:00:22.400
+First is pre PC metadata increase.
+
+e1b18f29-6a8c-40aa-a205-96ad13a82685-0
+00:00:22.920 --> 00:00:26.080
+We have already made entries into job
+metadata right?
+
+ce128a8f-e91f-4df1-b6b1-fbbc61c67f64-0
+00:00:26.280 --> 00:00:31.467
+If any table is having balance metrics,
+there are two columns in job metadata
+
+ce128a8f-e91f-4df1-b6b1-fbbc61c67f64-1
+00:00:31.467 --> 00:00:36.920
+which are count check threshold indicator
+and amount balance threshold indicator.
+
+8d8ee89b-dee3-4884-a556-4fbfcbaefa51-0
+00:00:37.440 --> 00:00:42.800
+We have to mark them as Y if we have any
+of these balance indicator.
+
+4b1dd2ad-e69c-4894-b399-8ff7dbfd15c7-0
+00:00:43.040 --> 00:00:45.600
+As of now I have implemented for policy
+right.
+
+91b2ab34-3242-4e22-b6d5-71b5cde328e0-0
+00:00:45.920 --> 00:00:51.048
+For policy I have amount columns that is
+the reason why I have marked amount
+
+91b2ab34-3242-4e22-b6d5-71b5cde328e0-1
+00:00:51.048 --> 00:00:56.176
+balance sheet indicator as Y and we have
+to make entries for all the balance
+
+91b2ab34-3242-4e22-b6d5-71b5cde328e0-2
+00:00:56.176 --> 00:00:59.640
+metrics into balance reconciliation
+metadata table.
+
+0e74b812-50b0-485c-b82c-fbbf673c3059-0
+00:01:00.080 --> 00:01:02.000
+OK, I'll show you that, post it.
+
+4b5cae36-d932-49b7-a4da-124814721f16-0
+00:01:05.680 --> 00:01:08.404
+So after that,
+we have to add that balance
+
+4b5cae36-d932-49b7-a4da-124814721f16-1
+00:01:08.404 --> 00:01:11.320
+reconciliation flow part in the IDMC
+mapping.
+
+a437b983-85dc-4fcb-922f-54f2a3b01919-0
+00:01:12.360 --> 00:01:12.720
+OK.
+
+24415f15-05d4-43d0-908d-3e0270f66520-0
+00:01:12.960 --> 00:01:16.600
+And the third thing is we have to yeah,
+Bharat.
+
+5c92a510-0e1d-4022-8d60-6351c8a3d059-0
+00:01:17.280 --> 00:01:19.480
+So first thing is I'll show everything.
+
+2a3b977a-a982-416d-ae19-13750d8e5bed-0
+00:01:20.280 --> 00:01:21.160
+Yeah, I'll show everything.
+
+b8688206-c400-4c7c-8cc3-d2c2b46a7071-0
+00:01:21.200 --> 00:01:25.160
+I'm just informing you what are the that
+we have to perform for this?
+
+56fa0eed-a87d-4ad8-8bf3-1534a203c870-0
+00:01:25.520 --> 00:01:25.800
+Sure.
+
+7292b9dc-4094-49a3-8ce1-f6f59b2053ab-0
+00:01:25.960 --> 00:01:26.920
+I'll show you one by three.
+
+75119ace-3931-4379-8033-f0983a54ca54-0
+00:01:27.880 --> 00:01:32.753
+Third one is we have to add 2 parameters
+which are related to this balance sheet
+
+75119ace-3931-4379-8033-f0983a54ca54-1
+00:01:32.753 --> 00:01:34.920
+translation into the parameter file.
+
+676b489f-7eb5-481c-924e-f633c1d6d974-0
+00:01:35.360 --> 00:01:37.240
+OK, yeah, that's it.
+
+cbcd7eab-ca31-4168-8aed-792fef5318da-0
+00:01:37.240 --> 00:01:38.480
+These three are the things.
+
+956b71ee-f44a-419f-81c1-1aa08346a51d-0
+00:01:38.640 --> 00:01:40.040
+Let me show you 1 by 1.
+
+31b0c4c4-d918-4784-b3df-dee88e5d7f77-0
+00:02:13.280 --> 00:02:18.820
+So if you see the entry in job metadata,
+as I have amount columns,
+
+31b0c4c4-d918-4784-b3df-dee88e5d7f77-1
+00:02:18.820 --> 00:02:23.120
+I mark this amount balance check
+indicator as well.
+
+1f84c894-1541-4b24-88f7-49fff5527f9f-0
+00:02:23.840 --> 00:02:24.200
+OK.
+
+6d6bfec9-7c31-49b8-aa55-cdd8eaadf747-0
+00:02:24.480 --> 00:02:30.261
+If we have any count related check how we
+have done for broker party address some
+
+6d6bfec9-7c31-49b8-aa55-cdd8eaadf747-1
+00:02:30.261 --> 00:02:35.972
+we'll take one dummy balance metric to
+get to calculate the diction count of one
+
+6d6bfec9-7c31-49b8-aa55-cdd8eaadf747-2
+00:02:35.972 --> 00:02:36.959
+column, right.
+
+b98a1f2c-4c84-482c-8b32-3d1bb1ea5f71-0
+00:02:38.040 --> 00:02:43.535
+So if we have any such kind of metrics,
+we have to enable this as of as we have
+
+b98a1f2c-4c84-482c-8b32-3d1bb1ea5f71-1
+00:02:43.535 --> 00:02:47.313
+only one columns,
+we have enabled this in job metadata
+
+b98a1f2c-4c84-482c-8b32-3d1bb1ea5f71-2
+00:02:47.313 --> 00:02:50.680
+table coming to balance reconciliation
+metadata.
+
+57af40ab-9a7b-49db-953d-b1691ff65888-0
+00:02:54.560 --> 00:02:59.972
+So this is this indicator is per that
+column right In job metadata for each we
+
+57af40ab-9a7b-49db-953d-b1691ff65888-1
+00:02:59.972 --> 00:03:01.480
+have a job level only.
+
+fcc6636e-c883-41bf-a49e-d0584d95d6fe-0
+00:03:01.720 --> 00:03:02.080
+Oh, OK.
+
+be022ae0-f3d8-46e1-8d1c-5ec92b68d4db-0
+00:03:03.400 --> 00:03:08.435
+So that in that while yeah,
+if we give Y then in that case our ABC
+
+be022ae0-f3d8-46e1-8d1c-5ec92b68d4db-1
+00:03:08.435 --> 00:03:13.320
+framework will know OK,
+Balance checks are there for this table.
+
+9fd9d5f5-fa1c-44bc-a020-4fdfb1fb3b15-0
+00:03:13.320 --> 00:03:17.240
+We have to implement balance
+reconciliation in the post.
+
+08eee7c3-84bb-4e7e-b1e4-80bd304473c9-0
+00:03:17.840 --> 00:03:23.376
+That is it OK,
+so the this these are the entries for
+
+08eee7c3-84bb-4e7e-b1e4-80bd304473c9-1
+00:03:23.376 --> 00:03:26.720
+balance reconciliation metadata.
+
+06927c86-2533-4a3d-a751-ed2991c232b9-0
+00:03:27.200 --> 00:03:30.160
+So this idea would be automatically
+generated.
+
+919a8c2c-d6e9-4ae5-9eb8-1f11c03d5f12-0
+00:03:30.480 --> 00:03:32.040
+This would be just description.
+
+4a9c2a1d-3b89-4200-9d4d-4c2af70ecc79-0
+00:03:32.040 --> 00:03:35.600
+Just follow this what wherever I have a
+column name, right?
+
+50fb6248-3b5f-4141-8d4a-5562a7acf613-0
+00:03:35.880 --> 00:03:39.807
+Just update your column name and update
+the source zone and target zone
+
+50fb6248-3b5f-4141-8d4a-5562a7acf613-1
+00:03:39.807 --> 00:03:40.680
+correspondingly.
+
+0d80124b-bdf3-4076-976d-914bde6b6587-0
+00:03:41.560 --> 00:03:44.280
+If you are balancing type is amount,
+keep here amount.
+
+12f1c26a-8a3f-4a50-be4b-86e09a0b7484-0
+00:03:44.280 --> 00:03:47.805
+If it is count,
+you have to keep count as our CCO is
+
+12f1c26a-8a3f-4a50-be4b-86e09a0b7484-1
+00:03:47.805 --> 00:03:50.200
+refined to rate zone to data domain.
+
+dc4c302f-b131-4fee-a516-f9e11d87287b-0
+00:03:50.200 --> 00:03:53.471
+I kept this and then target database name,
+target schema name,
+
+dc4c302f-b131-4fee-a516-f9e11d87287b-1
+00:03:53.471 --> 00:03:55.600
+target table name and target column name.
+
+946dc101-32e8-4fd5-9463-b9b2489f89a6-0
+00:03:55.640 --> 00:04:00.735
+All the amount columns for which we are
+performing the balance you cancellation,
+
+946dc101-32e8-4fd5-9463-b9b2489f89a6-1
+00:04:00.735 --> 00:04:04.258
+source region,
+source path are not related to us and we
+
+946dc101-32e8-4fd5-9463-b9b2489f89a6-2
+00:04:04.258 --> 00:04:08.787
+are not choosing source query or target
+query as we are using as we are
+
+946dc101-32e8-4fd5-9463-b9b2489f89a6-3
+00:04:08.787 --> 00:04:13.883
+implementing source related stuff in the
+stage mapping itself and target related
+
+946dc101-32e8-4fd5-9463-b9b2489f89a6-4
+00:04:13.883 --> 00:04:16.840
+in the reusable balance reconciliation
+itself.
+
+75e8695a-583b-41b3-b496-f49b24a044d2-0
+00:04:16.840 --> 00:04:19.960
+That's why we don't need these two and
+threshold type.
+
+3db5b265-2d39-47cd-912f-9be8c14fcdce-0
+00:04:19.960 --> 00:04:22.200
+It can be either percentage or value.
+
+b66d5899-d0ed-4cae-b0f5-5c8dfe438022-0
+00:04:23.480 --> 00:04:28.280
+But for CC work I just suggested to use
+5% as the threshold value.
+
+9dd39650-c1b6-4597-9205-562c1e817c04-0
+00:04:28.520 --> 00:04:32.680
+So I kept threshold type as percentage
+and threshold value as 5.
+
+d5934cd4-18fd-4078-9bfb-23fb0aa6e2a3-0
+00:04:33.560 --> 00:04:37.347
+If you have value,
+keep here value and give the
+
+d5934cd4-18fd-4078-9bfb-23fb0aa6e2a3-1
+00:04:37.347 --> 00:04:39.320
+corresponding value here.
+
+7bb49119-5a11-4c29-9a69-180603f4db05-0
+00:04:39.920 --> 00:04:43.087
+And yeah,
+this is just active indicator and then
+
+7bb49119-5a11-4c29-9a69-180603f4db05-1
+00:04:43.087 --> 00:04:45.480
+ordering columns last we have job ID.
+
+bd661493-e021-43cd-8c57-9a617a8a75c8-0
+00:04:46.320 --> 00:04:51.089
+So how we have like this job ID is also
+again a primary key in the documented
+
+bd661493-e021-43cd-8c57-9a617a8a75c8-1
+00:04:51.089 --> 00:04:51.640
+data tip.
+
+3e7a8b4d-9412-4fe6-aa30-89fc90d9667f-0
+00:04:52.240 --> 00:04:55.688
+I made entries to,
+I made entries in the contract Excel
+
+3e7a8b4d-9412-4fe6-aa30-89fc90d9667f-1
+00:04:55.688 --> 00:05:00.000
+document where we are keeping all the ABC
+metric data entries, right?
+
+ae4601c7-b7b4-498d-88c9-58fd5081dfb3-0
+00:05:00.240 --> 00:05:01.760
+You can take reference of it.
+
+4c9917ce-68e3-464f-9fc9-51b4bfd5aaec-0
+00:05:01.960 --> 00:05:07.881
+So there I framed the query in such a way
+that we can pull it using some static
+
+4c9917ce-68e3-464f-9fc9-51b4bfd5aaec-1
+00:05:07.881 --> 00:05:08.400
+values.
+
+6a5d2680-5a2d-4376-b454-f6b3591e099b-0
+00:05:08.480 --> 00:05:21.222
+This job ID how we pulled for other
+jobless and all OK this is this part is
+
+6a5d2680-5a2d-4376-b454-f6b3591e099b-1
+00:05:21.222 --> 00:05:31.450
+done next going I'm going I'm moving to
+mapping allow me to.
+
+3d3a4c0a-4e6c-47e1-89c5-5c198ca7fee1-0
+00:06:00.760 --> 00:06:04.780
+As we are implementing all the ABC
+related in the source to stage mapping,
+
+3d3a4c0a-4e6c-47e1-89c5-5c198ca7fee1-1
+00:06:04.780 --> 00:06:08.640
+I have implemented the balance
+reconciliation also in the same mapping.
+
+294b8b52-7de8-431a-a752-8ac98fb88490-0
+00:06:11.400 --> 00:06:13.920
+So here this is the one.
+
+f4655312-2886-4ad7-9f6c-d7148b6ac771-0
+00:06:14.800 --> 00:06:17.440
+This flow is related to balance
+reconciliation.
+
+ba8725c2-e180-45af-bff0-a0922f283bf9-0
+00:06:18.640 --> 00:06:21.764
+OK,
+so here whatever the records that are
+
+ba8725c2-e180-45af-bff0-a0922f283bf9-1
+00:06:21.764 --> 00:06:27.716
+intended to load into the stage table,
+we are performing balance reconciliation
+
+ba8725c2-e180-45af-bff0-a0922f283bf9-2
+00:06:27.716 --> 00:06:29.800
+on the same so output group.
+
+98800dbd-f8a3-49a0-9cd8-fbb4c449a5af-0
+00:06:29.840 --> 00:06:36.704
+So if you see we are not routing issued
+records or invalid records or no change
+
+98800dbd-f8a3-49a0-9cd8-fbb4c449a5af-1
+00:06:36.704 --> 00:06:39.880
+records into the target table, right.
+
+ce5329a7-1133-4330-a965-b048e11bc7e8-0
+00:06:40.760 --> 00:06:43.120
+Basically it's stated yeah, we we send.
+
+b1c59dfc-2f99-4e8d-9d1a-477083fa0adf-0
+00:06:43.640 --> 00:06:50.360
+So we would be calculating only amount
+like aggregated functions.
+
+b7d65da7-b622-4e9a-abcd-de0e9fb6a318-0
+00:06:50.360 --> 00:06:53.200
+We are applying aggregated functions only
+on those records.
+
+e6050825-65ed-435d-a0c2-d347309b42b1-0
+00:06:53.440 --> 00:06:56.840
+That is the reason why it took only those
+records to this flow.
+
+f4b21cfd-a6d0-4153-a0d5-5ff44b10dfe1-0
+00:06:57.640 --> 00:07:03.492
+After this in the aggregated
+transformation in the group by section I
+
+f4b21cfd-a6d0-4153-a0d5-5ff44b10dfe1-1
+00:07:03.492 --> 00:07:07.840
+use a job run ID as it is same for every
+record OK.
+
+ac8611c4-083f-44be-9ef1-7227b04b4d59-0
+00:07:07.840 --> 00:07:11.120
+It will take all the records basically
+whatever coming from this flow.
+
+eeaa2dde-9f96-4302-b26d-1af9c06a1c88-0
+00:07:13.160 --> 00:07:13.480
+OK.
+
+86779da1-3012-4118-b74e-5086d380984b-0
+00:07:13.480 --> 00:07:17.680
+And then in the aggregated I have
+calculated all the sums.
+
+11f566b7-b188-4eef-b0c9-b66f570f95d6-0
+00:07:18.200 --> 00:07:26.999
+OK first one let me show you one by one
+here I have taken I saw maximum limit for
+
+11f566b7-b188-4eef-b0c9-b66f570f95d6-1
+00:07:26.999 --> 00:07:29.360
+a decimal value is 28.
+
+3ed8ccf1-caee-46c5-bb8f-9cc04c6622d8-0
+00:07:29.920 --> 00:07:37.046
+So here we can take 28 and out of 28
+precision 6 is we are considering it for
+
+3ed8ccf1-caee-46c5-bb8f-9cc04c6622d8-1
+00:07:37.046 --> 00:07:37.960
+the scale.
+
+369aae22-338d-4420-820c-236e32a18f20-0
+00:07:37.960 --> 00:07:42.640
+That means decimal values like that we we
+can consider.
+
+430bc9ce-fd39-42a4-b20f-750b42b0e183-0
+00:07:42.640 --> 00:07:44.800
+Otherwise 22 is also fine.
+
+d1d2b35b-87b2-4b4f-910e-3db2d88ddaef-0
+00:07:46.680 --> 00:07:47.320
+Guy 3.
+
+6d65e7fd-d6e1-4a99-8941-c8c3dcc29640-0
+00:07:51.080 --> 00:07:51.600
+Yes, I should.
+
+559e7731-010e-4a34-ab28-c365cef3f68e-0
+00:07:51.600 --> 00:07:54.812
+Yeah,
+correctly I'm taking 6 decimal points for
+
+559e7731-010e-4a34-ab28-c365cef3f68e-1
+00:07:54.812 --> 00:07:55.080
+now.
+
+9a7c2a78-2405-4d93-9af5-e8298bdfa910-0
+00:07:55.080 --> 00:07:55.880
+This is fine, right?
+
+c14e0675-98c6-414c-b0a3-72c8e8fc3b9a-0
+00:07:55.960 --> 00:07:56.360
+For now.
+
+e19aa061-f3a9-4295-b193-145030f771fd-0
+00:07:57.040 --> 00:07:57.480
+For now.
+
+4caf673f-2c4a-4d73-8d77-43e6d73450a7-0
+00:07:57.480 --> 00:07:57.920
+OK.
+
+1730811f-940e-4cfa-b136-d0915c417e13-0
+00:07:58.160 --> 00:08:00.320
+But yeah, I already pinged in.
+
+fa8c72d5-dd03-40bc-9149-aa118289ece5-0
+00:08:02.400 --> 00:08:03.040
+Maybe we can.
+
+601d1a49-3be3-4423-b46c-ca8afc6d7c8c-0
+00:08:04.040 --> 00:08:04.160
+Yeah.
+
+7447c7fc-ab84-4f5b-a295-110fce167abe-0
+00:08:04.160 --> 00:08:04.400
+OK.
+
+975bda0c-b648-4206-8980-d96b6c0f53a4-0
+00:08:06.280 --> 00:08:09.640
+Like if you if we get any update,
+we can update the precision that's it.
+
+09d0ca5d-e5ff-4d30-828d-54bccd7cf24c-0
+00:08:10.000 --> 00:08:12.840
+But the maximum limit is 28 out of 28.
+
+44d6a3e4-3f96-4453-908e-007a680171f4-0
+00:08:12.840 --> 00:08:15.520
+Six is used for decimal points.
+
+a68b0259-344f-4c82-af63-b4a7905c59ea-0
+00:08:16.040 --> 00:08:17.880
+OK so similar.
+
+8d1d1e54-b366-4b72-a12d-2f1233938932-0
+00:08:18.080 --> 00:08:21.760
+So let me show you the expression how I
+have framed these.
+
+787e56db-f46e-4994-8888-de0ef561b057-0
+00:08:22.280 --> 00:08:26.640
+I'm like my intention is just to
+calculate the sum of limit amount.
+
+6416c12a-2680-46c5-bfce-d078c74dd4c9-0
+00:08:27.000 --> 00:08:31.000
+But there may be chances of getting null
+values into these columns correct?
+
+6ae84bd6-1785-46fa-9b8c-a4eeadedd070-0
+00:08:31.280 --> 00:08:37.554
+So in order to handle that null value if
+if the if all the columns are having null
+
+6ae84bd6-1785-46fa-9b8c-a4eeadedd070-1
+00:08:37.554 --> 00:08:40.200
+then the overall sum would be null.
+
+9f56896a-f11e-41a2-a53c-9aefb5e4b7ae-0
+00:08:40.240 --> 00:08:42.680
+In that case I just want to have a 0.
+
+390fa9f7-b1db-42fe-9e10-9bf5df5dd50f-0
+00:08:43.440 --> 00:08:47.822
+If there are few nullable values,
+few non nullable values then it will take
+
+390fa9f7-b1db-42fe-9e10-9bf5df5dd50f-1
+00:08:47.822 --> 00:08:52.031
+the correct time then I I need this
+otherwise if all the values are true
+
+390fa9f7-b1db-42fe-9e10-9bf5df5dd50f-2
+00:08:52.031 --> 00:08:54.280
+values then also it will consider this.
+
+759d4cc1-2863-430d-9d54-53e1838db000-0
+00:08:55.360 --> 00:09:00.045
+Basically my intention here is to
+calculate some of the amount value and
+
+759d4cc1-2863-430d-9d54-53e1838db000-1
+00:09:00.045 --> 00:09:03.640
+here I'm just handling null null values
+also that's it.
+
+a3ce33ec-1dd2-4fc5-a231-03d0b56bec05-0
+00:09:05.080 --> 00:09:09.927
+OK that is so here whatever the amount
+columns that I have,
+
+a3ce33ec-1dd2-4fc5-a231-03d0b56bec05-1
+00:09:09.927 --> 00:09:15.825
+I created expressions for each and every
+column posted in the expression
+
+a3ce33ec-1dd2-4fc5-a231-03d0b56bec05-2
+00:09:15.825 --> 00:09:22.289
+transformation using these all using all
+these agreement aggregated sum values,
+
+a3ce33ec-1dd2-4fc5-a231-03d0b56bec05-3
+00:09:22.289 --> 00:09:25.440
+I have created an expression like this.
+
+3cfa9ae1-0a51-4ec0-9941-cf6b25972684-0
+00:09:25.640 --> 00:09:30.480
+So first will be your column name and
+then column aggregated value.
+
+2544c128-2a21-4f53-895a-bae8cc43cea3-0
+00:09:31.000 --> 00:09:36.054
+So if you let me show you how it looks in
+balance reconciliation timetable,
+
+2544c128-2a21-4f53-895a-bae8cc43cea3-1
+00:09:36.054 --> 00:09:41.242
+it will be basically all the column
+column value would be separated by column
+
+2544c128-2a21-4f53-895a-bae8cc43cea3-2
+00:09:41.242 --> 00:09:46.629
+and each column related information will
+be separated by like whole in the whole
+
+2544c128-2a21-4f53-895a-bae8cc43cea3-3
+00:09:46.629 --> 00:09:51.750
+aggregate expression source aggregate
+expression each column details will be
+
+2544c128-2a21-4f53-895a-bae8cc43cea3-4
+00:09:51.750 --> 00:09:53.480
+separated by pipes in the.
+
+b17844c0-a461-41ab-b7ed-5817d1fbfb17-0
+00:09:56.040 --> 00:10:02.330
+So this will be in this table will be in
+Snowflake or it will be in our temp table,
+
+b17844c0-a461-41ab-b7ed-5817d1fbfb17-1
+00:10:02.330 --> 00:10:07.348
+this in Snowflake to have like as we need
+to enable this full PDO,
+
+b17844c0-a461-41ab-b7ed-5817d1fbfb17-2
+00:10:07.348 --> 00:10:09.520
+we have this balance for now.
+
+5e2f2c30-7e1f-4243-9d5a-02d82954d2c9-0
+00:10:10.280 --> 00:10:12.120
+Here we have in in temp, we have nothing.
+
+0b4872bc-f0e1-4317-b259-8590e0ee7329-0
+00:10:13.080 --> 00:10:13.200
+Yeah.
+
+13e61553-0bdc-4a68-adae-abaa77f957ee-0
+00:10:13.840 --> 00:10:17.235
+So here once we frame this aggregated
+expression,
+
+13e61553-0bdc-4a68-adae-abaa77f957ee-1
+00:10:17.235 --> 00:10:22.259
+we are just populating it into the
+temporary balance reconciliation table
+
+13e61553-0bdc-4a68-adae-abaa77f957ee-2
+00:10:22.259 --> 00:10:27.216
+where job ID, execution run ID,
+job run ID and source the text and audit
+
+13e61553-0bdc-4a68-adae-abaa77f957ee-3
+00:10:27.216 --> 00:10:27.760
+columns.
+
+7dfb6e19-287d-4985-b2a2-4919f1bf55b7-0
+00:10:28.080 --> 00:10:32.888
+Our intention is to have this expression
+in some tables so that we can use it in
+
+7dfb6e19-287d-4985-b2a2-4919f1bf55b7-1
+00:10:32.888 --> 00:10:33.720
+the post load.
+
+e5da1253-93ef-4630-ba87-bf80f87f0cc6-0
+00:10:34.440 --> 00:10:34.760
+OK.
+
+7e5f15af-e0a5-4fe6-9719-5c4a01c019ec-0
+00:10:35.560 --> 00:10:36.520
+I'm very ensured.
+
+77065981-54c9-4a56-8bc3-4886718c5d75-0
+00:10:44.900 --> 00:10:47.700
+Hi Aishwarya, yes, this copy.
+
+539cba1e-dcd3-4f1a-9ea7-c0f390eaf9d5-0
+00:10:48.620 --> 00:10:52.112
+So in the mapping,
+while you're adding the amount section,
+
+539cba1e-dcd3-4f1a-9ea7-c0f390eaf9d5-1
+00:10:52.112 --> 00:10:54.716
+right,
+like for the balance reconciliation,
+
+539cba1e-dcd3-4f1a-9ea7-c0f390eaf9d5-2
+00:10:54.716 --> 00:10:59.333
+are you making changes to any other
+components over there or only like you'll
+
+539cba1e-dcd3-4f1a-9ea7-c0f390eaf9d5-3
+00:10:59.333 --> 00:11:01.820
+be adding the balance reconciliation part?
+
+1391b56c-9a99-4d0f-a444-abf4381e90ac-0
+00:11:03.000 --> 00:11:03.280
+Yeah.
+
+adf6c159-62aa-42f7-a470-e06a60cd2a4e-0
+00:11:03.360 --> 00:11:04.360
+Should we make the changes?
+
+01e0c3c2-3bba-4726-85c1-2402f751bf9f-0
+00:11:04.680 --> 00:11:08.480
+Yeah,
+I didn't make any changes in the above in
+
+01e0c3c2-3bba-4726-85c1-2402f751bf9f-1
+00:11:08.480 --> 00:11:14.261
+the like for like in these two,
+in these two and even in the router also
+
+01e0c3c2-3bba-4726-85c1-2402f751bf9f-2
+00:11:14.261 --> 00:11:16.320
+I haven't done any change.
+
+44d500d9-beb5-4638-b99b-aeda39139663-0
+00:11:16.720 --> 00:11:20.685
+Only thing I'm considering only the
+records that are intended to load into
+
+44d500d9-beb5-4638-b99b-aeda39139663-1
+00:11:20.685 --> 00:11:21.320
+stage table.
+
+9f4b0390-62b8-446e-ac12-26b967ab10f2-0
+00:11:21.320 --> 00:11:22.560
+I'm considering those records.
+
+6f7eb61e-b987-4a58-9601-e63acb77cdf4-0
+00:11:22.560 --> 00:11:26.212
+And from here only this is the this is
+the only balance reconciliation part that
+
+6f7eb61e-b987-4a58-9601-e63acb77cdf4-1
+00:11:26.212 --> 00:11:27.520
+I have added in this mapping.
+
+f094eec2-44ba-4f5a-a45a-fd3219cf7716-0
+00:11:28.600 --> 00:11:29.000
+OK.
+
+ee48394e-8a56-45d2-bfb6-5a9f61b1a921-0
+00:11:29.840 --> 00:11:30.680
+Oh, understood.
+
+e261e62a-d5d3-4df6-8dc7-b52e1c03cbc3-0
+00:11:30.680 --> 00:11:32.080
+Thank you.
+
+a6a3714b-9d15-475a-9e72-0e23a62d4da5-0
+00:11:32.600 --> 00:11:35.720
+And here I got the aggregated text.
+
+2f76a8d8-3e9c-4c49-ad6e-a02fde04ae83-0
+00:11:35.800 --> 00:11:36.440
+This is the.
+
+1ac2ff97-bb77-4ad7-8655-a7ec3e846a63-0
+00:11:36.720 --> 00:11:40.265
+So just like any other ABC temporary
+table in Snowflake,
+
+1ac2ff97-bb77-4ad7-8655-a7ec3e846a63-1
+00:11:40.265 --> 00:11:44.867
+we would be also having this balance
+reconciliation timetable under every
+
+1ac2ff97-bb77-4ad7-8655-a7ec3e846a63-2
+00:11:44.867 --> 00:11:48.040
+common schema under common schema of
+every domain.
+
+5ecfaf4f-49d0-4080-aeaa-418b1cc4a27b-0
+00:11:48.920 --> 00:11:53.640
+OK, I copied this here I'll show you.
+
+87540bf7-2750-4aa0-b3a6-1301fd16233c-0
+00:11:53.800 --> 00:11:57.440
+So this is how it will give arsenal
+amount zero.
+
+d5fc0815-0d87-4f50-807a-97adce362c86-0
+00:11:57.600 --> 00:12:00.520
+I told you that it will take 6 decimal
+points.
+
+fe0ec0e2-9ed6-4fba-b46f-ddd044ce9b67-0
+00:12:00.800 --> 00:12:07.087
+So all these values are null and only
+premium amount and renewal amount is
+
+fe0ec0e2-9ed6-4fba-b46f-ddd044ce9b67-1
+00:12:07.087 --> 00:12:08.680
+having true values.
+
+e4b7a3f0-1dd1-4983-81c7-67cbcdf0f854-0
+00:12:08.680 --> 00:12:14.480
+So that is the aggregated space holding
+and for rest all it is taken as zero.
+
+f4b94c9e-d787-4eef-a0d8-8b2a3493fa8c-0
+00:12:16.360 --> 00:12:23.348
+OK, OK,
+this part is done in the mapping coming
+
+f4b94c9e-d787-4eef-a0d8-8b2a3493fa8c-1
+00:12:23.348 --> 00:12:30.920
+to parameter file,
+so in the parameter file policy.
+
+2baaa5ab-450e-4c65-bbb4-18c933c6c96c-0
+00:12:31.600 --> 00:12:36.717
+So in the parameter file under job postal
+success,
+
+2baaa5ab-450e-4c65-bbb4-18c933c6c96c-1
+00:12:36.717 --> 00:12:43.640
+so we have job post load success under
+our job level task flow rate.
+
+1fd36708-7d7f-4999-b791-4381c91907d7-0
+00:12:43.800 --> 00:12:49.040
+So under this we have to add 2 filters
+related to the balance reconciliation.
+
+9c1b8a9a-248e-487f-b319-d034eb998fe2-0
+00:12:49.240 --> 00:12:53.332
+1 is target expression,
+the other one is target balance Recon
+
+9c1b8a9a-248e-487f-b319-d034eb998fe2-1
+00:12:53.332 --> 00:12:58.811
+filter target expression in in the sense
+I'll be using this expression directly in
+
+9c1b8a9a-248e-487f-b319-d034eb998fe2-2
+00:12:58.811 --> 00:13:00.000
+the seller clause.
+
+3f1cac15-a0d3-4bf3-8d78-68ac3c1ed092-0
+00:13:00.280 --> 00:13:06.244
+So I'm giving all the details because
+balance reconciliation is a reusable
+
+3f1cac15-a0d3-4bf3-8d78-68ac3c1ed092-1
+00:13:06.244 --> 00:13:07.040
+component.
+
+1efb79e8-2be0-4706-8083-9fea05a45bb6-0
+00:13:07.360 --> 00:13:12.055
+In order to make it dynamic I'm giving
+the expression here because expression
+
+1efb79e8-2be0-4706-8083-9fea05a45bb6-1
+00:13:12.055 --> 00:13:13.440
+changes table to table.
+
+282d8ee2-515e-434b-abeb-1caae9fdf848-0
+00:13:13.560 --> 00:13:17.920
+That is the reason why we are making this
+here and here also.
+
+7e851962-69b1-4a60-8477-3698b6892454-0
+00:13:17.920 --> 00:13:24.120
+Similarly how we have in the how we have
+created source aggregate expressions.
+
+8ef6d1a0-2262-4ac8-b3d9-a240b120c5cf-0
+00:13:24.160 --> 00:13:29.120
+We are also trying to create the same
+expression even for target values.
+
+bfd9085a-b7b6-4582-b955-e3e36874ee95-0
+00:13:29.360 --> 00:13:34.349
+OK,
+so first will be our column value and
+
+bfd9085a-b7b6-4582-b955-e3e36874ee95-1
+00:13:34.349 --> 00:13:37.320
+then sum of column value.
+
+63fccc3b-a130-4a47-a2e5-21089a2032e5-0
+00:13:37.880 --> 00:13:39.440
+This is our intention, right?
+
+3212054a-249e-4668-b972-69fb52d7529b-0
+00:13:39.440 --> 00:13:41.560
+And call is is to handle and values.
+
+60e70b08-d9c9-4181-9b0f-992a4159ae3e-0
+00:13:41.960 --> 00:13:42.440
+That's it.
+
+c69012c2-64e7-45bd-8803-aaf11de7a189-0
+00:13:42.760 --> 00:13:49.320
+Each and every column metric could be
+separated by pipe single yes, Bharat.
+
+f4bb9195-b48f-4de7-9996-8252b9ebc7c1-0
+00:13:50.320 --> 00:13:54.090
+So in the mapping, right,
+we actually have a scenario like where
+
+f4bb9195-b48f-4de7-9996-8252b9ebc7c1-1
+00:13:54.090 --> 00:13:57.920
+the column name changes in the source
+mapping and target mapping.
+
+0921611d-2cde-4400-8b5c-5a275ecce671-0
+00:13:58.160 --> 00:14:04.120
+For example it is AMT in source but in
+target it will be amount no?
+
+c44db9d9-a40b-4b4c-a1e7-fd0494250873-0
+00:14:04.200 --> 00:14:06.360
+OK, so I got your question here.
+
+41af3df6-4a84-4a67-b271-e961adc169fb-0
+00:14:06.600 --> 00:14:10.920
+Also you have to consider only the target
+columns not the source columns.
+
+046bf62b-5300-476e-87e0-5256505d0fae-0
+00:14:11.760 --> 00:14:18.080
+Column name should be of target but here
+only the value should be source.
+
+fdf048f1-3094-47bd-8007-629581419fc5-0
+00:14:18.080 --> 00:14:22.240
+It would be source because it would it is
+coming from the source right.
+
+cf9826e0-39c1-46ed-8926-edd38acdb4e9-0
+00:14:23.000 --> 00:14:28.842
+So whatever value that is intended to be
+load into the stage table that value you
+
+cf9826e0-39c1-46ed-8926-edd38acdb4e9-1
+00:14:28.842 --> 00:14:32.120
+have to consider to calculate the amount
+sum.
+
+a31f4883-f22e-4203-ac19-5c00864aa059-0
+00:14:32.760 --> 00:14:37.105
+But here it should be the target value
+every time because we are using these
+
+a31f4883-f22e-4203-ac19-5c00864aa059-1
+00:14:37.105 --> 00:14:41.000
+columns to compare against the balance
+reconciliation metadata also.
+
+e15aad4f-d265-4dec-90d3-dcfc382c5ebe-0
+00:14:41.280 --> 00:14:45.080
+So here we have to coming to parameter
+file.
+
+d58fdb5d-21dd-42bf-9b3c-49ed777ac587-0
+00:14:45.080 --> 00:14:47.880
+It will be both will be same right?
+
+089bc0ee-f4df-4b5d-b259-fafc1b90a636-0
+00:14:47.880 --> 00:14:52.119
+Both column,
+I mean column see where in the balance my
+
+089bc0ee-f4df-4b5d-b259-fafc1b90a636-1
+00:14:52.119 --> 00:14:57.978
+reconciliation metadata parameter file
+mapping everywhere whatever the hard
+
+089bc0ee-f4df-4b5d-b259-fafc1b90a636-2
+00:14:57.978 --> 00:15:04.453
+coded column value that we are providing,
+right that that should be the same across
+
+089bc0ee-f4df-4b5d-b259-fafc1b90a636-3
+00:15:04.453 --> 00:15:10.697
+only here in the mapping if you have a
+different name for like here in while you
+
+089bc0ee-f4df-4b5d-b259-fafc1b90a636-4
+00:15:10.697 --> 00:15:15.246
+are doing the sum,
+whatever the column that is intended to
+
+089bc0ee-f4df-4b5d-b259-fafc1b90a636-5
+00:15:15.246 --> 00:15:19.640
+be loaded that you have to consider that
+aggregated sum.
+
+28466695-1cea-4d37-a935-e79b0edcf226-0
+00:15:19.640 --> 00:15:20.000
+OK.
+
+18276e14-0fd1-4e6b-a3e7-9562494ea9c3-0
+00:15:20.240 --> 00:15:26.313
+So here for policy in the source query
+like I'm using this original limit amount
+
+18276e14-0fd1-4e6b-a3e7-9562494ea9c3-1
+00:15:26.313 --> 00:15:32.461
+column directly map it to this original
+limit column in the target transformation
+
+18276e14-0fd1-4e6b-a3e7-9562494ea9c3-2
+00:15:32.461 --> 00:15:36.360
+in the stage transformation OK,
+in the stage table.
+
+6cfc7bdb-2c39-4d27-a57c-6fe8b0e75087-0
+00:15:36.880 --> 00:15:42.066
+So that is the reason why I use it this
+if you give a different alias name like
+
+6cfc7bdb-2c39-4d27-a57c-6fe8b0e75087-1
+00:15:42.066 --> 00:15:46.604
+org limit Lim AMD like that,
+if you have given construct that you're,
+
+6cfc7bdb-2c39-4d27-a57c-6fe8b0e75087-2
+00:15:46.604 --> 00:15:51.077
+you're understanding the gist why what
+I'm trying to say right here,
+
+6cfc7bdb-2c39-4d27-a57c-6fe8b0e75087-3
+00:15:51.077 --> 00:15:51.919
+I understand.
+
+8ad44b51-8978-4168-bfba-4daa113f9e6d-0
+00:15:52.760 --> 00:15:56.894
+Yeah,
+here in the in the expression where I'm
+
+8ad44b51-8978-4168-bfba-4daa113f9e6d-1
+00:15:56.894 --> 00:16:03.995
+giving the value in single course right
+here you have to use the corresponding
+
+8ad44b51-8978-4168-bfba-4daa113f9e6d-2
+00:16:03.995 --> 00:16:08.760
+target table columns,
+target table columns, correct.
+
+b05a8686-7365-4431-9d67-7647622c8bb1-0
+00:16:09.440 --> 00:16:13.813
+So here in that parameter file also you
+have to use those column names here,
+
+b05a8686-7365-4431-9d67-7647622c8bb1-1
+00:16:13.813 --> 00:16:18.016
+here also you have to use the same
+columns because in target column names
+
+b05a8686-7365-4431-9d67-7647622c8bb1-2
+00:16:18.016 --> 00:16:22.559
+like we have, we once it is loaded, yeah,
+the column name would be same, right?
+
+a6af976a-cb64-4d14-a5fc-a623f42d6cb9-0
+00:16:22.560 --> 00:16:28.861
+So here also the same column name right
+here also column name and column value
+
+a6af976a-cb64-4d14-a5fc-a623f42d6cb9-1
+00:16:28.861 --> 00:16:34.046
+should be separated by;
+: sorry: and each and every metric would
+
+a6af976a-cb64-4d14-a5fc-a623f42d6cb9-2
+00:16:34.046 --> 00:16:36.280
+be separated by pipe symbol.
+
+d0e8ec09-7ef9-4a62-9ff0-3f7574eed4c4-0
+00:16:37.000 --> 00:16:38.600
+OK this is how you have to do.
+
+8009cbe9-f8b6-4389-92ec-f27d998f504e-0
+00:16:38.800 --> 00:16:41.200
+Coming to the balance we can filter.
+
+75ddaa29-4dc5-48f6-902b-93c5f47fdd62-0
+00:16:42.520 --> 00:16:48.520
+I have added this earlier for SCD type 2
+mostly.
+
+31382987-6498-40df-8aa0-1f65ef948a39-0
+00:16:49.040 --> 00:16:50.600
+Mostly for SCD type 2.
+
+9c1cf736-bcd9-4c3a-8b9a-1cf5d0ebeb07-0
+00:16:51.560 --> 00:16:59.120
+I was under impression that SCD type 2
+works like one for an update scenario.
+
+06ffc972-17b8-467e-b191-a809799a4814-0
+00:16:59.240 --> 00:17:04.991
+There would be only one record coming
+from the source and the same record would
+
+06ffc972-17b8-467e-b191-a809799a4814-1
+00:17:04.991 --> 00:17:10.096
+be used to expire my target tables
+existing record and inserting a new
+
+06ffc972-17b8-467e-b191-a809799a4814-2
+00:17:10.096 --> 00:17:10.599
+record.
+
+74208bf1-c5ad-448b-ac69-21f532633c75-0
+00:17:11.000 --> 00:17:14.475
+But whereas after connecting with
+discussing with you,
+
+74208bf1-c5ad-448b-ac69-21f532633c75-1
+00:17:14.475 --> 00:17:19.215
+I got to know that there would be two
+separating column which would handle
+
+74208bf1-c5ad-448b-ac69-21f532633c75-2
+00:17:19.215 --> 00:17:21.680
+update and insert operation separately.
+
+2ce47d2a-8ef8-4d4e-a489-4595013d234c-0
+00:17:22.680 --> 00:17:27.971
+So here if there are two,
+in the first scenario where if we have
+
+2ce47d2a-8ef8-4d4e-a489-4595013d234c-1
+00:17:27.971 --> 00:17:31.715
+one,
+one record coming from the source and we
+
+2ce47d2a-8ef8-4d4e-a489-4595013d234c-2
+00:17:31.715 --> 00:17:36.111
+are considering only one record amount,
+amount value,
+
+2ce47d2a-8ef8-4d4e-a489-4595013d234c-3
+00:17:36.111 --> 00:17:40.832
+while we are calculating source aggregate
+transformation,
+
+2ce47d2a-8ef8-4d4e-a489-4595013d234c-4
+00:17:40.832 --> 00:17:44.658
+we have to consider only target active
+record,
+
+2ce47d2a-8ef8-4d4e-a489-4595013d234c-5
+00:17:44.658 --> 00:17:48.240
+only one record 1 record amount value
+only.
+
+94aa7999-ac67-4a1d-a8a2-879c21798c64-0
+00:17:48.240 --> 00:17:50.840
+So the the to compare the balancing
+metric.
+
+0b833242-7852-41c2-8212-ada3e1a7bfd3-0
+00:17:51.120 --> 00:17:52.400
+Otherwise it would be false.
+
+c665f68f-6c22-48b7-a05a-c16ff3e85859-0
+00:17:52.640 --> 00:17:56.878
+Then in that case,
+we have to consider only the active
+
+c665f68f-6c22-48b7-a05a-c16ff3e85859-1
+00:17:56.878 --> 00:18:03.120
+records that are inserted during the load
+for SCD type, normal SCD type of flow.
+
+bca9f516-e8a0-4632-aeee-14d73278b68b-0
+00:18:03.480 --> 00:18:06.288
+But here whereas coming to our Zone 2
+design,
+
+bca9f516-e8a0-4632-aeee-14d73278b68b-1
+00:18:06.288 --> 00:18:10.562
+as we'll be having separate columns for
+update and insert operations,
+
+bca9f516-e8a0-4632-aeee-14d73278b68b-2
+00:18:10.562 --> 00:18:15.020
+we have to as we are doing considering
+the update column, update column,
+
+bca9f516-e8a0-4632-aeee-14d73278b68b-3
+00:18:15.020 --> 00:18:19.416
+update records amount value and insert
+records amount value separately,
+
+bca9f516-e8a0-4632-aeee-14d73278b68b-4
+00:18:19.416 --> 00:18:23.080
+we have to consider the same thing even
+in the target case.
+
+bc16a1af-0284-4eef-8c95-a09a982d0831-0
+00:18:23.200 --> 00:18:26.240
+That is the reason why I kept it as one
+equal to 1.
+
+51609b8b-1d92-40a6-bfa8-a185c9290e65-0
+00:18:26.240 --> 00:18:29.640
+You can also keep directly TRUG true like
+that.
+
+b2309407-e18e-4a4b-9081-4f8d9a3a4749-0
+00:18:29.640 --> 00:18:33.640
+You can give a boolean expression OK
+whatever goes.
+
+64d147af-9231-4d23-9429-735118f6af21-0
+00:18:34.440 --> 00:18:39.202
+If you are taking 1 equal to 1 keep this
+otherwise this IDM will get confused
+
+64d147af-9231-4d23-9429-735118f6af21-1
+00:18:39.202 --> 00:18:41.400
+because we have equal to here right?
+
+0694714b-4b4c-4ed0-a5c2-82f853c356f0-0
+00:18:41.480 --> 00:18:43.360
+Otherwise you can directly give PR you
+need to.
+
+062bca83-4b49-4bb7-9297-b266ee94cffc-0
+00:18:43.440 --> 00:18:44.320
+That is also working.
+
+27c17649-d736-47f7-af42-fa0c88f8f3df-0
+00:18:44.320 --> 00:18:47.640
+I tested it, it is working OK.
+
+886147c3-058d-43cc-85d0-e7d8889661c1-0
+00:18:48.800 --> 00:18:53.600
+OK we need to keep filter as it is
+already present.
+
+e872c961-d173-4b3d-9cc9-e798c827a9fb-0
+00:18:54.320 --> 00:18:59.520
+Just add this as a OK, that's it.
+
+92da7db6-d9bf-44ba-bb86-7af2191d1b9d-0
+00:18:59.520 --> 00:19:00.840
+I I guess.
+
+0d9f9757-6ffe-4e9f-ad2f-086c119b6f58-0
+00:19:02.320 --> 00:19:06.633
+Let me show you OK,
+I'll show you the balance runs, runs,
+
+0d9f9757-6ffe-4e9f-ad2f-086c119b6f58-1
+00:19:06.633 --> 00:19:07.600
+test results.
+
+11ff6fa4-5c30-4741-89e8-8674086722bf-0
+00:19:07.600 --> 00:19:10.240
+Also how it looks in in parameter file.
+
+647629e8-0610-4439-80a4-a1f2ad0e3885-0
+00:19:10.240 --> 00:19:11.880
+There are other entries right?
+
+40fff522-9ceb-48e9-8fad-a8e2c5fd0810-0
+00:19:13.840 --> 00:19:18.080
+Like below that job post.
+
+8ac3a031-55d3-4056-b277-eff64651530c-0
+00:19:18.080 --> 00:19:24.160
+So we have we have this already in place
+for all other things.
+
+38c4005f-9fb1-4fe4-b0de-290a78172708-0
+00:19:24.160 --> 00:19:28.130
+So even though if you if you implement
+balance reconciliation,
+
+38c4005f-9fb1-4fe4-b0de-290a78172708-1
+00:19:28.130 --> 00:19:32.227
+if you are not doing it,
+we have all the parameters except these
+
+38c4005f-9fb1-4fe4-b0de-290a78172708-2
+00:19:32.227 --> 00:19:32.480
+two.
+
+a9ba7b9d-745d-4330-a177-46a4c08e3b42-0
+00:19:32.680 --> 00:19:35.069
+But if you are implementing balance
+reconciliation,
+
+a9ba7b9d-745d-4330-a177-46a4c08e3b42-1
+00:19:35.069 --> 00:19:38.792
+these two are the extra parameters that
+you have at under this particular logger
+
+a9ba7b9d-745d-4330-a177-46a4c08e3b42-2
+00:19:38.792 --> 00:19:39.160
+section.
+
+d00b79f9-5cd7-4268-a007-88155292507d-0
+00:19:40.560 --> 00:19:44.838
+OK, OK, OK,
+let me show you the results in balance
+
+d00b79f9-5cd7-4268-a007-88155292507d-1
+00:19:44.838 --> 00:19:46.600
+reconciliation steps.
+
+0d0f9bb4-0c1d-44a3-b8d4-6fdb45c5a085-0
+00:19:50.080 --> 00:19:55.420
+So here if you see balance reconciliation
+will have all the this is the UAID column
+
+0d0f9bb4-0c1d-44a3-b8d4-6fdb45c5a085-1
+00:19:55.420 --> 00:20:00.188
+valuation that we it is kept as null
+because that's why I'm told that this
+
+0d0f9bb4-0c1d-44a3-b8d4-6fdb45c5a085-2
+00:20:00.188 --> 00:20:05.019
+valuation date represents the date on
+which valid valuation has taken place
+
+0d0f9bb4-0c1d-44a3-b8d4-6fdb45c5a085-3
+00:20:05.019 --> 00:20:06.799
+normal for the normal notes.
+
+b40e261d-4984-43d4-86c5-ac999c69b910-0
+00:20:06.800 --> 00:20:12.680
+She told this value sure like need need
+not be populated like that.
+
+bf78e913-aac0-4b40-b25f-462494b09152-0
+00:20:12.680 --> 00:20:17.152
+She told that is the reason why I kept it
+as null and then it will have the
+
+bf78e913-aac0-4b40-b25f-462494b09152-1
+00:20:17.152 --> 00:20:17.800
+aggregated.
+
+1f3c3918-702e-4314-ae5e-7602c464d3d3-0
+00:20:18.720 --> 00:20:22.080
+Values of source and target and balance
+flag.
+
+3f15b400-55e6-4451-9d33-548320d3056a-0
+00:20:22.160 --> 00:20:26.824
+If these two are exactly balanced then it
+would be Y balance flag and out of
+
+3f15b400-55e6-4451-9d33-548320d3056a-1
+00:20:26.824 --> 00:20:30.640
+balance value is nothing but the
+difference between these two.
+
+6dec6e0e-25bd-4d46-9184-6aa2b9263fe3-0
+00:20:30.760 --> 00:20:35.480
+If it is exactly 0 then balance flag
+equal to 1 and threshold flag equal to 1.
+
+3348fd4a-5c9b-4374-a4d5-7ce4f703eec3-0
+00:20:35.520 --> 00:20:40.512
+If these are not balanced balance flag
+equal to Y then again it will check with
+
+3348fd4a-5c9b-4374-a4d5-7ce4f703eec3-1
+00:20:40.512 --> 00:20:41.760
+the threshold value.
+
+eea1f1e5-5462-4ff6-bb6f-2a3076c11ea9-0
+00:20:41.800 --> 00:20:46.104
+If it is lies with the threshold,
+then our threshold value would be Y,
+
+eea1f1e5-5462-4ff6-bb6f-2a3076c11ea9-1
+00:20:46.104 --> 00:20:47.560
+otherwise it would be N.
+
+f7de0d25-369a-4cd6-8d42-731524d3eac9-0
+00:20:49.240 --> 00:20:53.920
+This balance in translation metric,
+you don't need to do anything here.
+
+13be69dc-a96c-46be-a708-42870813c8e1-0
+00:20:54.600 --> 00:20:56.160
+Reusable component will take care.
+
+166c19ea-1b19-49ac-ada6-188a5c913289-0
+00:20:57.120 --> 00:20:58.720
+Yeah, that's it.
+
+313ede0b-7f2f-42dc-96fd-b04f87126ca7-0
+00:21:00.080 --> 00:21:05.240
+And if you like,
+will there be any test cases added to UT
+
+313ede0b-7f2f-42dc-96fd-b04f87126ca7-1
+00:21:05.240 --> 00:21:08.800
+for this one, we're not adding anything.
+
+ab4adf75-1dce-4ec5-b168-c2ad2aeae7df-0
+00:21:09.000 --> 00:21:10.280
+But when you run it?
+
+97cce0cf-b7b0-440c-8b89-cffadf17a7de-0
+00:21:10.320 --> 00:21:10.680
+No.
+
+83a23f91-42aa-4df1-8c00-ea4c1c39a3a0-0
+00:21:11.120 --> 00:21:14.777
+When you run it,
+how preload components post loads
+
+83a23f91-42aa-4df1-8c00-ea4c1c39a3a0-1
+00:21:14.777 --> 00:21:17.360
+components are getting loaded right?
+
+368a37ac-bc40-444f-94c6-a059c4ac0688-0
+00:21:17.360 --> 00:21:20.760
+This will also gets loaded in the job
+post load part.
+
+afe7e103-77ed-4afe-9086-f191ae39c0dd-0
+00:21:21.520 --> 00:21:26.952
+OK how we have records getting loaded
+into job rule error detailed and getting
+
+afe7e103-77ed-4afe-9086-f191ae39c0dd-1
+00:21:26.952 --> 00:21:29.360
+updated and job rule execution log.
+
+c5d8839b-2541-4aa2-8089-d14bbbc4a2c9-0
+00:21:29.760 --> 00:21:33.640
+The records will get inserted into this
+table as part of job post load.
+
+885a3a58-2400-4cf9-be43-4cba2532200b-0
+00:21:33.760 --> 00:21:38.800
+So it would be the process happened just
+like any other ABC.
+
+1d1bb5a2-cd0f-4b85-b05e-e2a29b29a0c4-0
+00:21:39.520 --> 00:21:45.790
+It's better to have this Utah screenshot
+in Utah, right,
+
+1d1bb5a2-cd0f-4b85-b05e-e2a29b29a0c4-1
+00:21:45.790 --> 00:21:51.400
+The final one which was shown from Arora
+for Utah.
+
+41c3c702-08c1-4c26-8c7c-c9a052ef8b8a-0
+00:21:51.920 --> 00:21:55.071
+In terms of Utah,
+I'm saying like is it better to have a
+
+41c3c702-08c1-4c26-8c7c-c9a052ef8b8a-1
+00:21:55.071 --> 00:21:59.548
+screenshot of the final table and I mean
+capturing a screenshot from final table
+
+41c3c702-08c1-4c26-8c7c-c9a052ef8b8a-2
+00:21:59.548 --> 00:22:01.760
+and add it to the Utah document is that?
+
+92990e79-e22b-491f-a6c5-c7ce087a4eb5-0
+00:22:02.880 --> 00:22:04.720
+Yeah, yeah, yeah, it is needed.
+
+43791f4a-a170-45f5-8422-d995eb118d1f-0
+00:22:04.720 --> 00:22:08.616
+So for the first run,
+we are capturing all the things right
+
+43791f4a-a170-45f5-8422-d995eb118d1f-1
+00:22:08.616 --> 00:22:12.189
+after drawable execution log in the post
+load we have,
+
+43791f4a-a170-45f5-8422-d995eb118d1f-2
+00:22:12.189 --> 00:22:17.450
+we can add this balance reconciliation
+part screenshot and the entries, entries,
+
+43791f4a-a170-45f5-8422-d995eb118d1f-3
+00:22:17.450 --> 00:22:22.581
+entries also you can add because the
+entries have happened into the table read
+
+43791f4a-a170-45f5-8422-d995eb118d1f-4
+00:22:22.581 --> 00:22:23.880
+entries you can add.
+
+e0def3f5-1d77-4f9b-a667-1b08bb20b45a-0
+00:22:24.200 --> 00:22:29.292
+And in the last, if everything goes good,
+our final status would be completed
+
+e0def3f5-1d77-4f9b-a667-1b08bb20b45a-1
+00:22:29.292 --> 00:22:29.880
+straight.
+
+c86f0940-4605-422e-83fc-841a774a8ee8-0
+00:22:30.880 --> 00:22:31.960
+Oh, OK, sure.
+
+3fe92435-d474-402f-897c-2117b606ba66-0
+00:22:31.960 --> 00:22:37.520
+Yeah, because that yeah,
+the addition is fine.
+
+7c510d52-9823-44cb-9736-d49a55fb33a0-0
+00:22:37.520 --> 00:22:42.825
+And also entries also how we are making
+entries, displaying the entries,
+
+7c510d52-9823-44cb-9736-d49a55fb33a0-1
+00:22:42.825 --> 00:22:47.040
+how they are affected or they're impacted
+during the run.
+
+e1858f25-3f6b-4a9e-9ade-de68a82a5442-0
+00:22:47.040 --> 00:22:49.360
+We are showing everything right as part
+of ABC.
+
+0b1f2273-5805-41bf-aa7c-aaafb2f787b7-0
+00:22:49.360 --> 00:22:55.560
+Also let's have the entries also in the
+UT document metadata entries are checked.
+
+90d6da7d-0212-40e0-868b-48e010d5127a-0
+00:22:55.560 --> 00:22:57.000
+It is there for reference.
+
+efc362e6-43c4-438c-9839-547708a42b35-0
+00:22:57.000 --> 00:22:59.721
+But in case if you update this for policy,
+right,
+
+efc362e6-43c4-438c-9839-547708a42b35-1
+00:22:59.721 --> 00:23:04.240
+you if you update UT document for policy,
+you'll be able take that as a reference.
+
+64575d8e-8d25-4b0d-9a00-428d6f165d1d-0
+00:23:04.240 --> 00:23:06.760
+And I will also attach the similar
+screenshots.
+
+8b6a151b-840a-4fbf-a7a8-55ee873b70f6-0
+00:23:06.760 --> 00:23:10.458
+Yeah,
+we have closed duty documents already,
+
+8b6a151b-840a-4fbf-a7a8-55ee873b70f6-1
+00:23:10.458 --> 00:23:14.240
+but it's for CC 10 policy or as this ABC
+one.
+
+5f923a0f-f04f-4188-9138-84bc871d204f-0
+00:23:15.720 --> 00:23:19.735
+I mean policy as this is there,
+but balance reconciliation is added as
+
+5f923a0f-f04f-4188-9138-84bc871d204f-1
+00:23:19.735 --> 00:23:20.640
+part of backlog.
+
+5ebbcb6a-7c29-4886-931a-8f6962624335-0
+00:23:22.160 --> 00:23:24.800
+So OK,
+duty is already done for all the tables.
+
+0cb774d9-a4d5-4720-a4f2-eb83792cf172-0
+00:23:24.800 --> 00:23:27.640
+This balance reconciliation part is added
+as part of backlog.
+
+e6527b21-e5b6-419e-9d32-f0fbdb4db80d-0
+00:23:28.800 --> 00:23:31.588
+OK,
+you can just add the screenshot just
+
+e6527b21-e5b6-419e-9d32-f0fbdb4db80d-1
+00:23:31.588 --> 00:23:32.880
+below the job rule.
+
+9d1c29ba-2e07-4c3d-9d6e-7d78c2bc83c3-0
+00:23:32.880 --> 00:23:33.520
+Execution log.
+
+bf2b0a35-391b-4378-8969-0717984be25b-0
+00:23:33.600 --> 00:23:35.200
+Post load success would be there.
+
+c36f7cb0-3a15-4441-9b04-a5259fc8c92d-0
+00:23:35.360 --> 00:23:36.440
+Just below that you're gonna add.
+
+f228f08f-3ae6-4bdc-8e86-63cdd3bcf4ec-0
+00:23:37.400 --> 00:23:38.400
+Just below that you're gonna add.
+
+34a0d783-312a-4650-8fd3-2f80ec293cb7-0
+00:23:38.560 --> 00:23:38.960
+That's it.
+
+4efe8736-0d44-446e-827b-9f9e5354c4c9-0
+00:23:39.880 --> 00:23:40.480
+OK, OK.
+
+0d1d8e11-c6bd-44fd-a12c-7170a462c67b-0
+00:23:42.160 --> 00:23:43.640
+Just you can stop the recording.

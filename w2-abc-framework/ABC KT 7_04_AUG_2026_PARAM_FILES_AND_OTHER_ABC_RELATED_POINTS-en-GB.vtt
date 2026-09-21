@@ -1,0 +1,3395 @@
+WEBVTT
+
+539ec3e2-0991-4c30-a287-1a789fa6a224-0
+00:00:03.160 --> 00:00:03.800
+Yeah, it's not.
+
+b081460e-f6cd-43fb-855d-d0745c17bdc9-0
+00:00:05.560 --> 00:00:10.090
+So in the parameter file under global
+section,
+
+b081460e-f6cd-43fb-855d-d0745c17bdc9-1
+00:00:10.090 --> 00:00:13.560
+we would have ABC Aurora connection.
+
+255f8f04-d434-4f74-8767-4a78e264a037-0
+00:00:14.040 --> 00:00:20.417
+And this snowflake connection is I told
+you right whenever in our ABC components
+
+255f8f04-d434-4f74-8767-4a78e264a037-1
+00:00:20.417 --> 00:00:26.637
+if you observe we have few snowflake
+connections currently all those are named
+
+255f8f04-d434-4f74-8767-4a78e264a037-2
+00:00:26.637 --> 00:00:33.173
+as connection con ABC snowflake like that
+I have given under common folder once if
+
+255f8f04-d434-4f74-8767-4a78e264a037-3
+00:00:33.173 --> 00:00:39.393
+we are using it for any domain specific,
+we would be taking all the components
+
+255f8f04-d434-4f74-8767-4a78e264a037-4
+00:00:39.393 --> 00:00:43.959
+from common ABC to the domain specific
+ABC folder, right?
+
+4f41d0dc-243b-4efc-bada-b55b52a8b857-0
+00:00:44.240 --> 00:00:47.560
+Once we are bringing here, we're updating.
+
+621ded17-64c7-4462-a45b-f42567edff61-0
+00:00:47.600 --> 00:00:52.676
+We have to update the snowflake
+connection name wherever we are using in
+
+621ded17-64c7-4462-a45b-f42567edff61-1
+00:00:52.676 --> 00:00:56.640
+the ABC components to the corresponding
+connection name.
+
+31405409-0a42-422b-bcfe-4772450d0b3f-0
+00:00:56.800 --> 00:01:01.820
+So here this is the naming standard that
+we that we have to follow for a
+
+31405409-0a42-422b-bcfe-4772450d0b3f-1
+00:01:01.820 --> 00:01:04.640
+connection cont EJT and then domain name.
+
+ef295cac-4d97-40ad-86f6-a7cd22c5f1cc-0
+00:01:05.760 --> 00:01:08.764
+So for broker,
+it should be broker for claims it should
+
+ef295cac-4d97-40ad-86f6-a7cd22c5f1cc-1
+00:01:08.764 --> 00:01:10.320
+be cont EJT claims like that.
+
+837fedf8-8368-4e93-a34e-9e09d5c5afb1-0
+00:01:10.560 --> 00:01:14.928
+OK, all the components,
+all the ABC components and the mainstage
+
+837fedf8-8368-4e93-a34e-9e09d5c5afb1-1
+00:01:14.928 --> 00:01:20.640
+load mappings or target load mappings all
+have to use a single snowflake connection.
+
+e1068480-7ce9-4781-8630-3810f5e285c3-0
+00:01:21.960 --> 00:01:25.189
+OK,
+Connect the name also getting sent Yeah,
+
+e1068480-7ce9-4781-8630-3810f5e285c3-1
+00:01:25.189 --> 00:01:26.840
+name has to be changed.
+
+8532158b-c9b4-4df7-b7e2-b244c442490b-0
+00:01:26.840 --> 00:01:27.840
+This is the requirement.
+
+962074c5-09b4-481e-994c-093c06657109-0
+00:01:27.840 --> 00:01:29.480
+This is the requirement.
+
+3f628a1d-eba3-42bd-af31-32d536a08b47-0
+00:01:29.480 --> 00:01:35.120
+Like this is the requirement we got asked
+me to do so name should also be changed.
+
+13a07933-ab86-4bea-a1db-fbbd4d6f4d42-0
+00:01:35.280 --> 00:01:40.200
+OK And like how do you do it?
+
+8084b837-ff2e-4b10-95d9-db949466c715-0
+00:01:40.200 --> 00:01:43.040
+Like do you do it in a bulk or how do you
+do it?
+
+94e06253-1a2d-4501-b9f6-326246d84a64-0
+00:01:44.280 --> 00:01:45.400
+I'm doing it manually.
+
+6e7dec23-336b-4aef-96ac-3d486d51f297-0
+00:01:45.400 --> 00:01:49.264
+Like there are I think around six to
+seven components which are holding these
+
+6e7dec23-336b-4aef-96ac-3d486d51f297-1
+00:01:49.264 --> 00:01:49.760
+snowflake.
+
+69ce589c-8d6c-4ae1-b05d-7e2fcc2947db-0
+00:01:49.960 --> 00:01:53.961
+You can also jot them,
+jot them down you as you're already going
+
+69ce589c-8d6c-4ae1-b05d-7e2fcc2947db-1
+00:01:53.961 --> 00:01:56.240
+through end to end flow today, right?
+
+7c9d1f2c-8797-4f33-bee6-3604469ceb9f-0
+00:01:56.520 --> 00:02:00.053
+Jordan,
+like jot down all the components where we
+
+7c9d1f2c-8797-4f33-bee6-3604469ceb9f-1
+00:02:00.053 --> 00:02:05.920
+are using snowflake connection so that it
+would be easy for you to like change it.
+
+438cc501-aa7b-47a4-a046-0e92f134b0a9-0
+00:02:06.240 --> 00:02:08.811
+Otherwise you can give the list to the
+developer,
+
+438cc501-aa7b-47a4-a046-0e92f134b0a9-1
+00:02:08.811 --> 00:02:12.360
+corresponding developers who are doing
+that whenever an issue comes.
+
+8866b3e3-7b18-40c0-a39f-984ec8488f5a-0
+00:02:12.360 --> 00:02:16.495
+OK and after that this is the ABC
+connection name,
+
+8866b3e3-7b18-40c0-a39f-984ec8488f5a-1
+00:02:16.495 --> 00:02:21.280
+ABC database name are related and this is
+ABC schema name.
+
+74546a69-0b68-47dc-9015-fc74bfda84ed-0
+00:02:21.560 --> 00:02:29.023
+These two are related to Snowflake ABC OK
+and then these are related to stage table
+
+74546a69-0b68-47dc-9015-fc74bfda84ed-1
+00:02:29.023 --> 00:02:31.600
+are a table main array table.
+
+387e10be-2b17-48f8-a120-a4176e9cb37b-0
+00:02:31.640 --> 00:02:33.480
+These three are related to main array
+table.
+
+01434664-8425-4deb-a6be-81b612af0c93-0
+00:02:33.760 --> 00:02:38.576
+These three are related to temp array
+table and then source name, domain name,
+
+01434664-8425-4deb-a6be-81b612af0c93-1
+00:02:38.576 --> 00:02:43.575
+target zone all these are related to get
+the metadata entries like all the all of
+
+01434664-8425-4deb-a6be-81b612af0c93-2
+00:02:43.575 --> 00:02:43.880
+them.
+
+003a38e8-98b8-4f96-a2ca-ec9fc58dd386-0
+00:02:44.000 --> 00:02:48.326
+And the last one is the parameter which
+is used for read and purposes the
+
+003a38e8-98b8-4f96-a2ca-ec9fc58dd386-1
+00:02:48.326 --> 00:02:49.320
+execution run ID.
+
+3ec31723-1157-497a-9115-18d0c36a1883-0
+00:02:50.120 --> 00:02:57.577
+OK and here why I have given multiple
+because earlier I what is this one second
+
+3ec31723-1157-497a-9115-18d0c36a1883-1
+00:02:57.577 --> 00:03:00.840
+source zone What is that parameter?
+
+c4aced8f-7e8b-442b-9e88-834bfcb12fe8-0
+00:03:01.760 --> 00:03:15.131
+Which one source zone No no 78 this is
+source zone zone 1 stage 2 what is the
+
+c4aced8f-7e8b-442b-9e88-834bfcb12fe8-1
+00:03:15.131 --> 00:03:16.160
+space?
+
+706aa6a0-67e7-4481-8f95-80ec0f02f3f9-0
+00:03:16.160 --> 00:03:22.193
+We are not choosing it anywhere but I
+think we are using it in the batch
+
+706aa6a0-67e7-4481-8f95-80ec0f02f3f9-1
+00:03:22.193 --> 00:03:28.556
+prerequisite task flow or ETL data
+indication where we are checking OK so we
+
+706aa6a0-67e7-4481-8f95-80ec0f02f3f9-2
+00:03:28.556 --> 00:03:35.168
+are in case if any of my job load fails,
+we would be sending out a notification
+
+706aa6a0-67e7-4481-8f95-80ec0f02f3f9-3
+00:03:35.168 --> 00:03:36.160
+right there.
+
+a6c137d8-16cf-4be1-a288-92a335a3bafe-0
+00:03:36.880 --> 00:03:41.880
+I think I I'm using this source zone to
+provide the source zone.
+
+361022c8-151f-407c-8e95-beb4f62d070c-0
+00:03:42.280 --> 00:03:46.243
+So now I have zone 1 as my source
+tomorrow for zone 3,
+
+361022c8-151f-407c-8e95-beb4f62d070c-1
+00:03:46.243 --> 00:03:51.000
+maybe zone 2 can be the source so but
+what is stage 2, stage one?
+
+6f36c0ac-5384-4ac1-8f9f-b573cb3d3e45-0
+00:03:51.000 --> 00:03:56.367
+This OK, this is their,
+this is their zone 1 Stage 2 is there is
+
+6f36c0ac-5384-4ac1-8f9f-b573cb3d3e45-1
+00:03:56.367 --> 00:04:02.312
+where we have the iceberg table,
+snowflake iceberg they're calling that
+
+6f36c0ac-5384-4ac1-8f9f-b573cb3d3e45-2
+00:04:02.312 --> 00:04:05.120
+layer at like this zone 1 stage 2.
+
+89230af3-f66b-480c-9c2d-506ceaa87c37-0
+00:04:06.360 --> 00:04:08.840
+So every time this value will be same,
+it will change.
+
+01d90a07-8efd-43aa-879b-035394d9eae4-0
+00:04:09.720 --> 00:04:12.280
+It depends, it depends on the table.
+
+ffc5c3e9-a3e0-4b9b-b10d-0cd23af3fe6d-0
+00:04:12.280 --> 00:04:15.148
+For now,
+we are proceeding like we are developing
+
+ffc5c3e9-a3e0-4b9b-b10d-0cd23af3fe6d-1
+00:04:15.148 --> 00:04:16.640
+fuel wave 1 assets, right.
+
+841c1cf3-0f9e-4726-899c-d133b0d605bc-0
+00:04:17.360 --> 00:04:21.000
+I think all these assets are having
+similar kind of thing.
+
+7b914a38-7b2f-4770-a153-d88230005340-0
+00:04:21.280 --> 00:04:25.880
+All these assets are pointing to zone 1
+tables which are in zone 1 stage 2.
+
+758de611-20e1-46b9-af20-3ea90103eaf3-0
+00:04:26.160 --> 00:04:31.168
+Maybe if for wave 2 or wave three,
+if the tables layer, target layer changes,
+
+758de611-20e1-46b9-af20-3ea90103eaf3-1
+00:04:31.168 --> 00:04:35.600
+maybe source change towards zone,
+source zone would also be changes.
+
+500696b1-45ef-4281-b26a-ce631a99aaf9-0
+00:04:35.880 --> 00:04:36.560
+It depends.
+
+bf65c3b1-7acc-464f-86d7-17da0690dec2-0
+00:04:37.600 --> 00:04:45.160
+I don't know all the values like it's
+like it's it, it's, it's normal, right.
+
+c895909a-d08a-4147-9ac8-c5b0347c73f2-0
+00:04:46.040 --> 00:04:52.344
+We would be getting the things when we
+are progressing in the designs or in the
+
+c895909a-d08a-4147-9ac8-c5b0347c73f2-1
+00:04:52.344 --> 00:04:54.000
+build or in the work.
+
+6e634639-fe71-4456-ba96-17a30e360933-0
+00:04:54.680 --> 00:04:59.291
+OK, as of now we are using this,
+but it can be changed depending upon the
+
+6e634639-fe71-4456-ba96-17a30e360933-1
+00:04:59.291 --> 00:05:00.600
+tables just a moment.
+
+efc78fea-3ee7-4786-8a29-86d801201c88-0
+00:05:00.680 --> 00:05:12.930
+So it's a point of this so soon,
+it's the name now pattern so soon pattern
+
+efc78fea-3ee7-4786-8a29-86d801201c88-1
+00:05:12.930 --> 00:05:14.400
+too soon.
+
+073ebc33-a472-4b84-895d-f17f8ccb94e4-0
+00:05:15.080 --> 00:05:22.538
+Currently for wave 1 tables,
+I don't know for all the wave 1 tables
+
+073ebc33-a472-4b84-895d-f17f8ccb94e4-1
+00:05:22.538 --> 00:05:29.229
+right broker and account as you are
+documenting I'm telling,
+
+073ebc33-a472-4b84-895d-f17f8ccb94e4-2
+00:05:29.229 --> 00:05:35.919
+but I'm thinking for all wave 1 assets
+John 1 is the source.
+
+b8db699b-0868-44d8-8b7a-53fd92663764-0
+00:05:36.240 --> 00:05:41.880
+But if I if you want the confirmation,
+you have to check with Spym or Gayathri.
+
+f0a7f1a8-8c0b-40fd-bbb4-6595feb855f0-0
+00:05:43.320 --> 00:05:48.162
+Yeah,
+but for producer and this CCO John 1 is
+
+f0a7f1a8-8c0b-40fd-bbb4-6595feb855f0-1
+00:05:48.162 --> 00:05:49.320
+the source.
+
+84ae17e3-fb2a-4162-bc9b-5d57bbdf7c81-0
+00:05:56.640 --> 00:05:59.800
+OK, source system code.
+
+f8672b35-7049-4251-8186-c4e577ebd63e-0
+00:06:00.000 --> 00:06:03.840
+OK, source source name, domain name,
+target drone, application layer name.
+
+9a239095-367c-46af-8134-f29d855ca77a-0
+00:06:03.840 --> 00:06:06.800
+These four are user for fetching the
+batch metadata.
+
+8dbd3e33-03dc-48fb-8fb0-55e1b21cdb31-0
+00:06:06.800 --> 00:06:10.514
+And this is source system code which
+would be used to populate source system
+
+8dbd3e33-03dc-48fb-8fb0-55e1b21cdb31-1
+00:06:10.514 --> 00:06:11.720
+code in the target table.
+
+c20eaa57-04b8-4a15-8cb5-a36deddb83ef-0
+00:06:11.720 --> 00:06:15.080
+OK, and this is user for rerun scenario.
+
+bd155081-af6d-477c-bcda-a84a189b4081-0
+00:06:17.040 --> 00:06:18.080
+I'm going to the top.
+
+9343402c-f490-498d-9628-7adaf752c389-0
+00:06:18.160 --> 00:06:22.560
+This is these are the local sections
+first for job preload.
+
+eec34934-472d-4d85-8bd2-bb82ac1cad04-0
+00:06:24.120 --> 00:06:30.827
+For job preload we have to provide the DQ
+check indicator and job name and target
+
+eec34934-472d-4d85-8bd2-bb82ac1cad04-1
+00:06:30.827 --> 00:06:35.000
+object stage table object stage table
+object name.
+
+3bce4945-733e-4bd6-8ce9-d78087f0834a-0
+00:06:35.000 --> 00:06:40.920
+All these are I'm I'll be using them for
+clean up or doing the calculations.
+
+37e7474a-b9ac-45c4-bd54-6b13132af6b5-0
+00:06:40.920 --> 00:06:47.017
+OK, the job name,
+job name I will be using for to fetch the
+
+37e7474a-b9ac-45c4-bd54-6b13132af6b5-1
+00:06:47.017 --> 00:06:50.880
+job ID from the job metric data table.
+
+7bba48d2-4db9-4170-8f09-b21b8de48d57-0
+00:06:51.080 --> 00:06:56.320
+First is to like if we can skip in case
+if, if this value is N right?
+
+60d56811-cd9a-4b03-b7d7-383cd65cabf7-0
+00:06:56.480 --> 00:06:59.464
+So we,
+this is used like in in the task I showed
+
+60d56811-cd9a-4b03-b7d7-383cd65cabf7-1
+00:06:59.464 --> 00:07:03.667
+you right in the decision task,
+we'll be checking if there is any DQ
+
+60d56811-cd9a-4b03-b7d7-383cd65cabf7-2
+00:07:03.667 --> 00:07:05.800
+cheques are assigned to this table.
+
+73b1755d-8fa0-4c9e-bbb1-aaf9365bc933-0
+00:07:06.000 --> 00:07:08.520
+If there are not,
+then we will we can skip this right?
+
+8df8505c-ed3b-458c-b13c-2f0d821dbb9d-0
+00:07:08.760 --> 00:07:11.480
+So based upon the design,
+I will be passing it from here.
+
+f90ed7d9-c627-4709-ac22-b4f9e88a652b-0
+00:07:12.000 --> 00:07:12.440
+OK.
+
+c11f7838-0bf0-444e-8727-ed7652ed9d49-0
+00:07:12.440 --> 00:07:16.320
+And this is user for job for fetching the
+job ID.
+
+82f07262-e9e1-4295-b0eb-b33ff3729d49-0
+00:07:16.680 --> 00:07:20.920
+Target object, stage table object,
+stage table name.
+
+431be3b1-873e-47cd-8827-6a78e8800414-0
+00:07:21.240 --> 00:07:27.409
+All these I'm using for you know for what
+is this stage table object and stage
+
+431be3b1-873e-47cd-8827-6a78e8800414-1
+00:07:27.409 --> 00:07:29.440
+table name are same right?
+
+dca4ffe6-f700-4eec-895d-dd4674bfd12d-0
+00:07:30.240 --> 00:07:33.026
+Yeah,
+it is same but I think I'm using some
+
+dca4ffe6-f700-4eec-895d-dd4674bfd12d-1
+00:07:33.026 --> 00:07:34.040
+different names.
+
+600df832-625d-45f9-9c7a-e1b8abb91447-0
+00:07:34.560 --> 00:07:39.440
+This is in the query but this is at the
+object level data object level.
+
+2eea6d51-0a50-4a27-a759-c11ccc5ad593-0
+00:07:41.120 --> 00:07:43.480
+It's OK if we if we don't pass these two.
+
+6afe8a27-37fd-468a-bd51-9120efc03696-0
+00:07:43.480 --> 00:07:50.457
+Also it is OK we can give any common one
+table because the in target cleanup on
+
+6afe8a27-37fd-468a-bd51-9120efc03696-1
+00:07:50.457 --> 00:07:54.120
+stage count target tables are dummy right.
+
+893653d0-8df1-482a-9e97-bbe4f67ff122-0
+00:07:54.120 --> 00:07:58.799
+We don't need them,
+but I've just added them in case, OK,
+
+893653d0-8df1-482a-9e97-bbe4f67ff122-1
+00:07:58.799 --> 00:08:03.560
+and error types error, of course,
+all these things, right?
+
+db87c483-c145-422e-b72c-e8102fc38658-0
+00:08:03.880 --> 00:08:08.911
+All these things we would be needing as
+part like in in case of any failure,
+
+db87c483-c145-422e-b72c-e8102fc38658-1
+00:08:08.911 --> 00:08:12.440
+we have to make an entry into job error
+stats, right?
+
+d49d283f-fc6a-4b77-a556-0d6eff37a286-0
+00:08:12.440 --> 00:08:14.280
+For that we would be using.
+
+3a0e99a0-b980-430b-a353-ec7a718a4e7c-0
+00:08:14.480 --> 00:08:17.160
+So this error type is related to network
+error.
+
+b6c75e9a-4c04-4e30-896f-01986f1c4143-0
+00:08:17.280 --> 00:08:22.270
+So if I'm doing a restart and while while
+I more in most of the cases,
+
+b6c75e9a-4c04-4e30-896f-01986f1c4143-1
+00:08:22.270 --> 00:08:27.120
+we'll do a restart in case of a network
+failure in the previous run.
+
+1d98ee03-1a25-4073-b2d8-f5ca6cbc4362-0
+00:08:27.280 --> 00:08:30.398
+So in the previous run because of network
+failure,
+
+1d98ee03-1a25-4073-b2d8-f5ca6cbc4362-1
+00:08:30.398 --> 00:08:32.600
+we won't be able to update the what?
+
+c0105b0b-4de0-4f3f-8d15-c548cc02091d-0
+00:08:32.680 --> 00:08:36.120
+We won't be able to update the job run
+status right.
+
+b3639955-f979-494a-895c-12621342d6ba-0
+00:08:36.400 --> 00:08:41.960
+So here it will update the job status to
+fail and then it will make an entry into
+
+b3639955-f979-494a-895c-12621342d6ba-1
+00:08:41.960 --> 00:08:45.080
+No,
+no no it don't update the status as fail.
+
+16255050-9138-4d49-bcf6-0f6766874e08-0
+00:08:45.080 --> 00:08:46.560
+It will use the same entry.
+
+f44ba1fb-f641-46a0-ac54-1ddaad683aab-0
+00:08:47.240 --> 00:08:50.538
+In case of a restart,
+it will use the same entry in the job run
+
+f44ba1fb-f641-46a0-ac54-1ddaad683aab-1
+00:08:50.538 --> 00:08:52.240
+stats to do the restart run also.
+
+49a29a91-4a5c-4462-9f9b-d2789a16d6f8-0
+00:08:52.480 --> 00:08:55.480
+But it will make an entry into job run
+stats.
+
+86c6bb59-a4af-42b8-a686-6a4fd58fa596-0
+00:08:55.480 --> 00:09:01.322
+For that we would be using error type,
+error code from here OK and this error
+
+86c6bb59-a4af-42b8-a686-6a4fd58fa596-1
+00:09:01.322 --> 00:09:04.693
+code,
+error code and error message and error
+
+86c6bb59-a4af-42b8-a686-6a4fd58fa596-2
+00:09:04.693 --> 00:09:10.685
+type is used whenever any source table
+load gap got failed OK and after that in
+
+86c6bb59-a4af-42b8-a686-6a4fd58fa596-3
+00:09:10.685 --> 00:09:14.880
+the job post load failure we are just so
+one one thing.
+
+d8ef9406-919d-4810-ba8a-0c33450e95ea-0
+00:09:14.920 --> 00:09:21.491
+So if there is no redone or any restart
+right then in that case if you put this
+
+d8ef9406-919d-4810-ba8a-0c33450e95ea-1
+00:09:21.491 --> 00:09:24.120
+as null that is also fine right?
+
+e6f30958-b056-4066-a8a4-76fa2249183e-0
+00:09:24.240 --> 00:09:28.840
+This is parameter I didn't get too real.
+
+23becea6-55e0-4047-8991-d01e014e8c0e-0
+00:09:30.440 --> 00:09:34.960
+So this error related parameters like is
+it for every time to?
+
+4fe9bc00-6395-4a82-a81f-91e99e98f637-0
+00:09:35.200 --> 00:09:38.013
+Yeah,
+every for each and every table we have to
+
+4fe9bc00-6395-4a82-a81f-91e99e98f637-1
+00:09:38.013 --> 00:09:42.000
+pass them because we cannot assign
+directly at the task flow level.
+
+4da6b240-5a6e-4eea-a658-a25197ba7bbb-0
+00:09:42.320 --> 00:09:44.440
+We have to provide them via no.
+
+d2d233e9-373f-4e42-b51e-1b7f5c22bf56-0
+00:09:44.440 --> 00:09:48.680
+But if it is not a restart or rerun then
+do we still need it?
+
+dc3f90c9-0672-4e98-89fe-552aea013693-0
+00:09:52.200 --> 00:09:54.680
+Oh whatever normal run also.
+
+69713118-07a3-4ac2-8d04-547ffe7a7b18-0
+00:09:55.480 --> 00:09:59.240
+So this only this is used for restart
+scenario Yeah.
+
+123cd926-feb8-40c5-96ca-bc6e5a6d6a5d-0
+00:09:59.680 --> 00:10:02.520
+Otherwise rest of all we don't know.
+
+f381dfcf-549d-48b8-bb6b-0a233a144087-0
+00:10:02.560 --> 00:10:07.800
+Even in like all these errors occurs in a
+normal run only correct?
+
+8ec446bf-ca3c-40b5-9162-600355fb1536-0
+00:10:10.920 --> 00:10:15.480
+Except this Except this all will occur in
+a normal run.
+
+a8fd301c-982f-4a50-a23a-5f7f2a43d22f-0
+00:10:15.680 --> 00:10:21.600
+Any of the error scenario can be raised
+during a normal run only.
+
+04727f68-a579-4a67-89e6-e5443c0a4b4a-0
+00:10:25.040 --> 00:10:30.814
+OK,
+OK yeah can we proceed Restart is fine
+
+04727f68-a579-4a67-89e6-e5443c0a4b4a-1
+00:10:30.814 --> 00:10:41.960
+but this this particular 1213 and 14 like
+how do you know like which type of error
+
+04727f68-a579-4a67-89e6-e5443c0a4b4a-2
+00:10:41.960 --> 00:10:43.840
+will be there?
+
+c7e05334-3212-42eb-b7a1-db718d770de1-0
+00:10:45.400 --> 00:10:49.880
+Like how can we can we put the value that
+source dependency error or something?
+
+d7384e44-3278-43aa-8ef0-9add261be2f4-0
+00:10:50.960 --> 00:10:54.833
+Yeah,
+all these parameters are being used in
+
+d7384e44-3278-43aa-8ef0-9add261be2f4-1
+00:10:54.833 --> 00:10:58.880
+the respective components in the IDMC
+already.
+
+67f97a0c-7cb1-4adb-beaa-46d3106d9d57-0
+00:10:59.680 --> 00:11:02.760
+So all these parameters are part of job
+preload.
+
+93e1e7fe-cbcd-4aa7-ba2c-c433bcc00018-0
+00:11:03.560 --> 00:11:06.480
+So these will be applied wherever they
+are.
+
+d76ab591-1834-4f5b-9d14-d3acebaf0f36-0
+00:11:07.200 --> 00:11:10.183
+They are present whenever the scenario
+comes,
+
+d76ab591-1834-4f5b-9d14-d3acebaf0f36-1
+00:11:10.183 --> 00:11:15.176
+whenever the particular transformation
+getting executed or component getting
+
+d76ab591-1834-4f5b-9d14-d3acebaf0f36-2
+00:11:15.176 --> 00:11:15.760
+executed.
+
+9c4ad1e6-cf86-4380-8e96-9c3eea34e1a8-0
+00:11:16.000 --> 00:11:16.320
+OK.
+
+078086ec-85e1-4b07-979c-3ab55c63d686-0
+00:11:17.000 --> 00:11:22.680
+And here for job post load success like
+we have error type job error code and
+
+078086ec-85e1-4b07-979c-3ab55c63d686-1
+00:11:22.680 --> 00:11:26.248
+error message like this OK and then any
+failure,
+
+078086ec-85e1-4b07-979c-3ab55c63d686-2
+00:11:26.248 --> 00:11:30.400
+any execution failure we would be
+triggering this right?
+
+e27d9858-6939-4377-9d2e-d2147a978aec-0
+00:11:30.640 --> 00:11:30.880
+OK.
+
+add1dcc2-a196-4cf5-80fb-377d729778f3-0
+00:11:31.280 --> 00:11:34.000
+And after that we have job post loss
+access.
+
+de5bbdda-e006-4ead-993b-644b5859ffcd-0
+00:11:34.000 --> 00:11:37.287
+So here first one is the target
+expression which is used as part of
+
+de5bbdda-e006-4ead-993b-644b5859ffcd-1
+00:11:37.287 --> 00:11:38.400
+balance reconciliation.
+
+616c464e-fc0c-44ef-a158-9117867d9500-0
+00:11:38.400 --> 00:11:41.600
+And this is the ball reckon Philtre this
+would be used.
+
+2dfa74f9-1432-4aa9-8b66-a19e9de5366a-0
+00:11:41.600 --> 00:11:46.405
+I told you all this already the scenario
+when we when we have to use and then
+
+2dfa74f9-1432-4aa9-8b66-a19e9de5366a-1
+00:11:46.405 --> 00:11:49.240
+coming to source record balancing error
+type.
+
+4e4eaf2f-a1a5-4e11-8ed2-b2071d5feb64-0
+00:11:49.240 --> 00:11:53.120
+So source record sorry record balancing
+error flag.
+
+14bc9bdc-ca98-4525-aac1-6cfb608ee582-0
+00:11:53.120 --> 00:11:55.440
+This is related to the record count
+balancing flag.
+
+5804fdea-588c-4a45-a119-893812e38e42-0
+00:11:55.440 --> 00:11:59.280
+If it is otherwise why we have we have to
+use this.
+
+905a9f2f-238d-442f-882e-320fe7896307-0
+00:11:59.600 --> 00:12:04.812
+So similarly all the error types that we
+would be passing in job run strats post
+
+905a9f2f-238d-442f-882e-320fe7896307-1
+00:12:04.812 --> 00:12:08.415
+load success,
+we are making entry into job run Strat in
+
+905a9f2f-238d-442f-882e-320fe7896307-2
+00:12:08.415 --> 00:12:09.960
+case of a failure right?
+
+3a6b0e52-4224-4af0-b264-2c977c8f0167-0
+00:12:10.240 --> 00:12:15.767
+All the combinations of failures are
+jotted down and all these are users
+
+3a6b0e52-4224-4af0-b264-2c977c8f0167-1
+00:12:15.767 --> 00:12:20.160
+separately based upon the scenario these
+are handling No.
+
+19f67a46-4136-438b-869d-866074175d6b-0
+00:12:20.160 --> 00:12:24.913
+Which of these needs to be like value
+needs to be always same and which of
+
+19f67a46-4136-438b-869d-866074175d6b-1
+00:12:24.913 --> 00:12:28.400
+these are like we need to change depend
+upon scenario.
+
+84ac2df2-f5c6-4eea-8640-fa8568d5d34f-0
+00:12:31.080 --> 00:12:38.105
+All these things needs to be populated
+respective like if let's OK, OK, you're,
+
+84ac2df2-f5c6-4eea-8640-fa8568d5d34f-1
+00:12:38.105 --> 00:12:42.759
+you're saying if there is no balance
+reconciliation,
+
+84ac2df2-f5c6-4eea-8640-fa8568d5d34f-2
+00:12:42.759 --> 00:12:46.360
+then in that case we might not need this.
+
+1b013bf1-4996-4126-9532-fb0e69cd2291-0
+00:12:46.360 --> 00:12:47.520
+That's what you're saying, right?
+
+d691b925-58da-4af9-8a79-d8282dc23370-0
+00:12:47.760 --> 00:12:51.105
+Then in that case,
+if you don't use any balance
+
+d691b925-58da-4af9-8a79-d8282dc23370-1
+00:12:51.105 --> 00:12:54.520
+reconciliation stuff also no, no,
+not like that.
+
+a1097d13-7225-46f7-94cd-1aa77f4e6b6e-0
+00:12:54.960 --> 00:12:56.160
+That is one question.
+
+34a92b70-0589-4c25-89ee-5d935658f70b-0
+00:12:56.160 --> 00:12:59.600
+But also I'm saying like the previous one
+or this one, right?
+
+95e7426a-7a11-4de0-84cc-bf93141cabe9-0
+00:12:59.640 --> 00:13:04.174
+Every time like will this error types and
+this sentencing the error type,
+
+95e7426a-7a11-4de0-84cc-bf93141cabe9-1
+00:13:04.174 --> 00:13:09.200
+every time these values will be same or
+this might change like in the parameters.
+
+67abcf6c-a88e-4295-8322-ec8eaf63acbf-0
+00:13:09.200 --> 00:13:10.320
+No these won't change.
+
+401dd708-8329-4a2b-8849-0c62b6d53d8c-0
+00:13:10.320 --> 00:13:11.080
+These won't change.
+
+d138ced7-8273-4b6a-8c77-8f77686f1d98-0
+00:13:11.080 --> 00:13:12.200
+Every time this would be same.
+
+72e99c48-1b94-47a3-a837-2e605f94c7e6-0
+00:13:13.280 --> 00:13:18.000
+OK and these are just sentences Sriya.
+
+18084916-d3cf-48a2-9f32-24f79af0320d-0
+00:13:18.320 --> 00:13:23.590
+We would be passing job ID, job run ID,
+whatever the dynamic things right inside
+
+18084916-d3cf-48a2-9f32-24f79af0320d-1
+00:13:23.590 --> 00:13:27.234
+the error message,
+we have them in the logic already as
+
+18084916-d3cf-48a2-9f32-24f79af0320d-2
+00:13:27.234 --> 00:13:28.080
+dynamic only.
+
+45757dbe-4e2f-444f-9f75-955dc18c33f2-0
+00:13:29.960 --> 00:13:33.315
+OK,
+And the all these are related to job post
+
+45757dbe-4e2f-444f-9f75-955dc18c33f2-1
+00:13:33.315 --> 00:13:33.680
+load.
+
+8b3848ed-564b-4ad2-9182-e015cc7dd0c4-0
+00:13:33.720 --> 00:13:37.080
+And this is for job post load success.
+
+99cd8652-3101-4492-b1db-f628c420087d-0
+00:13:37.080 --> 00:13:41.840
+So here they like job post load failure.
+
+18d9f9a1-ee8c-4f3f-b6e3-1ef4ad6e8fca-0
+00:13:41.840 --> 00:13:45.541
+This is one of the component for that
+also we have to provide all these things,
+
+18d9f9a1-ee8c-4f3f-b6e3-1ef4ad6e8fca-1
+00:13:45.541 --> 00:13:45.680
+OK.
+
+1078a06e-d29e-4d66-bbc1-1b4674d81fc8-0
+00:13:45.840 --> 00:13:49.640
+And then this is for the job preload
+failure.
+
+c9203105-e769-4d05-83e1-3d521c227bcd-0
+00:13:50.200 --> 00:13:51.880
+And this is at the mapping task level.
+
+f0860981-420a-4cb8-8e35-7a7bb7d1415d-0
+00:13:51.880 --> 00:13:54.200
+These are related to the source query.
+
+d7db4ab9-3573-4e99-85a7-86c4219c703e-0
+00:13:55.760 --> 00:13:56.960
+OK, that's it.
+
+49023180-02c1-426d-a940-e5438cad4cbc-0
+00:13:56.960 --> 00:13:58.560
+Yeah, I'll share it with you.
+
+ce1ee80e-6a2e-4567-9a50-a7aa8c8236af-0
+00:14:02.040 --> 00:14:02.280
+Yeah.
+
+ce2e54a6-3a27-4fee-aad7-909dabf3564f-0
+00:14:35.920 --> 00:14:43.272
+OK after that mail OK so here I have
+given few component names OK we are like
+
+ce2e54a6-3a27-4fee-aad7-909dabf3564f-1
+00:14:43.272 --> 00:14:50.720
+first one is just I made some updates
+here and I have given the details there.
+
+d7e3b333-04f7-4cd6-94e7-26cc93d45e8a-0
+00:14:50.720 --> 00:14:55.438
+You can ignore this here I our first top
+like I told you right,
+
+d7e3b333-04f7-4cd6-94e7-26cc93d45e8a-1
+00:14:55.438 --> 00:15:00.600
+First we have to copy all the basic
+component to the domain specific.
+
+6c9d884f-37ee-4bd2-8a2b-1a9a230cb9a1-0
+00:15:00.880 --> 00:15:05.825
+So after that we have to change update
+the connection name from this to this
+
+6c9d884f-37ee-4bd2-8a2b-1a9a230cb9a1-1
+00:15:05.825 --> 00:15:07.560
+connection TGT domain name.
+
+2acbc737-64d2-4d23-b889-0cc61ff3ed53-0
+00:15:07.760 --> 00:15:11.480
+So these are the mappings that I jotted
+down for update.
+
+f1e3be12-d5fa-47f7-80ae-43b7481869c8-0
+00:15:11.480 --> 00:15:13.880
+But I can see few other mappings are also
+there.
+
+194d48e1-aaed-4259-bbd8-a14988681024-0
+00:15:14.120 --> 00:15:17.340
+So as you are already going through the
+this,
+
+194d48e1-aaed-4259-bbd8-a14988681024-1
+00:15:17.340 --> 00:15:22.800
+just have all the mapping names ready so
+that you can share it with the team.
+
+1922f725-67be-4349-90a4-48d88bb3b43f-0
+00:15:23.280 --> 00:15:25.800
+OK after that.
+
+cb316723-fc1c-4e3e-96b1-86f2000d959a-0
+00:15:28.240 --> 00:15:29.280
+OK after that.
+
+38bb72a3-b90d-472a-b42b-47471f97c96a-0
+00:15:29.600 --> 00:15:38.868
+So for every development first thing is
+ABC we have any common frameworks or
+
+38bb72a3-b90d-472a-b42b-47471f97c96a-1
+00:15:38.868 --> 00:15:42.480
+present in DIAA common folder.
+
+0f8b5fe9-848d-4637-b711-338b8da92754-0
+00:15:42.640 --> 00:15:44.640
+So under ABC we have ABC components.
+
+64dd8303-f0d6-4e3b-a93e-1aa22cc41bd1-0
+00:15:44.640 --> 00:15:48.880
+We have to copy all of them to the domain
+specific ABC folder.
+
+a9832d3c-9f5a-4cb7-8974-46adc5eccce3-0
+00:15:48.880 --> 00:15:52.080
+After that we have to change the
+snowflake related connection names.
+
+8fd01760-e10b-4c4c-80c6-9ce582319844-0
+00:15:52.720 --> 00:15:56.000
+After that we have to create batch pre
+request.
+
+e718aeab-b3a6-45d4-9778-95b88aeebba3-0
+00:15:56.040 --> 00:16:00.280
+We have already this batch pre requested
+task flow present in the ABC folder.
+
+5108140c-60f0-4379-ad1b-fbc0ece30dcf-0
+00:16:00.280 --> 00:16:05.327
+We have to move that for move that task
+flow to actual main task flow and
+
+5108140c-60f0-4379-ad1b-fbc0ece30dcf-1
+00:16:05.327 --> 00:16:06.760
+otherwise we can use.
+
+e21c0348-f21b-4ac1-b1c5-65f1ad4539ac-0
+00:16:07.040 --> 00:16:11.720
+We can change its name and parameter file
+whatever.
+
+e6c14b19-12d1-4a6a-b925-03fba680d138-0
+00:16:11.960 --> 00:16:16.821
+We have to provide the appropriate
+parameter file name or directory name and
+
+e6c14b19-12d1-4a6a-b925-03fba680d138-1
+00:16:16.821 --> 00:16:21.871
+whatever required in that input field we
+have to provide them and we can use it
+
+e6c14b19-12d1-4a6a-b925-03fba680d138-2
+00:16:21.871 --> 00:16:22.440
+directly.
+
+a4127cd5-bb85-4190-984c-c6cef2d43c34-0
+00:16:22.760 --> 00:16:26.480
+And for batch level task flow,
+job level task flow,
+
+a4127cd5-bb85-4190-984c-c6cef2d43c34-1
+00:16:26.480 --> 00:16:31.560
+we have these already created for some
+other some other domains right?
+
+69281d9e-5dbf-4b4b-a1a8-cf3697853204-0
+00:16:31.560 --> 00:16:37.229
+We can take a copy of them to our
+specific folder and we have to make sure
+
+69281d9e-5dbf-4b4b-a1a8-cf3697853204-1
+00:16:37.229 --> 00:16:43.200
+each and every ABC component should be
+pointing to the whatever the domain ABC
+
+69281d9e-5dbf-4b4b-a1a8-cf3697853204-2
+00:16:43.200 --> 00:16:49.322
+folder component which we have should has
+to pop component its own ABC component
+
+69281d9e-5dbf-4b4b-a1a8-cf3697853204-3
+00:16:49.322 --> 00:16:52.800
+not to common ABC or not to any other
+domain.
+
+df764607-eb4f-4776-b92f-0914cc0205ea-0
+00:16:53.120 --> 00:16:55.120
+OK here I'll tell you an example.
+
+6fad0128-2a24-4bf4-8117-12851d53317f-0
+00:16:55.120 --> 00:16:58.600
+If I am I'm working on claims broker is
+already done.
+
+00624a19-76f5-4a74-a761-bc2b2e84020f-0
+00:16:58.920 --> 00:17:03.638
+I copied job level task flow and batch
+task flow from broker and when I like
+
+00624a19-76f5-4a74-a761-bc2b2e84020f-1
+00:17:03.638 --> 00:17:08.234
+when I copied all the task flows,
+sub task flows all the components within
+
+00624a19-76f5-4a74-a761-bc2b2e84020f-2
+00:17:08.234 --> 00:17:11.360
+that folder are pointing to broker ABC
+components.
+
+19c68af1-474b-4559-8047-b7c9416d34c5-0
+00:17:11.600 --> 00:17:17.396
+We have to manually update it to our ABC
+components and we have to apply all the
+
+19c68af1-474b-4559-8047-b7c9416d34c5-1
+00:17:17.396 --> 00:17:19.400
+input fins all these things.
+
+4f883e66-f9de-4d98-8241-732eb84f7062-0
+00:17:19.600 --> 00:17:25.641
+This has to be done for one table and for
+the next time onwards we can use this
+
+4f883e66-f9de-4d98-8241-732eb84f7062-1
+00:17:25.641 --> 00:17:28.360
+component to copy within our domain.
+
+e2da27f6-47e4-4801-ab60-1c1f123a7995-0
+00:17:28.520 --> 00:17:31.316
+OK,
+rather than every time getting from
+
+e2da27f6-47e4-4801-ab60-1c1f123a7995-1
+00:17:31.316 --> 00:17:34.743
+broker and updating basics to reduce the
+effort,
+
+e2da27f6-47e4-4801-ab60-1c1f123a7995-2
+00:17:34.743 --> 00:17:37.680
+we can do this and it same goes the batch.
+
+a8d58859-8e31-4510-ba43-d467adf72138-0
+00:17:38.800 --> 00:17:44.630
+So this batch prerequisite will not be
+there in ABC rather it will be there in
+
+a8d58859-8e31-4510-ba43-d467adf72138-1
+00:17:44.630 --> 00:17:45.000
+main.
+
+9a95364b-1bae-433c-a637-807b71449158-0
+00:17:45.440 --> 00:17:49.219
+Because the components we don't need to
+change every time we are only one
+
+9a95364b-1bae-433c-a637-807b71449158-1
+00:17:49.219 --> 00:17:53.101
+component would be there and some
+notification related stuff would be there
+
+9a95364b-1bae-433c-a637-807b71449158-2
+00:17:53.101 --> 00:17:54.480
+with some decision and all.
+
+290e7c82-246e-43b4-90ea-6aa5e4bf896d-0
+00:17:54.960 --> 00:17:59.189
+So as the structure is same always,
+we just need to change the name and
+
+290e7c82-246e-43b4-90ea-6aa5e4bf896d-1
+00:17:59.189 --> 00:18:03.830
+description and the input field values
+which are just parameter file directory
+
+290e7c82-246e-43b4-90ea-6aa5e4bf896d-2
+00:18:03.830 --> 00:18:05.240
+and parameter file name.
+
+3928ba65-4492-47ef-9949-6369d3b7a316-0
+00:18:05.880 --> 00:18:09.887
+I kept it under common folder only so
+that every every time they can directly
+
+3928ba65-4492-47ef-9949-6369d3b7a316-1
+00:18:09.887 --> 00:18:11.120
+get it from there right?
+
+adca6403-ae7e-472f-8c36-04dffac4bb59-0
+00:18:11.280 --> 00:18:17.189
+So even the component also after copying
+that the component automatically points
+
+adca6403-ae7e-472f-8c36-04dffac4bb59-1
+00:18:17.189 --> 00:18:20.400
+to this domain specific ABC component
+only.
+
+a080c730-1e5d-4719-baa2-3fa951565035-0
+00:18:21.200 --> 00:18:23.960
+That is the reason why I have added it in
+the common.
+
+4f8bc6e5-7130-4e35-85ba-480835379c9c-0
+00:18:24.760 --> 00:18:25.000
+OK.
+
+fc8997a0-f498-4d14-aa40-bec5fca25040-0
+00:18:25.040 --> 00:18:32.347
+And then can you provide like 1 sample
+like you you had shared couple of the I
+
+fc8997a0-f498-4d14-aa40-bec5fca25040-1
+00:18:32.347 --> 00:18:35.400
+have the click recording already.
+
+2dacf5d7-eaad-4123-8fd5-95f805d37b28-0
+00:18:35.480 --> 00:18:36.520
+I'll give you that.
+
+51462723-545c-4ea2-9dd6-802b47c2cad2-0
+00:18:37.600 --> 00:18:41.320
+I want to do as part of this ABC three
+steps.
+
+903cc66a-dd63-417d-ad7e-34087c0410f4-0
+00:18:41.400 --> 00:18:45.068
+I,
+I'll give you and any standard task flow
+
+903cc66a-dd63-417d-ad7e-34087c0410f4-1
+00:18:45.068 --> 00:18:49.237
+which I can copy which is final,
+right That yeah,
+
+903cc66a-dd63-417d-ad7e-34087c0410f4-2
+00:18:49.237 --> 00:18:54.240
+I can come past task flow every multiple
+teams are working.
+
+d7f86ed8-2389-4099-822b-7fc1f89c9839-0
+00:18:54.280 --> 00:18:57.183
+Yeah,
+we're not sure who is changing when there
+
+d7f86ed8-2389-4099-822b-7fc1f89c9839-1
+00:18:57.183 --> 00:19:01.840
+is no checkout check in process also not
+in actually we are doing currently.
+
+2901a9ef-133e-414d-9d6b-8a2ef3446db0-0
+00:19:02.120 --> 00:19:04.240
+So people are changing things.
+
+fc132221-7b1d-442d-9507-940f67cfb662-0
+00:19:04.520 --> 00:19:09.400
+But if you know the gist of the framework,
+you can get it.
+
+1ea439fc-707f-4cdf-bb52-597f611a9cdd-0
+00:19:09.600 --> 00:19:12.032
+But for now,
+I can give you 1 task flow which is
+
+1ea439fc-707f-4cdf-bb52-597f611a9cdd-1
+00:19:12.032 --> 00:19:15.160
+account which I can see it is valid and
+no one is touching it.
+
+22af9ae8-8d3c-4dfd-9618-4a6a494789d6-0
+00:19:15.640 --> 00:19:16.520
+OK, I'll give you that.
+
+8fca3087-cfd7-4890-9166-156e7f98eb5e-0
+00:19:17.120 --> 00:19:17.360
+OK.
+
+787afc39-d2cc-4e6c-86cb-4ed906c2aed9-0
+00:19:18.000 --> 00:19:22.160
+And the OK, and one more thing,
+there's all these task store names, right?
+
+1a6d1153-a606-4280-aab2-3e0b2e63b7dd-0
+00:19:23.040 --> 00:19:27.546
+So that usable component name,
+the list of the ABC components,
+
+1a6d1153-a606-4280-aab2-3e0b2e63b7dd-1
+00:19:27.546 --> 00:19:29.120
+where is it next door?
+
+23f78bcc-64d7-484e-b698-3b38b27ff900-0
+00:19:29.120 --> 00:19:32.200
+Is it, I think it's not there in LLD,
+right?
+
+bcce063b-9a25-4625-b0b4-b41508ae3bd6-0
+00:19:34.120 --> 00:19:40.240
+The component's name and component called
+yeah, it's, it's technical, right?
+
+c48a2114-83d0-4c5c-8fa2-a71f99a6691a-0
+00:19:40.360 --> 00:19:42.280
+It it won't be part of LLD now.
+
+4ceddc4b-632e-4ffb-9a4b-48bd1b11d601-0
+00:19:43.560 --> 00:19:45.720
+So where is it like that?
+
+9710ee86-2ea4-4972-8e4d-a61c5b414f18-0
+00:19:45.720 --> 00:19:46.240
+It's not there.
+
+1fba2a74-c779-468f-a4bd-2689dd2ba675-0
+00:19:46.720 --> 00:19:52.080
+It's not document for it RIA like I'm
+giving you the folder name already, right?
+
+50107e4c-337e-4a55-bc83-5b5007d744ff-0
+00:19:52.080 --> 00:19:57.080
+Folder name and folder name and all the
+components in that are final.
+
+e694dfc0-65f3-4c63-8921-970c83f3061c-0
+00:19:57.840 --> 00:20:00.984
+Yeah,
+but that needs to be documented somewhere
+
+e694dfc0-65f3-4c63-8921-970c83f3061c-1
+00:20:00.984 --> 00:20:02.360
+right in Lily's find.
+
+2f428c13-d196-41b9-a705-c848ce4a7a34-0
+00:20:02.440 --> 00:20:07.120
+Otherwise I cannot be there in it will be
+that some to some file.
+
+f68ac7fa-3d86-453f-a4f3-3b356301f454-0
+00:20:07.120 --> 00:20:08.160
+It needs to be there, right?
+
+bf854c80-f28c-49f1-ac6f-6dca85cc2d01-0
+00:20:09.600 --> 00:20:10.920
+OK, let me add it here.
+
+247c1a2e-313b-4450-8814-0cec72c49e4d-0
+00:20:10.920 --> 00:20:13.080
+Only IDMC folder name you need right?
+
+423b7dbf-0a76-47ce-9d6b-d86b525ace95-0
+00:20:14.520 --> 00:20:15.640
+Let me add it here.
+
+2cb7e136-f7dc-439a-a98f-b48295f5842d-0
+00:20:15.640 --> 00:20:19.259
+Not only I didn't see folder name,
+actually the component name basically I
+
+2cb7e136-f7dc-439a-a98f-b48295f5842d-1
+00:20:19.259 --> 00:20:20.080
+can also feel it.
+
+20fa083d-1445-4ab5-be9f-0157aac84baa-0
+00:20:20.160 --> 00:20:23.080
+That is not a problem,
+but that needs to be there somewhere.
+
+2b2686ea-6708-4eb7-9348-1652fc9aa2c6-0
+00:20:23.560 --> 00:20:27.880
+I'm not saying it's to be yeah, yeah,
+that needs to be added here.
+
+4515e047-1e28-42fa-b1c2-8495c1c1fb05-0
+00:20:28.560 --> 00:20:29.920
+You, you can add it here.
+
+1e345551-b07d-40ef-b984-0484d9271cf4-0
+00:20:31.480 --> 00:20:41.136
+That is needed because each time like we
+were like tries to understand if it's
+
+1e345551-b07d-40ef-b984-0484d9271cf4-1
+00:20:41.136 --> 00:20:49.814
+right, they need the component details,
+OK, This is Dai common ABC OK,
+
+1e345551-b07d-40ef-b984-0484d9271cf4-2
+00:20:49.814 --> 00:20:59.104
+you can add it and after that, OK,
+So these are the things that needs to be
+
+1e345551-b07d-40ef-b984-0484d9271cf4-3
+00:20:59.104 --> 00:20:59.959
+casted.
+
+bbc3e8ff-5f1f-4245-a8ae-e09e47231bdc-0
+00:20:59.960 --> 00:21:03.480
+So what I have written the two mappings
+of change, OK.
+
+bf0d91ce-02f6-4d45-ab10-65493d70993f-0
+00:21:04.360 --> 00:21:08.476
+So while we are,
+I told you already while we are fetching
+
+bf0d91ce-02f6-4d45-ab10-65493d70993f-1
+00:21:08.476 --> 00:21:14.082
+any run details from June 1 tables for
+June 1 tables we have we are using view
+
+bf0d91ce-02f6-4d45-ab10-65493d70993f-2
+00:21:14.082 --> 00:21:15.360
+some views, right?
+
+31bedf3d-4dd0-44be-8d4c-f0bd7cdae9b5-0
+00:21:17.280 --> 00:21:17.560
+Yeah.
+
+8a4a8465-8f0c-4047-9242-32bbd2d596e0-0
+00:21:17.600 --> 00:21:21.160
+I I'm just letting you know we are using
+some views, OK.
+
+37a6dc41-aa05-45b4-a65e-5b6ce9de6e89-0
+00:21:21.440 --> 00:21:25.148
+And then value of application source
+batch it in the metadata should be
+
+37a6dc41-aa05-45b4-a65e-5b6ce9de6e89-1
+00:21:25.148 --> 00:21:25.560
+updated.
+
+26c687a3-e2ba-4ac4-b2b6-6d12e96de7e0-0
+00:21:25.560 --> 00:21:31.111
+OK we have application source batch ID if
+this should be updated as with the
+
+26c687a3-e2ba-4ac4-b2b6-6d12e96de7e0-1
+00:21:31.111 --> 00:21:31.760
+actually.
+
+5eaa981a-a6e4-4d85-bdc7-aaecfb11193f-0
+00:21:31.760 --> 00:21:37.154
+So while I was doing the POC I have
+created some dummy metadata entries even
+
+5eaa981a-a6e4-4d85-bdc7-aaecfb11193f-1
+00:21:37.154 --> 00:21:42.829
+for source batch ID and I asked the team
+to update it with the appropriate batch
+
+5eaa981a-a6e4-4d85-bdc7-aaecfb11193f-2
+00:21:42.829 --> 00:21:43.040
+ID.
+
+dc5ee6f9-e2ca-406b-83e8-703e024a78cf-0
+00:21:43.040 --> 00:21:49.327
+Even teams now are creating dummy
+metadata entries but this has to be
+
+dc5ee6f9-e2ca-406b-83e8-703e024a78cf-1
+00:21:49.327 --> 00:21:52.920
+updated with the actual John 1 batch ID.
+
+08975c3d-b4db-42d9-a077-b3efdd6727dd-0
+00:21:52.920 --> 00:21:54.200
+This is for the whole team.
+
+b55a97af-acd8-4c12-9a50-686666ba4c6e-0
+00:21:54.560 --> 00:22:01.452
+But like if any issue comes with this
+like if you face it in future like ask
+
+b55a97af-acd8-4c12-9a50-686666ba4c6e-1
+00:22:01.452 --> 00:22:05.480
+the team like this is kind of a trade
+equal.
+
+712a9c95-bd42-403a-90ba-405cb2b05aeb-0
+00:22:05.480 --> 00:22:11.330
+I check that needs to be done before
+moving any component to other SIT OK and
+
+712a9c95-bd42-403a-90ba-405cb2b05aeb-1
+00:22:11.330 --> 00:22:14.480
+the value of schema name and job metadata.
+
+7d801de3-df52-40d4-813c-e482cf40a010-0
+00:22:14.480 --> 00:22:18.438
+So all these also they have created
+source tables,
+
+7d801de3-df52-40d4-813c-e482cf40a010-1
+00:22:18.438 --> 00:22:21.000
+target tables and testing schema.
+
+de491495-5b90-475a-ae3a-ef4439ffc1e7-0
+00:22:22.200 --> 00:22:28.936
+But once after after having all the
+tables in place in the actual schema,
+
+de491495-5b90-475a-ae3a-ef4439ffc1e7-1
+00:22:28.936 --> 00:22:35.400
+now the data model and databases and
+schemas are created in Snowflake.
+
+a1e8602f-0e73-4f72-ad20-a267304d3d1f-0
+00:22:36.240 --> 00:22:38.960
+Now people are using the exact tables
+only.
+
+edfd7a86-2bc6-43a9-9dbf-7e1d59b632a3-0
+00:22:39.080 --> 00:22:43.560
+But earlier then they were not using the
+correct schemas and databases.
+
+108e47e9-23a5-40a5-9160-a3d2056a706d-0
+00:22:44.080 --> 00:22:47.040
+They they may be loaded,
+they they may be loading it right.
+
+90fef010-52b1-42c3-a65c-70b3745b1303-0
+00:22:47.040 --> 00:22:50.600
+But if they don't change the schema name
+and database name, what we'll do?
+
+e8e4f2b7-508a-459f-856a-042a78fb6233-0
+00:22:50.600 --> 00:22:54.431
+ABC component will fail automatically
+because as the database name and schema
+
+e8e4f2b7-508a-459f-856a-042a78fb6233-1
+00:22:54.431 --> 00:22:56.887
+name is already given in the geometry
+data table,
+
+e8e4f2b7-508a-459f-856a-042a78fb6233-2
+00:22:56.887 --> 00:23:00.079
+we would be using the same values to
+calculate the target count.
+
+f4650b7f-bf88-4aa3-89d1-c45e0d2c6841-0
+00:23:00.240 --> 00:23:05.376
+Source record count is 1 and target
+record count will be always 0 otherwise a
+
+f4650b7f-bf88-4aa3-89d1-c45e0d2c6841-1
+00:23:05.376 --> 00:23:08.800
+different number as the values are not
+appropriate.
+
+c0b1c0e9-201f-4fb7-b8a9-ddeb7ba7364f-0
+00:23:09.040 --> 00:23:10.720
+So these issues might come.
+
+920af1e9-faf0-4437-ba93-0271709f5861-0
+00:23:11.040 --> 00:23:15.771
+That is the reason why I I've just
+highlighted whatever the issues or
+
+920af1e9-faf0-4437-ba93-0271709f5861-1
+00:23:15.771 --> 00:23:20.366
+mockups that are that team are performing
+to do the work build now,
+
+920af1e9-faf0-4437-ba93-0271709f5861-2
+00:23:20.366 --> 00:23:22.800
+but which needs to be revised later.
+
+217f94ce-ff43-4f9c-a44a-520e7db25fb6-0
+00:23:24.720 --> 00:23:25.040
+OK.
+
+14e1f821-4ef9-4dc5-9f0d-b88564202ecd-0
+00:23:25.280 --> 00:23:27.611
+And the values of count,
+threshold indicator,
+
+14e1f821-4ef9-4dc5-9f0d-b88564202ecd-1
+00:23:27.611 --> 00:23:30.804
+amount threshold indicator,
+they are keeping them directly and
+
+14e1f821-4ef9-4dc5-9f0d-b88564202ecd-2
+00:23:30.804 --> 00:23:34.707
+because I have kept it and they are also
+keeping it and or if I have kept Y,
+
+14e1f821-4ef9-4dc5-9f0d-b88564202ecd-3
+00:23:34.707 --> 00:23:38.255
+they're also keeping it Y,
+It should be based upon the functionality,
+
+14e1f821-4ef9-4dc5-9f0d-b88564202ecd-4
+00:23:38.255 --> 00:23:38.560
+right?
+
+1d8f3eb6-35bf-4ff8-9618-9de7ef08fabf-0
+00:23:38.560 --> 00:23:41.255
+If they are,
+if there are any balance metrics related
+
+1d8f3eb6-35bf-4ff8-9618-9de7ef08fabf-1
+00:23:41.255 --> 00:23:44.400
+to amount or count based upon that they
+have to update, right?
+
+cd03f1f7-1e56-4a49-94cc-4420f48fecbf-0
+00:23:45.040 --> 00:23:49.845
+So this this also one of the check that
+they have to construct and the entries in
+
+cd03f1f7-1e56-4a49-94cc-4420f48fecbf-1
+00:23:49.845 --> 00:23:53.713
+the ATL data injection,
+all these things should be maintained ATL
+
+cd03f1f7-1e56-4a49-94cc-4420f48fecbf-2
+00:23:53.713 --> 00:23:55.120
+data injection metadata.
+
+e7b6349c-8a5c-4b81-aae6-faa099b24dd6-0
+00:23:55.240 --> 00:24:02.960
+So they're giving like while I was doing
+the beauty, I have given only one table.
+
+947cde5b-17c2-46fa-823d-928f9a9f8f49-0
+00:24:02.960 --> 00:24:04.440
+So they're also giving only one table.
+
+04a32071-81c6-45fa-88af-b63584d9b66d-0
+00:24:05.360 --> 00:24:06.840
+I should know it should not be like that.
+
+e82d26af-ecbc-4839-a470-0e9866cd2677-0
+00:24:06.840 --> 00:24:10.826
+If they have multiple source tables then
+multiple entry should be made into the
+
+e82d26af-ecbc-4839-a470-0e9866cd2677-1
+00:24:10.826 --> 00:24:12.720
+CTL 8 and this in my data table right?
+
+0f7ac9d5-091f-412e-9a7a-719d334adafd-0
+00:24:12.840 --> 00:24:14.160
+So that's how it has to do.
+
+3313f0c7-f81f-430c-8f3a-4978110d2444-0
+00:24:14.280 --> 00:24:20.220
+And also for role master I have given
+only one entry for identifier only one
+
+3313f0c7-f81f-430c-8f3a-4978110d2444-1
+00:24:20.220 --> 00:24:20.760
+column.
+
+5b32664e-273c-4a32-bfd7-34a393d3ee34-0
+00:24:20.920 --> 00:24:25.280
+But in sorry in Rule master I have given
+only one entry for null.
+
+92a8171b-2678-42e3-9e9b-7c243ef3eda0-0
+00:24:25.520 --> 00:24:28.822
+So if in case of any new rule has come
+fast,
+
+92a8171b-2678-42e3-9e9b-7c243ef3eda0-1
+00:24:28.822 --> 00:24:34.912
+it has to be made made into it has to be
+entered into the rule master then only we
+
+92a8171b-2678-42e3-9e9b-7c243ef3eda0-2
+00:24:34.912 --> 00:24:36.160
+have to use that.
+
+711bfd3f-6ca2-434e-afbb-8b54918cf7e7-0
+00:24:36.360 --> 00:24:39.560
+So that functionality they are missing
+it's what I'm feeling.
+
+7b773af6-f65d-421a-956c-1e5616d874cb-0
+00:24:39.600 --> 00:24:45.733
+And then job relation also we have to I
+assigned the rules as per the
+
+7b773af6-f65d-421a-956c-1e5616d874cb-1
+00:24:45.733 --> 00:24:52.041
+functionality and also balance
+reconciliation metadata OK after that OK
+
+7b773af6-f65d-421a-956c-1e5616d874cb-2
+00:24:52.041 --> 00:24:56.159
+After that third party entries for
+testing OK.
+
+3a4a1993-9530-43c2-b495-e5fcbf3f29d6-0
+00:24:56.520 --> 00:25:01.746
+So here as the currently as there is no
+first time incremental logic in place for
+
+3a4a1993-9530-43c2-b495-e5fcbf3f29d6-1
+00:25:01.746 --> 00:25:04.678
+ABC,
+we have we are making some dummy entries
+
+3a4a1993-9530-43c2-b495-e5fcbf3f29d6-2
+00:25:04.678 --> 00:25:09.267
+into these your batch runsters,
+job runsters and each in the transition
+
+3a4a1993-9530-43c2-b495-e5fcbf3f29d6-3
+00:25:09.267 --> 00:25:10.160
+source window.
+
+90fe8c3e-05b2-4987-bae3-32f6fbaa297e-0
+00:25:10.560 --> 00:25:12.760
+For these things we are making some dummy
+entries.
+
+0f429198-e2a9-4073-b380-bdb221172cb8-0
+00:25:13.000 --> 00:25:19.931
+And also in while I was doing UT for CC
+why I found that even for source job run
+
+0f429198-e2a9-4073-b380-bdb221172cb8-1
+00:25:19.931 --> 00:25:23.440
+or batch run, the entries are not proper.
+
+98e014bd-f2e7-4671-9307-726df3b45a92-0
+00:25:23.440 --> 00:25:28.351
+So I asked the team to mock up even the
+source related entries to handed first
+
+98e014bd-f2e7-4671-9307-726df3b45a92-1
+00:25:28.351 --> 00:25:33.263
+time incremental and the current run
+which which they were doing currently for
+
+98e014bd-f2e7-4671-9307-726df3b45a92-2
+00:25:33.263 --> 00:25:34.320
+testing or build.
+
+eb96cc21-275b-4b4e-9758-a8205e351b44-0
+00:25:34.640 --> 00:25:36.600
+OK further to also have a recording.
+
+00061678-efff-4efd-9674-707aca170479-0
+00:25:36.600 --> 00:25:40.560
+I'll I'll give you how to do how we are
+doing those entries.
+
+3c0f4dc3-b7fa-47c0-a7f2-cd4581f97eb9-0
+00:25:41.120 --> 00:25:47.693
+But suppose we are testing something,
+then application source batch ID to get
+
+3c0f4dc3-b7fa-47c0-a7f2-cd4581f97eb9-1
+00:25:47.693 --> 00:25:52.160
+it like whom do I like have to reach out
+like, yeah.
+
+10265273-7c40-4271-8efb-ecc114980944-0
+00:25:52.800 --> 00:25:56.320
+So yeah, how I figured out for CCO,
+I'll tell you.
+
+b8bb6d35-fc9d-4354-9ac4-39144a8669f6-0
+00:25:56.800 --> 00:26:00.166
+So when I come to CCO, I asked guy,
+guy three,
+
+b8bb6d35-fc9d-4354-9ac4-39144a8669f6-1
+00:26:00.166 --> 00:26:06.040
+what is the source table that I'm using
+or the source batch that I'm considering?
+
+9b619fc3-6a7c-47a3-9786-65c22bd67535-0
+00:26:06.240 --> 00:26:09.456
+What is the source domain name,
+source source name,
+
+9b619fc3-6a7c-47a3-9786-65c22bd67535-1
+00:26:09.456 --> 00:26:14.280
+domain name and play application layer
+name for that particular source batch.
+
+c4b615f4-db50-4bdf-9b78-4c90552d9d08-0
+00:26:14.520 --> 00:26:16.320
+Based upon that I got the batch ID.
+
+b491fe73-828f-406d-affb-20f9c7d5d337-0
+00:26:17.240 --> 00:26:22.120
+After getting the batch ID I queried
+using my target table sorry source table.
+
+f0a22c61-131f-4cae-aad7-916ccb9aa382-0
+00:26:22.640 --> 00:26:28.438
+So I found one thing and what is the
+table name that I have in one is some CCO
+
+f0a22c61-131f-4cae-aad7-916ccb9aa382-1
+00:26:28.438 --> 00:26:32.181
+DB scoop 1,
+some table name OK CCO DB scoop one or
+
+f0a22c61-131f-4cae-aad7-916ccb9aa382-2
+00:26:32.181 --> 00:26:37.685
+the database and schema names of the
+Teradata table or some CCO actual CCO
+
+f0a22c61-131f-4cae-aad7-916ccb9aa382-3
+00:26:37.685 --> 00:26:38.640
+source table?
+
+a99f0158-adad-43e7-b708-3d7e0f415332-0
+00:26:39.040 --> 00:26:43.200
+Those are just prefix which are added to
+each and every iceberg table.
+
+50859c48-9adb-4dc6-933f-944298533eb4-0
+00:26:43.400 --> 00:26:45.640
+But those are not part of the entries.
+
+305c8530-d12d-44bc-b605-5fc69bf2e772-0
+00:26:45.640 --> 00:26:49.780
+So then I go to know, OK,
+this prefix is not this who we have to
+
+305c8530-d12d-44bc-b605-5fc69bf2e772-1
+00:26:49.780 --> 00:26:50.800
+use their table.
+
+e3a211b3-1b74-4412-9d2b-f775ecfc1bc5-0
+00:26:50.800 --> 00:26:54.061
+And directly I checked with the developer
+who made that entry,
+
+e3a211b3-1b74-4412-9d2b-f775ecfc1bc5-1
+00:26:54.061 --> 00:26:56.960
+we have that ID in place for batch ID or
+job ID, right?
+
+33b00de8-daa2-4ad9-9754-1e37a9efea5c-0
+00:26:57.520 --> 00:26:59.800
+Their entries, I e-mail ladies,
+we find it, right.
+
+34570508-5956-42c2-b665-6a2b26d5f140-0
+00:27:00.000 --> 00:27:02.455
+So using that,
+I reached out to the developer and I
+
+34570508-5956-42c2-b665-6a2b26d5f140-1
+00:27:02.455 --> 00:27:06.186
+asked whether this is the table that is
+loaded as part of this and this is the
+
+34570508-5956-42c2-b665-6a2b26d5f140-2
+00:27:06.186 --> 00:27:07.320
+entry that you're using.
+
+81f63ddc-b06b-4ea3-b92f-55dee6791150-0
+00:27:07.560 --> 00:27:08.160
+They said yes.
+
+ca95b9ff-f732-43db-80c4-cc8bec274dd1-0
+00:27:08.160 --> 00:27:11.310
+So based upon that,
+I created entries into my ETL ETA
+
+ca95b9ff-f732-43db-80c4-cc8bec274dd1-1
+00:27:11.310 --> 00:27:15.160
+injection metadata because there I need
+source table name, right?
+
+b10d9288-9aa5-46f2-8713-c70a94e1aaeb-0
+00:27:15.480 --> 00:27:19.417
+So I should have the same table name
+which they are using in their job
+
+b10d9288-9aa5-46f2-8713-c70a94e1aaeb-1
+00:27:19.417 --> 00:27:20.360
+metadata entries.
+
+200efbd3-28c6-4928-98ad-360454c0469c-0
+00:27:20.760 --> 00:27:23.080
+Then only my match would be successful.
+
+643797da-9d46-4844-90ce-8273a7604f5a-0
+00:27:23.080 --> 00:27:30.524
+So this here we have to pay much
+concentration OK pay some attention OK
+
+643797da-9d46-4844-90ce-8273a7604f5a-1
+00:27:30.524 --> 00:27:34.040
+And after that DQ check indicator.
+
+ed1f53d4-880b-435f-b01c-bef09645063b-0
+00:27:34.040 --> 00:27:35.720
+So this has to be kept Why?
+
+03de6c14-fa14-493f-9367-d962c4ecf2fd-0
+00:27:35.760 --> 00:27:39.080
+If only if DQ cheques are applied as per
+the discussion.
+
+6c467e07-85af-458d-baa7-eed80d0beb27-0
+00:27:39.080 --> 00:27:43.421
+OK,
+So these John man and John are having
+
+6c467e07-85af-458d-baa7-eed80d0beb27-1
+00:27:43.421 --> 00:27:49.520
+same ABC tables only but don't do is
+using few more extra.
+
+7bf627d5-1781-4c71-8a9a-a59d502be293-0
+00:27:50.400 --> 00:27:53.996
+So ABC tables than John compared to John
+they're not doing some decreasing,
+
+7bf627d5-1781-4c71-8a9a-a59d502be293-1
+00:27:53.996 --> 00:27:57.120
+they are not performing but we are
+performing all of them, right.
+
+f961c115-37e9-4c41-b9e7-a27adf713dbc-0
+00:27:57.640 --> 00:27:59.920
+So we have some extra tables all of them.
+
+98ff83b7-50ac-4821-8ddc-441030cb9cc6-0
+00:28:00.360 --> 00:28:08.060
+What I got to know from John when ABC
+lead or John when ABC team is they are
+
+98ff83b7-50ac-4821-8ddc-441030cb9cc6-1
+00:28:08.060 --> 00:28:14.860
+they have created as new database in
+Aurora using some liquid base,
+
+98ff83b7-50ac-4821-8ddc-441030cb9cc6-2
+00:28:14.860 --> 00:28:16.160
+liquid basis.
+
+f150f5df-5a18-4d4e-a0f8-3e3eea01927b-0
+00:28:16.640 --> 00:28:21.600
+I don't know Liquid base is some kind of
+technology or a tool which they are using.
+
+7aa25ba0-e9d4-4b41-8d46-3e8cb11a8232-0
+00:28:23.680 --> 00:28:27.933
+OK they're they're creating some database
+where the database name,
+
+7aa25ba0-e9d4-4b41-8d46-3e8cb11a8232-1
+00:28:27.933 --> 00:28:29.520
+schema name might change.
+
+db7943ee-1821-4c40-aff7-221ea54af064-0
+00:28:29.560 --> 00:28:31.240
+As per the this standard.
+
+aa8fdd89-fd7e-4a9c-9133-f031f2db394b-0
+00:28:31.840 --> 00:28:36.040
+It is not done and we didn't get any
+information about it till now.
+
+b5e2a1e2-aa38-4149-8c32-a5db8244e247-0
+00:28:36.440 --> 00:28:40.680
+OK they told they will inform but they
+didn't inform me.
+
+2b9ce35d-9374-4b39-bfdf-e5a58cef7702-0
+00:28:41.000 --> 00:28:48.192
+This is the one important thing which
+needs to be like take which needs to be
+
+2b9ce35d-9374-4b39-bfdf-e5a58cef7702-1
+00:28:48.192 --> 00:28:49.760
+you know handled.
+
+ecd48570-8c21-45bc-b66f-9b90a7c3d78e-0
+00:28:49.760 --> 00:28:54.335
+Whenever we get any such communication
+from zone one we have to update the
+
+ecd48570-8c21-45bc-b66f-9b90a7c3d78e-1
+00:28:54.335 --> 00:28:58.849
+database name and schema name in all the
+static parameters because all in
+
+ecd48570-8c21-45bc-b66f-9b90a7c3d78e-2
+00:28:58.849 --> 00:28:59.520
+everywhere.
+
+20404017-76b3-472f-bf67-47d22fd0e272-0
+00:28:59.560 --> 00:29:02.440
+Currently we are using default DB and ABC
+metadata only.
+
+00a7fbae-edf1-420e-b9d8-63954f722d38-0
+00:29:02.760 --> 00:29:06.154
+If the database name gets changed we have
+to update all the parameters because
+
+00a7fbae-edf1-420e-b9d8-63954f722d38-1
+00:29:06.154 --> 00:29:09.120
+these parameters are being deployed to
+the other environments right?
+
+a63531a2-8575-4010-8390-e0bf8e33194d-0
+00:29:09.480 --> 00:29:14.040
+They are planning to use have the new
+database set up in the other environments.
+
+5c8dc983-1c8f-4381-aef5-5a6fdd17f3e2-0
+00:29:14.800 --> 00:29:19.040
+OK as of so Ardora DB will not be used,
+might not be used.
+
+be184d77-4cb8-46ad-8374-662e69fd414e-0
+00:29:19.120 --> 00:29:21.385
+Yeah,
+Ardora only in Ardora only they're
+
+be184d77-4cb8-46ad-8374-662e69fd414e-1
+00:29:21.385 --> 00:29:25.860
+they're creating some different database
+using some liquid base like which is to
+
+be184d77-4cb8-46ad-8374-662e69fd414e-2
+00:29:25.860 --> 00:29:26.800
+some liquid base.
+
+e6f6490d-d126-402d-bd74-d1e723d883f3-0
+00:29:27.280 --> 00:29:30.880
+I don't know exactly the details about it,
+but this is there.
+
+16c64d27-5636-4208-9340-1bb6ed81be10-0
+00:29:31.280 --> 00:29:36.264
+And in during the poll occasion also,
+I asked him if there is any kind of
+
+16c64d27-5636-4208-9340-1bb6ed81be10-1
+00:29:36.264 --> 00:29:41.720
+information related to that and if the
+team needs to use the new database setup.
+
+969818d1-ca59-46c6-a93a-e763d63cd8df-0
+00:29:41.840 --> 00:29:46.576
+I asked him to let us know,
+but I didn't see any mail regarding that
+
+969818d1-ca59-46c6-a93a-e763d63cd8df-1
+00:29:46.576 --> 00:29:47.400
+information.
+
+93055b1c-731a-4f5d-9968-a94d672c7ee2-0
+00:29:47.680 --> 00:29:50.697
+OK,
+That's the reason why we have this as a
+
+93055b1c-731a-4f5d-9968-a94d672c7ee2-1
+00:29:50.697 --> 00:29:51.040
+risk.
+
+965429d2-879a-4fa5-9425-8d2c63d186ce-0
+00:29:51.400 --> 00:29:56.923
+OK, So then in if that change comes,
+then all the edition related like
+
+965429d2-879a-4fa5-9425-8d2c63d186ce-1
+00:29:56.923 --> 00:29:59.880
+parameter entries needs to be changed.
+
+2689f25d-11b1-4e35-be33-6790a3465f8c-0
+00:30:00.200 --> 00:30:04.721
+Yeah, only in the ABC database I, I,
+I given I have given here the two
+
+2689f25d-11b1-4e35-be33-6790a3465f8c-1
+00:30:04.721 --> 00:30:09.880
+parameters which needs to be changed that
+change after that as per and one more.
+
+b4f40583-a6fa-47a8-b38d-83e808cde833-0
+00:30:11.360 --> 00:30:14.880
+So you said that connection name will be
+changed right?
+
+9e10ac19-d295-4820-9b53-e9c2d6b60a21-0
+00:30:14.880 --> 00:30:16.120
+According to the domain.
+
+08147a68-cf4e-48ea-a254-0a5d1d75d20b-0
+00:30:16.120 --> 00:30:20.240
+So the connections are already created or
+that also needs to be created.
+
+a0e3561f-2099-498d-983d-99a6201e417e-0
+00:30:20.240 --> 00:30:25.000
+Only connections are handled by Guy 3.
+
+81ed9f62-2987-4759-8b1a-d77ccc75a842-0
+00:30:25.200 --> 00:30:30.680
+So based upon the build progress we are
+doing the work on on this connection.
+
+cd1eb1cf-ac35-43a4-b7cb-8a75ebe9304d-0
+00:30:30.680 --> 00:30:34.560
+So for claims if we need she's working on
+that claims connection.
+
+5b81823f-f7b9-42b3-b9f4-785d9d3500ef-0
+00:30:34.760 --> 00:30:39.360
+I'm not sure she has created for all the
+domains at least for wave 1.
+
+c29416d7-4985-47f0-b9ba-6e3d55fcbc3a-0
+00:30:39.800 --> 00:30:44.739
+Not sure on it Priya OK,
+but any build activity that we are taking
+
+c29416d7-4985-47f0-b9ba-6e3d55fcbc3a-1
+00:30:44.739 --> 00:30:50.563
+up guide through would be the would be
+responsible for the connection creation
+
+c29416d7-4985-47f0-b9ba-6e3d55fcbc3a-2
+00:30:50.563 --> 00:30:53.880
+is like I I know she was only doing
+earlier,
+
+c29416d7-4985-47f0-b9ba-6e3d55fcbc3a-3
+00:30:53.880 --> 00:30:59.262
+but now I think I don't know whether
+she's taking that accountability or
+
+c29416d7-4985-47f0-b9ba-6e3d55fcbc3a-4
+00:30:59.262 --> 00:31:01.400
+someone is taking care of it.
+
+e084a74f-5c50-4388-b6d9-55a5401473ea-0
+00:31:01.400 --> 00:31:04.238
+I'm not sure on it,
+but you can reach out to guys if she will
+
+e084a74f-5c50-4388-b6d9-55a5401473ea-1
+00:31:04.238 --> 00:31:05.520
+provide you the correct POC.
+
+dff9504b-54fb-44c9-b624-216da0690c70-0
+00:31:06.440 --> 00:31:11.760
+OK and and next earlier snowflake data
+model is not appropriate.
+
+826f34ce-0eae-4c28-8508-f5e868a40478-0
+00:31:11.760 --> 00:31:16.640
+Now the domain level databases came into
+picture and schemas came into picture.
+
+2f07d7ea-20fb-476c-af84-ba3fe272a2e6-0
+00:31:17.000 --> 00:31:18.320
+Earlier it was not the case.
+
+3231c86f-3243-4a33-9d2a-385913e5f2d1-0
+00:31:18.320 --> 00:31:21.160
+So I have given if even in the parameter
+file.
+
+9e3148e7-21f6-4e50-a612-68a040eee69a-0
+00:31:21.160 --> 00:31:25.440
+If you see I have given some testing kind
+of schema like that only.
+
+23fae5ad-b809-4414-9a12-d8b8971f9e8c-0
+00:31:25.440 --> 00:31:30.400
+So I ask a team these all these values we
+are using in ABC.
+
+8e045ca8-91a6-422f-9179-1c1a291a1311-0
+00:31:30.680 --> 00:31:34.480
+So all this should be updated properly in
+the parameter file.
+
+f0590a18-3c16-40dd-9eba-fafb8ad7cb88-0
+00:31:36.480 --> 00:31:39.120
+OK, OK, this alignment is is already done.
+
+be0a22d4-1408-4834-882a-4448300d27a4-0
+00:31:39.680 --> 00:31:43.184
+This is what the final like whatever we
+have discussed for pass request,
+
+be0a22d4-1408-4834-882a-4448300d27a4-1
+00:31:43.184 --> 00:31:44.720
+that is the final alignment, OK.
+
+71eab74b-a6a2-41bc-8d02-a1b1cbf63d52-0
+00:31:45.040 --> 00:31:47.400
+And after that these are just OK.
+
+1eac3ee5-b00c-4a5f-86a3-36fc7408dea2-0
+00:31:47.640 --> 00:31:48.880
+These are just OK.
+
+14272f4a-2ca4-4037-b5fd-44e7c911dc47-0
+00:31:49.720 --> 00:31:54.106
+It is just valuation date, OK,
+This one I told you right already
+
+14272f4a-2ca4-4037-b5fd-44e7c911dc47-1
+00:31:54.106 --> 00:31:57.211
+valuation date,
+valuation date in the balance
+
+14272f4a-2ca4-4037-b5fd-44e7c911dc47-2
+00:31:57.211 --> 00:32:02.070
+reconciliation run stash table,
+we have one valuation that yesterday we
+
+14272f4a-2ca4-4037-b5fd-44e7c911dc47-3
+00:32:02.070 --> 00:32:05.039
+had a discussion around this column,
+right?
+
+f7fdef22-02a6-4a18-a48e-5628e4b9f9e2-0
+00:32:05.320 --> 00:32:09.185
+So I told,
+I informed the team that it is not
+
+f7fdef22-02a6-4a18-a48e-5628e4b9f9e2-1
+00:32:09.185 --> 00:32:14.563
+earlier I mapped it with Sysdate,
+but after so discussion with,
+
+f7fdef22-02a6-4a18-a48e-5628e4b9f9e2-2
+00:32:14.563 --> 00:32:16.160
+I updated this, OK.
+
+3aa1eaa2-95ba-4110-ad59-9155426dc6d9-0
+00:32:16.160 --> 00:32:22.274
+And after that as per the discussion with,
+we are checking whether the latest one,
+
+3aa1eaa2-95ba-4110-ad59-9155426dc6d9-1
+00:32:22.274 --> 00:32:25.000
+if it is OK, it is related to, right?
+
+5e5206c7-5471-4f3a-a26d-1cd2a9fb3f0f-0
+00:32:25.280 --> 00:32:25.920
+OK, leave it.
+
+499f4b6b-078a-4b11-9f17-02df5f066e61-0
+00:32:27.040 --> 00:32:27.360
+OK.
+
+e492cef5-fd55-4f1c-b459-5cfbfd86532f-0
+00:32:28.680 --> 00:32:30.240
+Can you send me this new subject?
+
+020844ea-6ef5-498c-9ab8-6b6825554b93-0
+00:32:30.320 --> 00:32:33.120
+Yeah, yeah, I, I, I'll, I'll forward it.
+
+71a7a178-9a67-4354-b7f1-8f407814bab3-0
+00:32:33.240 --> 00:32:36.840
+Otherwise I'll send you the even subject
+also I'll discuss with.
+
+6a5961c2-fa98-4546-be97-b5e54994dd2b-0
+00:32:36.840 --> 00:32:37.600
+OK, Yeah, yeah.
+
+d47efe35-b4b3-4304-be58-d434168b6313-0
+00:32:37.720 --> 00:32:38.240
+Forward.
+
+19b5a3bd-077e-4e64-a5fd-f6695bd33fc3-0
+00:32:38.360 --> 00:32:42.553
+Because is,
+is there any latest mail where like I'll
+
+19b5a3bd-077e-4e64-a5fd-f6695bd33fc3-1
+00:32:42.553 --> 00:32:45.640
+be able to see the entire thing, right?
+
+d5795ec8-9f4d-48b1-a77c-4ae03c113d40-0
+00:32:45.640 --> 00:32:49.220
+Yeah, Yeah,
+you will be able to see because lately I
+
+d5795ec8-9f4d-48b1-a77c-4ae03c113d40-1
+00:32:49.220 --> 00:32:52.800
+have updated that active indicator in the
+last week.
+
+ba5118a2-451e-4a83-ac5a-6ff9197c9a23-0
+00:32:54.000 --> 00:32:58.439
+Why cleaning up the target table and I'm
+not updating the current active indicator
+
+ba5118a2-451e-4a83-ac5a-6ff9197c9a23-1
+00:32:58.439 --> 00:32:58.600
+to?
+
+9362930b-8a7d-4ba4-91f2-3bf013c39df4-0
+00:32:58.600 --> 00:33:02.835
+Why I'm just updating the expiration
+indicator expiration date time for update
+
+9362930b-8a7d-4ba4-91f2-3bf013c39df4-1
+00:33:02.835 --> 00:33:03.640
+request, right?
+
+c4fb4796-d1c4-4965-9bfa-6a8c1fd22c4d-0
+00:33:03.640 --> 00:33:08.740
+But now I have added that and I have
+updated like I informed the team also
+
+c4fb4796-d1c4-4965-9bfa-6a8c1fd22c4d-1
+00:33:08.740 --> 00:33:09.080
+here.
+
+b05fa55d-e48e-42d6-b476-d79aa6777f97-0
+00:33:09.920 --> 00:33:12.958
+OK,
+this is related to batch prerequisite
+
+b05fa55d-e48e-42d6-b476-d79aa6777f97-1
+00:33:12.958 --> 00:33:13.320
+only.
+
+1d898bc6-a6f9-43d3-8c82-b44235458c08-0
+00:33:13.320 --> 00:33:16.080
+You can ignore it but you can go through
+it once.
+
+a6455e33-5bc5-432e-a2e5-c6a9f33a7e7d-0
+00:33:16.520 --> 00:33:17.520
+What is happening there?
+
+9c241e0a-02d0-41ac-8177-27a04f9fa42b-0
+00:33:17.560 --> 00:33:22.652
+How this batch prerequisite,
+OK batch prerequisite and batch task flow
+
+9c241e0a-02d0-41ac-8177-27a04f9fa42b-1
+00:33:22.652 --> 00:33:28.176
+would be interrelated are otherwise
+connected at the stone branch scheduling
+
+9c241e0a-02d0-41ac-8177-27a04f9fa42b-2
+00:33:28.176 --> 00:33:30.400
+2 levels not here, not in IDMC.
+
+a711b756-ff39-4ba2-a873-ede606ce8b34-0
+00:33:31.080 --> 00:33:36.782
+How they have interrelated or how What
+are the properties that discussion was
+
+a711b756-ff39-4ba2-a873-ede606ce8b34-1
+00:33:36.782 --> 00:33:37.440
+happened?
+
+e563333f-6e09-4d83-a526-deb39c9b09aa-0
+00:33:38.120 --> 00:33:44.741
+If you want detailed details,
+you you can reach out to them Deepankar
+
+e563333f-6e09-4d83-a526-deb39c9b09aa-1
+00:33:44.741 --> 00:33:46.160
+or Durkesh, OK?
+
+e6d6dbfc-fd00-420d-9bfb-8965f7140a58-0
+00:33:46.240 --> 00:33:51.360
+And they ask OK, one more thing here,
+This is related to Nina.
+
+9fadcce4-fae8-42b5-a120-cb98b4a440ff-0
+00:33:51.360 --> 00:33:53.360
+This is related to yeah, this is sorry.
+
+ee61c190-7ef5-43d5-9714-5f43e0d8f0fd-0
+00:33:53.360 --> 00:33:54.720
+This is related to IDMC.
+
+582e7a84-6081-45d6-bc37-328ef555bff2-0
+00:33:54.720 --> 00:34:03.104
+This we have to enable in our batch level
+task flows OK which for our for each and
+
+582e7a84-6081-45d6-bc37-328ef555bff2-1
+00:34:03.104 --> 00:34:10.983
+for our batch prerequisite and batch task
+flow we have to use this option for
+
+582e7a84-6081-45d6-bc37-328ef555bff2-2
+00:34:10.983 --> 00:34:12.600
+concurrent task.
+
+9a8ebf61-6b08-487c-9a7b-1eb4675ecaa8-0
+00:34:12.600 --> 00:34:20.247
+For execution we have to select disable
+concurrent execution OK,
+
+9a8ebf61-6b08-487c-9a7b-1eb4675ecaa8-1
+00:34:20.247 --> 00:34:24.600
+OK after that this is the latest one.
+
+cbf06407-6009-4f00-b730-93d7c664e5ad-0
+00:34:24.960 --> 00:34:30.960
+I updated this row add to indicator part
+OK.
+
+59092e84-491b-4849-948a-8172100e992e-0
+00:34:41.400 --> 00:34:45.120
+And then this mail chain is done.
+
+a9609558-4575-4035-9cbe-cff9007bbfac-0
+00:34:48.000 --> 00:34:48.960
+What else?
+
+77ab2c37-8c94-433b-b00d-00abf1af270f-0
+00:34:51.120 --> 00:34:52.360
+Daily status tracker.
+
+1f006280-008c-4e6b-974d-5f664afd4f03-0
+00:35:08.150 --> 00:35:09.510
+Give me two minutes, I'll go back.
+
+0c806472-e93c-42ac-a95b-20bab39af39d-0
+00:36:48.440 --> 00:36:49.560
+Yeah, hi, I'm back.
+
+3325cfe1-e02d-4fbc-a2b1-cf7877ce18c8-0
+00:36:58.150 --> 00:36:59.470
+Let me share my screen again.
+
+2930a8e7-733b-4f2c-95a7-75ffcc2665ec-0
+00:37:04.270 --> 00:37:04.470
+OK.
+
+347d8d45-ee16-46f0-9300-728ee66df100-0
+00:37:04.710 --> 00:37:10.510
+We have one ABC tab dedicatedly for ABC
+statuses in daily status tracker.
+
+fff79c9d-3a8b-4c33-b00c-420f8159f747-0
+00:37:14.630 --> 00:37:19.870
+So here all the metadata entries related
+things are done.
+
+43b8442a-1911-40d5-b6a2-1dc4ea0fccd0-0
+00:37:20.520 --> 00:37:23.000
+We send it this for review also.
+
+9e87d07f-0076-4fd6-b635-eda179301461-0
+00:37:23.240 --> 00:37:25.760
+And all the components build is done.
+
+d53bf441-053c-440a-8f9f-66b6eef442bb-0
+00:37:26.480 --> 00:37:30.987
+These I have kept it 80% because this
+needs to be revisited as part of
+
+d53bf441-053c-440a-8f9f-66b6eef442bb-1
+00:37:30.987 --> 00:37:33.400
+increment first time incremental load.
+
+d5df4215-3fb9-4c8c-9689-b7d7748b5c60-0
+00:37:33.720 --> 00:37:36.240
+And all these 95% are Utah completed.
+
+561a8e96-edb4-44c7-ba7f-db2cda6a114c-0
+00:37:36.520 --> 00:37:42.997
+But the preview is not completed from we
+have we have given the walkthrough,
+
+561a8e96-edb4-44c7-ba7f-db2cda6a114c-1
+00:37:42.997 --> 00:37:48.213
+but I I don't know,
+but that's why I'm more like the any lead
+
+561a8e96-edb4-44c7-ba7f-db2cda6a114c-2
+00:37:48.213 --> 00:37:49.560
+has reviewed it.
+
+873c323d-8803-45e5-a83b-27c8a20f7f84-0
+00:37:50.120 --> 00:37:53.280
+OK, so like how how does it happen?
+
+bd6c405b-320b-4231-bc0e-5a9adce885f6-0
+00:37:53.320 --> 00:37:58.944
+Like to test it you I did the I did the
+end this thing and I have given this to
+
+bd6c405b-320b-4231-bc0e-5a9adce885f6-1
+00:37:58.944 --> 00:38:03.163
+like component level review is done
+common component level,
+
+bd6c405b-320b-4231-bc0e-5a9adce885f6-2
+00:38:03.163 --> 00:38:06.960
+but end to end review UT document I
+shared with time.
+
+823088c1-9dc4-43a2-ae50-3b3ea82a0e84-0
+00:38:06.960 --> 00:38:12.799
+I think she has reviewed it already,
+but I don't know like after that we are
+
+823088c1-9dc4-43a2-ae50-3b3ea82a0e84-1
+00:38:12.799 --> 00:38:14.240
+using on ABC match.
+
+e12cd41b-b5cd-4e7d-8ceb-f5b62b3a6214-0
+00:38:14.480 --> 00:38:18.320
+So we I have not updated it,
+but let it be like she has.
+
+fff47a11-d3ad-4f09-8cf8-619b78d8694a-0
+00:38:18.640 --> 00:38:22.247
+I,
+I asked her like I like I I know after
+
+fff47a11-d3ad-4f09-8cf8-619b78d8694a-1
+00:38:22.247 --> 00:38:28.173
+breaking from ABC in one call,
+there was a discussion around this UT
+
+fff47a11-d3ad-4f09-8cf8-619b78d8694a-2
+00:38:28.173 --> 00:38:32.640
+document that needs to be shared to
+Bogdan and all.
+
+f3de092a-289f-4519-9d17-21e464f2bd7a-0
+00:38:32.840 --> 00:38:37.640
+So then spy I'm told that she has gone
+through my document.
+
+74f3aada-a081-43de-bc05-9b3241436f3e-0
+00:38:37.640 --> 00:38:40.280
+It is very exhaustive like that She was
+she told.
+
+d8dfa3b9-8311-4842-bba3-b80e454e9901-0
+00:38:40.280 --> 00:38:45.000
+So my UT document is also reviewed,
+I guess and here.
+
+570431ed-4314-4d0f-a312-945e4cc3d654-0
+00:38:45.000 --> 00:38:52.240
+So like is the ABC client was signed off
+by client or like how it's not signed off?
+
+0829e801-430b-40f8-8159-a4a5dfcb6313-0
+00:38:52.320 --> 00:38:56.160
+It's not signed off it it's not signed
+off.
+
+420effb3-d3ff-4cd2-9677-f40857c1d6b7-0
+00:38:56.160 --> 00:39:00.448
+I don't know like this increment first
+time incremental design is also pending
+
+420effb3-d3ff-4cd2-9677-f40857c1d6b7-1
+00:39:00.448 --> 00:39:01.480
+and we know, right.
+
+77ec94a6-9823-4bdd-96f2-2281b91a7960-0
+00:39:01.760 --> 00:39:05.640
+So this these design discussions were
+going on Posted.
+
+b131aa20-49f2-4abd-a2de-1a5c0c8f7db1-0
+00:39:05.640 --> 00:39:07.120
+I was pulled into CC1I.
+
+f36dee10-e2c5-40e6-8318-6586645a35d0-0
+00:39:07.720 --> 00:39:09.920
+I was just doing work in CCMO posted.
+
+6786d207-802c-48f1-88c1-dee95faac9e4-0
+00:39:10.400 --> 00:39:14.320
+So from the client side who reviews this,
+I don't know.
+
+5f612649-10c5-4f07-9ca5-498308347df9-0
+00:39:14.480 --> 00:39:16.160
+Yeah, I don't know.
+
+849214a2-6c1e-4425-8fc6-19a4b7ff1118-0
+00:39:16.320 --> 00:39:19.409
+Once you implement this first time
+incremental,
+
+849214a2-6c1e-4425-8fc6-19a4b7ff1118-1
+00:39:19.409 --> 00:39:24.300
+maybe after that you can check with
+Nabrika or Swyam like to get the review
+
+849214a2-6c1e-4425-8fc6-19a4b7ff1118-2
+00:39:24.300 --> 00:39:27.261
+from client and get the sign off on LLD,
+ABC,
+
+849214a2-6c1e-4425-8fc6-19a4b7ff1118-3
+00:39:27.261 --> 00:39:31.959
+all these things because we know that
+there is something pending in ABC.
+
+b4c848f8-c031-4ad3-97cf-41b59a5b9215-0
+00:39:32.120 --> 00:39:34.680
+So we didn't go with the sign off.
+
+9fcef648-769b-45c2-a685-971fa3e949be-0
+00:39:34.680 --> 00:39:38.080
+I guess that is the reason why our team
+didn't initiate that.
+
+92c6ebcb-bd92-4ca7-881a-50afe6068afe-0
+00:39:39.920 --> 00:39:42.547
+OK,
+so you just like created all the MVC
+
+92c6ebcb-bd92-4ca7-881a-50afe6068afe-1
+00:39:42.547 --> 00:39:45.815
+components,
+but nothing was reached out to client,
+
+92c6ebcb-bd92-4ca7-881a-50afe6068afe-2
+00:39:45.815 --> 00:39:46.200
+is it?
+
+215057e2-5e38-4a49-a6ad-eb1d57e55ec4-0
+00:39:47.200 --> 00:39:50.668
+We had a walkthrough,
+technical walkthrough already to the
+
+215057e2-5e38-4a49-a6ad-eb1d57e55ec4-1
+00:39:50.668 --> 00:39:51.080
+client.
+
+777e29e0-64e9-4992-8a05-f220a9f34380-0
+00:39:51.320 --> 00:39:53.760
+They they are OK,
+They provided some feedback.
+
+fa87b0b3-511b-44db-8b9c-0083ba1ee3be-0
+00:39:53.760 --> 00:39:59.881
+We had this like like I thought to
+walkthrough of each and every component,
+
+fa87b0b3-511b-44db-8b9c-0083ba1ee3be-1
+00:39:59.881 --> 00:40:05.520
+everything we had a walkthrough already,
+they provided some feedback.
+
+57d111fc-bc4c-4d9f-87d1-b8bc757d90b1-0
+00:40:05.520 --> 00:40:06.520
+I incorporated it.
+
+f7b52eb5-1bad-497b-832c-4eb2ec47fd75-0
+00:40:07.880 --> 00:40:10.840
+So who are these like these are these are
+who provided the feedback.
+
+d8ee88e6-bf86-4ade-8758-4728b3964fbc-0
+00:40:12.640 --> 00:40:14.760
+I don't remember Bogdan, Tina and Chris.
+
+36fccf36-22d8-4278-a1f2-bd0dfabbc398-0
+00:40:14.760 --> 00:40:20.314
+I don't remember like out of these three
+people who provided that like they were
+
+36fccf36-22d8-4278-a1f2-bd0dfabbc398-1
+00:40:20.314 --> 00:40:22.920
+people like Chris and team were there.
+
+84a847ee-8682-4af5-8117-45baf5cf8714-0
+00:40:22.920 --> 00:40:24.640
+I don't know whether Bogdan is present or
+not.
+
+ac54f9dc-29b8-4985-b4d8-82008dc3077c-0
+00:40:24.640 --> 00:40:27.160
+It was a in person collocation for U.S.
+
+205f9751-3b2d-4751-ab3f-de25dacf1594-0
+00:40:27.160 --> 00:40:27.440
+team.
+
+13270155-e997-4323-8e81-ba373117659e-0
+00:40:27.440 --> 00:40:33.782
+So we had a like we had like we were we
+joined online and they were in person
+
+13270155-e997-4323-8e81-ba373117659e-1
+00:40:33.782 --> 00:40:34.840
+from onshore.
+
+caef1608-56dc-4701-b91a-b9f573b7976c-0
+00:40:35.840 --> 00:40:37.040
+Oh client and our team.
+
+d223c3ed-3184-408b-ba33-3c3dae10f5bd-0
+00:40:38.480 --> 00:40:40.080
+You presented it that way?
+
+5a5e0912-6b07-4bdf-bc50-d7689db84ac3-0
+00:40:40.200 --> 00:40:42.040
+Yeah, I presented it directly.
+
+08bdcbbb-f306-4d6b-88be-eea5616b75ae-0
+00:40:43.040 --> 00:40:43.160
+Yeah.
+
+21350441-085a-4150-852d-6301000898f4-0
+00:40:44.160 --> 00:40:44.520
+Oh, OK.
+
+1fb9f048-dd91-44a0-8704-9e78c7bb8796-0
+00:40:44.520 --> 00:40:49.922
+After that whatever the cheques feedbacks
+they have given now I added this as part
+
+1fb9f048-dd91-44a0-8704-9e78c7bb8796-1
+00:40:49.922 --> 00:40:51.680
+and also the pending items.
+
+3a36e5f0-2a62-42f0-989b-e7351ebeda07-0
+00:40:51.920 --> 00:40:55.160
+So first time incremental is pending
+still now till now it is pending.
+
+e3ed6202-962e-4d4c-b0ed-002015037cbc-0
+00:40:55.480 --> 00:40:59.277
+I just want to know that execution time
+type can be zoned to first time
+
+e3ed6202-962e-4d4c-b0ed-002015037cbc-1
+00:40:59.277 --> 00:41:03.549
+incremental and batch return indicator
+can be I these two are the details that I
+
+e3ed6202-962e-4d4c-b0ed-002015037cbc-2
+00:41:03.549 --> 00:41:03.760
+got.
+
+03b05d3e-a250-41bc-b294-78357995a877-0
+00:41:04.000 --> 00:41:08.080
+So you can use these two details while
+you are designing and views.
+
+aba60e95-cc4d-4751-beda-1a33301b23ac-0
+00:41:08.520 --> 00:41:13.360
+I have updated the views as per the as
+per the June 1 teams that is already done
+
+aba60e95-cc4d-4751-beda-1a33301b23ac-1
+00:41:13.360 --> 00:41:17.544
+whatever LO are done already,
+there's the automation of D2 cheques in
+
+aba60e95-cc4d-4751-beda-1a33301b23ac-2
+00:41:17.544 --> 00:41:18.560
+the main mapping.
+
+620cbb93-28cf-48ab-acae-2e37c1c6095a-0
+00:41:18.560 --> 00:41:23.240
+So we are doing it in the ETL logic right
+in the in the source to stage mapping.
+
+f4050134-be4a-40ab-9c4c-582a40fe8301-0
+00:41:23.440 --> 00:41:29.160
+So they ask her like whether it can be
+automated but told to park it aside.
+
+99e02410-032e-4558-b42e-c6f4b5845b7a-0
+00:41:30.960 --> 00:41:34.960
+And I raised at this point multiple times
+they told me to mark it aside only.
+
+758955ec-c8c9-4c1e-aa1d-d42c142d734c-0
+00:41:35.480 --> 00:41:39.080
+So I parked it aside,
+but it is already present here.
+
+422f3c60-96e3-4340-92a5-7aeece234f5b-0
+00:41:39.400 --> 00:41:39.800
+OK.
+
+7079915c-21a7-43b6-8a82-76b3d04e5b7a-0
+00:41:40.240 --> 00:41:44.590
+And then parameter file location and all
+these things I have parameterized,
+
+7079915c-21a7-43b6-8a82-76b3d04e5b7a-1
+00:41:44.590 --> 00:41:46.480
+OK and all these things are done.
+
+f7a45a6f-ff04-4b36-aeae-19e3af1aaa67-0
+00:41:46.560 --> 00:41:49.108
+You,
+you can ignore history catch upload is
+
+f7a45a6f-ff04-4b36-aeae-19e3af1aaa67-1
+00:41:49.108 --> 00:41:49.920
+not completed.
+
+8e47a655-f386-4b51-a1f8-84dff3a8da6e-0
+00:41:50.760 --> 00:41:52.280
+Lucid flow, it is done.
+
+94430af4-67a1-4137-a4ed-6217cfc9cfad-0
+00:41:52.440 --> 00:41:53.240
+LED is done.
+
+35edd069-28f5-4867-9aac-08b153a614e1-0
+00:41:53.400 --> 00:41:57.893
+I can mark these two hours, OK,
+based upon your inputs like I'll just
+
+35edd069-28f5-4867-9aac-08b153a614e1-1
+00:41:57.893 --> 00:42:01.039
+keep them invite only because after
+development,
+
+35edd069-28f5-4867-9aac-08b153a614e1-2
+00:42:01.039 --> 00:42:05.404
+if you see that anything's needs to be
+changed in the LLD or Lucid,
+
+35edd069-28f5-4867-9aac-08b153a614e1-3
+00:42:05.404 --> 00:42:06.560
+you can update it.
+
+96615c7a-636b-4e54-9b32-c8a49bf767c7-0
+00:42:07.120 --> 00:42:12.408
+UT document is done folder structure
+there is I don't know whether this has to
+
+96615c7a-636b-4e54-9b32-c8a49bf767c7-1
+00:42:12.408 --> 00:42:15.621
+be followed,
+followed up as part of ABC because
+
+96615c7a-636b-4e54-9b32-c8a49bf767c7-2
+00:42:15.621 --> 00:42:20.240
+history load components would be specific
+to specific domain, right?
+
+78bc3ffd-5c98-49d4-98ca-cf1a41271972-0
+00:42:20.440 --> 00:42:23.400
+So I don't know and this one question.
+
+b65d1101-cc1e-4a29-b63c-f94293878c82-0
+00:42:23.400 --> 00:42:26.782
+So is your thing making any changes in
+any ABC component,
+
+b65d1101-cc1e-4a29-b63c-f94293878c82-1
+00:42:26.782 --> 00:42:29.640
+then we'll be doing it in the DIL common,
+right?
+
+a12bc11b-2363-44c1-8e86-96d8a9ec3be1-0
+00:42:29.640 --> 00:42:33.487
+And then again,
+everything else needs to be refreshed or
+
+a12bc11b-2363-44c1-8e86-96d8a9ec3be1-1
+00:42:33.487 --> 00:42:33.960
+pop it.
+
+02b799b3-7b8c-466f-9c1c-84a26d05a71b-0
+00:42:33.960 --> 00:42:34.080
+Yeah.
+
+e4023f24-2e1f-4c95-bb55-507aeb690e5b-0
+00:42:34.080 --> 00:42:36.649
+Again,
+this is the main chain where we have to
+
+e4023f24-2e1f-4c95-bb55-507aeb690e5b-1
+00:42:36.649 --> 00:42:40.640
+inform team to refresh their mappings or
+components in their APC folder.
+
+631d694b-8f37-43cd-b197-0a0a527f5b8b-0
+00:42:41.880 --> 00:42:44.861
+Then again,
+they have to like move it to the move
+
+631d694b-8f37-43cd-b197-0a0a527f5b8b-1
+00:42:44.861 --> 00:42:45.160
+page.
+
+fa6fe252-084d-43eb-b282-968c9eafe3ab-0
+00:42:45.360 --> 00:42:48.880
+They they have to just,
+they have to just copy the component.
+
+fafd8976-bc4f-44c3-8f13-e9c57ee68028-0
+00:42:48.880 --> 00:42:53.416
+And if there is any snowflake connection,
+they have to update it to their snowflake
+
+fafd8976-bc4f-44c3-8f13-e9c57ee68028-1
+00:42:53.416 --> 00:42:56.440
+connection to the domain specific
+snowflake connection.
+
+fe8125ff-9881-4a01-9551-b2ffe8cdf181-0
+00:42:56.440 --> 00:42:56.880
+That's it.
+
+51a0b706-1724-466e-a37d-8070d54bc59a-0
+00:42:58.960 --> 00:43:00.320
+There won't be much changes.
+
+da97b4b9-481a-4af0-a5ae-517e7f0353c2-0
+00:43:00.320 --> 00:43:03.626
+Yeah,
+this is the requirement requirement from
+
+da97b4b9-481a-4af0-a5ae-517e7f0353c2-1
+00:43:03.626 --> 00:43:04.400
+the client.
+
+61bebcf1-d91c-4250-9be6-11a75e7c98f2-0
+00:43:04.400 --> 00:43:07.800
+They want ABC under each and every domain
+folder.
+
+40c4c2da-c931-4a84-bdfb-a629f95abacc-0
+00:43:07.800 --> 00:43:09.040
+This is their requirement.
+
+8072ec93-4168-4330-b48d-509b5e3bdbdf-0
+00:43:13.040 --> 00:43:15.887
+OK,
+these three are I think this is related
+
+8072ec93-4168-4330-b48d-509b5e3bdbdf-1
+00:43:15.887 --> 00:43:20.869
+to Stone branch who can ignore like
+whatever the one this one like new order
+
+8072ec93-4168-4330-b48d-509b5e3bdbdf-2
+00:43:20.869 --> 00:43:21.839
+database setup.
+
+e204263f-8c33-48bf-b3c9-30c53bb3a3c5-0
+00:43:22.480 --> 00:43:24.040
+OK, I told you right.
+
+dcb6af8a-41e4-494a-a021-0ac0179ba09f-0
+00:43:24.280 --> 00:43:29.920
+One team has not informed us OK and ABC
+data.
+
+8d205c4a-f525-4e84-92d8-98e285a3d45d-0
+00:43:29.920 --> 00:43:31.680
+Is there any any POC for that?
+
+8b289b4c-4e2d-4649-92f4-e5c115a9b9f1-0
+00:43:32.360 --> 00:43:41.960
+What do we need that POC Vidya and
+Vaishnavi, OK, you can check with them.
+
+ea0f7218-8f73-4fc7-8976-514ae1b60f19-0
+00:43:45.080 --> 00:43:46.840
+OK, Vidya there.
+
+e3f137a0-684b-45b1-8453-d534417a7fd2-0
+00:43:52.660 --> 00:43:53.060
+OK.
+
+d7aea12f-6ec5-4745-af7e-69bac2a41520-0
+00:43:54.120 --> 00:43:56.840
+And then last one is AABC data model
+update.
+
+3a32bda4-f5b2-4f57-a544-04123ce3a393-0
+00:43:56.840 --> 00:43:58.280
+We have created two more tables.
+
+c90870fd-bbeb-44b2-ac90-3e9868132fa2-0
+00:43:58.280 --> 00:43:59.080
+I have added them.
+
+120db186-ff27-4add-bbef-3ca792b57c42-0
+00:43:59.800 --> 00:44:04.000
+So whatever in white, right,
+Those are not it.
+
+40adb769-d4c9-4a2c-952f-c37cb1de22d2-0
+00:44:04.200 --> 00:44:10.143
+Mostly you have to concentrate on first
+time incremental load and this history
+
+40adb769-d4c9-4a2c-952f-c37cb1de22d2-1
+00:44:10.143 --> 00:44:10.520
+load.
+
+baf32ad1-9f19-410d-b0fb-9624a274440b-0
+00:44:10.680 --> 00:44:14.675
+Once these two are done,
+just check with VAM or Needhika about the
+
+baf32ad1-9f19-410d-b0fb-9624a274440b-1
+00:44:14.675 --> 00:44:17.120
+automation of this and also new database.
+
+f055cbf8-2195-4e45-9385-a69ce86a16e0-0
+00:44:17.120 --> 00:44:23.927
+All these things whatever kept blank
+right, Just check with them, OK,
+
+f055cbf8-2195-4e45-9385-a69ce86a16e0-1
+00:44:23.927 --> 00:44:27.040
+and last thing is prerequisites.
+
+3d56930d-37d5-44a0-8433-082f15710e5f-0
+00:44:27.040 --> 00:44:31.794
+I told you right OK,
+let me open the teams now here in the
+
+3d56930d-37d5-44a0-8433-082f15710e5f-1
+00:44:31.794 --> 00:44:32.600
+snowflake.
+
+222f5ef9-c226-4da8-8dca-02e5f41b9a0e-0
+00:44:36.160 --> 00:44:41.120
+I showed you already these videos,
+but I'm just explaining you again.
+
+7cce3bf4-ddcb-4e59-ab06-b22cc9237c61-0
+00:44:41.640 --> 00:44:49.080
+So here we have entries for build and
+this is for framework architecture,
+
+7cce3bf4-ddcb-4e59-ab06-b22cc9237c61-1
+00:44:49.080 --> 00:44:56.320
+whatever the framework at that time I
+gave the KT to some testing team.
+
+2f687d9b-1284-4c72-9abe-037862c75431-0
+00:44:56.320 --> 00:44:58.680
+I guess this is the KT related to ABC
+framework.
+
+b52c4a98-2377-446f-b0f4-33777ab59d13-0
+00:44:58.680 --> 00:45:00.840
+This,
+these two are related to metadata entries.
+
+2c68a1d9-1fe6-421b-9028-a3d554d4854e-0
+00:45:00.840 --> 00:45:02.440
+How to make metadata entries?
+
+eb699c8c-804d-4c8a-b1af-e971af81aec0-0
+00:45:02.840 --> 00:45:08.560
+And these this these three are related to
+IDMC build and task flows OK.
+
+cc5f31c2-1e02-4641-811c-6f7522af92a8-0
+00:45:09.080 --> 00:45:14.308
+And this this one OK,
+this one is related to ABC integration
+
+cc5f31c2-1e02-4641-811c-6f7522af92a8-1
+00:45:14.308 --> 00:45:20.908
+and this is related to ABC task flow
+implement is the CCO are related to CCO
+
+cc5f31c2-1e02-4641-811c-6f7522af92a8-2
+00:45:20.908 --> 00:45:21.680
+build OK.
+
+b42066aa-e81b-4a11-b6a7-6ce5e05e168f-0
+00:45:25.200 --> 00:45:29.240
+And in this here IDMC build ABC
+integration is there right?
+
+42eccd1e-7cdc-484d-b61c-ccc6360b68cf-0
+00:45:29.520 --> 00:45:36.966
+This recording is the latest one which is
+where I have showed how to integrate ABC
+
+42eccd1e-7cdc-484d-b61c-ccc6360b68cf-1
+00:45:36.966 --> 00:45:39.120
+at the task floor level.
+
+375f98dc-2e2d-4e8e-96d4-a84a5788d35b-0
+00:45:39.320 --> 00:45:44.334
+Like I told you to copy the component,
+changing the parameter name and changing
+
+375f98dc-2e2d-4e8e-96d4-a84a5788d35b-1
+00:45:44.334 --> 00:45:47.720
+the component's input fields,
+all these things right?
+
+cab5ad5a-e7bd-4a1d-9a0b-cf2d9b129e7a-0
+00:45:47.720 --> 00:45:51.440
+I have done each and everything for
+claims table and I recorded this session.
+
+951a763d-19a8-4186-bbb1-eef8ec950611-0
+00:45:51.840 --> 00:45:58.079
+This is the prerequisite that I recorded
+that session and you can use this the
+
+951a763d-19a8-4186-bbb1-eef8ec950611-1
+00:45:58.079 --> 00:46:03.845
+first step and you can check first
+framework and then this is the second
+
+951a763d-19a8-4186-bbb1-eef8ec950611-2
+00:46:03.845 --> 00:46:04.240
+step.
+
+3aa5d391-0469-45bb-b727-133f15914ba2-0
+00:46:04.240 --> 00:46:08.040
+And then we'll have to make entries into
+the IDMC after that.
+
+f6a9d9bd-e14f-4587-97a3-36a1bf60efee-0
+00:46:08.320 --> 00:46:13.320
+How to do the build these these two are
+related to build and ABC integration.
+
+89b865c8-db4f-4c24-951d-a1ec4cc41856-0
+00:46:13.320 --> 00:46:18.040
+Are these videos mentioned in the same
+model that you are saying?
+
+a38becda-b010-47a1-a771-947d2693145b-0
+00:46:19.160 --> 00:46:21.360
+So yeah, here first one is there, right?
+
+1e822d32-2944-4213-b28d-8daad756c391-0
+00:46:21.560 --> 00:46:23.040
+This is ABC integration.
+
+23e3adcc-bb6d-49a4-a475-94d8ed7f9ec0-0
+00:46:23.600 --> 00:46:25.200
+This is a high level thing, OK.
+
+d370a534-d8f6-4f88-a47f-7ed4c2719f8f-0
+00:46:25.440 --> 00:46:30.954
+And few and few recordings might have
+same information because I have given it
+
+d370a534-d8f6-4f88-a47f-7ed4c2719f8f-1
+00:46:30.954 --> 00:46:32.560
+CCO dedicatedly, right?
+
+97d00056-3c71-4dc6-a587-aa09430553a0-0
+00:46:32.800 --> 00:46:33.800
+So that is there.
+
+753677df-b081-4f2f-b372-d9b18f23e374-0
+00:46:34.000 --> 00:46:38.040
+And these two are related to ABCABC meta
+data entries, OK.
+
+414b99ab-6208-4f81-8cbc-eed1ebe289df-0
+00:46:39.320 --> 00:46:43.906
+And then this is related to a CCO,
+particularly CCO how to implement task
+
+414b99ab-6208-4f81-8cbc-eed1ebe289df-1
+00:46:43.906 --> 00:46:46.880
+flow,
+how to do metadata and this how to create
+
+414b99ab-6208-4f81-8cbc-eed1ebe289df-2
+00:46:46.880 --> 00:46:49.359
+parameter with all these related to CCO.
+
+ef557fae-ba11-4d78-a5cc-d5fc0fd3f38e-0
+00:46:49.760 --> 00:46:54.989
+And this is also related to CCO only
+build, how to do the build OK,
+
+ef557fae-ba11-4d78-a5cc-d5fc0fd3f38e-1
+00:46:54.989 --> 00:46:59.680
+these two are related to that we do only
+Part 1, Part 2, OK.
+
+2ac0f351-f665-4c4a-a6ec-73bfdf9fc630-0
+00:46:59.800 --> 00:47:02.400
+And then ABC zone one ABC framework.
+
+a6cac584-26e3-45cc-8e1a-6f75609df026-0
+00:47:02.400 --> 00:47:07.160
+This is the Lucid level walkthrough which
+I have given to testing team.
+
+33dcb99f-c5a5-478e-9468-466915d7c095-0
+00:47:09.000 --> 00:47:10.440
+OK, that's it.
+
+e931b2bc-8faa-4ea9-88c1-d97b319987a9-0
+00:47:10.440 --> 00:47:12.400
+And all these records are available here.
+
+148fdc77-9764-4c8a-91e3-c07da487b3c9-0
+00:47:12.400 --> 00:47:17.320
+And also you are also uploading all these
+recordings into SharePoint, right?
+
+d2e5aef1-9a26-44e3-a2de-37a48e5d0104-0
+00:47:17.880 --> 00:47:18.080
+Yeah.
+
+c2802417-0fc2-4434-8244-b1cd27359ad1-0
+00:47:18.840 --> 00:47:21.785
+If anybody want detailed walkthrough of
+any components,
+
+c2802417-0fc2-4434-8244-b1cd27359ad1-1
+00:47:21.785 --> 00:47:25.677
+we can share all these things,
+all these whatever we have discussed here,
+
+c2802417-0fc2-4434-8244-b1cd27359ad1-2
+00:47:25.677 --> 00:47:27.360
+we can share all this with them.
+
+e5f7d795-61f2-49b9-b2d1-fbb45995ca7e-0
+00:47:28.240 --> 00:47:30.800
+OK, I think I'm good.
+
+01964486-985d-434d-9f7d-3946b8539592-0
+00:47:30.800 --> 00:47:33.760
+Ria,
+do you need anything else from my end?
+
+b8b23b98-d7a8-43b4-9eea-5b1b74c16272-0
+00:47:36.520 --> 00:47:40.920
+I think today this already so sorry one
+minute history.
+
+968828f9-10ec-4187-9d5e-9483ce21c16f-0
+00:47:41.040 --> 00:47:45.280
+I told you right history and catch up for
+that we have a document now.
+
+365365b2-a303-4ba6-8a23-d41d3b96a8f3-0
+00:47:45.880 --> 00:47:47.440
+Let me give you the document watch.
+
+4fc4571c-4565-4f12-8ef6-aac0e8583599-0
+00:47:48.280 --> 00:47:49.480
+Yeah, I'm just sharing.
+
+51c2d5c7-f6ad-4ef6-b53e-216d42ae93d2-0
+00:47:49.920 --> 00:47:53.520
+We can be switching on It's already 2
+hours.
+
+48a994a7-95c8-4220-a3ff-638af6460a90-0
+00:47:54.120 --> 00:47:54.560
+So yeah, yeah.
+
+e592c579-db1d-49f5-a00c-9a03834f3da9-0
+00:47:56.000 --> 00:48:00.545
+And also but you,
+you can you can go through it before we
+
+e592c579-db1d-49f5-a00c-9a03834f3da9-1
+00:48:00.545 --> 00:48:01.800
+the our KT code.
+
+00edb1a7-5c00-4bbf-9d46-b79aa4c8ca07-0
+00:48:02.680 --> 00:48:04.920
+OK spy one minute.
+
+14209d79-5149-4ac3-b413-68251db1a209-0
+00:48:05.000 --> 00:48:06.200
+I'm just checking the document.
+
+1c675a2e-fa04-4bf8-b022-c4a953d07f6e-0
+00:48:06.200 --> 00:48:09.120
+Otherwise I miss it if I jump to CC one.
+
+254c8c6d-13cf-4ce8-992c-6783b907d7fb-0
+00:48:34.640 --> 00:48:38.960
+I shared the sheet name and document with
+you can go through it.
+
+e6e775a0-8c55-46bb-ba6e-d6973c5f9a20-0
+00:48:40.280 --> 00:48:41.400
+You're asking something.
+
+d49f8b38-8cd4-4a40-8f5a-b28bc2651cb2-0
+00:48:42.280 --> 00:48:43.720
+Yeah, today it is fine.
+
+9679035d-d1b0-462d-81f4-a52ea3cdea00-0
+00:48:43.760 --> 00:48:49.899
+Let me go through this to like contact
+team and tomorrow like what I was asking
+
+9679035d-d1b0-462d-81f4-a52ea3cdea00-1
+00:48:49.899 --> 00:48:50.360
+today.
+
+c4fd3fe4-dc28-4eec-8297-058a7a9ba536-0
+00:48:50.600 --> 00:48:54.840
+I think it's already 2 hours,
+so like like keep it for tomorrow only.
+
+d50ac923-2a77-420a-b2c9-e5b45d666f51-0
+00:48:55.320 --> 00:48:59.625
+So the tools and everything that you use,
+whatever you know from your end,
+
+d50ac923-2a77-420a-b2c9-e5b45d666f51-1
+00:48:59.625 --> 00:49:02.897
+just when you are asking, right,
+IDMC or build overview,
+
+d50ac923-2a77-420a-b2c9-e5b45d666f51-2
+00:49:02.897 --> 00:49:07.145
+how this project goes like that,
+all this would be already covered in the
+
+d50ac923-2a77-420a-b2c9-e5b45d666f51-3
+00:49:07.145 --> 00:49:07.720
+KT videos.
+
+66228707-f836-4741-8673-e28f7d734017-0
+00:49:07.880 --> 00:49:11.667
+But tomorrow if you want,
+I'll give you a high level thing that no
+
+66228707-f836-4741-8673-e28f7d734017-1
+00:49:11.667 --> 00:49:12.120
+problem.
+
+4665224f-17c4-4c32-9f03-4981259653a0-0
+00:49:12.680 --> 00:49:12.800
+Yeah.
+
+04bcbdcf-8f46-40c6-8651-74d83805359e-0
+00:49:13.240 --> 00:49:13.520
+OK.
+
+b02d5a76-c331-4a2d-b272-a5b2e399fbd7-0
+00:49:14.320 --> 00:49:14.640
+OK.
+
+ddb430b6-857c-49bb-bb0a-942558f10ed1-0
+00:49:14.720 --> 00:49:16.840
+Yeah, then thank you.
+
+59c450d3-a491-49a3-b512-0bf641bcf231-0
+00:49:17.800 --> 00:49:19.640
+Yeah, thank you, thank you.
+
+6ecf0589-f64b-4647-80d1-59af5c506f01-0
+00:49:19.640 --> 00:49:19.840
+Bye.
+
+78cad5c6-4ef5-4773-9338-c49d8ffbb594-0
+00:49:19.840 --> 00:49:20.080
+Bye.

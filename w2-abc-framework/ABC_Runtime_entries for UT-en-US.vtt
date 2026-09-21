@@ -1,0 +1,1094 @@
+WEBVTT
+
+98315beb-2bbf-4c68-8e1d-08a922a14744-0
+00:00:02.040 --> 00:00:09.923
+And the source batch ID in the job
+metadata table to get the the like source
+
+98315beb-2bbf-4c68-8e1d-08a922a14744-1
+00:00:09.923 --> 00:00:10.640
+job ID.
+
+47f9d960-52bc-40b1-9d9d-3bc29b3b0a53-0
+00:00:11.520 --> 00:00:14.600
+If we have multiple tables we have to do
+this for every table.
+
+68ea456e-033a-4604-9289-36f28122103d-0
+00:00:15.000 --> 00:00:23.637
+After that the all these are are metadata
+entries like for our target table job
+
+68ea456e-033a-4604-9289-36f28122103d-1
+00:00:23.637 --> 00:00:29.360
+metadata, job metadata,
+ETL ingestion data metadata.
+
+8e87ccc6-9eee-44e8-9b86-332b43d57d8b-0
+00:00:29.760 --> 00:00:35.488
+OK so I have only one source table for
+this particular table so I made only one
+
+8e87ccc6-9eee-44e8-9b86-332b43d57d8b-1
+00:00:35.488 --> 00:00:40.000
+entry and I have three DP checks so I
+made three entries here.
+
+6df27205-9637-4fd9-bbf0-d32b2a0518c7-0
+00:00:40.520 --> 00:00:45.720
+So for the first time incremental as the
+logic for this is not there.
+
+4fa19dbb-638c-4498-88b9-143cf071f6a5-0
+00:00:46.040 --> 00:00:53.721
+And also here I we are making dummy
+entries for source batch ID and source
+
+4fa19dbb-638c-4498-88b9-143cf071f6a5-1
+00:00:53.721 --> 00:00:55.360
+job ID also why?
+
+00df2117-f8ab-4bb2-a7e4-91bab3075285-0
+00:00:55.360 --> 00:01:00.571
+Because the entries are not in proper
+condition to use like whatever the
+
+00df2117-f8ab-4bb2-a7e4-91bab3075285-1
+00:01:00.571 --> 00:01:06.354
+entries that are made by zone one team
+are not in a proper condition to test our
+
+00df2117-f8ab-4bb2-a7e4-91bab3075285-2
+00:01:06.354 --> 00:01:07.640
+like data flowers.
+
+0731cdbf-6537-4013-ab58-aefb26529031-0
+00:01:08.040 --> 00:01:12.360
+OK so that is the reason why we are
+making entries first for source.
+
+44a3118c-8e81-4489-8971-3de29844df53-0
+00:01:12.800 --> 00:01:14.040
+So this is my source.
+
+2b58f751-84e8-46a0-ba32-2e9fa07fed61-0
+00:01:15.320 --> 00:01:22.346
+So I made entries into this table just I
+have given instance ID as you want to
+
+2b58f751-84e8-46a0-ba32-2e9fa07fed61-1
+00:01:22.346 --> 00:01:22.880
+dummy.
+
+7a0288e4-f70d-4b17-93b4-4119d890bdb7-0
+00:01:23.400 --> 00:01:26.760
+OK,
+let me show you the excel also parallel.
+
+7c8b56c7-5602-40a3-a1ae-b55e155ce8f2-0
+00:01:56.040 --> 00:02:00.480
+So here first we are making entry into
+the batch table.
+
+e751530e-0db0-4549-92a4-4e40e483c2a1-0
+00:02:01.960 --> 00:02:07.160
+Batch run stable for source OK in John 1.
+
+ed840bc1-389f-4d10-b99b-d59bfbe8216f-0
+00:02:07.960 --> 00:02:12.824
+So in John 2 during the batch preload
+process we are making one entry and
+
+ed840bc1-389f-4d10-b99b-d59bfbe8216f-1
+00:02:12.824 --> 00:02:17.754
+during batch post load we are updating
+the same entry which is made in the
+
+ed840bc1-389f-4d10-b99b-d59bfbe8216f-2
+00:02:17.754 --> 00:02:18.280
+preload.
+
+410df67e-48f0-4b3a-b7f3-f041749491ef-0
+00:02:18.680 --> 00:02:24.526
+Whereas in John 1 they're making new
+entry in the preload and also they are
+
+410df67e-48f0-4b3a-b7f3-f041749491ef-1
+00:02:24.526 --> 00:02:27.680
+making entry in in the post load as well.
+
+c31e8514-4f3b-427e-9d52-dcec15d6c140-0
+00:02:27.880 --> 00:02:31.680
+So with the same execution run ID and
+instance ID OK, OK.
+
+3aa48114-765e-4c9f-b20a-dbf95629c02c-0
+00:02:32.120 --> 00:02:36.720
+That is the reason why per batch run they
+will be having two entries.
+
+32015dd7-536f-4bb1-b9e3-b054c755d6f8-0
+00:02:37.200 --> 00:02:39.960
+So I'm just trying to make 2 entries.
+
+1bd14dd9-ad2e-4a38-a456-8a09a2b1043f-0
+00:02:39.960 --> 00:02:41.360
+The first two entries are there right?
+
+e712eed6-142f-4cdb-8989-1bcaabf1b99f-0
+00:02:42.920 --> 00:02:49.000
+So execution run ID first once you make
+the entry into the table.
+
+1db8dc5f-e9b7-4424-acab-0890f044af9a-0
+00:02:49.400 --> 00:02:53.712
+So whatever the execution run ID that you
+got like you have to use the same in the
+
+1db8dc5f-e9b7-4424-acab-0890f044af9a-1
+00:02:53.712 --> 00:02:54.960
+second run here I think.
+
+c8bfbe6d-2310-44ec-b3dd-738cdd4138b4-0
+00:02:54.960 --> 00:02:59.000
+So this execution run ID whatever the
+alphanumeric value,
+
+c8bfbe6d-2310-44ec-b3dd-738cdd4138b4-1
+00:02:59.000 --> 00:03:04.574
+are you trying to curate it somewhere how
+creating it somewhere or it is just a
+
+c8bfbe6d-2310-44ec-b3dd-738cdd4138b4-2
+00:03:04.574 --> 00:03:05.480
+random value.
+
+ed020979-11cf-4045-84b5-70ff956f02c4-0
+00:03:06.040 --> 00:03:10.040
+So here I'm using this insert script
+which will generate.
+
+9ab204b7-a151-4982-bf48-8b63b1f5e91e-0
+00:03:10.120 --> 00:03:14.960
+So first you we have to make this entry
+whatever generated using the first line.
+
+0a652c3a-b858-4e91-9c2d-41106a4a81bb-0
+00:03:16.200 --> 00:03:20.840
+Once we make this entry,
+let me copy it here.
+
+48390988-60b2-4c6d-913c-49df85618ec3-0
+00:03:26.040 --> 00:03:31.773
+So using this I'm making the first one is
+GSU already Sorry batch ID,
+
+48390988-60b2-4c6d-913c-49df85618ec3-1
+00:03:31.773 --> 00:03:34.640
+Batch run ID is a hard coded value.
+
+18f7f0f9-f010-42b7-a920-7cf28ed2b987-0
+00:03:34.640 --> 00:03:36.840
+It's AU UUID field.
+
+f9182210-9cdf-40a4-a9f3-e7fadeb2c95f-0
+00:03:36.840 --> 00:03:44.154
+So we are using RRS RR postgres sequels
+function random UID to generate that and
+
+f9182210-9cdf-40a4-a9f3-e7fadeb2c95f-1
+00:03:44.154 --> 00:03:48.760
+execution run ID is also her UUID and
+instance ID.
+
+ca24f7c5-6e8c-403c-9a27-c2b85073ae6e-0
+00:03:48.760 --> 00:03:53.282
+I'm giving hard coded value as June to
+dummy and batch end time,
+
+ca24f7c5-6e8c-403c-9a27-c2b85073ae6e-1
+00:03:53.282 --> 00:03:55.440
+batch start time, batch end Ms.
+
+1612e437-d07a-4d12-a0a9-7894ac291f5f-0
+00:03:55.440 --> 00:04:01.297
+null status has started and source ID I
+don't know that's why you have given null
+
+1612e437-d07a-4d12-a0a9-7894ac291f5f-1
+00:04:01.297 --> 00:04:02.440
+and audit fails.
+
+a16fa90b-b9fb-489e-89fa-bb21e097946b-0
+00:04:03.520 --> 00:04:08.520
+OK batch region flag is N so this is how
+we have to make the first entry.
+
+a3bad71c-184c-4407-b602-5dacc07ad40d-0
+00:04:08.800 --> 00:04:14.587
+Once we make the first entry,
+you can query the table then you will
+
+a3bad71c-184c-4407-b602-5dacc07ad40d-1
+00:04:14.587 --> 00:04:16.800
+find the execution run ID.
+
+a7e4e49c-e6ad-437d-ba45-a2fb79aced95-0
+00:04:18.000 --> 00:04:23.230
+So for the first entry and like when you
+make that entry in a table,
+
+a7e4e49c-e6ad-437d-ba45-a2fb79aced95-1
+00:04:23.230 --> 00:04:25.960
+you'll get a execution run ID right?
+
+08108002-4c71-4b57-85b7-17108493a919-0
+00:04:25.960 --> 00:04:28.955
+So whatever the first execution run ID
+that you got,
+
+08108002-4c71-4b57-85b7-17108493a919-1
+00:04:28.955 --> 00:04:32.120
+use the same execution run ID to make the
+second entry.
+
+6d7b9c27-088e-4c60-a7dd-f9eec1fa271a-0
+00:04:33.880 --> 00:04:34.480
+Understood.
+
+c49afcca-77a2-4e9e-9d08-a53be66f925f-0
+00:04:36.120 --> 00:04:42.495
+So use it same and while making the
+second entry start time would be null but
+
+c49afcca-77a2-4e9e-9d08-a53be66f925f-1
+00:04:42.495 --> 00:04:47.400
+end time would be some value and status
+would be completed.
+
+ec4e6a91-810a-4299-865d-cb1821780d7e-0
+00:04:47.520 --> 00:04:50.320
+Like this you have to do for first time
+incremental.
+
+02eaf1ee-cfc4-49f5-801a-becdc456d368-0
+00:04:50.880 --> 00:04:57.666
+So first two entries are related to the
+first time incremental and then for each
+
+02eaf1ee-cfc4-49f5-801a-becdc456d368-1
+00:04:57.666 --> 00:05:03.280
+table we OK I'll tell you only about
+first time incremental first.
+
+3afe0490-2603-4e3d-9f65-630d69d9c16c-0
+00:05:03.400 --> 00:05:11.080
+So here I'm trying to do entry for source
+table with job ID hundred 318.
+
+0280d7e2-4f34-4202-83d1-7154b360b811-0
+00:05:11.960 --> 00:05:14.040
+This is the job ID so far.
+
+3007076a-8f92-4a8e-91a4-76c7f0a1509a-0
+00:05:14.040 --> 00:05:19.112
+This whatever the execution run ID that
+we have used that we got while we are
+
+3007076a-8f92-4a8e-91a4-76c7f0a1509a-1
+00:05:19.112 --> 00:05:22.884
+making entry into the batch table,
+that execution run ID,
+
+3007076a-8f92-4a8e-91a4-76c7f0a1509a-2
+00:05:22.884 --> 00:05:24.639
+we have to use it here, OK.
+
+5504c483-e2c3-4152-92f7-a0eaec0a4e8c-0
+00:05:24.840 --> 00:05:30.222
+And job instance ID,
+I'm taking the dummy entry just like in
+
+5504c483-e2c3-4152-92f7-a0eaec0a4e8c-1
+00:05:30.222 --> 00:05:35.781
+batch run stats, John,
+one team are making two entries per job
+
+5504c483-e2c3-4152-92f7-a0eaec0a4e8c-2
+00:05:35.781 --> 00:05:42.400
+ID in preload and also in post load
+they're making to and risk per job ID.
+
+b897ef5e-7fef-4f4f-a86b-f13b7bfd6e41-0
+00:05:43.080 --> 00:05:49.120
+So zone one team like zone 1 table will
+have multiple job IDs.
+
+4d16ed46-727d-4520-a370-97d106f9b9df-0
+00:05:49.720 --> 00:05:57.083
+But we're focus like we're focusing or
+we're considering only one job IDs status
+
+4d16ed46-727d-4520-a370-97d106f9b9df-1
+00:05:57.083 --> 00:06:02.720
+and job end time to proceed with our zone
+2 table table load.
+
+51be6bdd-c449-4bb0-8307-75ed04a036ff-0
+00:06:03.000 --> 00:06:06.498
+OK,
+so we mock the data only to that
+
+51be6bdd-c449-4bb0-8307-75ed04a036ff-1
+00:06:06.498 --> 00:06:08.200
+particular job ID.
+
+566c1b92-7267-43cc-9eab-b4a55eb79bfc-0
+00:06:08.480 --> 00:06:10.680
+I'll tell you which job ID we have to
+take.
+
+61cff25f-4cdb-414d-aaca-ddd1cdcc0ee8-0
+00:06:12.840 --> 00:06:17.993
+So here while you are taking like here,
+while I'm taking the job ID,
+
+61cff25f-4cdb-414d-aaca-ddd1cdcc0ee8-1
+00:06:17.993 --> 00:06:23.520
+I'll be considering the entry with job
+name raw to current data movement.
+
+45101372-ddda-4521-8de7-f0443dfc0190-0
+00:06:24.280 --> 00:06:31.060
+So this is the step where actual data
+from source system to zone 1 table or
+
+45101372-ddda-4521-8de7-f0443dfc0190-1
+00:06:31.060 --> 00:06:38.286
+whatever the iceberg table we have that
+is happening only in this table of their
+
+45101372-ddda-4521-8de7-f0443dfc0190-2
+00:06:38.286 --> 00:06:39.000
+job IDs.
+
+97c6f03c-8116-48ae-a018-2d3ee1720a8c-0
+00:06:39.200 --> 00:06:41.360
+They'll have multiple job IDs unlike us.
+
+e51c10ce-cb16-48a8-bade-685cbdeaf923-0
+00:06:41.960 --> 00:06:44.120
+So out of this we are considering this
+step.
+
+fb55e3d1-1a4c-43e4-9245-7019b4acef98-0
+00:06:44.120 --> 00:06:48.120
+If this is completed then we are good to
+do our zone to load.
+
+28fadbd0-f134-4a09-a716-cb2a12cad3d2-0
+00:06:48.320 --> 00:06:51.680
+So we are mocking up data only for this
+job IDs.
+
+9cb6e6fe-fb35-41fb-9108-f50e06fc2aa8-0
+00:06:52.840 --> 00:06:55.640
+OK, are you following?
+
+39feba85-7e46-477e-87e6-16db2dbcc8f4-0
+00:06:57.880 --> 00:06:59.080
+Yes, yes, please continue.
+
+0d1d1020-9112-478e-96f1-a216793d3279-0
+00:06:59.160 --> 00:06:59.440
+Yeah.
+
+bc50ed3a-1f90-4282-a227-7eb90a05f1b1-0
+00:07:01.000 --> 00:07:04.856
+OK,
+So that job idea I I have taken and in
+
+bc50ed3a-1f90-4282-a227-7eb90a05f1b1-1
+00:07:04.856 --> 00:07:09.880
+the first entry I'll be taking only the
+job start time.
+
+48a45865-bbd9-45a8-956c-0e10e7171247-0
+00:07:10.000 --> 00:07:13.057
+In the second entry,
+I I'm taking the job end time status
+
+48a45865-bbd9-45a8-956c-0e10e7171247-1
+00:07:13.057 --> 00:07:15.482
+started,
+completed and reminding all null and
+
+48a45865-bbd9-45a8-956c-0e10e7171247-2
+00:07:15.482 --> 00:07:17.960
+dummy data that I have taken and audit
+fields.
+
+bdb017f9-2b67-4c3f-82df-df10a93e7981-0
+00:07:17.960 --> 00:07:18.360
+That's it.
+
+ff8566de-45db-4de4-8a5d-fb00953bebab-0
+00:07:21.240 --> 00:07:23.760
+OK I so this is related.
+
+84094247-bd48-4fb8-9f9d-3d2b0cd5d4ff-0
+00:07:23.960 --> 00:07:29.142
+So here job run IDs would be different,
+execution run IDs should be same and
+
+84094247-bd48-4fb8-9f9d-3d2b0cd5d4ff-1
+00:07:29.142 --> 00:07:30.960
+instance ID should be same.
+
+6ab73c61-22df-4e28-87d1-d5aceee3bc87-0
+00:07:31.240 --> 00:07:32.360
+Job ID should also be same.
+
+5fdc662b-63bf-4b02-991d-7798e510abf0-0
+00:07:33.720 --> 00:07:39.329
+OK this is though this is how you have to
+make dummy entries for first time
+
+5fdc662b-63bf-4b02-991d-7798e510abf0-1
+00:07:39.329 --> 00:07:44.200
+incremental in source for source tables
+OK then coming to target.
+
+33f6275b-53e2-47da-8fa1-c94ecdcd7a98-0
+00:07:44.400 --> 00:07:49.025
+So for target tables also you have to
+make dummy entries in batch run stats job
+
+33f6275b-53e2-47da-8fa1-c94ecdcd7a98-1
+00:07:49.025 --> 00:07:51.800
+understand ATL,
+ATL data edition source window.
+
+e28e44b7-665a-4282-a096-835818b3e89e-0
+00:07:52.560 --> 00:07:59.479
+OK the source entries why we are making
+because the entries like entries made by
+
+e28e44b7-665a-4282-a096-835818b3e89e-1
+00:07:59.479 --> 00:08:02.640
+the zone 1 table loads is not proper.
+
+0e2452f3-a0c1-4a8a-9713-ecfa927810c9-0
+00:08:02.640 --> 00:08:07.208
+That is the reason why we are making it
+this we are making it this we are making
+
+0e2452f3-a0c1-4a8a-9713-ecfa927810c9-1
+00:08:07.208 --> 00:08:11.720
+as the logic for implementing first time
+incremental in our table is not there.
+
+a84287ef-13e3-489a-aa20-47c920ed9ddf-0
+00:08:11.720 --> 00:08:14.040
+That is the reason why we are making
+target.
+
+953e3ef9-a2ba-47aa-b1e5-53ecd2a3f218-0
+00:08:14.560 --> 00:08:18.360
+So here how we how we are making the
+target.
+
+cdb5c097-05e6-44e6-9901-51deae682b68-0
+00:08:20.200 --> 00:08:22.680
+So first one so use the first one.
+
+801b097d-0ca3-4613-98f0-3ed00414224a-0
+00:08:22.680 --> 00:08:27.000
+OK we have only one singletry per passion.
+
+ad0ca8c5-229a-441c-b071-a70d70a83cb2-0
+00:08:27.040 --> 00:08:35.300
+So you can directly use the same query or
+same line same query to do your batch
+
+ad0ca8c5-229a-441c-b071-a70d70a83cb2-1
+00:08:35.300 --> 00:08:35.920
+entry.
+
+26faf132-a6ce-48e2-9c52-bc6c289b59d0-0
+00:08:35.920 --> 00:08:42.320
+Just change batch ID and execution run ID
+can also be UUID value only.
+
+2503a9f5-9d69-4e11-ad86-9763e4858c28-0
+00:08:43.800 --> 00:08:48.403
+OK I don't know why I have changed
+because multiple times I think people are
+
+2503a9f5-9d69-4e11-ad86-9763e4858c28-1
+00:08:48.403 --> 00:08:49.240
+changing this.
+
+0ff8dadc-718e-460e-b6fe-ccc8bf8f905f-0
+00:08:49.240 --> 00:08:51.680
+That is the reason why I think this has
+been updated.
+
+4d0f22b6-ac3a-43ae-b27c-9f962553ac3a-0
+00:08:51.880 --> 00:08:56.367
+You can directly use general random UUID
+to generate execution run ID for the
+
+4d0f22b6-ac3a-43ae-b27c-9f962553ac3a-1
+00:08:56.367 --> 00:08:57.000
+first time.
+
+9c4182e0-ad9b-4e01-b2bf-b164a22f4949-0
+00:08:57.600 --> 00:09:02.960
+OK posted it in the job run stats table
+we can use.
+
+57e813c9-9561-44c7-ac36-9a4372393c0e-0
+00:09:03.000 --> 00:09:07.932
+We have to use the same execution run ID
+which is used in our batch run stats to
+
+57e813c9-9561-44c7-ac36-9a4372393c0e-1
+00:09:07.932 --> 00:09:09.760
+make entry for our table load.
+
+f3acaa6a-91da-4d3d-bb6f-b26a128b8f5f-0
+00:09:10.680 --> 00:09:15.679
+So this is the job ID, job start time,
+job end time status completed and ran
+
+f3acaa6a-91da-4d3d-bb6f-b26a128b8f5f-1
+00:09:15.679 --> 00:09:19.640
+like you can give some dummy values to
+all the other fields.
+
+685deefe-1e99-471c-ad32-6efe8e9911fd-0
+00:09:20.800 --> 00:09:26.480
+OK and ATL sourcing ATL rendition source
+window here.
+
+00651352-bab0-4074-866e-7a871aad9989-0
+00:09:26.960 --> 00:09:30.840
+If you have only one source table,
+then make only one entry.
+
+28d7a1c0-71fd-4bfe-96a8-4309916e46fc-0
+00:09:30.840 --> 00:09:37.344
+So whatever the execution run ID that is
+inserted during the batch run stats entry,
+
+28d7a1c0-71fd-4bfe-96a8-4309916e46fc-1
+00:09:37.344 --> 00:09:41.680
+use that and batch ID,
+target job ID and target job ID.
+
+e1dcd164-f391-411c-a470-28acc3fc234b-0
+00:09:41.920 --> 00:09:45.675
+So whenever you are making this first
+entry to dummy entry,
+
+e1dcd164-f391-411c-a470-28acc3fc234b-1
+00:09:45.675 --> 00:09:47.240
+use that job run ID here.
+
+d162b15a-4a16-40ac-97d6-f21b60b01e55-0
+00:09:47.720 --> 00:09:50.800
+OK, and then table name,
+source table name.
+
+d6ffe9aa-b335-4b6b-8465-1047d1e990eb-0
+00:09:51.040 --> 00:09:52.280
+So source job run ID.
+
+28b8563e-bbe6-4928-a1eb-8a6de9cbd10a-0
+00:09:52.280 --> 00:10:00.490
+So while you're making source job entry,
+so here you have to consider the job run
+
+28b8563e-bbe6-4928-a1eb-8a6de9cbd10a-1
+00:10:00.490 --> 00:10:07.698
+ID whose status is started, OK,
+that job run ID you have to populate it
+
+28b8563e-bbe6-4928-a1eb-8a6de9cbd10a-2
+00:10:07.698 --> 00:10:08.600
+here, OK.
+
+117c1bd6-9e38-49e9-8929-f17fc14d1e85-0
+00:10:08.600 --> 00:10:14.329
+And then status is completed and you can,
+we are considering both sourcing startup
+
+117c1bd6-9e38-49e9-8929-f17fc14d1e85-1
+00:10:14.329 --> 00:10:16.400
+and end time as 19119 hundred.
+
+55cc9bce-c162-472b-82a5-33618526520d-0
+00:10:16.400 --> 00:10:20.120
+So whatever the run we are taking,
+it will take whole data from the source.
+
+3aea7daa-1eee-49ce-910d-d89d440fb643-0
+00:10:21.080 --> 00:10:24.720
+For that reason we are taking both as
+same value and audit fields.
+
+1ec2b6ab-54f8-42f6-9a5a-73e6e0568c0a-0
+00:10:25.680 --> 00:10:30.133
+OK so this is the these are the entries
+that we are making for first time
+
+1ec2b6ab-54f8-42f6-9a5a-73e6e0568c0a-1
+00:10:30.133 --> 00:10:32.120
+incrementals for the current run.
+
+6be549a6-f285-47b2-8b31-f2adab884668-0
+00:10:32.120 --> 00:10:36.680
+Whatever the trigger that you are trying
+to do from IDMC task flow for that run.
+
+3b224cd3-a7bb-454d-945e-24efb1f4eeda-0
+00:10:36.680 --> 00:10:39.520
+Also there should be entries for source.
+
+d4f88b40-b52a-4220-9e05-c660d4ece571-0
+00:10:40.680 --> 00:10:45.649
+These has to be ideally like if you if
+you are so source two on one tables have
+
+d4f88b40-b52a-4220-9e05-c660d4ece571-1
+00:10:45.649 --> 00:10:48.880
+valid entries then you don't need to do
+for source.
+
+4332e2f7-feea-45b8-9c33-ed172b42ca4e-0
+00:10:49.080 --> 00:10:54.050
+You can directly use them latest entry
+you can consider it for the current run
+
+4332e2f7-feea-45b8-9c33-ed172b42ca4e-1
+00:10:54.050 --> 00:10:59.147
+and the entry which is made just before
+that latest entry you can consider it as
+
+4332e2f7-feea-45b8-9c33-ed172b42ca4e-2
+00:10:59.147 --> 00:11:00.720
+a first time incremental.
+
+7daa9a8e-b1d6-43a4-8fac-5173919f49f0-0
+00:11:01.200 --> 00:11:07.320
+Like that you can consider and you can do
+it here all the tables are are having
+
+7daa9a8e-b1d6-43a4-8fac-5173919f49f0-1
+00:11:07.320 --> 00:11:09.080
+foreign key constraint.
+
+d945bc8f-7659-40e4-8c95-452bf79a1091-0
+00:11:09.080 --> 00:11:14.889
+So that is the reason why if we may if we
+don't make any entry it it won't allow
+
+d945bc8f-7659-40e4-8c95-452bf79a1091-1
+00:11:14.889 --> 00:11:18.619
+any dumb,
+it won't allow any dummy value in foreign
+
+d945bc8f-7659-40e4-8c95-452bf79a1091-2
+00:11:18.619 --> 00:11:19.480
+key columns.
+
+7e68f7da-25ba-4075-9dfb-4cdef7b8af21-0
+00:11:19.720 --> 00:11:24.666
+That is the reason why we are following
+each and everything OK And for the
+
+7e68f7da-25ba-4075-9dfb-4cdef7b8af21-1
+00:11:24.666 --> 00:11:30.008
+current run also we have to use a similar
+similar approach to make dummy entries
+
+7e68f7da-25ba-4075-9dfb-4cdef7b8af21-2
+00:11:30.008 --> 00:11:33.240
+first source match and source a target
+batch OK.
+
+c7ff7681-d162-418a-87bb-3e8d02aa8d0a-0
+00:11:33.520 --> 00:11:42.530
+So whatever this entry 3rd entry we have
+user for making dummy entry into our
+
+c7ff7681-d162-418a-87bb-3e8d02aa8d0a-1
+00:11:42.530 --> 00:11:46.920
+batch transcripts for source batch ID.
+
+7c5ca426-f360-4d21-80c1-a2f1bf0d440c-0
+00:11:46.920 --> 00:11:53.501
+Similar way once you do this third entry
+you will get execution run ID right Using
+
+7c5ca426-f360-4d21-80c1-a2f1bf0d440c-1
+00:11:53.501 --> 00:11:59.289
+that execution run ID do the 4th entry
+first source job this third entry
+
+7c5ca426-f360-4d21-80c1-a2f1bf0d440c-2
+00:11:59.289 --> 00:12:00.320
+whatever the.
+
+4494175d-aca5-4d0d-8383-0c779244d01c-0
+00:12:01.840 --> 00:12:03.560
+So I think here it is 15.
+
+cf3b788f-f007-4025-8653-1e4268406945-0
+00:12:11.480 --> 00:12:20.800
+I have I think we have directly updated
+in the Aurora not clear just OK.
+
+39c25d53-44c8-4093-b98b-1ec7db4f8f34-0
+00:12:21.120 --> 00:12:26.186
+So here we you can make all these entries
+at once,
+
+39c25d53-44c8-4093-b98b-1ec7db4f8f34-1
+00:12:26.186 --> 00:12:30.160
+these two entries at once using this OK.
+
+244c2d19-0e61-4282-b36c-2adbe887e961-0
+00:12:30.600 --> 00:12:33.958
+After that,
+if you're directly triggering from the
+
+244c2d19-0e61-4282-b36c-2adbe887e961-1
+00:12:33.958 --> 00:12:37.120
+batch task flow, then you're good,
+you're good.
+
+e8421382-5aad-48f1-a52d-3106427210c0-0
+00:12:37.120 --> 00:12:44.040
+Like if you do these 76 and five entries
+then you would be good to start your load.
+
+9cb3d70c-7c58-4e89-94dc-4093c3c52933-0
+00:12:44.560 --> 00:12:48.499
+If you are doing your testing from the
+job level task flow,
+
+9cb3d70c-7c58-4e89-94dc-4093c3c52933-1
+00:12:48.499 --> 00:12:53.686
+then you have to make a dummy entry into
+batch run stats also for your current
+
+9cb3d70c-7c58-4e89-94dc-4093c3c52933-2
+00:12:53.686 --> 00:12:54.079
+batch.
+
+52da35b4-a4ad-4e30-8022-fe9235a0bd22-0
+00:12:54.080 --> 00:13:00.510
+Because if you are running from the job
+run stats table here will batch batch
+
+52da35b4-a4ad-4e30-8022-fe9235a0bd22-1
+00:13:00.510 --> 00:13:04.880
+runstarts preload component won't be
+executed right?
+
+5ddda319-cfa0-4e34-b8e9-e710d7f95f4f-0
+00:13:05.120 --> 00:13:10.529
+For that reason whatever the entry that
+has to be loaded that has to be loaded
+
+5ddda319-cfa0-4e34-b8e9-e710d7f95f4f-1
+00:13:10.529 --> 00:13:16.281
+into this batch runstart as part of batch
+preload should be loaded manually by S OK
+
+5ddda319-cfa0-4e34-b8e9-e710d7f95f4f-2
+00:13:16.281 --> 00:13:21.280
+like this with starter status so that
+every time it will be using these.
+
+4dbb3393-e2fe-4972-84f2-ed481052c2a4-0
+00:13:23.920 --> 00:13:30.120
+So in the in IDMC also we have to assign
+all the input fields.
+
+2832c4eb-875c-4b5f-89b6-1cd110aa351c-0
+00:13:58.600 --> 00:14:01.040
+So this is our job level task flow.
+
+5dd67a7d-2f92-4957-bad2-ea7b5769f97e-0
+00:14:01.040 --> 00:14:09.070
+We are doing as earlier multiple teams or
+like multiple people are using doing the
+
+5dd67a7d-2f92-4957-bad2-ea7b5769f97e-1
+00:14:09.070 --> 00:14:12.360
+loads and performing the UT right.
+
+71bdb5be-0e9b-46bf-b36b-dd7512484772-0
+00:14:12.360 --> 00:14:16.671
+So we are we plan,
+we have planned to use like run,
+
+71bdb5be-0e9b-46bf-b36b-dd7512484772-1
+00:14:16.671 --> 00:14:20.320
+do unit testing from a job level task
+flow.
+
+769f1182-ba54-4e4a-ad00-687e946a6e0a-0
+00:14:20.320 --> 00:14:27.528
+So whatever the input fields that are
+required which which are ideally should
+
+769f1182-ba54-4e4a-ad00-687e946a6e0a-1
+00:14:27.528 --> 00:14:31.040
+be populated from the batch task flow.
+
+dd595f72-2fa2-4e07-a417-8b3d0ad28fae-0
+00:14:31.800 --> 00:14:36.497
+But as we are running it from here,
+so all the necessary initial value should
+
+dd595f72-2fa2-4e07-a417-8b3d0ad28fae-1
+00:14:36.497 --> 00:14:37.280
+be kept here.
+
+a2368cc8-5745-4d09-a952-930b9f70deb9-0
+00:14:38.800 --> 00:14:39.080
+OK.
+
+b8496834-d1d4-4a9a-a28a-435a70794113-0
+00:14:43.240 --> 00:14:47.758
+Then if you trigger this task loop,
+then you you like whatever the like,
+
+b8496834-d1d4-4a9a-a28a-435a70794113-1
+00:14:47.758 --> 00:14:52.525
+whatever the tab is that we have in
+Snowflake will be automatically executed
+
+b8496834-d1d4-4a9a-a28a-435a70794113-2
+00:14:52.525 --> 00:14:57.105
+and you will be having the sourcing
+statum and sourcing anten to pull the
+
+b8496834-d1d4-4a9a-a28a-435a70794113-3
+00:14:57.105 --> 00:14:59.520
+load to pull the records into your tab.
+
+5cd6a829-87e6-4e84-9e71-f38ea7a69c8f-0
+00:15:04.840 --> 00:15:05.400
+Yeah, good.
+
+16d345e6-0a81-46fa-b723-b564d0a0c7a7-0
+00:15:07.320 --> 00:15:07.720
+Yeah.
+
+18fc1d8b-12d5-4953-aafe-7d42f60e82f2-0
+00:15:07.720 --> 00:15:13.264
+Can you share the tables which are,
+which are to be populated manually and
+
+18fc1d8b-12d5-4953-aafe-7d42f60e82f2-1
+00:15:13.264 --> 00:15:19.104
+also that sheet which you are editing,
+this sheet is already shared Ray event,
+
+18fc1d8b-12d5-4953-aafe-7d42f60e82f2-2
+00:15:19.104 --> 00:15:21.840
+this right is that same sheet, right.
+
+284c3216-1cc7-41b1-8ce7-6ae2f475eba2-0
+00:15:22.360 --> 00:15:24.440
+I showed you the CCM entries.
+
+f5b69338-d4a0-48e5-b4da-3078415b8efe-0
+00:15:25.040 --> 00:15:25.920
+Yes, it is different.
+
+5516c0f6-6cfe-4ad5-9458-a322cf19a2d4-0
+00:15:25.920 --> 00:15:27.200
+This is runtime entries.
+
+77f5b1ab-1cf7-4160-ae5d-b841281a5179-0
+00:15:28.440 --> 00:15:29.680
+This is runtime entries.
+
+62df3588-7877-41a5-8802-0300165c2756-0
+00:15:29.680 --> 00:15:35.930
+But like, OK,
+I'll be like I'm sharing to you by three
+
+62df3588-7877-41a5-8802-0300165c2756-1
+00:15:35.930 --> 00:15:36.840
+MLM, OK.
+
+00f79082-902e-4de6-8b05-982479d05bbd-0
+00:15:38.040 --> 00:15:40.160
+Yeah, Yeah.
+
+18015f1f-b82d-43bb-9acd-c53e5452311a-0
+00:15:40.160 --> 00:15:41.640
+Like don't make entries here.
+
+c7e04dc3-7f0d-4db2-ab7f-1546b94884ae-0
+00:15:41.640 --> 00:15:43.760
+You can take a copy of it and click it.
+
+da846c77-3509-4af3-bece-306a29ca7850-0
+00:15:44.040 --> 00:15:44.600
+Yeah, sure.
+
+81350a92-39aa-4817-9433-36541299d5cb-0
+00:15:44.800 --> 00:15:45.040
+Yeah.
+
+92cc6573-c663-41f5-a412-ab9a9c4296fc-0
+00:15:46.560 --> 00:15:49.800
+So all the tables which are to be
+populated or listed in that sheet rate.
+
+2e51ff3e-e5bd-453d-b64a-4b5bd4744b73-0
+00:15:52.480 --> 00:15:55.648
+Yeah,
+but you have to understand why we are
+
+2e51ff3e-e5bd-453d-b64a-4b5bd4744b73-1
+00:15:55.648 --> 00:15:57.520
+loading it for each table.
+
+c2669376-cf0e-4b53-b302-88e2e2697baf-0
+00:15:57.760 --> 00:16:01.080
+So single like source,
+it needs to be populated twice,
+
+c2669376-cf0e-4b53-b302-88e2e2697baf-1
+00:16:01.080 --> 00:16:04.280
+one for first time incremental,
+one for current run.
+
+6ef823a2-1bab-4e23-9443-a30e3b83bdae-0
+00:16:04.640 --> 00:16:06.840
+You can just go through this recording
+once again.
+
+36ffc585-90cc-48f0-a52e-8410cda77665-0
+00:16:06.840 --> 00:16:10.240
+If you don't understand it,
+you can follow it.
+
+41cea804-661a-497c-89d0-e682ffa9bded-0
+00:16:10.240 --> 00:16:11.160
+You will, you will get it.
+
+1cb2553f-e0a0-4d4c-ac88-1c1912b42a1c-0
+00:16:11.480 --> 00:16:13.160
+If you have any questions,
+you can bring in the group.
+
+d86970e2-7849-4977-a44b-2f5a0bc55f4e-0
+00:16:14.200 --> 00:16:14.600
+Sure.
+
+0ccca9cb-4dee-4c02-bcbc-95f96fbc2128-0
+00:16:14.640 --> 00:16:15.000
+Thank you.
+
+dd59abef-8b5f-4d5b-9243-b8475af4bdc9-0
+00:16:18.120 --> 00:16:20.240
+I'm sharing shortly the downloader
+version guys.
+
+435c6a0a-3c8b-4389-9428-b424fd5812b1-0
+00:16:21.600 --> 00:16:22.280
+Yeah, thank you.
+
+4f4a72c5-1d00-4c2b-82a7-fa0955aff9ca-0
+00:16:23.320 --> 00:16:27.560
+We have recordings across for all every
+activity.
+
+08bf8cac-7ff9-48c3-94ff-91793638d9df-0
+00:16:27.840 --> 00:16:31.120
+So go through the recordings if the
+recordings doesn't provide you the
+
+08bf8cac-7ff9-48c3-94ff-91793638d9df-1
+00:16:31.120 --> 00:16:33.200
+required information, right,
+please do ping.
+
+2366706e-df74-4d45-9281-23e2effb8cb7-0
+00:16:34.760 --> 00:16:35.160
+Sure.
+
+3b69e01f-8663-4704-b290-2e060e14f374-0
+00:16:35.160 --> 00:16:35.680
+Thanks a lot.
+
+21f32197-41be-4d7d-9dbe-b7085302bf60-0
+00:16:37.160 --> 00:16:43.570
+I shared that with AP because I already
+started a chat and sent you a metadata
+
+21f32197-41be-4d7d-9dbe-b7085302bf60-1
+00:16:43.570 --> 00:16:45.680
+interest related XLS well.
+
+6a1efe75-0310-4849-bf16-45b2b2172b2a-0
+00:16:45.680 --> 00:16:47.360
+So sharing here.
+
+ea386dcb-6f0f-48ad-ab4b-dae9126b8758-0
+00:16:47.800 --> 00:16:49.360
+OK, You can call.
+
+3c599b51-968c-424f-86d3-05e6e9b05ed7-0
+00:16:53.680 --> 00:16:55.840
+There's nothing any doubts.
+
+c7e11313-6f39-4b49-9f3f-b01c06308461-0
+00:16:55.840 --> 00:16:57.160
+If no doubts, we can close this call.
+
+592ffde8-c06b-4986-b789-99514c76a2d5-0
+00:16:57.560 --> 00:16:57.840
+Thanks.
+
+98baa4ae-240d-4dcb-9b32-90a35b53545f-0
+00:16:58.040 --> 00:16:58.320
+Yeah.
+
+262a5ade-fe58-4bf1-9a17-852318543b79-0
+00:16:58.320 --> 00:17:00.880
+Thanks for the quick, quick, quick call.
+
+e93714d5-d492-4bfe-9ad5-5c6ba7e474b9-0
+00:17:00.880 --> 00:17:01.000
+Yeah.
+
+fce281bf-2744-46d7-8dea-93eb9adf306e-0
+00:17:02.520 --> 00:17:02.880
+Thank you.
+
+751922c6-97bf-4087-b974-388098ed1afd-0
+00:17:03.280 --> 00:17:03.720
+Thank you, guys.
+
+1b6eccc0-599c-467c-a9b2-b1b31dcc4229-0
+00:17:06.200 --> 00:17:06.520
+Thank you.
+
+b4f4a528-f91a-438a-a78d-e9493d5f3f5a-0
+00:17:07.480 --> 00:17:07.920
+Thank you.
+
+92db33df-83b2-46cf-a616-9dc91bddfcca-0
+00:17:08.840 --> 00:17:09.120
+Thank you.

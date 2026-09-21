@@ -1,0 +1,4896 @@
+WEBVTT
+
+2727157a-ddf0-49b1-bf5e-02781aa3f09f-0
+00:00:02.320 --> 00:00:02.800
+OK then.
+
+23598348-29d9-4f74-94c8-6db02f9f9427-0
+00:00:05.320 --> 00:00:10.673
+So for John 2,
+like we have the this implementation in
+
+23598348-29d9-4f74-94c8-6db02f9f9427-1
+00:00:10.673 --> 00:00:11.160
+IDMC.
+
+7a10923b-2d6e-42ee-b30c-3149b49096f3-0
+00:00:12.800 --> 00:00:16.440
+First,
+I'll walk you through the flow diagram.
+
+bb41da25-0b2b-4dcc-b6b9-0c3f142d326b-0
+00:00:18.280 --> 00:00:22.749
+OK, as part of batch,
+there are so many like there are 5 to 6
+
+bb41da25-0b2b-4dcc-b6b9-0c3f142d326b-1
+00:00:22.749 --> 00:00:24.840
+phases in this ABC framework.
+
+48729480-165b-467d-8bf9-ea2ba4a7f16f-0
+00:00:24.840 --> 00:00:29.640
+First is batch prerequisite,
+batch preload prerequisite.
+
+68906188-8b1d-4046-bc21-74ea08d4849b-0
+00:00:29.920 --> 00:00:32.760
+So this is like this.
+
+2ab1809e-8a59-4dd1-a4cd-62e458517c5c-0
+00:00:32.960 --> 00:00:37.409
+This will check whether our in case of
+our regular run,
+
+2ab1809e-8a59-4dd1-a4cd-62e458517c5c-1
+00:00:37.409 --> 00:00:40.905
+it will check whether our June 2 batch
+run,
+
+2ab1809e-8a59-4dd1-a4cd-62e458517c5c-2
+00:00:40.905 --> 00:00:44.720
+latest June 2 batch run is completed or
+not OK.
+
+6a98833c-a590-487f-a8c3-a5c4314e97fc-0
+00:00:44.800 --> 00:00:50.886
+If it is completed then it will trigger
+our actual batch task flow,
+
+6a98833c-a590-487f-a8c3-a5c4314e97fc-1
+00:00:50.886 --> 00:00:53.840
+Actual June 2 batch task flow OK.
+
+99402256-6582-4184-ac37-c4f045a70dd4-0
+00:00:54.240 --> 00:00:58.140
+And if it is not completed,
+it will just send out a notification
+
+99402256-6582-4184-ac37-c4f045a70dd4-1
+00:00:58.140 --> 00:01:02.400
+stating that the latest June 2,
+June 2 batch run is not yet completed.
+
+ac60ecae-e417-441b-bf03-a756c1a7cdb1-0
+00:01:02.680 --> 00:01:03.840
+Please validate like that.
+
+68c20022-3610-4c57-b556-0a1682308b51-0
+00:01:04.120 --> 00:01:08.920
+And if we want to run the task flow,
+we have to run this batch with a task
+
+68c20022-3610-4c57-b556-0a1682308b51-1
+00:01:08.920 --> 00:01:09.240
+flow.
+
+d0765b6e-1fb4-4119-84d3-7c59c83bfc7f-0
+00:01:09.720 --> 00:01:15.440
+We have to do it manually so we will have
+the setup in the stone branch.
+
+bd7893fa-7cfc-4751-81cc-a5e5e14095ec-0
+00:01:16.400 --> 00:01:21.466
+So we in IDMC we'll have two task flows,
+1 is batch prerequisites task flow and
+
+bd7893fa-7cfc-4751-81cc-a5e5e14095ec-1
+00:01:21.466 --> 00:01:24.760
+the other one is our actual zone 2 batch
+task flow.
+
+be01b3eb-56dc-4a9d-9b77-6866cedf52fe-0
+00:01:25.520 --> 00:01:27.520
+In the stone branch.
+
+1d61e93f-d3ed-4883-b6ea-f96263af0dfa-0
+00:01:27.520 --> 00:01:30.560
+We will set a dependency for this 2 task
+flow.
+
+0f4c82a3-c12f-40dd-b4c9-cf3e8bf945cf-0
+00:01:30.760 --> 00:01:33.785
+If the first one is completed
+successfully,
+
+0f4c82a3-c12f-40dd-b4c9-cf3e8bf945cf-1
+00:01:33.785 --> 00:01:39.080
+then the second one will get triggered
+and our zone 2 batch one get started.
+
+3f957e97-19f2-46ab-a1b3-a7535cfe512b-0
+00:01:39.280 --> 00:01:43.668
+If the first one is this failed,
+then the second run,
+
+3f957e97-19f2-46ab-a1b3-a7535cfe512b-1
+00:01:43.668 --> 00:01:46.920
+the second task flow run won't start it.
+
+054a09f2-c190-4564-9604-4d89b86fecab-0
+00:01:47.680 --> 00:01:53.043
+So in case if we want to do a a manual
+like if we want to run it after the
+
+054a09f2-c190-4564-9604-4d89b86fecab-1
+00:01:53.043 --> 00:01:55.904
+failure,
+after the failure of the batch
+
+054a09f2-c190-4564-9604-4d89b86fecab-2
+00:01:55.904 --> 00:01:59.480
+prerequisite one,
+we have to trigger it manually.
+
+870f29b5-1e1e-4426-ab68-7b69ac0ebf75-0
+00:02:00.080 --> 00:02:07.906
+OK, if we are good,
+I'll just move on to the next like actual
+
+870f29b5-1e1e-4426-ab68-7b69ac0ebf75-1
+00:02:07.906 --> 00:02:18.257
+batch run and am I audible Hello yes yes
+yes yeah yeah like please let me know if
+
+870f29b5-1e1e-4426-ab68-7b69ac0ebf75-2
+00:02:18.257 --> 00:02:28.609
+you are not getting anything you you can
+stop me and you can ask me so fast phase
+
+870f29b5-1e1e-4426-ab68-7b69ac0ebf75-3
+00:02:28.609 --> 00:02:33.280
+in our join 2 batch is patch preload.
+
+9b553615-db51-4f1e-a081-595079998405-0
+00:02:33.760 --> 00:02:38.878
+So it is it will be getting source name,
+domain name, target zone,
+
+9b553615-db51-4f1e-a081-595079998405-1
+00:02:38.878 --> 00:02:41.400
+application layer name as inputs.
+
+3c98bc7e-34dd-41cc-8dca-9f80e1bbd0b0-0
+00:02:41.880 --> 00:02:43.440
+Based upon these.
+
+62ce9f9e-4cec-4e33-8f76-fa666d707803-0
+00:02:43.680 --> 00:02:49.000
+Using these values it will do a lookup on
+the batch metadata table.
+
+014529eb-8e54-4b34-b14a-0fb599fc282f-0
+00:02:50.400 --> 00:02:52.863
+OK,
+I think it's better to show you the data
+
+014529eb-8e54-4b34-b14a-0fb599fc282f-1
+00:02:52.863 --> 00:02:53.520
+model first.
+
+fa8fa661-b666-484b-ba43-f2fb00802f5e-0
+00:02:55.080 --> 00:03:00.080
+So in ABC we are having metadata tables
+and runtime tables.
+
+89137a8d-d60c-4d38-ac00-df59607580b1-0
+00:03:01.280 --> 00:03:07.506
+We are having metadata metadata tables
+like batch metadata, job metadata,
+
+89137a8d-d60c-4d38-ac00-df59607580b1-1
+00:03:07.506 --> 00:03:12.302
+rule masters rule,
+job rule assignment table and balance
+
+89137a8d-d60c-4d38-ac00-df59607580b1-2
+00:03:12.302 --> 00:03:18.697
+reconciliation metadata and also we have
+one other table ETL data ingestion
+
+89137a8d-d60c-4d38-ac00-df59607580b1-3
+00:03:18.697 --> 00:03:19.960
+metadata table.
+
+6d18f5ff-2fee-4974-8362-c1816339c738-0
+00:03:21.240 --> 00:03:25.440
+We have all these tables here.
+
+5fb4d285-af04-4d64-acf6-77e01c7280ce-0
+00:03:27.760 --> 00:03:33.520
+So in LLD we have given all the tables
+and columns description each and
+
+5fb4d285-af04-4d64-acf6-77e01c7280ce-1
+00:03:33.520 --> 00:03:35.760
+everything we have provided.
+
+cc43adc6-0ae9-4da8-9924-40576e51d8e7-0
+00:03:36.440 --> 00:03:43.617
+So batch metadata table it is a static
+table where we'll make static entries
+
+cc43adc6-0ae9-4da8-9924-40576e51d8e7-1
+00:03:43.617 --> 00:03:46.600
+into it about our batch details.
+
+7864f806-fdf4-4c37-b89c-424247755baa-0
+00:03:47.280 --> 00:03:52.532
+So like we will make a batch ID,
+batch name and batch description,
+
+7864f806-fdf4-4c37-b89c-424247755baa-1
+00:03:52.532 --> 00:03:58.725
+e-mail ID, source name, domain name,
+application name, application layer name,
+
+7864f806-fdf4-4c37-b89c-424247755baa-2
+00:03:58.725 --> 00:04:00.920
+application dependency name.
+
+629aec53-f764-42f3-9286-2b89310690a1-0
+00:04:00.920 --> 00:04:06.289
+Like if we have any dependency,
+if our zone 2 batch has any dependency on
+
+629aec53-f764-42f3-9286-2b89310690a1-1
+00:04:06.289 --> 00:04:11.222
+zone 1 batch then we will provide that
+dependency application name,
+
+629aec53-f764-42f3-9286-2b89310690a1-2
+00:04:11.222 --> 00:04:16.446
+source name and also its corresponding
+batch ID, name, the target zone,
+
+629aec53-f764-42f3-9286-2b89310690a1-3
+00:04:16.446 --> 00:04:17.680
+all these things.
+
+4fa0f3fc-80a7-412a-b560-e2d30d348425-0
+00:04:17.680 --> 00:04:29.840
+So OK and OK And we'll have other fields
+like related to scheduling tool.
+
+9b7c0bc2-684a-486f-b57c-ab827ee66e68-0
+00:04:30.240 --> 00:04:36.794
+So these will be like updated based upon
+the scheduling time in the stone branch
+
+9b7c0bc2-684a-486f-b57c-ab827ee66e68-1
+00:04:36.794 --> 00:04:41.568
+and also low frequency,
+it will be daily for June 1 and it
+
+9b7c0bc2-684a-486f-b57c-ab827ee66e68-2
+00:04:41.568 --> 00:04:44.320
+depends on the source system also.
+
+4dfb37e6-78e1-4c1a-a206-cabdc9e8aa18-0
+00:04:46.280 --> 00:04:51.426
+OK And then moving on to the geometry
+data table, job metadata table,
+
+4dfb37e6-78e1-4c1a-a206-cabdc9e8aa18-1
+00:04:51.426 --> 00:04:57.529
+here we will make entries for each table
+which will be loaded as part of the batch
+
+4dfb37e6-78e1-4c1a-a206-cabdc9e8aa18-2
+00:04:57.529 --> 00:04:59.000
+corresponding batch.
+
+c521d07c-abed-4582-b22c-c46db0683f40-0
+00:04:59.000 --> 00:05:06.284
+So here for example if we take broker
+party address is being loaded under this
+
+c521d07c-abed-4582-b22c-c46db0683f40-1
+00:05:06.284 --> 00:05:13.475
+particular broker data domain batch then
+we will make entry for that table OK
+
+c521d07c-abed-4582-b22c-c46db0683f40-2
+00:05:13.475 --> 00:05:15.320
+using this batch ID.
+
+95535e89-35c0-4381-b619-d17c5de4b674-0
+00:05:15.320 --> 00:05:22.824
+So I have made entry into the batch ID
+table with the for example for with 48
+
+95535e89-35c0-4381-b619-d17c5de4b674-1
+00:05:22.824 --> 00:05:26.000
+batch with the 48 as my batch ID.
+
+041f423c-ba3b-461d-8063-a52e4b7f8691-0
+00:05:29.040 --> 00:05:34.796
+Then I will be using the same batch ID to
+make entry for my broker party address
+
+041f423c-ba3b-461d-8063-a52e4b7f8691-1
+00:05:34.796 --> 00:05:37.000
+table into job metadata tables.
+
+ef0e9b21-93cb-4048-82bb-80706bf94dba-0
+00:05:37.640 --> 00:05:41.920
+This job metadata table will just have
+the details of our table.
+
+5d347f71-6446-42a1-b6b6-a6d12cd1b496-0
+00:05:42.720 --> 00:05:49.538
+Whatever the tables that we are that
+we're gonna load under this batch run,
+
+5d347f71-6446-42a1-b6b6-a6d12cd1b496-1
+00:05:49.538 --> 00:05:56.625
+we will have all the table details which
+can be used in the actual run and for
+
+5d347f71-6446-42a1-b6b6-a6d12cd1b496-2
+00:05:56.625 --> 00:05:58.240
+auditing purposes.
+
+4bc1f26d-bea9-454e-86c1-c46f735762e1-0
+00:05:59.160 --> 00:06:03.720
+OK, we'll have all the details.
+
+1c972156-033f-4ca5-859e-1941a208cc5d-0
+00:06:03.720 --> 00:06:05.000
+You can go through this document.
+
+e7f3bd6e-b7a3-4bce-9600-982eb5ae9eed-0
+00:06:05.000 --> 00:06:06.320
+I can share this document with you.
+
+670f85d3-704c-4a03-86cb-538af5f38ae0-0
+00:06:06.360 --> 00:06:11.528
+This is not a tribute,
+but this will be helpful for you to
+
+670f85d3-704c-4a03-86cb-538af5f38ae0-1
+00:06:11.528 --> 00:06:15.382
+understand the table structures better,
+OK,
+
+670f85d3-704c-4a03-86cb-538af5f38ae0-2
+00:06:15.382 --> 00:06:19.237
+And then ETL data ingestion metadata
+table,
+
+670f85d3-704c-4a03-86cb-538af5f38ae0-3
+00:06:19.237 --> 00:06:23.880
+this will store ETL ingestion
+configuration details.
+
+9774de66-94d1-4b38-a941-1f4bd98eaf94-0
+00:06:23.880 --> 00:06:30.198
+So OK,
+so our zone 2 tables will have dependency
+
+9774de66-94d1-4b38-a941-1f4bd98eaf94-1
+00:06:30.198 --> 00:06:33.680
+on the zone 1 tables right?
+
+914d0d7b-ef9c-47af-bba3-3fd0b541be59-0
+00:06:34.000 --> 00:06:38.480
+The zone 1 tables will act as source
+tables for our target tables.
+
+fd7c248e-ee4d-479e-aca9-ea256936d080-0
+00:06:39.160 --> 00:06:43.154
+In order to have the list of source and
+target tables,
+
+fd7c248e-ee4d-479e-aca9-ea256936d080-1
+00:06:43.154 --> 00:06:46.640
+we have this ETL data ingestion metadata
+table.
+
+c955d0ca-f711-4fac-a37f-4c0d424be1b2-0
+00:06:47.560 --> 00:06:51.155
+So for example for my broker party
+address table,
+
+c955d0ca-f711-4fac-a37f-4c0d424be1b2-1
+00:06:51.155 --> 00:06:53.960
+EDW party address T is my source table.
+
+8d71beed-466b-42f9-9a61-aadc85263b4b-0
+00:06:54.400 --> 00:06:59.600
+So in order to have that list of all the
+source tables, we have this table.
+
+ef7f61a9-a173-4a96-90d6-17f5d897e5b9-0
+00:07:00.000 --> 00:07:04.802
+So during that run,
+in order to get the sourcing window based
+
+ef7f61a9-a173-4a96-90d6-17f5d897e5b9-1
+00:07:04.802 --> 00:07:10.069
+upon the source table name,
+we will be using this metadata table as
+
+ef7f61a9-a173-4a96-90d6-17f5d897e5b9-2
+00:07:10.069 --> 00:07:16.497
+reference and we will make entries in the
+actual runtime table to get the sourcing
+
+ef7f61a9-a173-4a96-90d6-17f5d897e5b9-3
+00:07:16.497 --> 00:07:17.040
+window.
+
+4368fa39-7ae4-4b99-804e-0de71d443a55-0
+00:07:17.440 --> 00:07:23.737
+I'll tell you whenever that phase comes,
+OK, next, moving in this job rule,
+
+4368fa39-7ae4-4b99-804e-0de71d443a55-1
+00:07:23.737 --> 00:07:25.560
+Job rule master table.
+
+425ceabf-10cb-422b-bb43-b0b7dbaf1c97-0
+00:07:25.880 --> 00:07:32.730
+This is a catalog of column level
+validation rules or whatever it will it
+
+425ceabf-10cb-422b-bb43-b0b7dbaf1c97-1
+00:07:32.730 --> 00:07:36.711
+it,
+it will have a distinct list of the DQ
+
+425ceabf-10cb-422b-bb43-b0b7dbaf1c97-2
+00:07:36.711 --> 00:07:37.359
+checks.
+
+6142739c-ea82-45a2-992e-443828407654-0
+00:07:37.760 --> 00:07:41.217
+So whatever the DQ checks that we want to
+perform first,
+
+6142739c-ea82-45a2-992e-443828407654-1
+00:07:41.217 --> 00:07:45.160
+we will we'll have to make entries into
+this job metadata table.
+
+db01df37-800e-4d08-829e-2e82346905f6-0
+00:07:45.560 --> 00:07:47.760
+Sorry, job rule master table.
+
+0f7d8026-c14a-4a30-95c7-b46f495cc818-0
+00:07:48.560 --> 00:07:51.656
+OK,
+so for example if we want to do a null
+
+0f7d8026-c14a-4a30-95c7-b46f495cc818-1
+00:07:51.656 --> 00:07:53.240
+check then we will do.
+
+1ba63010-a34d-415d-ad6e-a55284524ce4-0
+00:07:53.240 --> 00:07:59.852
+We will have this rule entered into this
+rule entry into this job related master
+
+1ba63010-a34d-415d-ad6e-a55284524ce4-1
+00:07:59.852 --> 00:08:03.200
+table and its corpus at the column level.
+
+24541580-868f-4bda-aaed-43b2dfc0a150-0
+00:08:03.520 --> 00:08:05.160
+And these are just ordered columns.
+
+904322c3-688a-4e6b-9a5b-23c8f856c554-0
+00:08:06.080 --> 00:08:11.520
+When it is created like that,
+I user ID and OK.
+
+fcbebf8c-886e-4dab-bc79-f14b9843da50-0
+00:08:11.840 --> 00:08:17.285
+And if we are doing null check for any
+other job in any other source system or
+
+fcbebf8c-886e-4dab-bc79-f14b9843da50-1
+00:08:17.285 --> 00:08:21.421
+in any other batch,
+we don't need to make another entry for
+
+fcbebf8c-886e-4dab-bc79-f14b9843da50-2
+00:08:21.421 --> 00:08:22.800
+that particular job.
+
+1cf86cf6-943f-4529-a1da-da5bf58201bf-0
+00:08:23.120 --> 00:08:28.458
+It is it acts like a distinct list of all
+the dictionary checks that needs to be
+
+1cf86cf6-943f-4529-a1da-da5bf58201bf-1
+00:08:28.458 --> 00:08:31.160
+performed across all batches in all jobs.
+
+f45660b0-ae6f-42f6-ae15-30c9f970722c-0
+00:08:32.520 --> 00:08:35.760
+OK, and this is job rule assignment.
+
+49c11884-93d7-4b33-aa88-ac3ed5e81cd1-0
+00:08:36.840 --> 00:08:40.573
+Whatever the rules that are defined in
+the about table,
+
+49c11884-93d7-4b33-aa88-ac3ed5e81cd1-1
+00:08:40.573 --> 00:08:45.240
+if we want to assign them to our
+particular job then we will use this
+
+49c11884-93d7-4b33-aa88-ac3ed5e81cd1-2
+00:08:45.240 --> 00:08:45.640
+table.
+
+4620acfd-d2c1-45f8-bbea-37a6f302aaba-0
+00:08:47.000 --> 00:08:56.243
+OK so here I want to do a null check for
+my target table from a particular target
+
+4620acfd-d2c1-45f8-bbea-37a6f302aaba-1
+00:08:56.243 --> 00:08:56.920
+table.
+
+5d729849-8dc4-449f-abdb-2d205bff5d16-0
+00:08:56.920 --> 00:09:01.822
+So from a particular target table load,
+we will have an entry into my job
+
+5d729849-8dc4-449f-abdb-2d205bff5d16-1
+00:09:01.822 --> 00:09:03.280
+metadata table, right?
+
+da0bd3b2-8c79-44f4-bca9-8cbac30f1b65-0
+00:09:03.280 --> 00:09:06.480
+So it will have a job ID, job ID.
+
+02b55a3c-c1ba-47f0-87c9-8afcef3e887d-0
+00:09:06.480 --> 00:09:10.714
+So for the job ID I,
+I will make an entry into this job
+
+02b55a3c-c1ba-47f0-87c9-8afcef3e887d-1
+00:09:10.714 --> 00:09:12.000
+assignment table.
+
+e01ef8f4-1401-45a2-a332-31c1758b9a8e-0
+00:09:14.320 --> 00:09:18.440
+So this is my job ID 258 and this is my
+rule ID.
+
+539a15e6-efe9-4c3d-ac1d-e532c6a9ae4e-0
+00:09:18.960 --> 00:09:22.320
+So for null check we have the rule ID as
+one.
+
+7c4629f7-40ca-4eda-b800-5560639223bc-0
+00:09:22.600 --> 00:09:28.200
+So using this we we are assigning this
+null check to this target caller.
+
+1dd5483c-3405-492a-8785-684414622c1d-0
+00:09:28.960 --> 00:09:29.320
+OK.
+
+8fcfa3ad-8e97-4683-bbbf-09bc824fb82b-0
+00:09:32.080 --> 00:09:37.526
+If we want to assign any DQ checks which
+are listed in the job rule master to our
+
+8fcfa3ad-8e97-4683-bbbf-09bc824fb82b-1
+00:09:37.526 --> 00:09:41.113
+table columns,
+then we have to make entries into this
+
+8fcfa3ad-8e97-4683-bbbf-09bc824fb82b-2
+00:09:41.113 --> 00:09:42.840
+job rule assignment table.
+
+99ad3772-ab02-4c7b-9eeb-149779806c69-0
+00:09:44.000 --> 00:09:47.746
+OK, Then next,
+moving on to the balance reconciliation
+
+99ad3772-ab02-4c7b-9eeb-149779806c69-1
+00:09:47.746 --> 00:09:48.360
+metadata.
+
+c8282359-5505-40ff-8c68-df85e93cc134-0
+00:09:48.360 --> 00:09:53.300
+If we have any balance reconciliation
+checks or metrics that needs to be
+
+c8282359-5505-40ff-8c68-df85e93cc134-1
+00:09:53.300 --> 00:09:57.495
+performed in our job,
+then we'll make entry into this balance
+
+c8282359-5505-40ff-8c68-df85e93cc134-2
+00:09:57.495 --> 00:09:59.120
+reconciliation metadata.
+
+937250fc-f350-46ef-837c-56925bef6093-0
+00:10:00.040 --> 00:10:07.652
+We have to provide the balancing type,
+targetable details and column name and
+
+937250fc-f350-46ef-837c-56925bef6093-1
+00:10:07.652 --> 00:10:12.240
+also threshold type threshold value like
+that.
+
+1f3ee6dd-eacb-4595-be8f-a558dc4930c0-0
+00:10:14.040 --> 00:10:18.508
+OK,
+this completes our metadata table
+
+1f3ee6dd-eacb-4595-be8f-a558dc4930c0-1
+00:10:18.508 --> 00:10:19.920
+explanation.
+
+1b3e6b9b-9543-4100-86c2-38d329a3f058-0
+00:10:19.960 --> 00:10:24.720
+If anyone has any question you can can
+raise your hand.
+
+8206a423-4297-46f4-b4bd-d1719b4ed7b9-0
+00:10:32.440 --> 00:10:35.245
+OK,
+I'll take that as no and moving on to the
+
+8206a423-4297-46f4-b4bd-d1719b4ed7b9-1
+00:10:35.245 --> 00:10:36.160
+runtime tables.
+
+fb5ef948-902d-41e9-ae37-a5312538e060-0
+00:10:38.160 --> 00:10:43.902
+So these runtime tables will be making
+use of the above metadata tables and
+
+fb5ef948-902d-41e9-ae37-a5312538e060-1
+00:10:43.902 --> 00:10:49.040
+these will make entries into the runtime
+tables during the process.
+
+ecbf143c-fe42-4118-8ac9-aa7531a60da6-0
+00:10:49.400 --> 00:10:55.890
+I'll explain the process and the flow,
+but I'll give you a high level detail of
+
+ecbf143c-fe42-4118-8ac9-aa7531a60da6-1
+00:10:55.890 --> 00:10:58.000
+these runtime tables here.
+
+4d94dda8-7302-492a-83f0-184802561f10-0
+00:10:58.480 --> 00:11:03.330
+So batch run start,
+This is the runtime table for the batch
+
+4d94dda8-7302-492a-83f0-184802561f10-1
+00:11:03.330 --> 00:11:09.474
+run which will have all the details
+related to the batch run OK and Job run
+
+4d94dda8-7302-492a-83f0-184802561f10-2
+00:11:09.474 --> 00:11:09.960
+stats.
+
+d8310e5b-c6f1-4db0-8ae1-961e78316683-0
+00:11:10.320 --> 00:11:21.640
+This will have the details related to the
+Job Run ETL Data Transition source window.
+
+4c853a8a-4030-4178-9115-f083e5d21f93-0
+00:11:22.120 --> 00:11:29.200
+This will make use of the ETL Retangation
+metadata table and it will retrieve the.
+
+6c14caec-ff07-491d-9cd0-1f57c84cb6f8-0
+00:11:30.000 --> 00:11:34.200
+It will give us the sourcing window for
+each and every source table.
+
+931ebcc9-2c94-4e33-8065-fceb2edaa790-0
+00:11:37.680 --> 00:11:42.630
+So from here we will take the sourcing
+window and we will fetch the data from
+
+931ebcc9-2c94-4e33-8065-fceb2edaa790-1
+00:11:42.630 --> 00:11:47.200
+the actual source table in the actual
+target table OK job error starts.
+
+e67ba502-a44c-4669-b92f-b71d9db27888-0
+00:11:47.480 --> 00:11:53.706
+In case of any job failure,
+we will make an entry into the job error
+
+e67ba502-a44c-4669-b92f-b71d9db27888-1
+00:11:53.706 --> 00:11:59.120
+starts table kind of error Login OK Job
+rule execution log.
+
+12790b91-57d9-4333-8aa0-9239efb5f415-0
+00:11:59.240 --> 00:12:05.338
+So we have if we have any DQ checks we
+will be making entries into the job rule,
+
+12790b91-57d9-4333-8aa0-9239efb5f415-1
+00:12:05.338 --> 00:12:08.200
+Job rule, job rule assign table right?
+
+0e05f598-7a9a-489c-b83b-e0fd460457e2-0
+00:12:08.720 --> 00:12:14.880
+So for each and every job rule assignment
+we will have the log in this table.
+
+4ead970c-45d1-4f16-ac54-2e03ff121dab-0
+00:12:15.080 --> 00:12:18.440
+So how many records got like.
+
+ee13eec0-d100-452f-8dc6-01060863db8d-0
+00:12:18.720 --> 00:12:25.355
+So if we have 10 records coming from the
+source and we have one rule assigned to
+
+ee13eec0-d100-452f-8dc6-01060863db8d-1
+00:12:25.355 --> 00:12:31.991
+our to a particular column it will show
+you the stat details like in case if the
+
+ee13eec0-d100-452f-8dc6-01060863db8d-2
+00:12:31.991 --> 00:12:37.725
+if the particular rule assignment is
+passed then it will give you the
+
+ee13eec0-d100-452f-8dc6-01060863db8d-3
+00:12:37.725 --> 00:12:39.200
+execution details.
+
+6d5c7bf9-c3fc-4ca6-a3e2-0a0ab9450e43-0
+00:12:39.360 --> 00:12:43.080
+If the rule assignment got failed it will
+give you the error message like that.
+
+1c59acbb-d92d-4ee8-a637-78cd74d79934-0
+00:12:43.120 --> 00:12:45.120
+It will it will hold the high level.
+
+d22a26f5-fbda-4985-bb1d-65fd437da400-0
+00:12:45.520 --> 00:12:54.627
+It will hold the like execution details
+for each job rule assignment OK and job
+
+d22a26f5-fbda-4985-bb1d-65fd437da400-1
+00:12:54.627 --> 00:12:57.360
+rule error detail table.
+
+52843c21-a0bf-4cf9-ab6f-3a4bbea9ac82-0
+00:12:57.800 --> 00:13:06.981
+It will store each rules execution inputs
+and outputs at column level OK and
+
+52843c21-a0bf-4cf9-ab6f-3a4bbea9ac82-1
+00:13:06.981 --> 00:13:10.320
+balanced reconciliation set.
+
+6308092d-31e5-45c0-9e97-564611fe9c91-0
+00:13:10.680 --> 00:13:16.231
+So for every balanced reconciliation we
+made entries metric will make entries
+
+6308092d-31e5-45c0-9e97-564611fe9c91-1
+00:13:16.231 --> 00:13:20.360
+into the job balanced cancellation
+metadata table, right?
+
+ce0b0925-6c3c-4fce-9421-4ad6c0e59ed4-0
+00:13:20.480 --> 00:13:26.128
+So it will give the stat details like
+whether the metrics are out of balance,
+
+ce0b0925-6c3c-4fce-9421-4ad6c0e59ed4-1
+00:13:26.128 --> 00:13:27.360
+out of threshold.
+
+311ea095-11bb-4da6-b3b2-d6e4f8a5ae8c-0
+00:13:27.640 --> 00:13:33.040
+All those details will be there in this
+balanced cancellation stats table.
+
+c824e755-caab-44d3-9f1c-aa008e9ebac9-0
+00:13:34.280 --> 00:13:38.080
+Yeah, we're done with the runtime tables.
+
+0cb1e5ad-5d35-4cdc-8b33-12570a171577-0
+00:13:38.080 --> 00:13:41.952
+Also high level,
+if you need any column level details,
+
+0cb1e5ad-5d35-4cdc-8b33-12570a171577-1
+00:13:41.952 --> 00:13:45.684
+all the details you can go through this
+sample date,
+
+0cb1e5ad-5d35-4cdc-8b33-12570a171577-2
+00:13:45.684 --> 00:13:50.120
+column name and corresponding description
+and the sample date.
+
+6d7568ec-71d2-41ba-83e2-0905bc866d0e-0
+00:13:53.640 --> 00:13:53.960
+OK.
+
+b2230496-a8ae-4808-9538-bfa4548d15a0-0
+00:13:55.160 --> 00:14:00.480
+Does anyone have any question here on
+runtime tables?
+
+394e0770-9d08-4a65-af6e-dd61c04c5d92-0
+00:14:04.520 --> 00:14:07.973
+So actually, yeah,
+so job error statistics we have right
+
+394e0770-9d08-4a65-af6e-dd61c04c5d92-1
+00:14:07.973 --> 00:14:08.640
+that table.
+
+1185b117-e3ea-464b-95c1-eafc202442a3-0
+00:14:08.640 --> 00:14:14.142
+So we'll be reporting anywhere of those
+records or which more in what was it not
+
+1185b117-e3ea-464b-95c1-eafc202442a3-1
+00:14:14.142 --> 00:14:16.520
+like the error stats we have right.
+
+ffa26c4b-df60-4c94-b608-061048261040-0
+00:14:20.240 --> 00:14:24.520
+So those details we'll be reporting to
+someone like why it is error doubt.
+
+11a4c881-ee68-4685-90ab-73188ea84a37-0
+00:14:24.560 --> 00:14:26.440
+So those kind of items will be yeah.
+
+9f1f03ce-fc8f-4f4b-ad98-2f4f84aa06af-0
+00:14:26.720 --> 00:14:32.698
+So mostly like whenever we make,
+so if there is any failure that can be
+
+9f1f03ce-fc8f-4f4b-ad98-2f4f84aa06af-1
+00:14:32.698 --> 00:14:38.760
+captured in case of any network issue,
+we won't be able to capture that.
+
+2bb8e19a-6e97-49a4-802d-08b439a87702-0
+00:14:39.800 --> 00:14:44.931
+Like we we won't be able to make an entry
+into the job registers and notify someone
+
+2bb8e19a-6e97-49a4-802d-08b439a87702-1
+00:14:44.931 --> 00:14:47.680
+right, in case of network issue,
+I'm saying.
+
+b0f6f388-d951-4118-b592-a13b1c0bf154-0
+00:14:48.480 --> 00:14:52.957
+But in any other scenario where the
+execution is failed,
+
+b0f6f388-d951-4118-b592-a13b1c0bf154-1
+00:14:52.957 --> 00:14:58.612
+whenever any failure is happening,
+we are marked we are whenever we are
+
+b0f6f388-d951-4118-b592-a13b1c0bf154-2
+00:14:58.612 --> 00:15:03.560
+making entry into this table,
+we are make we are sending out a
+
+b0f6f388-d951-4118-b592-a13b1c0bf154-3
+00:15:03.560 --> 00:15:10.079
+notification stating that this particular
+failure has happened during the job run.
+
+d46a6ed2-cae1-4dcf-8560-126c8a313287-0
+00:15:11.160 --> 00:15:12.240
+Yeah, we are doing that.
+
+558f851a-cbd8-418d-9cd0-f0a80bb3057a-0
+00:15:13.080 --> 00:15:16.239
+Does this answer your question or is it
+like, OK,
+
+558f851a-cbd8-418d-9cd0-f0a80bb3057a-1
+00:15:16.239 --> 00:15:18.640
+so this will be sent to admin team or?
+
+ea3f7005-6bf4-4308-845a-161616d21824-0
+00:15:20.120 --> 00:15:24.837
+Yeah that we have to figure out for now
+we are as part of development we are
+
+ea3f7005-6bf4-4308-845a-161616d21824-1
+00:15:24.837 --> 00:15:29.800
+doing, we are, we are, we are giving,
+we are sending out mails to our own mails.
+
+2adf2829-f174-46b1-85f0-51ce4c4208ed-0
+00:15:30.080 --> 00:15:32.480
+Yeah, we have to check on this.
+
+96aef247-c5c7-49d7-b8b2-73692a5388bb-0
+00:15:32.920 --> 00:15:39.440
+Usually it should be the someone like who
+would be like taking care of the failures.
+
+0c28cf3f-4ca7-4402-b79b-1d7a072418a1-0
+00:15:39.440 --> 00:15:41.760
+OK, fine.
+
+b4f2d65b-9de6-4272-9391-7bfcabdd5a28-0
+00:15:45.520 --> 00:15:45.760
+OK.
+
+edf02eb4-90f7-4745-8004-2e5dff409221-0
+00:15:48.760 --> 00:15:49.720
+Any more questions?
+
+3709cf20-5ff0-49bf-bc8f-d93970080a65-0
+00:15:53.840 --> 00:15:54.120
+Yeah.
+
+bf8571d2-3c28-4e5c-8b18-423bdc4f9bec-0
+00:15:54.440 --> 00:16:02.720
+If not, I'm moving on to this flow, OK.
+
+2848b476-d158-40f9-960d-ae75f51c6bd8-0
+00:16:21.320 --> 00:16:26.720
+So here we will be passing source name,
+domain name in the batch preload.
+
+967bf122-8be5-4248-bed3-da44ff08f012-0
+00:16:26.720 --> 00:16:29.360
+I'm I'm starting with the batch preload.
+
+427c70d8-2c09-4c89-b205-bcb8668982a2-0
+00:16:29.360 --> 00:16:32.880
+So this is the first step in our actual
+zone to batch run.
+
+0afbf7b6-bfc8-4932-ba21-8bea3a570746-0
+00:16:33.440 --> 00:16:37.250
+So here there will be passing source name,
+domain name, target zone,
+
+0afbf7b6-bfc8-4932-ba21-8bea3a570746-1
+00:16:37.250 --> 00:16:38.520
+application layer name.
+
+f470b9bf-3793-4814-8d80-e62e84877161-0
+00:16:40.640 --> 00:16:45.820
+So this batch preload phase we will be
+sending out all these values using a
+
+f470b9bf-3793-4814-8d80-e62e84877161-1
+00:16:45.820 --> 00:16:47.320
+static parameter file.
+
+89a53e14-6b4b-4359-a2f4-d32d0841e4cb-0
+00:16:47.680 --> 00:16:53.893
+So using these values we will it will do
+a lookup on the batch metadata table and
+
+89a53e14-6b4b-4359-a2f4-d32d0841e4cb-1
+00:16:53.893 --> 00:16:57.000
+fetch the batch ID and also batch run OK.
+
+b279f3de-6c71-4435-84b9-fc63a390e3f8-0
+00:16:57.240 --> 00:17:02.546
+And using the batch ID it will do a
+lookup on the batch run stats table and
+
+b279f3de-6c71-4435-84b9-fc63a390e3f8-1
+00:17:02.546 --> 00:17:08.341
+it will fetch the latest status and batch
+rerun flag OK if the batch rerun flag is
+
+b279f3de-6c71-4435-84b9-fc63a390e3f8-2
+00:17:08.341 --> 00:17:08.760
+north.
+
+191b1f33-1593-478c-8c5a-a47dd2884a60-0
+00:17:09.120 --> 00:17:15.339
+And if the latest batch run status is
+either failed or started,
+
+191b1f33-1593-478c-8c5a-a47dd2884a60-1
+00:17:15.339 --> 00:17:21.657
+then if it is started,
+it will it will it will update the status
+
+191b1f33-1593-478c-8c5a-a47dd2884a60-2
+00:17:21.657 --> 00:17:29.140
+to fail and it will make a new and new
+entry into the batch run starts table
+
+191b1f33-1593-478c-8c5a-a47dd2884a60-3
+00:17:29.140 --> 00:17:34.680
+with the same execution run ID and with
+status start OK.
+
+e7ca461e-602a-46f7-9b27-4eeab033ef4e-0
+00:17:34.760 --> 00:17:39.756
+If it is failed then it will make an
+entry into new entry into the batch run
+
+e7ca461e-602a-46f7-9b27-4eeab033ef4e-1
+00:17:39.756 --> 00:17:40.600
+starts table.
+
+8757b591-da2d-47be-bb6f-642304664d22-0
+00:17:40.840 --> 00:17:49.197
+So it's a kind of restart scenario in
+case if the if the batch batch read and
+
+8757b591-da2d-47be-bb6f-642304664d22-1
+00:17:49.197 --> 00:17:57.662
+flag is in and if there is no prior entry
+or if the previous status is already
+
+8757b591-da2d-47be-bb6f-642304664d22-2
+00:17:57.662 --> 00:17:58.520
+started.
+
+2f7afe51-05ca-44b6-9344-35a8fdb680a4-0
+00:17:59.040 --> 00:18:07.415
+If if the batch rerun flag is N,
+then there will there it can be new or
+
+2f7afe51-05ca-44b6-9344-35a8fdb680a4-1
+00:18:07.415 --> 00:18:09.160
+rerun scenario.
+
+cfcf6f87-80c6-43c2-bd7f-079ad44828c3-0
+00:18:11.480 --> 00:18:11.880
+OK.
+
+dc5bed2c-2a43-4ef3-91a6-0f591f87f638-0
+00:18:12.360 --> 00:18:19.934
+So if the if my previous batch rerun flag
+is N and status is completed,
+
+dc5bed2c-2a43-4ef3-91a6-0f591f87f638-1
+00:18:19.934 --> 00:18:27.928
+that means it's a regular scenario
+wherein we'll just we'll just make a new
+
+dc5bed2c-2a43-4ef3-91a6-0f591f87f638-2
+00:18:27.928 --> 00:18:28.560
+entry.
+
+e6ad05e9-aa65-4ce0-b847-2bf8d68e8ce8-0
+00:18:28.560 --> 00:18:29.080
+Yeah.
+
+dfccf0aa-d5cf-4451-9089-1b8e0228e777-0
+00:18:29.720 --> 00:18:34.208
+But is yes, no, OK,
+it will be a regular scenario where we'll
+
+dfccf0aa-d5cf-4451-9089-1b8e0228e777-1
+00:18:34.208 --> 00:18:40.144
+just make a new entry for our new run and
+batch run strats with new execution run
+
+dfccf0aa-d5cf-4451-9089-1b8e0228e777-2
+00:18:40.144 --> 00:18:46.081
+ID which status has started and we will
+pass the execution type as new in case if
+
+dfccf0aa-d5cf-4451-9089-1b8e0228e777-3
+00:18:46.081 --> 00:18:50.279
+it is failed or started,
+then it is our restart scenario.
+
+1a7d499f-4256-4c23-a82a-ace2232dae89-0
+00:18:50.880 --> 00:18:55.413
+So if it is already started,
+if it if my previous entry is in starter
+
+1a7d499f-4256-4c23-a82a-ace2232dae89-1
+00:18:55.413 --> 00:18:58.457
+state,
+we'll just update it to fail and make a
+
+1a7d499f-4256-4c23-a82a-ace2232dae89-2
+00:18:58.457 --> 00:19:00.399
+new entry with starter status.
+
+d4eafc1d-0822-41d9-8891-27bcb9ed8c5e-0
+00:19:00.720 --> 00:19:03.800
+If it is failed,
+then we'll just make a new entry with
+
+d4eafc1d-0822-41d9-8891-27bcb9ed8c5e-1
+00:19:03.800 --> 00:19:06.600
+status as started with the same execution
+run ID.
+
+b9179534-65be-42b1-9e07-a49070ffdba0-0
+00:19:07.240 --> 00:19:10.584
+In case of restart,
+we will be use the same execution run ID
+
+b9179534-65be-42b1-9e07-a49070ffdba0-1
+00:19:10.584 --> 00:19:12.120
+as that of the previous run.
+
+298eddd3-4729-4259-a479-496462021a00-0
+00:19:12.680 --> 00:19:20.858
+OK and we will pass the execution type as
+restart OK if my batch rerun flag is not
+
+298eddd3-4729-4259-a479-496462021a00-1
+00:19:20.858 --> 00:19:26.178
+equal to north,
+that means if it is Y or ZY represent
+
+298eddd3-4729-4259-a479-496462021a00-2
+00:19:26.178 --> 00:19:30.120
+zone 2 rerun, Z represents zone 1 rerun.
+
+f91e5d29-26b7-4603-958c-37631df2ac6b-0
+00:19:30.680 --> 00:19:35.426
+OK in case of zone 1 rerun or zone 2
+rerun,
+
+f91e5d29-26b7-4603-958c-37631df2ac6b-1
+00:19:35.426 --> 00:19:44.273
+we have to make a manual entry into the
+batch run stats table with status started
+
+f91e5d29-26b7-4603-958c-37631df2ac6b-2
+00:19:44.273 --> 00:19:53.335
+OK And in that case like we will pass the
+execution type as rerun if my batch rerun
+
+f91e5d29-26b7-4603-958c-37631df2ac6b-3
+00:19:53.335 --> 00:20:01.535
+flag equal to Y otherwise we will pass
+the execution type as Z1 rerun if my
+
+f91e5d29-26b7-4603-958c-37631df2ac6b-4
+00:20:01.535 --> 00:20:09.086
+batch return flag equal to C OK,
+we'll pass batch ID execution run ID
+
+f91e5d29-26b7-4603-958c-37631df2ac6b-5
+00:20:09.086 --> 00:20:15.560
+execution type and to the next phase that
+is job reload OK.
+
+c429dbb3-01bd-4b2c-8138-b4910dc8d765-0
+00:20:17.200 --> 00:20:21.280
+This will have like here it will get
+inputs.
+
+f7d25b47-3e86-4e8e-ab2b-b5cfca3e022a-0
+00:20:21.320 --> 00:20:25.560
+It will take inputs like job name,
+batch ID execution and ID execution type.
+
+5649bb7e-d362-4f28-a7b2-1ea5529738b8-0
+00:20:27.160 --> 00:20:31.482
+And if we have any stage table,
+we are just keeping the stage table
+
+5649bb7e-d362-4f28-a7b2-1ea5529738b8-1
+00:20:31.482 --> 00:20:34.280
+record point at 0 initially if we have
+any.
+
+231a8d36-2229-4aba-8eff-87d5c63350a2-0
+00:20:34.720 --> 00:20:38.920
+I'll tell you why we are considering the
+stage table record count here in this
+
+231a8d36-2229-4aba-8eff-87d5c63350a2-1
+00:20:38.920 --> 00:20:39.240
+space.
+
+726993f4-e0ac-4055-85f8-8e0904776bf0-0
+00:20:42.720 --> 00:20:45.400
+Is everyone clear with the batch preload
+process?
+
+cf619ccf-ceaf-40d0-8580-ca0120d6f375-0
+00:20:52.440 --> 00:20:52.600
+Yeah.
+
+30c9ec12-1187-4780-a583-126700b3bfee-0
+00:20:52.600 --> 00:20:55.400
+Can some someone respond if it's clear?
+
+fa82bd40-144b-4021-bd87-11be1f423dc5-0
+00:20:55.760 --> 00:20:56.040
+Clear.
+
+964ad9a5-bf78-4762-9767-3ce5125b5f7c-0
+00:20:56.040 --> 00:20:56.920
+Yes, yes, sure.
+
+87c39a6e-09c6-4676-86e7-4a8c04b69316-0
+00:20:56.920 --> 00:20:57.440
+Yeah, yeah.
+
+d3e8855a-df29-4ebc-a2ca-ed9560621efa-0
+00:20:59.600 --> 00:20:59.960
+OK.
+
+c9e3ecb8-63a0-4d4e-9c34-19547d4487ac-0
+00:21:00.360 --> 00:21:06.967
+So next in the job failure process,
+it will take the input as job name and
+
+c9e3ecb8-63a0-4d4e-9c34-19547d4487ac-1
+00:21:06.967 --> 00:21:07.760
+batch ID.
+
+3a88ac3d-8fc3-4bf1-90c0-bcd1b64d8179-0
+00:21:07.760 --> 00:21:13.266
+So using the job name and batch ID,
+it will fetch the job ID from the job
+
+3a88ac3d-8fc3-4bf1-90c0-bcd1b64d8179-1
+00:21:13.266 --> 00:21:14.680
+metadata table, OK.
+
+536ee2cd-1118-4a30-9a35-bd49ce05bedf-0
+00:21:15.040 --> 00:21:19.320
+And and it will also check whether the
+exact flag is Y or not.
+
+9f5db06c-2ba9-4b84-8edc-12e33516a0b6-0
+00:21:20.120 --> 00:21:22.342
+Basically,
+I he's had to flag with this indicates
+
+9f5db06c-2ba9-4b84-8edc-12e33516a0b6-1
+00:21:22.342 --> 00:21:25.320
+whether the high record is active or not
+in that particular table.
+
+cf33b1d5-2d48-4327-b413-0b34faa697df-0
+00:21:26.360 --> 00:21:26.560
+OK.
+
+f198b95a-8d25-4715-a8c0-2955e76498ab-0
+00:21:27.720 --> 00:21:34.139
+And also based on the job ID from the job
+metadata table, it will,
+
+f198b95a-8d25-4715-a8c0-2955e76498ab-1
+00:21:34.139 --> 00:21:40.751
+it will take the latest job,
+latest job run details from the job run
+
+f198b95a-8d25-4715-a8c0-2955e76498ab-2
+00:21:40.751 --> 00:21:44.680
+stats table, OK, link statuses like that.
+
+e8f88d38-94ec-48bf-83c2-cd61f12ec463-0
+00:21:45.040 --> 00:21:49.557
+OK,
+it will take that and using the execution
+
+e8f88d38-94ec-48bf-83c2-cd61f12ec463-1
+00:21:49.557 --> 00:21:53.879
+run,
+run type taking like getting from this
+
+e8f88d38-94ec-48bf-83c2-cd61f12ec463-2
+00:21:53.879 --> 00:21:56.040
+batch preload process.
+
+07df105a-9fcd-41fd-b4d6-fe87874467b7-0
+00:21:56.160 --> 00:22:00.712
+If it is restart,
+if it is not restart then it will be
+
+07df105a-9fcd-41fd-b4d6-fe87874467b7-1
+00:22:00.712 --> 00:22:04.520
+either new or rerun or zone 1 rerun
+scenario.
+
+3e51c2a5-1024-493f-b56e-41cfd8a2d640-0
+00:22:05.720 --> 00:22:09.966
+OK, if it is new,
+let's say like if it is new or rerun or
+
+3e51c2a5-1024-493f-b56e-41cfd8a2d640-1
+00:22:09.966 --> 00:22:13.408
+zone 1,
+rerun the processing first let's cover
+
+3e51c2a5-1024-493f-b56e-41cfd8a2d640-2
+00:22:13.408 --> 00:22:14.360
+new scenario.
+
+595a2f3b-10e1-48ae-8dd8-91436ccc3008-0
+00:22:14.440 --> 00:22:15.800
+That means strictly scenario.
+
+b5851a6d-cef5-499d-90e2-981f77d05905-0
+00:22:16.280 --> 00:22:24.711
+In case of regular scenario,
+our previous like previous status would
+
+b5851a6d-cef5-499d-90e2-981f77d05905-1
+00:22:24.711 --> 00:22:27.400
+be completed, correct?
+
+18268f6c-42e4-4c95-b933-355f21b22681-0
+00:22:27.480 --> 00:22:30.920
+In case of new scenario.
+
+8c830c07-4742-4be8-93b8-d3afa7836c2d-0
+00:22:32.040 --> 00:22:34.160
+And we will also consider the execution
+run ID.
+
+c10642d1-6e6d-46f3-b1a1-fb336c99d911-0
+00:22:35.400 --> 00:22:41.640
+OK Here execution run ID concept will
+come in the restart scenario.
+
+5d9470ce-6e0e-49c8-a2e9-3ffd44c2b179-0
+00:22:42.120 --> 00:22:47.494
+For for example, for now,
+let's say in case of a regular scenario,
+
+5d9470ce-6e0e-49c8-a2e9-3ffd44c2b179-1
+00:22:47.494 --> 00:22:52.067
+let's say Azure,
+if my previous batch run has completely
+
+5d9470ce-6e0e-49c8-a2e9-3ffd44c2b179-2
+00:22:52.067 --> 00:22:56.480
+successful,
+then in the next day the run would be new.
+
+08cab68a-7d06-42be-bd39-dc87d9b1bfb8-0
+00:22:56.840 --> 00:22:58.320
+It's just like a new scenario.
+
+14d17b2f-2e68-4942-809a-e33875e0b360-0
+00:22:58.600 --> 00:23:02.246
+In that case,
+we'll just make a new entry into the job
+
+14d17b2f-2e68-4942-809a-e33875e0b360-1
+00:23:02.246 --> 00:23:07.417
+run status table with new execution run
+ID with status as started OK and then
+
+14d17b2f-2e68-4942-809a-e33875e0b360-2
+00:23:07.417 --> 00:23:10.599
+into the batch in into the job and stats
+table.
+
+df8e1f83-e160-40c7-a51f-7437f20b503c-0
+00:23:10.880 --> 00:23:11.400
+Next.
+
+e68bb559-0fd4-452f-8883-aedebc7547c6-0
+00:23:13.520 --> 00:23:18.621
+Next we will make an entry into the ETL
+data ingestion source window which will
+
+e68bb559-0fd4-452f-8883-aedebc7547c6-1
+00:23:18.621 --> 00:23:22.320
+provide the sourcing window for our
+actual table load OK.
+
+24244296-9389-4786-bc45-f9c694b64a98-0
+00:23:22.560 --> 00:23:26.414
+In case of new load,
+based upon the job ID and batch ID,
+
+24244296-9389-4786-bc45-f9c694b64a98-1
+00:23:26.414 --> 00:23:31.756
+it will do a look up on the ETL data
+ingestion metadata table and job run test
+
+24244296-9389-4786-bc45-f9c694b64a98-2
+00:23:31.756 --> 00:23:36.760
+table to create entries into this ETL
+data injection source window table.
+
+74858a28-af87-40f3-b82c-4d2ea1643825-0
+00:23:37.280 --> 00:23:44.663
+So here in June 1,
+June 1 batch will be like they're marking,
+
+74858a28-af87-40f3-b82c-4d2ea1643825-1
+00:23:44.663 --> 00:23:52.880
+they're having four state,
+four kind of statuses in their batch run.
+
+47cebccb-3947-4e03-9a75-337e550dff2c-0
+00:23:53.440 --> 00:23:57.760
+First one would be started, completed,
+failed partial.
+
+42183673-0eb1-403a-a0a1-a3518f0f165f-0
+00:23:58.640 --> 00:24:05.465
+So the our zone 2 batch run will get
+started if if if my dependent zone 1
+
+42183673-0eb1-403a-a0a1-a3518f0f165f-1
+00:24:05.465 --> 00:24:09.800
+batch is either in completed or partial
+state.
+
+f1f43734-4622-4f74-83be-6ec029c194b1-0
+00:24:10.400 --> 00:24:13.280
+What does this partial meaning completed
+meaning?
+
+ec08f884-0cc0-49f2-9e9e-3b1afcb89350-0
+00:24:13.440 --> 00:24:20.500
+If all the jobs under that particular
+zone 1 batch is completed then it will
+
+ec08f884-0cc0-49f2-9e9e-3b1afcb89350-1
+00:24:20.500 --> 00:24:23.160
+hold the status as completed.
+
+cfa2392e-b0f5-42c4-9a21-474d68c6370a-0
+00:24:23.520 --> 00:24:28.020
+If few of the jobs in the zone under the
+zone 1 batch is completed and few have
+
+cfa2392e-b0f5-42c4-9a21-474d68c6370a-1
+00:24:28.020 --> 00:24:30.720
+failed then it will take the status as
+partial.
+
+c389a950-93fd-4f78-aa49-b760e25fa389-0
+00:24:31.280 --> 00:24:36.640
+Our zone 2 batch will get started if few
+of the jobs job loss are completed.
+
+ac382888-d22e-46f3-989d-a8382de85c97-0
+00:24:37.080 --> 00:24:40.484
+OK,
+so in that case we have to get the
+
+ac382888-d22e-46f3-989d-a8382de85c97-1
+00:24:40.484 --> 00:24:47.729
+sourcing window for each and every table
+and we should not proceed with the tables
+
+ac382888-d22e-46f3-989d-a8382de85c97-2
+00:24:47.729 --> 00:24:55.061
+table loads whose sources or whose source
+loads are failed in the zone 1 batch run,
+
+ac382888-d22e-46f3-989d-a8382de85c97-3
+00:24:55.061 --> 00:24:55.760
+correct?
+
+c60d3619-1a50-4a1e-81cb-52b3df6123b4-0
+00:24:56.200 --> 00:25:00.082
+So for that purpose,
+this particular detailed data injection
+
+c60d3619-1a50-4a1e-81cb-52b3df6123b4-1
+00:25:00.082 --> 00:25:04.920
+source window table is introduced which
+will have the source level details.
+
+3f962653-c885-4256-b424-ca2dca13ef5c-0
+00:25:04.920 --> 00:25:09.315
+So for each and every source level
+details and for each and every source we
+
+3f962653-c885-4256-b424-ca2dca13ef5c-1
+00:25:09.315 --> 00:25:11.917
+will have the corresponding sourcing
+window,
+
+3f962653-c885-4256-b424-ca2dca13ef5c-2
+00:25:11.917 --> 00:25:14.000
+sourcing startup and sourcing enter.
+
+e30544d0-b3bc-4be0-af1e-6d509b5e9f3d-0
+00:25:14.880 --> 00:25:16.240
+Hope everyone is getting.
+
+eef34ab4-340a-4a07-8baa-2ee560fd833a-0
+00:25:17.400 --> 00:25:22.530
+I'm just giving this because this is not
+is dedicated to June,
+
+eef34ab4-340a-4a07-8baa-2ee560fd833a-1
+00:25:22.530 --> 00:25:24.240
+June 2 and June 3 OK.
+
+e19da05e-5e14-47ab-b5d5-8429d1417f09-0
+00:25:24.640 --> 00:25:29.509
+In case of new load we will just make use
+of job ID and batch ID and we will fetch
+
+e19da05e-5e14-47ab-b5d5-8429d1417f09-1
+00:25:29.509 --> 00:25:34.085
+the source table names and using the
+source table name we will get the latest
+
+e19da05e-5e14-47ab-b5d5-8429d1417f09-2
+00:25:34.085 --> 00:25:36.960
+job run details of that particular source
+table.
+
+794051d7-9021-4bc9-bad4-d79903b50d41-0
+00:25:37.200 --> 00:25:44.522
+Using those we will make entries into the
+ETL data ETL data ingestion source window
+
+794051d7-9021-4bc9-bad4-d79903b50d41-1
+00:25:44.522 --> 00:25:51.496
+table OK and then we will check if if my
+source job status is not equal to fail
+
+794051d7-9021-4bc9-bad4-d79903b50d41-2
+00:25:51.496 --> 00:25:53.240
+for the current job.
+
+07992af1-4971-4124-893c-b00867da41d2-0
+00:25:53.760 --> 00:25:59.516
+So once we make entries into that,
+we will check whether all the like if my
+
+07992af1-4971-4124-893c-b00867da41d2-1
+00:25:59.516 --> 00:26:05.197
+target table has 222 source tables,
+if any one of the source table load is
+
+07992af1-4971-4124-893c-b00867da41d2-2
+00:26:05.197 --> 00:26:08.000
+failed, I should not proceed further.
+
+0f4cd615-6ab6-49de-9d54-0b0e6872a774-0
+00:26:08.240 --> 00:26:10.080
+I should not do the load for my target.
+
+40784715-b8c9-40fc-b343-42bfcf01b23f-0
+00:26:10.360 --> 00:26:12.200
+So that is what here it is meaning.
+
+06713463-26f5-4745-8aa6-8523b7e46cad-0
+00:26:13.720 --> 00:26:19.503
+So if any of the source gets failed, we,
+we, we just yeah, if I, if I, if we,
+
+06713463-26f5-4745-8aa6-8523b7e46cad-1
+00:26:19.503 --> 00:26:23.655
+if anything is getting failed,
+we just mark the status,
+
+06713463-26f5-4745-8aa6-8523b7e46cad-2
+00:26:23.655 --> 00:26:28.919
+whatever the entry that we have made here
+in the job run stats, right?
+
+6ab9379f-a333-46c8-9ff2-0046b774b1a2-0
+00:26:29.160 --> 00:26:30.880
+We'll just mark it as failed.
+
+9711c027-db21-48e4-bfbd-e85917a42840-0
+00:26:31.160 --> 00:26:35.481
+And we will create one entry in job at a
+stats table because we have to make an
+
+9711c027-db21-48e4-bfbd-e85917a42840-1
+00:26:35.481 --> 00:26:36.400
+error log, right?
+
+5a99c35b-36cf-440c-b94d-5b3fcd2bd5e1-0
+00:26:36.520 --> 00:26:41.140
+And then we will send out a failure
+notification stating that the source job
+
+5a99c35b-36cf-440c-b94d-5b3fcd2bd5e1-1
+00:26:41.140 --> 00:26:43.960
+run has been failed for this particular
+table.
+
+6b04e76e-660d-42b9-b55a-7e1cb032a303-0
+00:26:44.680 --> 00:26:46.680
+That is the reason why we are not
+proceeding further.
+
+123c3d15-27f1-4300-b00e-90e784ead127-0
+00:26:46.680 --> 00:26:48.480
+We are failing the job here.
+
+7932911b-1f42-48f7-9282-76e78f7d2a47-0
+00:26:49.480 --> 00:26:49.840
+Got it.
+
+9c7b4787-ffdb-451f-a68a-a4718e2d86c7-0
+00:26:54.160 --> 00:26:57.360
+If we are good,
+let me know if everyone is clear here.
+
+466d60a1-79a8-4e9e-b6b3-fc98d5bb5bd1-0
+00:26:58.200 --> 00:26:58.760
+Yes, yes.
+
+c62f7c3a-0a11-4468-9117-057d7174e830-0
+00:27:00.000 --> 00:27:02.560
+OK,
+then and then moving on to the next step.
+
+d694aa2e-cab4-435a-bc91-0f8324aaf3c9-0
+00:27:02.600 --> 00:27:10.909
+Here we will check whether if there are
+any DQ checks assigned to our particular
+
+d694aa2e-cab4-435a-bc91-0f8324aaf3c9-1
+00:27:10.909 --> 00:27:11.320
+job.
+
+8c45b9b5-6c0b-41ab-aad3-4c35b3024577-0
+00:27:11.440 --> 00:27:14.067
+If S,
+then we will make entries into the job
+
+8c45b9b5-6c0b-41ab-aad3-4c35b3024577-1
+00:27:14.067 --> 00:27:16.753
+role execution log table with the job run
+ID,
+
+8c45b9b5-6c0b-41ab-aad3-4c35b3024577-2
+00:27:16.753 --> 00:27:19.440
+job role assignment ID and status as
+started.
+
+4286a380-7da1-428b-9ab5-d9a812e73375-0
+00:27:20.200 --> 00:27:27.089
+If there are no,
+then we'll just go to this step end step,
+
+4286a380-7da1-428b-9ab5-d9a812e73375-1
+00:27:27.089 --> 00:27:27.440
+OK.
+
+706792d9-9177-4988-97c7-55a1c6368fa1-0
+00:27:27.800 --> 00:27:34.130
+And in case of zone 1 rerun or normal
+zone 2 rerun then also the scenario would
+
+706792d9-9177-4988-97c7-55a1c6368fa1-1
+00:27:34.130 --> 00:27:35.080
+be the same.
+
+378f96f6-9201-48df-88f2-74fce7d4308d-0
+00:27:35.960 --> 00:27:37.520
+It will just make a new entry.
+
+d33471a9-feab-4dcb-ad35-0f4f212b3c91-0
+00:27:37.800 --> 00:27:43.204
+In case of rerun whatever the table that
+are that are loaded complete that are
+
+d33471a9-feab-4dcb-ad35-0f4f212b3c91-1
+00:27:43.204 --> 00:27:48.677
+loaded successfully in my previous run,
+those will also be loaded again in case
+
+d33471a9-feab-4dcb-ad35-0f4f212b3c91-2
+00:27:48.677 --> 00:27:52.440
+of rerun OK zone to rerun not zone 1
+rerun zone right?
+
+c67911de-5cd9-41d8-88c6-fdb49d68c3ed-0
+00:27:53.360 --> 00:27:59.480
+In case of even in zone 1 rerun all the
+tables will be loaded OK zone 1.
+
+64c1129b-85c8-48a1-a143-a7d03ff5374d-0
+00:27:59.680 --> 00:28:06.333
+The concept of zone 1 rerun will be
+explained like will be more of functional
+
+64c1129b-85c8-48a1-a143-a7d03ff5374d-1
+00:28:06.333 --> 00:28:06.760
+side.
+
+3303e64f-9fa0-4cc4-88b8-1ab4cb16fe1a-0
+00:28:06.760 --> 00:28:11.960
+Like in case of any we will have a column
+called zone one UUID.
+
+646702a0-bf7b-452d-a0d1-6bba10adea10-0
+00:28:12.240 --> 00:28:15.120
+So in case of zone 1 rerun we will just
+update that column.
+
+c90ce2fb-8fe6-4908-8760-0489d020d00c-0
+00:28:15.120 --> 00:28:19.760
+So that functionality will be explained
+as part of the actual table load.
+
+7d87210f-559e-4836-96bd-e3cd42e1a915-0
+00:28:20.160 --> 00:28:22.403
+OK,
+so in case of zone 1 rerun also we'll
+
+7d87210f-559e-4836-96bd-e3cd42e1a915-1
+00:28:22.403 --> 00:28:26.570
+make a new entry for each and every
+target table with status has started into
+
+7d87210f-559e-4836-96bd-e3cd42e1a915-2
+00:28:26.570 --> 00:28:27.960
+the job transfers preload.
+
+72b96844-2675-4742-9b9d-2c5661dc90f1-0
+00:28:28.280 --> 00:28:32.443
+And in case of zone 1 rerun,
+we will the process will be similar to
+
+72b96844-2675-4742-9b9d-2c5661dc90f1-1
+00:28:32.443 --> 00:28:33.240
+the new load.
+
+943ff398-adff-4ab6-974e-e792d737ac66-0
+00:28:33.760 --> 00:28:39.120
+But in case of zone 2 rerun we have to
+because.
+
+54a95f14-4861-4e9a-924d-c75c7aa43b65-0
+00:28:39.680 --> 00:28:44.000
+So for example in case of zone 2 rerun,
+we it would be a scenario like this.
+
+a66196f2-6add-486a-8dc8-804cacf7e251-0
+00:28:45.440 --> 00:28:50.848
+I triggered my job today in the morning
+like it got triggered in the scheduling
+
+a66196f2-6add-486a-8dc8-804cacf7e251-1
+00:28:50.848 --> 00:28:53.080
+tool automatically it got failed.
+
+51210801-7122-47f5-9cee-e866675b05e9-0
+00:28:53.400 --> 00:28:58.235
+So upon validation,
+we got to know that there's some issue
+
+51210801-7122-47f5-9cee-e866675b05e9-1
+00:28:58.235 --> 00:29:04.873
+with the logic and we have to do the run
+from day one to day 10, like till date,
+
+51210801-7122-47f5-9cee-e866675b05e9-2
+00:29:04.873 --> 00:29:06.840
+OK, today's 10th, right?
+
+bbf1debf-7b0a-4bff-9bdb-3d7a2c0ca34e-0
+00:29:07.240 --> 00:29:10.159
+So my,
+whatever the data that has been loaded on
+
+bbf1debf-7b0a-4bff-9bdb-3d7a2c0ca34e-1
+00:29:10.159 --> 00:29:12.960
+from June 1st to June 10th should be
+reloaded.
+
+503f0e9f-fd72-4fbc-ae05-e7e969236461-0
+00:29:13.040 --> 00:29:16.560
+So we're doing a rerun here for June 2.
+
+005e3111-f82c-4d74-9f11-b728263d3478-0
+00:29:17.240 --> 00:29:20.166
+No,
+in that case we have to mention we have
+
+005e3111-f82c-4d74-9f11-b728263d3478-1
+00:29:20.166 --> 00:29:25.420
+to provide the execution run ID of the
+batch run or the of the batch run which
+
+005e3111-f82c-4d74-9f11-b728263d3478-2
+00:29:25.420 --> 00:29:28.480
+which is which is there in the first day
+one.
+
+4dd34acc-274a-4b5e-ab50-f201fab31a4f-0
+00:29:28.520 --> 00:29:35.148
+So it will take the sourcing start time
+from that from that execution to tail up
+
+4dd34acc-274a-4b5e-ab50-f201fab31a4f-1
+00:29:35.148 --> 00:29:39.240
+like A2 tail like the job and time of the
+source.
+
+64f11090-0253-4d0a-8911-4dee8613682f-0
+00:29:40.000 --> 00:29:46.117
+So here in case of read and don't to read
+and we it will do a look up on the same
+
+64f11090-0253-4d0a-8911-4dee8613682f-1
+00:29:46.117 --> 00:29:51.862
+table data ingestion table to get the
+details based on the minimum execution
+
+64f11090-0253-4d0a-8911-4dee8613682f-2
+00:29:51.862 --> 00:29:56.040
+run ID and latest successful executed
+zone to job load.
+
+45808b7d-9597-461b-85be-ee5dcb828b46-0
+00:29:56.640 --> 00:30:02.285
+It will take all these details and it
+will bring the sourcing statum and
+
+45808b7d-9597-461b-85be-ee5dcb828b46-1
+00:30:02.285 --> 00:30:05.920
+sourcing end time for a particular table
+load.
+
+4adf979b-f11c-487c-97b6-d4e1fe06f83d-0
+00:30:06.080 --> 00:30:10.320
+And before this rerun the cleanup should
+be happened manually.
+
+f6d95de1-7773-4a6c-995c-1b4bf6e0e302-0
+00:30:11.200 --> 00:30:16.828
+OK,
+Hope everyone is clear here between rerun
+
+f6d95de1-7773-4a6c-995c-1b4bf6e0e302-1
+00:30:16.828 --> 00:30:19.520
+and June 1 rerun here.
+
+0f809147-f117-49e7-9a2c-3fe04507376e-0
+00:30:19.520 --> 00:30:23.360
+We don't do anything now and this we will
+do our cleanup.
+
+5f38c4b4-a17f-4683-ad73-88cf38e9001f-0
+00:30:24.280 --> 00:30:25.720
+It should be done manually.
+
+96b47f6b-72fa-4ba6-b553-7a34520ed14d-0
+00:30:26.040 --> 00:30:27.920
+OK, OK.
+
+e2049938-fc15-48c3-af2c-72c77ca3939f-0
+00:30:29.400 --> 00:30:29.640
+Yeah.
+
+123997c4-e105-4558-925c-8c0ba7fbf24e-0
+00:30:29.640 --> 00:30:31.800
+In case of any reruns also the process
+would be same.
+
+ac5ec62c-2dda-4de6-989c-b820d0aa43bf-0
+00:30:31.800 --> 00:30:35.120
+If any of the job still it shows job cost
+failed.
+
+5596efb6-e559-468a-aebc-b96c55950d6a-0
+00:30:35.240 --> 00:30:39.240
+I will just send out a notification
+mostly here.
+
+bba10845-97f8-41af-a76e-1262430bf116-0
+00:30:39.240 --> 00:30:45.727
+It won't take it won't be like it won't
+get the scenario because we are taking
+
+bba10845-97f8-41af-a76e-1262430bf116-1
+00:30:45.727 --> 00:30:51.640
+the end sourcing end time from the latest
+completed June to job, right?
+
+ed0f5c55-c11c-48c0-9b6c-be3066436ae4-0
+00:30:51.880 --> 00:30:56.262
+If it is in completed state,
+then we won't get a a scenario like
+
+ed0f5c55-c11c-48c0-9b6c-be3066436ae4-1
+00:30:56.262 --> 00:30:57.880
+wherein we'll have this.
+
+b7914703-271c-4c8b-b07e-d0d0794979c2-0
+00:30:58.280 --> 00:31:02.210
+So in case of new and June 1 rerun,
+we would expect that the source job
+
+b7914703-271c-4c8b-b07e-d0d0794979c2-1
+00:31:02.210 --> 00:31:06.468
+status might be failed in case of that
+failed and notification will be signed
+
+b7914703-271c-4c8b-b07e-d0d0794979c2-2
+00:31:06.468 --> 00:31:07.560
+off failing the job.
+
+6c4aff6e-6937-43c4-ae94-1b22bc74c0ca-0
+00:31:08.520 --> 00:31:08.840
+OK.
+
+51a4d5ec-0383-41d7-aa18-74cad2528d1d-0
+00:31:09.240 --> 00:31:13.480
+And we are good with this new region and
+Zone 1 rerun scenarios.
+
+c710184f-7de9-4179-bc91-947dda95bc30-0
+00:31:13.720 --> 00:31:15.960
+Now coming on to the restart scenario.
+
+19ad245d-ff1d-41ce-9c6b-37d986997725-0
+00:31:16.760 --> 00:31:21.924
+Hello, yes, Ishwari,
+is there any script which is doing the
+
+19ad245d-ff1d-41ce-9c6b-37d986997725-1
+00:31:21.924 --> 00:31:26.916
+cleanup or how Currently we don't have
+any script for OK,
+
+19ad245d-ff1d-41ce-9c6b-37d986997725-2
+00:31:26.916 --> 00:31:30.360
+we're manually deleting for the cleanup.
+
+d6b4e553-d184-4168-8fe7-d0952f0b09bb-0
+00:31:32.640 --> 00:31:39.608
+So here for rerun cleanup,
+there are a process already are already
+
+d6b4e553-d184-4168-8fe7-d0952f0b09bb-1
+00:31:39.608 --> 00:31:40.440
+aligned.
+
+950b4571-554f-44ee-bf24-49fcdb93118b-0
+00:31:40.440 --> 00:31:42.400
+We have the process already aligned.
+
+5ae88b6e-003c-47f0-832d-fe562a918188-0
+00:31:42.760 --> 00:31:50.725
+You can check with the Swayam or Saurabh
+on the rerun thing because it is it is a
+
+5ae88b6e-003c-47f0-832d-fe562a918188-1
+00:31:50.725 --> 00:31:52.280
+different topic.
+
+620a3b57-49a8-4f22-829a-cd19e08fec4b-0
+00:31:52.400 --> 00:31:54.280
+It, it is not related to ABC.
+
+d4672c04-9448-41cf-a25e-7ecc0abdca79-0
+00:31:55.160 --> 00:32:00.570
+It is so more of is it something which
+has been like designed or developed in
+
+d4672c04-9448-41cf-a25e-7ecc0abdca79-1
+00:32:00.570 --> 00:32:01.680
+the IDMC, right?
+
+e98da78f-171b-45d5-addd-fb3bd67bea1c-0
+00:32:02.000 --> 00:32:05.120
+No, no, no, it's just normal cleanup.
+
+aff3c5f1-9a71-4bf3-b7ac-ee19ad35eb39-0
+00:32:06.120 --> 00:32:12.698
+But the cleanup steps are already as far
+as I remember those are already we have
+
+aff3c5f1-9a71-4bf3-b7ac-ee19ad35eb39-1
+00:32:12.698 --> 00:32:14.160
+the all the steps.
+
+f11f165d-fe1c-43b7-8f0e-e2124d3e8ce6-0
+00:32:14.760 --> 00:32:20.113
+You can check with Saurabh or Swayam on
+this T run cleanup Zone 1 read Zone 2
+
+f11f165d-fe1c-43b7-8f0e-e2124d3e8ce6-1
+00:32:20.113 --> 00:32:21.280
+read and cleanup.
+
+0f5c7624-27d2-4a74-afb6-f6f62f8c3825-0
+00:32:21.280 --> 00:32:23.000
+You can check with them.
+
+251c52ec-6e2c-415a-8b8a-f54072213caa-0
+00:32:23.240 --> 00:32:25.840
+OK, you got it.
+
+a35d474f-445f-4d03-8ac5-393e22b2e08f-0
+00:32:25.840 --> 00:32:27.680
+This is not related to ABC.
+
+09f453ff-e0fc-4e6a-95e5-f86eac0fdb4a-0
+00:32:27.840 --> 00:32:29.120
+OK, That is a reason, right?
+
+983a4e11-f225-4c7e-b030-240520a567b4-0
+00:32:29.400 --> 00:32:31.160
+Those details are not mentioned here.
+
+96b4e5c7-7971-438d-a663-bb422f46f885-0
+00:32:31.280 --> 00:32:34.440
+Even I'm not short on the steps.
+
+2003501c-8696-4ebe-be19-6e0f6552a68f-0
+00:32:34.800 --> 00:32:35.680
+OK, OK got it.
+
+433287d6-86f3-4bf3-9d1d-a32b4986c4f1-0
+00:32:36.360 --> 00:32:40.880
+OK and in case of restart it will handle
+manually.
+
+7ccb2b85-25c6-4e94-b049-8a106d4a424e-0
+00:32:41.080 --> 00:32:45.200
+It will be handled automatically in the
+code in case of restart.
+
+aa03dfc5-d633-42f3-bfd3-1698b3125928-0
+00:32:45.560 --> 00:32:50.000
+Restart is mostly happens whenever any
+network issue happens.
+
+b1868e65-76af-4515-90f4-21ca2fa9050e-0
+00:32:50.960 --> 00:32:54.507
+OK,
+because of that our of our job run got
+
+b1868e65-76af-4515-90f4-21ca2fa9050e-1
+00:32:54.507 --> 00:32:58.880
+interrupted and we are going ahead with
+the restart.
+
+64e23248-e39a-4947-a635-2d70815c515f-0
+00:32:59.040 --> 00:33:02.200
+Then clean up will be handled
+automatically within the code.
+
+13255bd9-0f9e-44b6-ac01-134f6f285403-0
+00:33:02.520 --> 00:33:06.420
+In case of free run,
+it should be manually done and that we
+
+13255bd9-0f9e-44b6-ac01-134f6f285403-1
+00:33:06.420 --> 00:33:08.240
+have to get it from someone.
+
+3592521e-8fb8-4805-ae5c-5ddb9840a381-0
+00:33:08.320 --> 00:33:09.240
+Saurabh works fine.
+
+e09f742c-c76c-4316-89ec-eb415e0e268f-0
+00:33:09.640 --> 00:33:16.256
+OK and coming to this coming back to this
+job preload, in case of restart,
+
+e09f742c-c76c-4316-89ec-eb415e0e268f-1
+00:33:16.256 --> 00:33:22.520
+it will check if this latest state status
+is either started or failed.
+
+aecb6d81-9960-44ea-95b0-fc087fa626e5-0
+00:33:23.280 --> 00:33:26.120
+If it is not started or failed,
+then it would be completed.
+
+359c5d01-6309-417a-9f9e-27c96d5951ab-0
+00:33:26.200 --> 00:33:27.440
+So we'll skip the job run.
+
+789d7207-70bb-4743-a228-6cae9cf26fcb-0
+00:33:27.800 --> 00:33:33.536
+So in case of any network issue,
+if out of my like let us assume there are
+
+789d7207-70bb-4743-a228-6cae9cf26fcb-1
+00:33:33.536 --> 00:33:37.360
+10 tables under the under a particular
+batch run.
+
+df9dc6e5-60d6-462a-b895-2dfdc0db92d0-0
+00:33:37.760 --> 00:33:42.840
+So out of this 10 tables,
+my 8 tables got loaded successfully.
+
+9c092653-58d3-4381-ae6f-0f6169839662-0
+00:33:42.840 --> 00:33:47.563
+During my 9th table run,
+it got interrupted due to some network
+
+9c092653-58d3-4381-ae6f-0f6169839662-1
+00:33:47.563 --> 00:33:52.360
+issue and then I like and and then we
+decided to do our restart.
+
+11715093-9556-4aa1-a666-58631347017e-0
+00:33:52.640 --> 00:33:57.000
+During restart we'll we can directly
+trigger our zone to batch task flow.
+
+19b0f206-a10b-47e7-92e5-d00db8b41944-0
+00:33:57.000 --> 00:33:59.400
+We don't need to trigger the batch free
+requisite.
+
+0e9d82d1-e300-4786-b304-8c7fdd2c229f-0
+00:34:00.120 --> 00:34:05.160
+We can directly do a run from here OK or
+direct.
+
+bc6201f3-fff9-46fa-88eb-565e93dc81bc-0
+00:34:05.160 --> 00:34:09.640
+We can directly trigger a batch task flow
+from stone branch OK.
+
+02c1dbf1-ad62-41c4-9b57-2fe360fc4122-0
+00:34:10.200 --> 00:34:15.179
+And then if my job run has been completed
+in my previous run,
+
+02c1dbf1-ad62-41c4-9b57-2fe360fc4122-1
+00:34:15.179 --> 00:34:20.560
+then its previous status would be started
+with would be completed.
+
+9d86eb8a-5d5b-40a5-b866-fdf51cefa5a4-0
+00:34:20.680 --> 00:34:24.042
+So in case of restart,
+we would be using the same execution run
+
+9d86eb8a-5d5b-40a5-b866-fdf51cefa5a4-1
+00:34:24.042 --> 00:34:24.200
+ID.
+
+05da98e8-e097-412a-98ac-96dc19823d1d-0
+00:34:25.000 --> 00:34:27.771
+OK,
+if for the same whatever the execution
+
+05da98e8-e097-412a-98ac-96dc19823d1d-1
+00:34:27.771 --> 00:34:30.800
+run ID that has been used for the current
+run.
+
+fa9451a1-c58c-47df-87b0-47909d33e81b-0
+00:34:31.000 --> 00:34:36.171
+If it is same as the previous run and
+it's and if its status is completed,
+
+fa9451a1-c58c-47df-87b0-47909d33e81b-1
+00:34:36.171 --> 00:34:38.240
+then we are skipping that run.
+
+54a6a965-bae9-4554-84a9-185d5644334d-0
+00:34:39.680 --> 00:34:42.640
+OK, you're getting my point right.
+
+312780bd-94da-41d9-80d7-f5ffe2072992-0
+00:34:43.280 --> 00:34:47.836
+I I just want to,
+I just want to be clear on restart,
+
+312780bd-94da-41d9-80d7-f5ffe2072992-1
+00:34:47.836 --> 00:34:54.756
+completed previous status with completed
+status and rerun with previous status as
+
+312780bd-94da-41d9-80d7-f5ffe2072992-2
+00:34:54.756 --> 00:34:55.600
+completed.
+
+70f6beb6-008e-4aba-bc34-1006c23fd155-0
+00:34:55.880 --> 00:35:00.353
+So in case of restart,
+we would be checking whether the we we
+
+70f6beb6-008e-4aba-bc34-1006c23fd155-1
+00:35:00.353 --> 00:35:03.240
+will be using the same execution run ID.
+
+85dac651-e653-48ef-a5b1-31ff4d64dd27-0
+00:35:03.240 --> 00:35:06.687
+In case of restart OK,
+whatever the execution run ID that has
+
+85dac651-e653-48ef-a5b1-31ff4d64dd27-1
+00:35:06.687 --> 00:35:10.080
+been used in the previous run,
+we would be using the same 1.
+
+98147770-a812-4866-86ce-2f72f40353d2-0
+00:35:10.480 --> 00:35:16.178
+So we would be checking whether the
+previous status is completed and the
+
+98147770-a812-4866-86ce-2f72f40353d2-1
+00:35:16.178 --> 00:35:18.520
+execution run ID is also same.
+
+1449e157-a90e-4781-a29a-4c847068888b-0
+00:35:19.040 --> 00:35:21.240
+In that case we are skipping the job run.
+
+a109b2a0-6437-450c-9fd3-0db35799194d-0
+00:35:21.680 --> 00:35:26.441
+In case of free run,
+if my previous status is completed and
+
+a109b2a0-6437-450c-9fd3-0db35799194d-1
+00:35:26.441 --> 00:35:31.680
+execution run IDs are different then I
+have to do the load again.
+
+cd1a4875-9c2f-487b-ad8b-4666557f1428-0
+00:35:32.720 --> 00:35:35.770
+OK,
+I'm just moving here just to make sure
+
+cd1a4875-9c2f-487b-ad8b-4666557f1428-1
+00:35:35.770 --> 00:35:38.040
+that you are clear on this part.
+
+85c7102c-7b5b-465c-845a-00b18e158672-0
+00:35:38.440 --> 00:35:40.800
+So in case of restart.
+
+e6f79623-0b36-4732-b809-5dbec68b13c3-0
+00:35:40.800 --> 00:35:43.680
+So here we are passing the execution type
+as restart.
+
+4c1c21e5-8b07-492c-a6d3-edf35b71cc55-0
+00:35:43.680 --> 00:35:47.920
+Here we are doing the entry with the same
+execution run ID.
+
+b78647e7-cce6-413f-8956-0ffcfecbacdd-0
+00:35:47.920 --> 00:35:52.320
+Here also we are doing the entry into
+this table with the same execution right.
+
+5e547be5-425a-4b7c-bc6a-54b87735b22c-0
+00:35:52.360 --> 00:35:55.880
+Execution run ID is the column in batch
+run stats table.
+
+24c77a79-cfc3-42f9-aee1-0851169d9c00-0
+00:35:56.520 --> 00:35:59.200
+OK hope you are clear here.
+
+675fe83f-3d01-43c4-bf88-efb6a0aad2d2-0
+00:36:02.560 --> 00:36:05.520
+Hello, yes, yes, OK, yes, sure.
+
+44110a7a-d890-4433-9885-e2cfb0785551-0
+00:36:05.520 --> 00:36:08.899
+So coming back to this job preload here,
+whenever we have completed,
+
+44110a7a-d890-4433-9885-e2cfb0785551-1
+00:36:08.899 --> 00:36:10.320
+we are just skipping the run.
+
+f987e59a-f2a9-4650-b9fd-9996941f40be-0
+00:36:10.320 --> 00:36:16.518
+And for the ones which are having the
+fail or started status, the OK,
+
+f987e59a-f2a9-4650-b9fd-9996941f40be-1
+00:36:16.518 --> 00:36:21.743
+if we have failed,
+then we are just updating the status in
+
+f987e59a-f2a9-4650-b9fd-9996941f40be-2
+00:36:21.743 --> 00:36:24.400
+the job run starts to started.
+
+0225ab66-f993-4ec7-b3f4-c870939e0959-0
+00:36:24.800 --> 00:36:25.160
+That's it.
+
+015b3493-ec9d-40fb-8838-b38687bbbee6-0
+00:36:25.760 --> 00:36:30.349
+We, we're, we just want, we,
+we're trying to use the same entry even
+
+015b3493-ec9d-40fb-8838-b38687bbbee6-1
+00:36:30.349 --> 00:36:31.680
+for the current run.
+
+a65a8abf-a2fe-4c1d-8101-6363800fd948-0
+00:36:31.880 --> 00:36:34.040
+We're just updating the status from
+failed to started.
+
+22468208-f6ca-412f-b9d4-bbc3fdadca4f-0
+00:36:34.120 --> 00:36:36.560
+If it is already started,
+we are using this as it is.
+
+5665b3d8-ae0a-4691-a477-e197471f6863-0
+00:36:36.560 --> 00:36:38.560
+We are not making anything OK.
+
+5f5d3aa0-eb67-462d-b519-7d6d54285d64-0
+00:36:38.880 --> 00:36:45.133
+And in case if it is started,
+that means mostly it would be due to
+
+5f5d3aa0-eb67-462d-b519-7d6d54285d64-1
+00:36:45.133 --> 00:36:48.400
+previous trans network failure, OK?
+
+6781faff-5b16-47b2-8491-39b3d62cda2a-0
+00:36:48.480 --> 00:36:52.440
+Because because of that it won't be able
+to update the status to failed.
+
+6446d15e-5152-48e2-992c-7e4f82413894-0
+00:36:53.960 --> 00:36:54.320
+OK.
+
+dbd2a609-f27c-4206-8449-9c4b64058deb-0
+00:36:55.320 --> 00:37:00.380
+That is the reason why we we might not be
+able to make an entry into the job error
+
+dbd2a609-f27c-4206-8449-9c4b64058deb-1
+00:37:00.380 --> 00:37:01.600
+stats right earlier.
+
+5f013df3-3dfa-42ff-ac13-8c0f591dffe9-0
+00:37:01.600 --> 00:37:05.881
+That is the reason why we are making an
+entry into the job error stats for the
+
+5f013df3-3dfa-42ff-ac13-8c0f591dffe9-1
+00:37:05.881 --> 00:37:06.640
+previous runs.
+
+8f93560a-616b-4b04-8ac1-6d4d6b07ad7f-0
+00:37:06.640 --> 00:37:12.480
+Abrupt failure OK, OK.
+
+49542ec2-3129-4437-adfd-8b49222bf21e-0
+00:37:12.480 --> 00:37:16.520
+And after that for restart,
+we will create entries in the error.
+
+2f248c59-e836-4699-8f85-84d110687a1e-0
+00:37:17.560 --> 00:37:19.520
+This is similar to this new load.
+
+6de19cde-da0e-4d70-96b8-c826a59511ab-0
+00:37:19.600 --> 00:37:23.440
+So it will make use of job ID and batch
+ID.
+
+69d43193-a383-4c72-8a2a-ad07d45aa53e-0
+00:37:23.440 --> 00:37:27.919
+It will bring all the source stable
+details and based upon the source table
+
+69d43193-a383-4c72-8a2a-ad07d45aa53e-1
+00:37:27.919 --> 00:37:30.748
+details,
+it will get the job job run details of
+
+69d43193-a383-4c72-8a2a-ad07d45aa53e-2
+00:37:30.748 --> 00:37:35.581
+each and every source table and it will
+make entries into the ETL data transition
+
+69d43193-a383-4c72-8a2a-ad07d45aa53e-3
+00:37:35.581 --> 00:37:36.760
+source window table.
+
+b5e1e888-2a8e-47d6-a1c0-eea62f00d13a-0
+00:37:37.280 --> 00:37:37.600
+OK.
+
+0cb61952-0aa9-4833-b77e-bd0efb1d01b5-0
+00:37:37.600 --> 00:37:47.560
+I think it's better to add this source in
+it.
+
+aea2c0e0-e426-4556-a407-48120f2df84a-0
+00:37:51.560 --> 00:37:55.480
+Yes, OK if here, here.
+
+abdd88d5-ece5-4800-95ca-74bcb29dd4d6-0
+00:37:55.480 --> 00:38:01.418
+One more thing like if, if,
+if there are entries already created into
+
+abdd88d5-ece5-4800-95ca-74bcb29dd4d6-1
+00:38:01.418 --> 00:38:07.526
+this table in my previous run,
+it will skip the IT will skip making the
+
+abdd88d5-ece5-4800-95ca-74bcb29dd4d6-2
+00:38:07.526 --> 00:38:10.920
+entries OK, else it will do you want it.
+
+7051c42c-28e5-4a93-9ec2-104bd8c6a07e-0
+00:38:10.920 --> 00:38:12.200
+It will, it won't do.
+
+3072ce14-55bb-4ae0-8ef9-08e48f10d0b6-0
+00:38:12.200 --> 00:38:15.200
+It won't like the entries are.
+
+9145bbf9-5b55-455b-80ce-46e76d9dec4f-0
+00:38:15.280 --> 00:38:18.346
+If the entries are already made into this
+table in the previous run,
+
+9145bbf9-5b55-455b-80ce-46e76d9dec4f-1
+00:38:18.346 --> 00:38:19.280
+it won't do it again.
+
+406d769a-bdc2-4da9-ab0c-91a28e88174a-0
+00:38:21.880 --> 00:38:48.440
+I just want to add that failure 1 here,
+this one here also will be here.
+
+f6e0eaa8-78e3-4d97-9922-4b5de1d22080-0
+00:38:48.440 --> 00:38:55.721
+Also we'll check whether all the source
+tables or source table runs or computers
+
+f6e0eaa8-78e3-4d97-9922-4b5de1d22080-1
+00:38:55.721 --> 00:38:57.520
+successfully or not.
+
+8ef8f230-2e11-45af-9462-df9deaf4b352-0
+00:39:10.560 --> 00:39:16.557
+If all the source tables are completed
+then only it will move forward otherwise
+
+8ef8f230-2e11-45af-9462-df9deaf4b352-1
+00:39:16.557 --> 00:39:21.280
+otherwise it will just update the status
+in the job run stats.
+
+793553bb-00f5-40f6-b6a3-b7a0615f9a7c-0
+00:39:23.520 --> 00:39:27.618
+It will update the status in the job
+stats has failed and creates one entry in
+
+793553bb-00f5-40f6-b6a3-b7a0615f9a7c-1
+00:39:27.618 --> 00:39:31.768
+the job error stats and it will send out
+a notification stating that source job
+
+793553bb-00f5-40f6-b6a3-b7a0615f9a7c-2
+00:39:31.768 --> 00:39:35.555
+run has been failed and that is the
+reason why we are failing the target
+
+793553bb-00f5-40f6-b6a3-b7a0615f9a7c-3
+00:39:35.555 --> 00:39:39.549
+table run also and then saying it will it
+will do check for if there are any
+
+793553bb-00f5-40f6-b6a3-b7a0615f9a7c-4
+00:39:39.549 --> 00:39:40.120
+statistics.
+
+7d7aca9c-c8d7-48a4-8119-cd34a56f74eb-0
+00:39:40.440 --> 00:39:45.377
+If S it will make an entrance into the
+job error job rule execution log table
+
+7d7aca9c-c8d7-48a4-8119-cd34a56f74eb-1
+00:39:45.377 --> 00:39:47.720
+else it will just go on to this step.
+
+0f11a588-957c-4e84-b001-adf27775eada-0
+00:39:48.120 --> 00:39:50.600
+So it will perform a clean up of the
+target table.
+
+9151c858-5673-4f4a-941f-630c820fd58f-0
+00:39:51.200 --> 00:39:56.713
+In case of restart it will be doing it
+here automatically using this step and
+
+9151c858-5673-4f4a-941f-630c820fd58f-1
+00:39:56.713 --> 00:39:59.400
+after that if we have any stage table.
+
+3ce8b459-83a7-4e93-b20b-1e06e55cca61-0
+00:40:00.040 --> 00:40:04.705
+In between our source and target table,
+it will check whether the source table is
+
+3ce8b459-83a7-4e93-b20b-1e06e55cca61-1
+00:40:04.705 --> 00:40:06.640
+loaded as part of my previous run.
+
+df85b7d5-fbd9-4af5-9d8a-dd87c13af43b-0
+00:40:06.640 --> 00:40:08.360
+It will check the count of the records.
+
+edb22c7b-6665-4a23-a894-64beb4a3dce9-0
+00:40:08.360 --> 00:40:11.680
+So we are doing a full PDO for our table
+load.
+
+51cdfa63-5693-4311-9d84-12033a033436-0
+00:40:11.880 --> 00:40:15.944
+So in case of full PDO either all either
+all the requests will just loaded
+
+51cdfa63-5693-4311-9d84-12033a033436-1
+00:40:15.944 --> 00:40:20.442
+otherwise none will be loaded in this in
+the run in the current load like whatever
+
+51cdfa63-5693-4311-9d84-12033a033436-2
+00:40:20.442 --> 00:40:21.960
+the in in a particular load.
+
+0f6b79e8-825d-4b90-9a43-2886a1bd53d0-0
+00:40:22.160 --> 00:40:27.592
+So if my stage table count is greater
+than 0 that means my stable my stage
+
+0f6b79e8-825d-4b90-9a43-2886a1bd53d0-1
+00:40:27.592 --> 00:40:30.200
+table got loaded in my previous run.
+
+be1374fc-fb90-457f-8328-d224593ba160-0
+00:40:30.880 --> 00:40:37.177
+So in case of restart we won't be able to
+do like we we are not going to load our
+
+be1374fc-fb90-457f-8328-d224593ba160-1
+00:40:37.177 --> 00:40:38.560
+stage table again.
+
+19ab507b-62a0-487f-8883-10c649d7d2fe-0
+00:40:38.560 --> 00:40:43.640
+We're just skipping that load so far that
+here we are doing a count.
+
+8cc60fd2-5842-4c3a-9719-f84615ac85c0-0
+00:40:43.760 --> 00:40:49.151
+We are getting the count in case if we
+don't have stage table or if like we we
+
+8cc60fd2-5842-4c3a-9719-f84615ac85c0-1
+00:40:49.151 --> 00:40:54.883
+are just assigning the stage table record
+value as zero like all the all the tables
+
+8cc60fd2-5842-4c3a-9719-f84615ac85c0-2
+00:40:54.883 --> 00:41:00.479
+doesn't have stage table right in that
+case and that we are just keeping it as 0.
+
+09390dc3-95e7-47c1-9a2b-ad3205e76d2f-0
+00:41:03.080 --> 00:41:12.120
+OK on a high level like in job preload we
+are doing three things.
+
+d11e8778-203d-44ad-bef5-5a64e93863ab-0
+00:41:12.560 --> 00:41:17.300
+Making entry into job run stats,
+making entries into ETL data ingestion
+
+d11e8778-203d-44ad-bef5-5a64e93863ab-1
+00:41:17.300 --> 00:41:20.856
+source window,
+making entries into job role execution
+
+d11e8778-203d-44ad-bef5-5a64e93863ab-2
+00:41:20.856 --> 00:41:21.120
+log.
+
+27abae65-f9b2-494f-bfc3-6be78a92d21e-0
+00:41:21.800 --> 00:41:26.732
+In case of restart we are doing a clean
+up checking whether the stage stable load
+
+27abae65-f9b2-494f-bfc3-6be78a92d21e-1
+00:41:26.732 --> 00:41:29.680
+is stage stable is loaded in my previous
+or not.
+
+fa713990-c1fd-48c6-b0db-f7f41d98e679-0
+00:41:30.720 --> 00:41:33.960
+In a high level,
+this is what happening in the job reload.
+
+2c62fa35-11e2-449c-98c4-9ee400572e7f-0
+00:41:34.960 --> 00:41:39.440
+Let me know if if anyone has any
+questions on this job load phase.
+
+725ca3be-524c-4290-b471-2a69545c854f-0
+00:41:50.110 --> 00:41:51.030
+I think we are good.
+
+b403bc4c-b7c8-49c7-9978-a06584f5e6ab-0
+00:41:51.350 --> 00:41:51.910
+We are good.
+
+abb60f36-8a1b-4194-8730-eb41a38a443a-0
+00:41:54.710 --> 00:42:00.227
+OK OK,
+so here from this step we will be passing
+
+abb60f36-8a1b-4194-8730-eb41a38a443a-1
+00:42:00.227 --> 00:42:09.461
+the job run, LD stage table record count,
+sourcing dates to the next steps and we
+
+abb60f36-8a1b-4194-8730-eb41a38a443a-2
+00:42:09.461 --> 00:42:13.740
+will we are we are exiting this phase.
+
+2d36c195-3e5a-4639-ba9d-d0da61221af7-0
+00:42:14.200 --> 00:42:19.361
+OK so here in this phase first it will
+check whether the stage table count is 0
+
+2d36c195-3e5a-4639-ba9d-d0da61221af7-1
+00:42:19.361 --> 00:42:20.200
+if it is yes.
+
+1acf0468-e453-471b-ac3d-73d0580c4c55-0
+00:42:23.600 --> 00:42:28.680
+If it is S that means stage table is not
+loaded in my previous run.
+
+b9d8a958-971c-4f1c-8ccb-cae0abb192c4-0
+00:42:29.680 --> 00:42:33.586
+OK,
+so then it will fetch the data from the
+
+b9d8a958-971c-4f1c-8ccb-cae0abb192c4-1
+00:42:33.586 --> 00:42:37.493
+source table using the sourcing window,
+OK,
+
+b9d8a958-971c-4f1c-8ccb-cae0abb192c4-2
+00:42:37.493 --> 00:42:41.400
+using the sourcing start time and
+sourcing.
+
+31f6135c-8733-4d5b-b8fb-e6966f56a816-0
+00:42:41.400 --> 00:42:45.165
+And for incremental load,
+we need the sourcing and strike sourcing
+
+31f6135c-8733-4d5b-b8fb-e6966f56a816-1
+00:42:45.165 --> 00:42:45.840
+data strike.
+
+67c08ea5-87f7-42b7-b20a-baaff4650153-0
+00:42:45.840 --> 00:42:48.800
+So it will just fetch the records.
+
+7b271c4f-a3c2-4b73-ae07-9deca69a6899-0
+00:42:49.160 --> 00:42:50.840
+So it will do multiple things.
+
+be76d2b8-ce4d-41a2-8935-c07f49a11c7a-0
+00:42:50.840 --> 00:42:54.606
+OK in this mapping,
+in this source to stage load mapping,
+
+be76d2b8-ce4d-41a2-8935-c07f49a11c7a-1
+00:42:54.606 --> 00:42:56.360
+it will do multiple things.
+
+1e3d5147-3433-4531-a9f9-e415eb3ea704-0
+00:42:56.600 --> 00:43:00.544
+One is it will load,
+it will fetch the records from the source
+
+1e3d5147-3433-4531-a9f9-e415eb3ea704-1
+00:43:00.544 --> 00:43:03.800
+using sourcing window and load it into
+stage table.
+
+aca6acbd-d6f6-440b-950b-9585e2303306-0
+00:43:04.720 --> 00:43:05.040
+OK.
+
+6a14f74d-2bf2-4e46-87c7-1215bdc83faf-0
+00:43:05.400 --> 00:43:11.996
+And if there are any DQ checks in the
+same mapping, if there are any DQ checks,
+
+6a14f74d-2bf2-4e46-87c7-1215bdc83faf-1
+00:43:11.996 --> 00:43:14.800
+it will perform the DQ validation.
+
+c7bd7df5-cc1f-464f-b186-f36e3040adaa-0
+00:43:15.240 --> 00:43:17.280
+If there are like there will be.
+
+d852728b-79f6-4113-b452-61f3a0cefa81-0
+00:43:17.400 --> 00:43:22.177
+There are two kinds of DQ checks,
+one is critical and the other one is
+
+d852728b-79f6-4113-b452-61f3a0cefa81-1
+00:43:22.177 --> 00:43:23.120
+informational.
+
+69a8bd8f-b21d-40a0-919f-e988ee4d0b34-0
+00:43:23.440 --> 00:43:31.629
+In case of any critical checks failure,
+we will route those records into error
+
+69a8bd8f-b21d-40a0-919f-e988ee4d0b34-1
+00:43:31.629 --> 00:43:39.714
+detail table and we don't route them into
+target in case of any informational
+
+69a8bd8f-b21d-40a0-919f-e988ee4d0b34-2
+00:43:39.714 --> 00:43:40.440
+checks.
+
+cf346ab1-6b93-4945-a800-fae6adebcc5e-0
+00:43:40.440 --> 00:43:46.933
+That means as a name suggests,
+if it's just like if if anything went
+
+cf346ab1-6b93-4945-a800-fae6adebcc5e-1
+00:43:46.933 --> 00:43:54.461
+wrong with any columns data then we just
+need information it can be loaded into
+
+cf346ab1-6b93-4945-a800-fae6adebcc5e-2
+00:43:54.461 --> 00:43:55.119
+target.
+
+5d434838-87c0-4880-b750-814747fab090-0
+00:43:55.400 --> 00:44:01.680
+So in case of information we will load
+the record into both tables.
+
+57b45f28-0d9d-4d7b-bcbb-30d073052c7b-0
+00:44:01.800 --> 00:44:04.360
+One is added table and the other one is
+the targeted.
+
+d1884bce-7221-43ef-82e8-178388a6b6a9-0
+00:44:05.080 --> 00:44:07.120
+Why we are loading it into error data
+table?
+
+5aede392-149e-4518-a3e0-4dbc3d67ffd8-0
+00:44:07.120 --> 00:44:12.235
+Because we we we need to notify the team
+when you when you notify them right
+
+5aede392-149e-4518-a3e0-4dbc3d67ffd8-1
+00:44:12.235 --> 00:44:14.960
+regarding this failure, DQ check failure.
+
+d78e0548-4a65-4d75-aef1-985ce535a742-0
+00:44:15.000 --> 00:44:17.240
+That's the reason why we are routing into
+the error detail table.
+
+31c262c1-8b02-4c17-bbe0-637f7eef6434-0
+00:44:17.880 --> 00:44:22.581
+OK,
+this is related to the DQ checks and in
+
+31c262c1-8b02-4c17-bbe0-637f7eef6434-1
+00:44:22.581 --> 00:44:25.360
+the job run stress temple.
+
+69e48cdd-a212-4f10-a49a-5ed82f6c47c1-0
+00:44:25.680 --> 00:44:29.360
+So here I have given all temp,
+temp temp tables right?
+
+aed7ad03-5ac3-462e-8c8a-6716ab98d9b0-0
+00:44:29.800 --> 00:44:37.402
+So we have all the zone 2 target table
+set up in Snowflake whereas ABC tables in
+
+aed7ad03-5ac3-462e-8c8a-6716ab98d9b0-1
+00:44:37.402 --> 00:44:39.280
+our postgrad sequel.
+
+2cd80086-c674-4152-9af0-b39a9c655630-0
+00:44:40.080 --> 00:44:45.181
+If we have target tables and if we have
+table source and target tables from
+
+2cd80086-c674-4152-9af0-b39a9c655630-1
+00:44:45.181 --> 00:44:48.000
+different database, full PDO doesn't work.
+
+31c98a37-7221-421d-8cbd-4cd651917c9e-0
+00:44:48.440 --> 00:44:53.400
+In order to enable full PDO,
+we're trying to make that database same.
+
+d06750e1-434e-4649-a656-afed94ff997f-0
+00:44:53.400 --> 00:44:59.097
+That is the reason why we have created
+some temporary tables in Snowflake in
+
+d06750e1-434e-4649-a656-afed94ff997f-1
+00:44:59.097 --> 00:45:04.720
+temporary ABC tables in Snowflake to
+capture the source related information
+
+d06750e1-434e-4649-a656-afed94ff997f-2
+00:45:04.720 --> 00:45:06.200
+into the ABC tables.
+
+53c4aee9-4bf5-44e4-984a-da5423643a49-0
+00:45:06.200 --> 00:45:11.672
+And then we we will use these tables in
+our post load and we will update all the
+
+53c4aee9-4bf5-44e4-984a-da5423643a49-1
+00:45:11.672 --> 00:45:16.200
+source target all the run details in our
+actual order tables only.
+
+c86efdff-bdba-439d-bdb8-ca7b0e1c9cf4-0
+00:45:17.560 --> 00:45:20.226
+OK,
+so here after this job will add a
+
+c86efdff-bdba-439d-bdb8-ca7b0e1c9cf4-1
+00:45:20.226 --> 00:45:21.560
+detailed timetable.
+
+f7beccd5-ff50-4a60-aa24-b0c1d41f19d2-0
+00:45:21.560 --> 00:45:26.335
+We have job run starts timetable wherein
+we are we will be capturing the source
+
+f7beccd5-ff50-4a60-aa24-b0c1d41f19d2-1
+00:45:26.335 --> 00:45:29.200
+record count and target unchanged record
+count.
+
+14fd4b4b-0327-4912-b230-50b1d5da688d-0
+00:45:29.560 --> 00:45:33.613
+So whatever the table,
+so whatever the source record count that
+
+14fd4b4b-0327-4912-b230-50b1d5da688d-1
+00:45:33.613 --> 00:45:38.427
+we whatever that records that are fetched
+from the source out of the source
+
+14fd4b4b-0327-4912-b230-50b1d5da688d-2
+00:45:38.427 --> 00:45:42.925
+qualifier, source transformation,
+we are just counting that and we are
+
+14fd4b4b-0327-4912-b230-50b1d5da688d-3
+00:45:42.925 --> 00:45:48.119
+making that entry into this step and also
+target and change records whatever that
+
+14fd4b4b-0327-4912-b230-50b1d5da688d-4
+00:45:48.119 --> 00:45:52.680
+records for which there is no change,
+we would be ignoring them, right.
+
+eca19678-011d-45e1-a9d8-5c254e8ddf03-0
+00:45:52.840 --> 00:45:56.120
+So those record also we are capturing
+here only.
+
+505011eb-f1ba-4c2e-96d0-a02b6a149d45-0
+00:45:57.280 --> 00:46:03.316
+And after that balance sheet cancellation,
+if we have any balance reconciliation
+
+505011eb-f1ba-4c2e-96d0-a02b6a149d45-1
+00:46:03.316 --> 00:46:08.309
+metrics for the for the particular source
+column or like whatever,
+
+505011eb-f1ba-4c2e-96d0-a02b6a149d45-2
+00:46:08.309 --> 00:46:13.600
+we will perform those calculations on the
+source columns in this only.
+
+26eef250-74c2-48d7-9ece-5bbf8593279b-0
+00:46:13.600 --> 00:46:20.049
+And we will make an entry of all these
+source balance metric values into this
+
+26eef250-74c2-48d7-9ece-5bbf8593279b-1
+00:46:20.049 --> 00:46:25.920
+balance reconciliation stats timetable
+and are referential integrated.
+
+23db187b-75ad-4730-b2c9-a2a86632efaf-0
+00:46:25.920 --> 00:46:32.412
+But so if our target table has any parent
+table for which so we you know
+
+23db187b-75ad-4730-b2c9-a2a86632efaf-1
+00:46:32.412 --> 00:46:35.080
+differential integrity, right?
+
+346aa1a9-cf2a-4b83-99fd-b94497eaf8ae-0
+00:46:35.120 --> 00:46:38.080
+So it's like a parent chain, parent chain.
+
+a7c89f1d-6f70-4af5-9ba8-fbb783c97102-0
+00:46:38.480 --> 00:46:44.433
+So we got a ID column into the target
+table for which we don't find an entering
+
+a7c89f1d-6f70-4af5-9ba8-fbb783c97102-1
+00:46:44.433 --> 00:46:48.080
+the parent table then it is called array
+record.
+
+dc4017ba-f618-4a70-9ae6-69bf5c035187-0
+00:46:48.280 --> 00:46:54.360
+So that array record will be routed into
+the RA table array timetable here OK.
+
+e30068e4-2fa7-4db4-9746-b6c7d9f0bd1d-0
+00:46:54.600 --> 00:46:58.840
+If there are no records in the stage
+table then all these will be work on.
+
+4c403afc-8926-4fe8-baa1-e13f77464ca9-0
+00:46:58.840 --> 00:47:02.720
+Once the stage table is loaded,
+the data will be loaded from the stage to
+
+4c403afc-8926-4fe8-baa1-e13f77464ca9-1
+00:47:02.720 --> 00:47:03.560
+target table OK.
+
+3bc81b0c-5dd6-43af-8ce0-05dade827ef2-0
+00:47:03.760 --> 00:47:10.107
+If there are any records in the stage
+table for this particular current job run
+
+3bc81b0c-5dd6-43af-8ce0-05dade827ef2-1
+00:47:10.107 --> 00:47:13.440
+ID then it will skip the stage table load.
+
+f3fe561f-707f-488d-8b65-7ba69387c3bd-0
+00:47:13.440 --> 00:47:14.840
+It will skip all these things.
+
+30cf78c4-0cf5-4854-9673-221fa8965bbe-0
+00:47:14.840 --> 00:47:18.280
+It will directly go to this stage to
+target table load.
+
+a89b6af0-98bc-41f6-9893-85b31ac52f63-0
+00:47:19.840 --> 00:47:25.040
+OK and OK.
+
+bbd39577-5187-45ea-9a96-c190656e1a54-0
+00:47:25.640 --> 00:47:32.080
+If you're good with the job load I'll we
+can move on to the job post load.
+
+93cfc3c5-7003-4936-bfbb-0cdebd100283-0
+00:47:34.240 --> 00:47:44.890
+If if anyone has any questions here
+please let me know I'll be good.
+
+402adcfa-7dca-43b3-bd26-3a60be472406-0
+00:47:46.090 --> 00:47:53.026
+Yes, OK, then in my job post loads,
+in my job post load,
+
+402adcfa-7dca-43b3-bd26-3a60be472406-1
+00:47:53.026 --> 00:48:02.640
+if my like target table load is completed
+successfully, then what will happen?
+
+3bb491bc-1a62-4ad9-bad6-768349455e38-0
+00:48:04.200 --> 00:48:08.680
+First we will load the RA records which
+are loaded here.
+
+41fc48f1-cd43-491a-a66e-8d504974a263-0
+00:48:08.680 --> 00:48:12.720
+Right here we have routed our RA tables
+into time bar.
+
+c2603532-e9de-48c4-8bd7-080d80d15f19-0
+00:48:13.240 --> 00:48:18.233
+So we'll just load those time bar tables
+into the main RA table and then we'll
+
+c2603532-e9de-48c4-8bd7-080d80d15f19-1
+00:48:18.233 --> 00:48:20.320
+check if there are any DQ checks.
+
+56773751-3f8e-48e3-b88e-472e5a12b057-0
+00:48:20.760 --> 00:48:25.221
+Then we will load whatever the error
+records that are loaded here into the job
+
+56773751-3f8e-48e3-b88e-472e5a12b057-1
+00:48:25.221 --> 00:48:26.520
+rule error detail time.
+
+b48e668f-c035-4500-8468-dc9e8058a0a9-0
+00:48:26.920 --> 00:48:31.870
+We will load those error records from the
+job rule error detail time to actual job
+
+b48e668f-c035-4500-8468-dc9e8058a0a9-1
+00:48:31.870 --> 00:48:34.852
+rule error table In Aurora and even in
+Snowflake,
+
+b48e668f-c035-4500-8468-dc9e8058a0a9-2
+00:48:34.852 --> 00:48:36.999
+we have job rule error detail table.
+
+431a7169-f717-4184-9022-feec38191b01-0
+00:48:37.000 --> 00:48:40.760
+It's a permanent table in both,
+in both areas.
+
+00f63254-5ce5-45db-a3e0-c703330c4a51-0
+00:48:41.000 --> 00:48:45.400
+So this will hold the details at the
+record column level.
+
+cb2412c8-196f-42bb-a05c-9ad9d75296b4-0
+00:48:46.240 --> 00:48:50.708
+So for every record,
+I'll tell you the difference between the
+
+cb2412c8-196f-42bb-a05c-9ad9d75296b4-1
+00:48:50.708 --> 00:48:54.240
+job role table and job role execution log
+table.
+
+96180c5f-2b30-45e4-8041-f16af7cf7370-0
+00:48:54.520 --> 00:48:58.735
+So in job role execution log table,
+we will make entries into this table for
+
+96180c5f-2b30-45e4-8041-f16af7cf7370-1
+00:48:58.735 --> 00:49:03.280
+each and every job role assignment made
+in the job role assignment metadata table.
+
+ee00bdc0-00aa-42d8-af5f-9950c3e1118d-0
+00:49:03.280 --> 00:49:11.775
+OK in job role array data table,
+how we will do for every lattice issue we
+
+ee00bdc0-00aa-42d8-af5f-9950c3e1118d-1
+00:49:11.775 --> 00:49:14.720
+have two checks, two call.
+
+1a48c0db-102f-4c3b-9cf0-7840a4e4da63-0
+00:49:14.760 --> 00:49:17.240
+We have two DQ checks on 22 columns.
+
+d10dbabc-eba9-417e-8b46-e60a3f5ebe47-0
+00:49:17.480 --> 00:49:24.361
+So for a record that is coming from the
+source, if there are two like 2 columns,
+
+d10dbabc-eba9-417e-8b46-e60a3f5ebe47-1
+00:49:24.361 --> 00:49:28.440
+we have defined 2 DQ checks on 2 columns
+right?
+
+bd6296c8-df34-42fb-a9fe-18a09061632f-0
+00:49:28.720 --> 00:49:29.600
+Both are failed.
+
+8d0a22c5-47bb-48f3-928a-1f91946a355e-0
+00:49:30.240 --> 00:49:35.168
+So then in that case we will have two
+entries into the job role error detail
+
+8d0a22c5-47bb-48f3-928a-1f91946a355e-1
+00:49:35.168 --> 00:49:39.200
+table one for first column and the second
+one for second call.
+
+ec6844ee-13c7-42bd-b0e5-65f84302c3e4-0
+00:49:39.400 --> 00:49:42.640
+So it will be have it will be at column
+record column level.
+
+7f6c5dda-421b-4331-a5af-53f145ac814b-0
+00:49:43.000 --> 00:49:47.519
+So for each and every record how many if
+what is the issue for that particular
+
+7f6c5dda-421b-4331-a5af-53f145ac814b-1
+00:49:47.519 --> 00:49:47.920
+column.
+
+1268a384-09da-4d54-86ef-16e3fb9a05ff-0
+00:49:48.040 --> 00:49:49.640
+So all those details will be there.
+
+c03adced-ce18-4203-971e-d4652d1f7a32-0
+00:49:50.240 --> 00:49:51.000
+How it is called?
+
+9abe18f7-76fc-48f6-8de5-e95d14db8265-0
+00:49:51.000 --> 00:49:53.080
+How how how is the column looking like?
+
+7057f122-cf89-4c02-97f5-2764cd5b41be-0
+00:49:53.080 --> 00:49:56.240
+All that description would be there in
+the job role error detail tree.
+
+20f6fc15-6c0a-4b18-8683-c3b629deccef-0
+00:49:57.480 --> 00:50:00.270
+OK,
+so for these particular two job rule
+
+20f6fc15-6c0a-4b18-8683-c3b629deccef-1
+00:50:00.270 --> 00:50:03.878
+assignment,
+we'll have two entries into the job rule
+
+20f6fc15-6c0a-4b18-8683-c3b629deccef-2
+00:50:03.878 --> 00:50:05.240
+execution log table.
+
+2af87742-936a-44b4-851e-77035e088685-0
+00:50:05.440 --> 00:50:09.106
+So they in the job rule execution table
+in total,
+
+2af87742-936a-44b4-851e-77035e088685-1
+00:50:09.106 --> 00:50:14.753
+in total how many source records got
+failed this how many source records are
+
+2af87742-936a-44b4-851e-77035e088685-2
+00:50:14.753 --> 00:50:20.400
+failed for this particular DQ check for
+this particular job in total it will
+
+2af87742-936a-44b4-851e-77035e088685-3
+00:50:20.400 --> 00:50:26.120
+calculate and it will show the error
+error messages or execution messages for
+
+2af87742-936a-44b4-851e-77035e088685-4
+00:50:26.120 --> 00:50:28.760
+this particular job lesson table OK.
+
+a7a9c1de-08df-4660-af82-00cc7e422534-0
+00:50:28.800 --> 00:50:33.040
+So once this is done,
+we will check if there are ones.
+
+27d79a6b-528c-4264-8afe-2fc7b20524f6-0
+00:50:33.440 --> 00:50:37.601
+So first whatever the error records that
+are present in the job rule error detail
+
+27d79a6b-528c-4264-8afe-2fc7b20524f6-1
+00:50:37.601 --> 00:50:40.189
+stamp table,
+it will be loaded into the actual job
+
+27d79a6b-528c-4264-8afe-2fc7b20524f6-2
+00:50:40.189 --> 00:50:44.300
+rule error detail table and then it will
+check if there are any error records in
+
+27d79a6b-528c-4264-8afe-2fc7b20524f6-3
+00:50:44.300 --> 00:50:44.960
+the job rule.
+
+f01b9399-bf54-41ed-a01f-dc793d3b3e09-0
+00:50:45.040 --> 00:50:49.590
+If there are any,
+then it will update the error message and
+
+f01b9399-bf54-41ed-a01f-dc793d3b3e09-1
+00:50:49.590 --> 00:50:50.880
+status as failed.
+
+43d4e12a-5f6c-4fca-96ff-dbfefc2d7e1c-0
+00:50:50.880 --> 00:50:54.414
+In the job rule execution lock table
+there are no record then it will update
+
+43d4e12a-5f6c-4fca-96ff-dbfefc2d7e1c-1
+00:50:54.414 --> 00:50:58.040
+the execution latest and status is passed
+on the job rule execution lock tape.
+
+43ca1bbd-02da-457e-bff4-e3b4dc1191a6-0
+00:50:58.440 --> 00:51:03.240
+Hope you got the difference between job
+rule and job rule execution update.
+
+5e350827-733f-4125-b8b0-a184b1e72338-0
+00:51:06.120 --> 00:51:11.379
+If not please switch OK OK then if and
+then late next step is it will check if
+
+5e350827-733f-4125-b8b0-a184b1e72338-1
+00:51:11.379 --> 00:51:15.640
+there are any balancing metrics that are
+sent to my job or not.
+
+6114e60e-3f38-4f7e-b597-acad4035ced4-0
+00:51:16.080 --> 00:51:22.560
+If else like if there are no DQ checks,
+it will just bypass this OK.
+
+91c28916-4ab8-46d4-93c2-f69ceaecd1b0-0
+00:51:23.600 --> 00:51:27.777
+If there are no balance checks,
+it will just bypass all these steps and
+
+91c28916-4ab8-46d4-93c2-f69ceaecd1b0-1
+00:51:27.777 --> 00:51:28.880
+it will go here OK.
+
+7b32cbe9-db5c-484a-a859-4e0ae3691383-0
+00:51:29.360 --> 00:51:34.040
+If there are any balance checks OK,
+it will fetch the source balancing metric.
+
+681ede9f-496a-4d25-b7f1-477f15615b69-0
+00:51:34.040 --> 00:51:41.043
+So we have populated source related
+balancing metric values into balance
+
+681ede9f-496a-4d25-b7f1-477f15615b69-1
+00:51:41.043 --> 00:51:47.280
+reconciliation stats STEM table here in
+the job load right here.
+
+e20aa6bd-022e-4864-afad-b030a9a82610-0
+00:51:48.360 --> 00:51:54.057
+So whatever the entries that we have made
+are related to source balance metrics,
+
+e20aa6bd-022e-4864-afad-b030a9a82610-1
+00:51:54.057 --> 00:51:59.685
+it will fetch all those from right and
+also based upon the target table details
+
+e20aa6bd-022e-4864-afad-b030a9a82610-2
+00:51:59.685 --> 00:52:02.640
+and column details it will do a balancing.
+
+65bd2264-5bb2-45ec-975d-a7283f0985fd-0
+00:52:02.680 --> 00:52:07.714
+It will calculate all the target related
+balancing metrics and it will compare
+
+65bd2264-5bb2-45ec-975d-a7283f0985fd-1
+00:52:07.714 --> 00:52:10.200
+both of them as a out of balance value.
+
+dfd67555-6a2b-4e3a-b0dd-becb14068751-0
+00:52:10.200 --> 00:52:14.413
+It will do a out of balance check if both
+out of balance is nothing,
+
+dfd67555-6a2b-4e3a-b0dd-becb14068751-1
+00:52:14.413 --> 00:52:19.359
+but it will take the difference of source
+and target balancing metrics if out of
+
+dfd67555-6a2b-4e3a-b0dd-becb14068751-2
+00:52:19.359 --> 00:52:20.520
+balance value is 0.
+
+44f33069-42af-4d0e-8fd3-9d38b47089f4-0
+00:52:21.440 --> 00:52:26.650
+So whatever that records that are
+intended to be loaded from source,
+
+44f33069-42af-4d0e-8fd3-9d38b47089f4-1
+00:52:26.650 --> 00:52:30.576
+those sum,
+aggregated sum and this target aggregate
+
+44f33069-42af-4d0e-8fd3-9d38b47089f4-2
+00:52:30.576 --> 00:52:35.183
+sum like if it is ample,
+we'll do some of a discount column,
+
+44f33069-42af-4d0e-8fd3-9d38b47089f4-3
+00:52:35.183 --> 00:52:36.920
+we will do a count, OK.
+
+10b53911-1420-45a3-ba8b-0615ba39a539-0
+00:52:37.920 --> 00:52:42.455
+So it will check whether the source and
+target difference between source and
+
+10b53911-1420-45a3-ba8b-0615ba39a539-1
+00:52:42.455 --> 00:52:43.280
+target values.
+
+b0fa224f-c850-4a33-a565-5f73c43a7859-0
+00:52:44.120 --> 00:52:48.520
+It will calculate this difference between
+source and target metric values.
+
+10569d85-4779-4e60-9ba1-3d377db15aad-0
+00:52:49.240 --> 00:52:52.960
+We we are we are taking that difference
+as out of balance.
+
+aff2cce8-cdf5-4886-b3d1-57ef4eb6a2ac-0
+00:52:53.400 --> 00:52:57.606
+If the out of balance is 0 then it will
+update the balance in flag is Y and
+
+aff2cce8-cdf5-4886-b3d1-57ef4eb6a2ac-1
+00:52:57.606 --> 00:53:01.480
+within threshold flag is Y in the balance
+reconciliation stats table.
+
+eaf10f52-bd21-4701-ad62-418ac7a915d9-0
+00:53:02.120 --> 00:53:04.768
+If it is not,
+then it will update the balance
+
+eaf10f52-bd21-4701-ad62-418ac7a915d9-1
+00:53:04.768 --> 00:53:09.318
+reconciliation as N in and then it will
+check that out of balance value out of
+
+eaf10f52-bd21-4701-ad62-418ac7a915d9-2
+00:53:09.318 --> 00:53:13.925
+the difference that we got against the
+threshold value provided in the balanced
+
+eaf10f52-bd21-4701-ad62-418ac7a915d9-3
+00:53:13.925 --> 00:53:15.480
+translation metadata table.
+
+d8b85fb6-1c35-4a7e-8b02-de2fcf67c150-0
+00:53:15.720 --> 00:53:18.920
+OK if if it is within the threshold.
+
+56bdc584-7d4e-47d6-a18f-880fbf4dc114-0
+00:53:19.080 --> 00:53:25.594
+If it is less than the threshold,
+then it will update the threshold flag as
+
+56bdc584-7d4e-47d6-a18f-880fbf4dc114-1
+00:53:25.594 --> 00:53:32.108
+Y if the out of balance value is less
+than if it is less than the threshold
+
+56bdc584-7d4e-47d6-a18f-880fbf4dc114-2
+00:53:32.108 --> 00:53:34.680
+value in balanced translation.
+
+6f3dd976-5441-43df-ba33-acf343a0f1f0-0
+00:53:34.920 --> 00:53:43.600
+Otherwise it will update it as I OK
+update the balance reconciliation check
+
+6f3dd976-5441-43df-ba33-acf343a0f1f0-1
+00:53:43.600 --> 00:53:45.200
+status in job.
+
+6f6367e1-5aec-4cb7-9323-a303f22cca5f-0
+00:53:45.680 --> 00:53:49.360
+So we have a flag called balance
+reconciliation check.
+
+29f01612-d67d-445d-ad9d-c1a17bcfed13-0
+00:53:49.560 --> 00:53:55.600
+We we are going to update this this flag
+in the in the next steps.
+
+621ce3f1-0f50-4093-9bee-6f72529a7970-0
+00:53:56.080 --> 00:54:01.141
+So and the next steps OK,
+like we will update that flag,
+
+621ce3f1-0f50-4093-9bee-6f72529a7970-1
+00:54:01.141 --> 00:54:06.290
+ball Recon flag,
+whatever mentioned in the job run stats,
+
+621ce3f1-0f50-4093-9bee-6f72529a7970-2
+00:54:06.290 --> 00:54:11.618
+preload, job run stats table,
+we will update it as Y if my,
+
+621ce3f1-0f50-4093-9bee-6f72529a7970-3
+00:54:11.618 --> 00:54:16.768
+if my source and target records are
+within threshold, OK,
+
+621ce3f1-0f50-4093-9bee-6f72529a7970-4
+00:54:16.768 --> 00:54:23.959
+either if it is out of balance or within
+balance, it should be within threshold.
+
+9ee013e3-0c57-49f5-ba75-7fa865915b96-0
+00:54:24.040 --> 00:54:28.947
+If they are within threshold,
+we will mark it directly as Y,
+
+9ee013e3-0c57-49f5-ba75-7fa865915b96-1
+00:54:28.947 --> 00:54:34.900
+otherwise N If there are no balancing
+metrics, we will update it as X OK,
+
+9ee013e3-0c57-49f5-ba75-7fa865915b96-2
+00:54:34.900 --> 00:54:38.440
+then it will fetch the source record
+count.
+
+e28af779-8dc4-407b-89db-ad9b48e9cc0d-0
+00:54:53.270 --> 00:55:03.830
+There are no balance metrics to be
+performed.
+
+e99ccf21-bbaf-425c-8b59-84e22dd22471-0
+00:55:06.960 --> 00:55:23.120
+When I Recon check flag will be it's.
+
+10e54ad5-ad03-4273-97f4-c1ffefc9ee9d-0
+00:55:24.920 --> 00:55:27.520
+It's not status, it's for flag.
+
+dd41e475-b21e-4ea6-8783-fd2c672b99e7-0
+00:55:32.120 --> 00:55:35.408
+OK,
+after that we have populated source
+
+dd41e475-b21e-4ea6-8783-fd2c672b99e7-1
+00:55:35.408 --> 00:55:42.066
+record count and target and change record
+count into a temporary job run stable,
+
+dd41e475-b21e-4ea6-8783-fd2c672b99e7-2
+00:55:42.066 --> 00:55:42.560
+right?
+
+d853776e-56d8-4834-aa36-80c03cabae0c-0
+00:55:43.000 --> 00:55:47.360
+We will fetch those two values and we
+will also calculate target,
+
+d853776e-56d8-4834-aa36-80c03cabae0c-1
+00:55:47.360 --> 00:55:50.663
+insert record count,
+target operate record count,
+
+d853776e-56d8-4834-aa36-80c03cabae0c-2
+00:55:50.663 --> 00:55:54.230
+target array record count,
+target array record count,
+
+d853776e-56d8-4834-aa36-80c03cabae0c-3
+00:55:54.230 --> 00:55:56.080
+critical array record count.
+
+f1ede608-7710-4e87-8024-6f9e6a0d0ae0-0
+00:55:56.080 --> 00:56:00.901
+All these things we will do and we'll
+update the corresponding columns in the
+
+f1ede608-7710-4e87-8024-6f9e6a0d0ae0-1
+00:56:00.901 --> 00:56:02.200
+job run search table.
+
+1cbe2def-e25c-48d7-ba51-bdadcba1aa16-0
+00:56:03.000 --> 00:56:07.160
+We will check whether the source record
+count and target record count.
+
+e6122c96-5a0c-4a0a-a2f3-b6fd0f54cd6a-0
+00:56:07.440 --> 00:56:12.263
+So source record count will be will be
+compared against the sum of target record
+
+e6122c96-5a0c-4a0a-a2f3-b6fd0f54cd6a-1
+00:56:12.263 --> 00:56:12.680
+counts.
+
+3b4bd386-6de2-4b6d-b138-0b375cd6192c-0
+00:56:13.800 --> 00:56:17.584
+OK,
+like source target insert record count
+
+3b4bd386-6de2-4b6d-b138-0b375cd6192c-1
+00:56:17.584 --> 00:56:24.272
+place, target update record place,
+What is this critical error record count
+
+3b4bd386-6de2-4b6d-b138-0b375cd6192c-2
+00:56:24.272 --> 00:56:24.800
+place?
+
+47f6acd8-edbd-4ae2-b5b9-831150dd81bf-0
+00:56:26.480 --> 00:56:28.200
+What else are a record count?
+
+06ea7f25-7aa0-4eb5-a41e-d9b80ee86df1-0
+00:56:28.200 --> 00:56:31.320
+All these sum aggregated sum will be
+compared against the social code.
+
+1365f43a-136d-4850-ae19-65a82f9d47db-0
+00:56:31.720 --> 00:56:36.390
+If both are matching then we will update
+the record account balancing flag as Y in
+
+1365f43a-136d-4850-ae19-65a82f9d47db-1
+00:56:36.390 --> 00:56:38.360
+the operand stats as it would be N.
+
+2441c62b-7f82-43c3-96b4-57f8618733dd-0
+00:56:39.440 --> 00:56:44.248
+And for a given job run ID,
+we will check the status of record count
+
+2441c62b-7f82-43c3-96b4-57f8618733dd-1
+00:56:44.248 --> 00:56:49.336
+balance flag, critical error check flag,
+informational error check flag,
+
+2441c62b-7f82-43c3-96b4-57f8618733dd-2
+00:56:49.336 --> 00:56:52.960
+balance reconciliation check flag in job
+run stats.
+
+7ccac589-cfc2-425b-9244-2fd044007d3b-0
+00:56:54.520 --> 00:56:57.858
+OK,
+we will decide the final status of final
+
+7ccac589-cfc2-425b-9244-2fd044007d3b-1
+00:56:57.858 --> 00:57:03.720
+status that needs to be populated into
+the job table using all these criteria.
+
+80a8d094-b09f-4d24-8a30-38595c85ba60-0
+00:57:04.000 --> 00:57:09.789
+First one is record count balancing flag
+which will check whether the source and
+
+80a8d094-b09f-4d24-8a30-38595c85ba60-1
+00:57:09.789 --> 00:57:12.720
+target record counts or imbalance or not.
+
+74ac86da-15c9-4db0-88ca-57c49484d4cf-0
+00:57:13.480 --> 00:57:20.107
+Second one is critical error check flag
+if there are any critical error records
+
+74ac86da-15c9-4db0-88ca-57c49484d4cf-1
+00:57:20.107 --> 00:57:26.404
+that means if there are any source
+records which fail the critical DQ check
+
+74ac86da-15c9-4db0-88ca-57c49484d4cf-2
+00:57:26.404 --> 00:57:33.363
+that is assigned to our job then our then
+this critical error check flag would be N
+
+74ac86da-15c9-4db0-88ca-57c49484d4cf-3
+00:57:33.363 --> 00:57:39.660
+and say if or if there are no critical
+error records then it would be Y and
+
+74ac86da-15c9-4db0-88ca-57c49484d4cf-4
+00:57:39.660 --> 00:57:42.559
+coming to informational error flag.
+
+be01379d-d454-4410-a098-01c62e2b5219-0
+00:57:42.960 --> 00:57:48.636
+So if there are any informational error
+records then it would be N else it would
+
+be01379d-d454-4410-a098-01c62e2b5219-1
+00:57:48.636 --> 00:57:51.160
+be Y and boundary construction flag.
+
+47d4365e-cd25-4668-bb9e-5f736274e898-0
+00:57:51.160 --> 00:57:52.280
+I have already mentioned this.
+
+d5deeb88-376d-43e7-8f0e-c1936524badc-0
+00:57:52.520 --> 00:58:00.097
+So this would be why if all the balancing
+metrics are within threshold and it would
+
+d5deeb88-376d-43e7-8f0e-c1936524badc-1
+00:58:00.097 --> 00:58:01.000
+be end OK.
+
+f5ba1576-fc69-4459-b0c7-4c0fcd9d60b3-0
+00:58:01.040 --> 00:58:06.471
+So in case if any one of the following
+happens that means if my if my record
+
+f5ba1576-fc69-4459-b0c7-4c0fcd9d60b3-1
+00:58:06.471 --> 00:58:12.397
+count balancing flag equal to north or if
+there any critical validation check fails
+
+f5ba1576-fc69-4459-b0c7-4c0fcd9d60b3-2
+00:58:12.397 --> 00:58:17.758
+or if there any balancing metrics that
+are out of threshold then my job run
+
+f5ba1576-fc69-4459-b0c7-4c0fcd9d60b3-3
+00:58:17.758 --> 00:58:23.402
+status would be failed and a entry would
+be made into the job error stats table
+
+f5ba1576-fc69-4459-b0c7-4c0fcd9d60b3-4
+00:58:23.402 --> 00:58:27.000
+and I have failure notification would be
+sent out.
+
+a1d6bc07-5bf6-4f78-b11e-a592e345d4d7-0
+00:58:28.000 --> 00:58:33.902
+OK this is 1 case and the second case if
+any of the informational DQ checks fail
+
+a1d6bc07-5bf6-4f78-b11e-a592e345d4d7-1
+00:58:33.902 --> 00:58:39.513
+and if any of the balancing metrics are
+out of balance but within threshold,
+
+a1d6bc07-5bf6-4f78-b11e-a592e345d4d7-2
+00:58:39.513 --> 00:58:45.270
+status of the job run would be completed
+but and warning notification would be
+
+a1d6bc07-5bf6-4f78-b11e-a592e345d4d7-3
+00:58:45.270 --> 00:58:50.080
+signed out stating that there are some
+information error records.
+
+f7dedb6d-da79-4e78-b929-53b91cc6f4bb-0
+00:58:50.120 --> 00:58:55.392
+And also there are some balancing metrics
+which are out of balance but within
+
+f7dedb6d-da79-4e78-b929-53b91cc6f4bb-1
+00:58:55.392 --> 00:58:58.840
+threshold like that information would be
+sent out.
+
+89b56aad-c66d-4f2c-8793-bc7520133384-0
+00:58:59.480 --> 00:59:07.791
+And 3rd case if my record count balancing
+flag equal to Y and if there if if all
+
+89b56aad-c66d-4f2c-8793-bc7520133384-1
+00:59:07.791 --> 00:59:16.206
+the critical and informational checks are
+passed and if all the balancing metrics
+
+89b56aad-c66d-4f2c-8793-bc7520133384-2
+00:59:16.206 --> 00:59:24.518
+are balanced are completely balanced then
+my status of my job would be completed
+
+89b56aad-c66d-4f2c-8793-bc7520133384-3
+00:59:24.518 --> 00:59:28.520
+and SXS notification would be sent out.
+
+c95de9c5-7d00-490b-b0ca-923a2c9b34e3-0
+00:59:28.600 --> 00:59:32.400
+Does anyone have any question on this job
+post load part?
+
+bc0b1e2f-2524-4a4f-8279-b815887863d1-0
+00:59:35.760 --> 00:59:36.080
+Oh yeah.
+
+eb56cc5e-2e30-41d7-872b-75a6783e728e-0
+00:59:36.400 --> 00:59:40.207
+So one question is,
+was it mandated to have DQ checks and
+
+eb56cc5e-2e30-41d7-872b-75a6783e728e-1
+00:59:40.207 --> 00:59:44.080
+balance metrics checks for all the no,
+it's not mandatory.
+
+7dd77015-506f-42ec-a91a-00d949680a15-0
+00:59:44.080 --> 00:59:46.640
+That's why we are bypassing them, right.
+
+13ec84ba-3e39-4cc1-bc8a-f3fcd653abe6-0
+00:59:46.640 --> 00:59:48.360
+If we don't have any balance checks,
+we are bypass.
+
+433d3265-061b-484c-b2b5-a750e0c5a863-0
+00:59:48.560 --> 00:59:51.640
+So if we if we don't have any DQ checks,
+we are bypassing all these things.
+
+88da4d10-5029-4fde-92cd-c0cc1489ac0c-0
+00:59:51.960 --> 00:59:55.327
+And even in the preload if you see if we
+don't have any DQ checks,
+
+88da4d10-5029-4fde-92cd-c0cc1489ac0c-1
+00:59:55.327 --> 00:59:58.544
+we are bypassing like we're not making
+entries into this thing,
+
+88da4d10-5029-4fde-92cd-c0cc1489ac0c-2
+00:59:58.544 --> 00:59:59.600
+we're bypassing them.
+
+66130104-50f6-44e9-95a3-2c5af0d47ce1-0
+01:00:01.000 --> 01:00:02.720
+OK, we're also we're bypassing.
+
+ca8b7e42-f617-4106-97b9-bf03e02a79e1-0
+01:00:03.240 --> 01:00:05.240
+Look for critical error checks as well,
+right?
+
+064f8ff2-1926-409c-be60-3584d2c73081-0
+01:00:06.880 --> 01:00:08.840
+Whatever, like whatever.
+
+91de7123-8c6a-4478-ad19-b2c72225ce7f-0
+01:00:09.560 --> 01:00:10.800
+Yeah, whatever.
+
+0027ee9e-42e2-4d7f-96e8-2303d3355dfa-0
+01:00:10.800 --> 01:00:16.445
+Like if we don't have DQ checks,
+we don't make entries in the preload into
+
+0027ee9e-42e2-4d7f-96e8-2303d3355dfa-1
+01:00:16.445 --> 01:00:20.360
+this double execution log type here we
+will bypass.
+
+65042cd2-c019-4838-b9ea-4a0e96e18bb1-0
+01:00:20.960 --> 01:00:24.688
+And in the actual job load,
+we won't do this all these checks if we
+
+65042cd2-c019-4838-b9ea-4a0e96e18bb1-1
+01:00:24.688 --> 01:00:25.840
+don't have DQ checks.
+
+cf927ffe-7ed5-420a-b5a4-9029b88db8e6-0
+01:00:26.800 --> 01:00:30.061
+And in the post load,
+if we don't have DQ checks,
+
+cf927ffe-7ed5-420a-b5a4-9029b88db8e6-1
+01:00:30.061 --> 01:00:31.040
+we will bypass.
+
+c32ce8ee-0075-4395-a691-3cffcce6da4d-0
+01:00:31.040 --> 01:00:34.292
+We don't do this job load or job will
+execution load,
+
+c32ce8ee-0075-4395-a691-3cffcce6da4d-1
+01:00:34.292 --> 01:00:39.111
+we'll bypass and we don't have balance
+reconciliation as balance reconciliation
+
+c32ce8ee-0075-4395-a691-3cffcce6da4d-2
+01:00:39.111 --> 01:00:41.400
+happens in job load, we won't do this.
+
+0eb82121-b176-4333-b080-442c426f9ff4-0
+01:00:42.480 --> 01:00:44.360
+And in the post load, we won't do this.
+
+04f8fcb1-6737-49f2-983e-eae16e6cb84e-0
+01:00:44.360 --> 01:00:49.075
+All this calculation, we will don't this,
+we'll just bypass and we'll just go to
+
+04f8fcb1-6737-49f2-983e-eae16e6cb84e-1
+01:00:49.075 --> 01:00:50.240
+the job run service.
+
+ea0ab51f-3a6e-4956-b7ca-8c682b51d07e-0
+01:00:52.720 --> 01:00:56.944
+OK,
+in case if my this is related to job post
+
+ea0ab51f-3a6e-4956-b7ca-8c682b51d07e-1
+01:00:56.944 --> 01:01:01.720
+load success,
+I think it's better to keep like this
+
+ea0ab51f-3a6e-4956-b7ca-8c682b51d07e-2
+01:01:01.720 --> 01:01:06.680
+maybe I'm thinking but I'll check this
+file if it is.
+
+bd6791a2-49f5-45a0-afa2-2e7bc07c9a10-0
+01:01:07.200 --> 01:01:10.040
+If the job is successful then this will
+happen.
+
+96550cad-ab5e-4571-8764-e765bf731b46-0
+01:01:10.040 --> 01:01:11.480
+If the job it's failed.
+
+a0addacf-266c-4d5b-963e-6d34ea355219-0
+01:01:11.480 --> 01:01:13.440
+Now what it will do?
+
+9985d7fd-f8f8-4f1b-a577-b352f5d3a2d1-0
+01:01:13.560 --> 01:01:16.720
+It will just update the entries whatever.
+
+02d25d82-cec1-4b60-9a20-fa40681a684e-0
+01:01:17.480 --> 01:01:20.040
+I'm assuming my job is having dicky
+checks.
+
+2b80f2a7-a780-415b-86ac-1a812de74543-0
+01:01:20.480 --> 01:01:25.907
+So if there are any Dicky checks,
+if there are any entries that are made in
+
+2b80f2a7-a780-415b-86ac-1a812de74543-1
+01:01:25.907 --> 01:01:29.477
+in the pre in the preload step,
+job preload step,
+
+2b80f2a7-a780-415b-86ac-1a812de74543-2
+01:01:29.477 --> 01:01:32.120
+we will just mark them as failed, OK?
+
+c8c82e9d-d60d-450a-a955-30546b54b8f8-0
+01:01:32.560 --> 01:01:33.800
+We'll just mark them as failed.
+
+c42cad37-1e6f-49a0-8d6f-82eac1b92166-0
+01:01:34.240 --> 01:01:36.720
+And what are the entry that is made into
+the job run stacks?
+
+4fdf13a8-5a35-418a-b12c-642ef6db4a27-0
+01:01:36.800 --> 01:01:41.120
+We'll just update it as a failed, OK?
+
+c4bbff71-02db-4f3a-93e9-f6046a9f1895-0
+01:01:43.360 --> 01:01:46.520
+That is not added here because we are
+planning.
+
+425301b3-c831-44cc-8fba-e49de02623dc-0
+01:01:46.520 --> 01:01:51.322
+We are having this Lucid primarily for a
+successful run,
+
+425301b3-c831-44cc-8fba-e49de02623dc-1
+01:01:51.322 --> 01:01:54.440
+otherwise successful targetable load.
+
+89c34aeb-73f3-4943-8ae3-01ec9497b9ad-0
+01:01:54.840 --> 01:02:00.040
+OK, OK, once this is completed,
+we'll have batch.
+
+33b5f014-9af2-4a53-98b5-c5305bee568d-0
+01:02:00.480 --> 01:02:02.920
+So under batch we'll have multiple jobs.
+
+b598afce-f643-46da-b68a-228de62df2db-0
+01:02:03.320 --> 01:02:08.335
+So here in the batch post load,
+it will check if all the job loads are
+
+b598afce-f643-46da-b68a-228de62df2db-1
+01:02:08.335 --> 01:02:09.960
+completed successfully.
+
+2db77fdf-1175-420c-a264-a1082ab7020a-0
+01:02:10.280 --> 01:02:15.750
+If S then it will update the status in
+the batch table as completed and S
+
+2db77fdf-1175-420c-a264-a1082ab7020a-1
+01:02:15.750 --> 01:02:18.560
+success notification will be sent out.
+
+4ec8b48d-29c6-42ef-95d5-7ed7629dac23-0
+01:02:22.120 --> 01:02:24.360
+OK here also a notification will be sent
+out.
+
+96c60721-f254-49c3-b4c4-3ed522b0e6c1-0
+01:02:25.000 --> 01:02:39.780
+Success notification will be sent out
+here.
+
+799c8cb8-f4b8-4133-8176-2fbdf994c9b6-0
+01:02:39.980 --> 01:02:45.641
+If any one of the table job load gets
+failed then the status in the job branch
+
+799c8cb8-f4b8-4133-8176-2fbdf994c9b6-1
+01:02:45.641 --> 01:02:50.300
+starts will be failed and a filed
+notification will be sent out.
+
+f5c4878a-8d22-4401-a08f-25e7b55f8d3a-0
+01:02:51.260 --> 01:02:51.740
+That's it.
+
+f19cfb5e-cba7-4ead-bda6-fe46e2c9cd1a-0
+01:02:52.620 --> 01:02:55.140
+This is the process actual flow of ABC.
+
+936889d7-c8f9-46fc-b65f-ea81e40eb899-0
+01:02:56.060 --> 01:03:03.955
+So all the like component level like all
+the IDMC components related to this
+
+936889d7-c8f9-46fc-b65f-ea81e40eb899-1
+01:03:03.955 --> 01:03:11.440
+particular ABC are available under common
+ABC folder in IDMC DAA common.
+
+285ecfb1-ae97-4ea4-942b-1541f092b72e-0
+01:03:11.440 --> 01:03:13.800
+I guess let me open.
+
+56a43269-2ab4-48f7-ba5a-efe9b6570855-0
+01:03:23.220 --> 01:03:26.420
+Sorry like is everyone good with this
+flow?
+
+62a32dbf-0743-4089-aa40-0c329843411d-0
+01:03:26.420 --> 01:03:29.020
+If anyone has any questions please let me
+know.
+
+3b19b73c-cac2-49b5-964f-35e5269bda92-0
+01:03:29.980 --> 01:03:32.580
+Meanwhile, I'll just open this IDMC.
+
+5f746640-61a6-4257-b4f6-7808fb6386cb-0
+01:03:55.890 --> 01:03:57.170
+DA common.
+
+6b3f36c2-79e5-4874-a7ec-6036ce4beb2d-0
+01:03:58.130 --> 01:04:02.370
+So if you see DA common and this we'll
+have ABC.
+
+322fdb68-1959-4763-b40c-954e12e39adb-0
+01:04:03.330 --> 01:04:11.170
+So you have all the components related to
+the RABC here, OK.
+
+85850ab3-01f9-41fc-98fc-c55e22ba4c7f-0
+01:04:11.610 --> 01:04:17.359
+And for testing purposes,
+we have used broker party address table
+
+85850ab3-01f9-41fc-98fc-c55e22ba4c7f-1
+01:04:17.359 --> 01:04:24.590
+job task flow and we have created a batch
+task flow for broker which is under this
+
+85850ab3-01f9-41fc-98fc-c55e22ba4c7f-2
+01:04:24.590 --> 01:04:25.200
+broker.
+
+cb57a9f8-d8b3-4aac-b38f-05ce6dab2030-0
+01:04:26.240 --> 01:04:32.844
+And you should not run the task flow like
+if POC is happening if you want to like
+
+cb57a9f8-d8b3-4aac-b38f-05ce6dab2030-1
+01:04:32.844 --> 01:04:38.080
+just even just to see like you can check
+with the Bharat is out.
+
+83ad98ea-4dce-40cd-a38f-d4af54db470b-0
+01:04:42.200 --> 01:04:45.280
+So this is the batch task flow.
+
+70270925-cb1c-46a2-bd5c-5f757ea0a426-0
+01:04:52.440 --> 01:04:53.800
+So this is the batch task.
+
+b222f2c9-2794-44a4-9b10-8e7cf30c6709-0
+01:04:54.080 --> 01:04:55.360
+This is our batch task.
+
+54b951be-17d3-4668-bcef-a1d9f0a996dd-0
+01:04:57.680 --> 01:05:03.120
+This you'll have this is batch preload
+and this is actual table load.
+
+6f44bb54-dd4b-4c04-b3d7-c2a3524b8262-0
+01:05:03.640 --> 01:05:10.258
+And in case it will just do that
+calculation if if this gets failed,
+
+6f44bb54-dd4b-4c04-b3d7-c2a3524b8262-1
+01:05:10.258 --> 01:05:14.000
+it will be mark the error count as one.
+
+7a166ff6-9b17-43e8-aa06-fc51af986917-0
+01:05:14.040 --> 01:05:18.480
+If error count is greater than 0,
+it will update the status as failure.
+
+f96d2f54-188d-4491-9b11-65785b1873aa-0
+01:05:18.480 --> 01:05:22.507
+Otherwise,
+access this status will be sent to this
+
+f96d2f54-188d-4491-9b11-65785b1873aa-1
+01:05:22.507 --> 01:05:28.904
+batch post load where it will just update
+the status based upon the status batch
+
+f96d2f54-188d-4491-9b11-65785b1873aa-2
+01:05:28.904 --> 01:05:33.880
+status not fiction failure,
+not fiction will be sent out here.
+
+34dd0893-2d09-488e-816f-4a2ea00aa062-0
+01:05:34.280 --> 01:05:37.600
+OK,
+let me open the job load job task flow.
+
+e794bb98-d172-47aa-ac29-7bdfaf63cd65-0
+01:05:40.440 --> 01:05:43.440
+So there is this is the job task flow.
+
+fb923f69-9e83-47af-9745-1ea58ee1688c-0
+01:05:43.800 --> 01:05:45.040
+This is job preload.
+
+a4a1b3c4-4921-44d0-bc43-887cea1ca3d9-0
+01:05:45.680 --> 01:05:50.590
+So in case if any,
+any component fails in the job post loop,
+
+a4a1b3c4-4921-44d0-bc43-887cea1ca3d9-1
+01:05:50.590 --> 01:05:56.225
+so it will it will do this,
+it will this will be triggered job reload
+
+a4a1b3c4-4921-44d0-bc43-887cea1ca3d9-2
+01:05:56.225 --> 01:06:02.665
+failure wherein like if any entries are
+made into this execution log double it,
+
+a4a1b3c4-4921-44d0-bc43-887cea1ca3d9-3
+01:06:02.665 --> 01:06:04.920
+we will mark them as failed.
+
+63a77678-a891-4804-b304-1db93388722f-0
+01:06:05.040 --> 01:06:09.284
+If any entry like whatever the entry that
+is made in the job run stacks will be
+
+63a77678-a891-4804-b304-1db93388722f-1
+01:06:09.284 --> 01:06:10.240
+marked as failure.
+
+68e3b42c-68fb-443a-b220-651901dc4835-0
+01:06:10.320 --> 01:06:17.505
+If if there is any issue happened during
+the job runs that's entry itself then it
+
+68e3b42c-68fb-443a-b220-651901dc4835-1
+01:06:17.505 --> 01:06:21.800
+will send out a notification directly
+here only.
+
+a68fba7e-24a7-453b-bb58-f7f017e4260e-0
+01:06:22.640 --> 01:06:26.728
+So if this component like where we are
+making an entry into job run stress if it
+
+a68fba7e-24a7-453b-bb58-f7f017e4260e-1
+01:06:26.728 --> 01:06:30.867
+if it gets failed will directly send out
+a notification and it will fail the task
+
+a68fba7e-24a7-453b-bb58-f7f017e4260e-2
+01:06:30.867 --> 01:06:31.120
+flow.
+
+e481c503-0092-4f86-9906-8d12c9f391fe-0
+01:06:31.400 --> 01:06:33.719
+In case if this task flow gets failed
+here,
+
+e481c503-0092-4f86-9906-8d12c9f391fe-1
+01:06:33.719 --> 01:06:35.880
+that means this subtask flow gets failed.
+
+708a4cb7-e1e9-49e6-8b0a-2bc872be983f-0
+01:06:35.880 --> 01:06:38.832
+You know,
+so it will it will fail this task flow,
+
+708a4cb7-e1e9-49e6-8b0a-2bc872be983f-1
+01:06:38.832 --> 01:06:43.438
+this job level task flow stating that
+that's that this particular job process
+
+708a4cb7-e1e9-49e6-8b0a-2bc872be983f-2
+01:06:43.438 --> 01:06:44.560
+preload has failed.
+
+9a5f8590-8f59-4876-8f06-4fdd45ac7f8a-0
+01:06:44.960 --> 01:06:50.013
+And it will give you the workflow name
+also in the failure message and with the
+
+9a5f8590-8f59-4876-8f06-4fdd45ac7f8a-1
+01:06:50.013 --> 01:06:54.120
+notification is already sent in the job
+preload password itself.
+
+f6b4c582-370a-489a-8de0-ee8373ad8c19-0
+01:06:54.120 --> 01:06:56.200
+So it will just fail this task flow.
+
+e9ec1262-d30e-459e-85d7-2d1d08068275-0
+01:06:56.200 --> 01:06:56.560
+That's it.
+
+8e97361d-fca1-4a1b-923d-7339c5d7e543-0
+01:06:57.360 --> 01:07:03.346
+OK and as part of testing you have to I
+think we like these things has to be
+
+8e97361d-fca1-4a1b-923d-7339c5d7e543-1
+01:07:03.346 --> 01:07:07.000
+covered like testing each and every
+component.
+
+17bb54de-358c-4797-ad62-0669bf77c493-0
+01:07:07.040 --> 01:07:11.640
+Is it giving a proper notification or not
+in case if anything is failing?
+
+794d17e6-4e41-4c9b-8590-ede38ed58539-0
+01:07:13.440 --> 01:07:16.481
+OK,
+this is like in case of restart and if my
+
+794d17e6-4e41-4c9b-8590-ede38ed58539-1
+01:07:16.481 --> 01:07:21.440
+job run is completed in the previous run,
+we have to skip that run, right?
+
+ee7b1608-9652-420a-b725-c75a66c7d973-0
+01:07:21.720 --> 01:07:23.640
+For that purpose,
+we have this decision task.
+
+2e125dda-dfac-42f0-8a6b-c74dd285d724-0
+01:07:24.000 --> 01:07:27.920
+So in case of rerun restart,
+it will directly go to the end step.
+
+ddbdba42-5283-46f7-87ed-f7e14be62cbd-0
+01:07:28.040 --> 01:07:33.778
+It won't do anything, it won't do,
+it won't do any load anything even it
+
+ddbdba42-5283-46f7-87ed-f7e14be62cbd-1
+01:07:33.778 --> 01:07:34.800
+gets skipped.
+
+480e7544-13e0-4a2b-8037-7e8213f0f6e1-0
+01:07:34.920 --> 01:07:38.650
+It will skip even the entries into the
+job execution log, job error,
+
+480e7544-13e0-4a2b-8037-7e8213f0f6e1-1
+01:07:38.650 --> 01:07:41.732
+stats transition,
+everything will be skipped here in job
+
+480e7544-13e0-4a2b-8037-7e8213f0f6e1-2
+01:07:41.732 --> 01:07:42.759
+cleaner task flows.
+
+01e600b6-fe3f-489e-8a4f-b851afbf343c-0
+01:07:43.240 --> 01:07:50.021
+So here it will check if, if,
+if it is completed and if the isolation
+
+01e600b6-fe3f-489e-8a4f-b851afbf343c-1
+01:07:50.021 --> 01:07:53.800
+tab is also restart, then it will skip.
+
+3110c41e-4501-4050-a09a-3a9ee337c62f-0
+01:07:54.160 --> 01:07:55.760
+See, it won't do anything.
+
+aa4ef664-50ea-4661-894c-76af5b367cde-0
+01:07:55.760 --> 01:07:56.800
+It will just go to end.
+
+cd3d6ca9-1730-42d3-a7a4-e3c40ce49a33-0
+01:07:56.960 --> 01:07:59.560
+First line will just go to end.
+
+8b0b0d1e-bc97-4e37-bbb9-86bebdf8649a-0
+01:07:59.920 --> 01:08:00.320
+That's it.
+
+2be0a7e6-ae61-4e20-9445-4613ffe362a8-0
+01:08:03.320 --> 01:08:07.816
+OK and then if my stage load in case of
+free start,
+
+2be0a7e6-ae61-4e20-9445-4613ffe362a8-1
+01:08:07.816 --> 01:08:14.389
+if my stage table is already loaded we
+are just skipping the stage load and
+
+2be0a7e6-ae61-4e20-9445-4613ffe362a8-2
+01:08:14.389 --> 01:08:18.800
+moving on to the actual stage 2 target
+table load.
+
+28c66ede-0723-4e44-84a7-92dc9ea7f4f3-0
+01:08:19.000 --> 01:08:23.600
+If it is not loaded in the free steps
+then we are uploading it,
+
+28c66ede-0723-4e44-84a7-92dc9ea7f4f3-1
+01:08:23.600 --> 01:08:28.200
+then we are loading the stage table and
+then we are doing this.
+
+a6dd9c00-1012-4abf-92e1-83f782ccf21a-0
+01:08:28.760 --> 01:08:34.845
+So in case if any of these loads has
+failed with some execution error,
+
+a6dd9c00-1012-4abf-92e1-83f782ccf21a-1
+01:08:34.845 --> 01:08:38.360
+this post load failure will be triggered.
+
+33d36824-b973-4b8d-9dfd-915f2205633e-0
+01:08:38.840 --> 01:08:45.587
+Here it is doing the same thing if there
+are any records and here it will check I
+
+33d36824-b973-4b8d-9dfd-915f2205633e-1
+01:08:45.587 --> 01:08:47.480
+told you no OK it will.
+
+cacece74-92b2-406b-a8e0-560d149736a0-0
+01:08:47.480 --> 01:08:51.128
+It will just check if there if there if
+there are any DQ checks,
+
+cacece74-92b2-406b-a8e0-560d149736a0-1
+01:08:51.128 --> 01:08:54.160
+it will check if there are any records in
+this table.
+
+dec975a6-49a0-47c9-8c55-1537d11ae637-0
+01:08:54.520 --> 01:08:56.320
+If there are any requests,
+it will delete it.
+
+e6b6d132-cfb3-47a5-a45b-13ff08ed2c73-0
+01:08:56.880 --> 01:09:00.494
+And what are the entry that's made into
+the table,
+
+e6b6d132-cfb3-47a5-a45b-13ff08ed2c73-1
+01:09:00.494 --> 01:09:05.880
+it will just mark it as failure and it
+will send a failure notification OK.
+
+617253fc-cb34-4849-9353-6c8eb30510f5-0
+01:09:06.320 --> 01:09:12.832
+If this task flow gets failed then it
+this notification will fix OK and once
+
+617253fc-cb34-4849-9353-6c8eb30510f5-1
+01:09:12.832 --> 01:09:17.906
+the target table load gets filled and job
+post for success,
+
+617253fc-cb34-4849-9353-6c8eb30510f5-2
+01:09:17.906 --> 01:09:24.080
+this is nothing but like this RA,
+balance sheet cancellation everything.
+
+8a2cdf05-c66a-420f-8b21-d550c6a6750b-0
+01:09:24.560 --> 01:09:28.000
+So first our temporary 2 main RA will be
+happened.
+
+a8ca0b01-0763-49ba-8eab-da70dedc0b87-0
+01:09:28.000 --> 01:09:34.654
+Then if if the DQ check indicator is wide
+then we will do the array detail and draw
+
+a8ca0b01-0763-49ba-8eab-da70dedc0b87-1
+01:09:34.654 --> 01:09:36.160
+approval execution.
+
+731d44e1-4efe-44a7-a66c-86a89796a1b4-0
+01:09:36.240 --> 01:09:38.120
+If there are no decay,
+we'll just bypass step.
+
+8b42e23e-c363-428f-8a56-0182f46eaf45-0
+01:09:39.040 --> 01:09:42.800
+If there are balance checks then we'll do
+balance reconstruction.
+
+4b370ffd-cf81-4f7c-bee3-56824a5c5783-0
+01:09:43.000 --> 01:09:44.560
+Otherwise we can just pipe this step.
+
+19616ebe-32aa-4f62-8c86-9b349f10178f-0
+01:09:46.240 --> 01:09:51.740
+If we have then we'll we will process
+post load success based upon the post
+
+19616ebe-32aa-4f62-8c86-9b349f10178f-1
+01:09:51.740 --> 01:09:53.840
+load success failure success.
+
+ea14e32a-1d94-4c77-a6c6-e3523e38fa66-0
+01:09:55.200 --> 01:09:58.735
+Like based upon the status updated in the
+job and sets table,
+
+ea14e32a-1d94-4c77-a6c6-e3523e38fa66-1
+01:09:58.735 --> 01:10:00.560
+we will send out a notification.
+
+2681ff56-b829-43ab-883e-ea3d8ac03cad-0
+01:10:02.400 --> 01:10:05.560
+If the status is failed then we'll fail
+this task.
+
+79137041-9b46-4470-9ca9-dd506b36ecc3-0
+01:10:07.640 --> 01:10:09.880
+OK, that's it.
+
+608db81d-f5b1-4444-8cc7-6da4f2e3ff1b-0
+01:10:11.280 --> 01:10:15.461
+This is the actual batch transflow and
+let me show you the batch data present as
+
+608db81d-f5b1-4444-8cc7-6da4f2e3ff1b-1
+01:10:15.461 --> 01:10:15.720
+well.
+
+4731eb4a-98c6-4811-ad47-38d9ce6fb16b-0
+01:10:16.880 --> 01:10:22.200
+So for every domain,
+they're having a separate ABC folder.
+
+845d8ee0-9b1d-4056-ae8f-e8e121d93703-0
+01:10:22.480 --> 01:10:29.725
+So they have to like the all the ABC
+components are present in the DA common
+
+845d8ee0-9b1d-4056-ae8f-e8e121d93703-1
+01:10:29.725 --> 01:10:30.760
+ABC folder.
+
+b7f2603b-69a0-490e-b7df-b54727d12e33-0
+01:10:31.080 --> 01:10:35.749
+For every domain they have to take the
+copy from there and paste like take the
+
+b7f2603b-69a0-490e-b7df-b54727d12e33-1
+01:10:35.749 --> 01:10:39.000
+take the copy of all the components and
+paste it here.
+
+72ce1f55-7ab4-4d0e-9492-fce4aede9987-0
+01:10:41.120 --> 01:10:43.160
+Let me show you badge pray requisite.
+
+b4d3ddd6-0fa9-4791-bf82-3eb6e82030bb-0
+01:10:43.320 --> 01:10:51.520
+I think here it is badge pray requisite.
+
+100834dd-4ac8-4314-ad79-78ef3243cb69-0
+01:11:13.840 --> 01:11:20.039
+This is the batch play requisite task
+flow wherein test it will just check the
+
+100834dd-4ac8-4314-ad79-78ef3243cb69-1
+01:11:20.039 --> 01:11:22.080
+latest zone to add status.
+
+c8ca5fa5-5939-4463-a8ec-4ee473665917-0
+01:11:23.000 --> 01:11:26.480
+This framework is same for June 2 and
+June 3 right?
+
+332d5d09-7c37-4f70-a21b-7ca5fef225f6-0
+01:11:26.480 --> 01:11:28.480
+That's why I have just given target zone.
+
+4dcfce4e-0945-4f73-8653-a6d1028d1719-0
+01:11:28.840 --> 01:11:35.814
+If it is loading from in June 3 then it
+will take it will check the latest zone 3
+
+4dcfce4e-0945-4f73-8653-a6d1028d1719-1
+01:11:35.814 --> 01:11:36.920
+batch status.
+
+c6ec3eaa-133f-478f-bbfb-33b576d8e88e-0
+01:11:37.600 --> 01:11:41.480
+If it is completed then it will just.
+
+e9668d48-afc2-43f1-98eb-3df8893d89d1-0
+01:11:42.960 --> 01:11:47.440
+If it is completed then the task flow
+will be just completed successfully if it
+
+e9668d48-afc2-43f1-98eb-3df8893d89d1-1
+01:11:47.440 --> 01:11:49.120
+is failed if it if it is have.
+
+0ba30e3d-4755-4b40-90c9-c41ebfed3d58-0
+01:11:49.120 --> 01:11:54.711
+If it is other than started,
+it will just send out a notification here
+
+0ba30e3d-4755-4b40-90c9-c41ebfed3d58-1
+01:11:54.711 --> 01:11:59.200
+and it will fail the task flow if we have
+any execution.
+
+72f0cca3-c46e-47e9-bc86-7cff532adfc7-0
+01:12:01.480 --> 01:12:05.280
+If there is any execution error,
+we are just failing the last flow.
+
+bb381a9d-fb98-4d3c-a6a1-fc48a06fc91f-0
+01:12:05.280 --> 01:12:09.361
+We can also send out a notification
+stating that this particular execution
+
+bb381a9d-fb98-4d3c-a6a1-fc48a06fc91f-1
+01:12:09.361 --> 01:12:09.960
+got failed.
+
+07c17bd4-e8db-4c8d-b9f5-cf4231b4e92f-0
+01:12:10.840 --> 01:12:13.596
+Anyway,
+it is fine like it is just checking the
+
+07c17bd4-e8db-4c8d-b9f5-cf4231b4e92f-1
+01:12:13.596 --> 01:12:14.400
+status, right?
+
+abf29c25-92fd-4b87-9666-e3134592414f-0
+01:12:15.440 --> 01:12:17.640
+But if I upgrade this,
+I'll just send out a mail.
+
+47629ec4-ec9d-4ad3-9ab1-593e14added2-0
+01:12:19.280 --> 01:12:24.840
+OK, Is everyone OK with the details?
+
+eb7dfae2-dcc1-433e-843a-c4821b3411fc-0
+01:12:24.880 --> 01:12:27.600
+And if you want anything else,
+you can ask me now.
+
+1e6c07b6-56fe-42e6-914a-d1422d8876ea-0
+01:12:30.520 --> 01:12:32.080
+No, no, we are good usually.
+
+24117984-5f67-4b9a-a893-23a94c735321-0
+01:12:33.440 --> 01:12:33.760
+OK.
+
+32fe144e-aae6-4c5d-af40-da6d483a8dc0-0
+01:12:33.960 --> 01:12:36.240
+And I also shared the test cases also,
+right?
+
+449b809a-fcf2-4a81-bd90-50f3b55c9ac6-0
+01:12:36.240 --> 01:12:38.962
+If any other,
+if you feel that any other test cases
+
+449b809a-fcf2-4a81-bd90-50f3b55c9ac6-1
+01:12:38.962 --> 01:12:42.051
+needs to be added,
+I think you will do each and every test
+
+449b809a-fcf2-4a81-bd90-50f3b55c9ac6-2
+01:12:42.051 --> 01:12:42.680
+case, right?
+
+e83a776c-de2d-4962-8d58-15b0b722ee75-0
+01:12:43.040 --> 01:12:45.840
+Like checking each and every component
+failure, everything.
+
+342a953a-47c2-4217-b139-0f80e365463e-0
+01:12:45.880 --> 01:12:47.680
+I hope everything would be covered.
+
+f0b4532d-5084-431a-848d-5dad870a24c3-0
+01:12:47.680 --> 01:12:51.833
+And yeah, yes, OK,
+I have just shared only the test cases
+
+f0b4532d-5084-431a-848d-5dad870a24c3-1
+01:12:51.833 --> 01:12:55.200
+that we have performed as part of
+development.
+
+c7f76593-d8e8-43e2-828f-37a05fbb23b1-0
+01:12:55.760 --> 01:12:59.520
+OK, Actually those were very high level.
+
+299e1a46-877a-4eb4-9619-0f89882a3f8b-0
+01:12:59.520 --> 01:13:04.091
+So we needed the architecture and the
+table level details also so that we could
+
+299e1a46-877a-4eb4-9619-0f89882a3f8b-1
+01:13:04.091 --> 01:13:06.320
+include that as well in our test cases.
+
+d2da57ef-b2a9-43c3-b603-30b514d04b63-0
+01:13:07.320 --> 01:13:09.720
+So that's why we wanted to understand the
+architecture.
+
+64a49103-80ab-4f9f-a985-1cabf89daa49-0
+01:13:13.080 --> 01:13:17.640
+Like now we've got we've got it like what
+to add, what needs to be added.
+
+fcadcafc-cee0-4d23-bc22-395b840bf8f8-0
+01:13:17.960 --> 01:13:22.682
+And also I just want to say because here
+we have not like each and everything has
+
+fcadcafc-cee0-4d23-bc22-395b840bf8f8-1
+01:13:22.682 --> 01:13:26.080
+failed and proper notificial should be
+sent out like that.
+
+d4d85f20-dc22-4fd3-ab8e-370fdc20fc8c-0
+01:13:26.080 --> 01:13:29.120
+Also I think it it would be better if we
+add those texts.
+
+8ed3e302-ebd6-43e5-8395-7a53ce5a4d34-0
+01:13:29.800 --> 01:13:35.953
+Yes,
+yes in Aurora we have ABC tables
+
+8ed3e302-ebd6-43e5-8395-7a53ce5a4d34-1
+01:13:35.953 --> 01:13:43.240
+currently in default DB ABC metadata
+tables.
+
+255e3193-e033-443d-96fe-5a8a9f7d0c0b-0
+01:13:43.480 --> 01:13:46.440
+OK these are the tables.
+
+a52d3105-83dc-46f1-b8a4-dcc65fa2e4b2-0
+01:13:46.440 --> 01:13:51.661
+But someone was saying like I,
+I heard that we will be having a new
+
+a52d3105-83dc-46f1-b8a4-dcc65fa2e4b2-1
+01:13:51.661 --> 01:13:56.960
+database set up for ABC tables in order
+we'll we are checking on it.
+
+41aba6bd-f035-4175-805f-46b25f5008aa-0
+01:13:56.960 --> 01:13:59.400
+If we get any information we'll pass on.
+
+f0de82b1-9c7f-44da-8280-a12a9ad75719-0
+01:14:00.360 --> 01:14:03.880
+OK, sure hope we are good.
+
+cd734732-98b0-43c9-97ff-04f828f70224-0
+01:14:06.920 --> 01:14:13.704
+And if you're asking like do you know how
+to raise the access for IDMC like are you
+
+cd734732-98b0-43c9-97ff-04f828f70224-1
+01:14:13.704 --> 01:14:15.400
+aware of the process?
+
+30150ae2-fa3b-4436-9e4b-1142d408c56d-0
+01:14:19.040 --> 01:14:22.501
+I think it please part of our initial
+access,
+
+30150ae2-fa3b-4436-9e4b-1142d408c56d-1
+01:14:22.501 --> 01:14:27.920
+we'll we'll have one document to raise
+all the access initially, right.
+
+755379a4-f1dd-4631-9fa3-f8e7e12255de-0
+01:14:28.560 --> 01:14:33.993
+I think it is OK part of our only of our
+of that access document only if you want
+
+755379a4-f1dd-4631-9fa3-f8e7e12255de-1
+01:14:33.993 --> 01:14:35.120
+I can share that.
+
+9d42eb84-f618-4530-a20d-7d0b4a6605d3-0
+01:14:35.120 --> 01:14:36.520
+I'll, I'll check, I'll check with them.
+
+0baa325c-2d86-489a-b042-f19ff24bc3b6-0
+01:14:36.520 --> 01:14:40.938
+If you have that detail,
+please share it with us or else like let
+
+0baa325c-2d86-489a-b042-f19ff24bc3b6-1
+01:14:40.938 --> 01:14:46.160
+us know if we can connect with anyone
+else for that, maybe sort of or anyone.
+
+ce323bd2-2274-4115-a4cf-ace8404d9b54-0
+01:14:47.280 --> 01:14:47.480
+Yeah.
+
+43e9001d-5ff0-4842-b3b2-bd7c3da5d4fd-0
+01:14:47.800 --> 01:14:50.120
+But if you have the details,
+please share it with us.
+
+8596fd0c-fc23-43cb-8aa2-35d64572b833-0
+01:14:51.680 --> 01:14:52.760
+Yeah, sure.
+
+63c39cf8-7678-4e23-bbd3-cac5180dc616-0
+01:14:53.040 --> 01:14:57.600
+And I just want to add, yeah, here.
+
+bd70928c-6f94-4d93-9ef0-cd198cf1d696-0
+01:14:59.760 --> 01:15:03.973
+So one thing is if we get any new setup
+of APC tables in Aurora,
+
+bd70928c-6f94-4d93-9ef0-cd198cf1d696-1
+01:15:03.973 --> 01:15:08.900
+that is one thing pending we need to
+check and even the in the Snowflake we
+
+bd70928c-6f94-4d93-9ef0-cd198cf1d696-2
+01:15:08.900 --> 01:15:11.040
+are having ABC timetables, right.
+
+08d57f52-f313-4360-8788-d807d08077b9-0
+01:15:11.360 --> 01:15:14.624
+So they're planning to have those
+timetables for each and every domain
+
+08d57f52-f313-4360-8788-d807d08077b9-1
+01:15:14.624 --> 01:15:15.360
+specific schema.
+
+122234c5-cd88-4c79-8d55-f2a9c9f717ee-0
+01:15:15.640 --> 01:15:19.566
+So for each and every broker domain,
+they'll have a schema ABC and under which
+
+122234c5-cd88-4c79-8d55-f2a9c9f717ee-1
+01:15:19.566 --> 01:15:22.200
+they'll have this timetables are a tables
+like that.
+
+dd7d90cd-1412-40f6-91ea-12045f53b588-0
+01:15:22.520 --> 01:15:28.440
+So that is had to be like had to be like
+designed in the Snowflake.
+
+884207ea-0a3e-4470-8b12-0756660578a6-0
+01:15:29.080 --> 01:15:31.955
+OK,
+but far now we are just we're just
+
+884207ea-0a3e-4470-8b12-0756660578a6-1
+01:15:31.955 --> 01:15:35.200
+pointing to the testing schema temp
+tables.
+
+3a708217-dc78-4e93-8d6a-0e89cab02e0a-0
+01:15:35.600 --> 01:15:39.907
+OK,
+that is on the point and also the pending
+
+3a708217-dc78-4e93-8d6a-0e89cab02e0a-1
+01:15:39.907 --> 01:15:47.400
+design items in ABC's we're to align on
+the history historical or catch upload.
+
+94ddbc41-a32e-4f96-9a78-70ff9f5594cd-0
+01:15:48.360 --> 01:15:54.521
+So whether we need to do entries into the
+ABC data tables for auditing purpose and
+
+94ddbc41-a32e-4f96-9a78-70ff9f5594cd-1
+01:15:54.521 --> 01:15:56.600
+also first time incremental.
+
+28409934-62a6-4089-9b95-3419ad09da6b-0
+01:15:56.680 --> 01:16:02.156
+So for the first time when we are so
+historical and catch upload would be from
+
+28409934-62a6-4089-9b95-3419ad09da6b-1
+01:16:02.156 --> 01:16:07.701
+Teradata to Snowflake but the first time
+in incremental would be from zone one,
+
+28409934-62a6-4089-9b95-3419ad09da6b-2
+01:16:07.701 --> 01:16:08.880
+zone 2 OK though.
+
+55977775-50a2-481c-b2ef-81721b49933e-0
+01:16:08.880 --> 01:16:12.840
+So we are at to align on this design
+areas.
+
+d789494b-d77b-4005-96dd-0d0573ceec31-0
+01:16:13.000 --> 01:16:14.360
+These are edge scenarios.
+
+f79941a8-090a-4e77-bd56-2e2faec72fb5-0
+01:16:14.680 --> 01:16:20.640
+Nothing would be like affected with this,
+but yeah, these are the open items.
+
+f09556a3-cc8e-4edc-b4f7-26070272e983-0
+01:16:20.640 --> 01:16:24.002
+I just wanted to let you know so that
+once these are completed,
+
+f09556a3-cc8e-4edc-b4f7-26070272e983-1
+01:16:24.002 --> 01:16:26.786
+we will info once the touching is done
+from our end,
+
+f09556a3-cc8e-4edc-b4f7-26070272e983-2
+01:16:26.786 --> 01:16:28.520
+you can also touch the scenarios.
+
+f6a3f119-67d6-408a-af38-4f52667a7a58-0
+01:16:29.960 --> 01:16:30.360
+OK.
+
+3de7e498-500d-436f-a503-225289557ecf-0
+01:16:30.520 --> 01:16:31.840
+I think I think we are good.
+
+9b30359a-b725-4856-93f0-aa50711a037d-0
+01:16:32.240 --> 01:16:33.840
+I have covered almost everything.
+
+3f6ced1f-1bcf-455f-905a-e381b39425f7-0
+01:16:33.840 --> 01:16:35.680
+I I yes, Yes, I can.
+
+2e29c124-6412-435b-98ca-1da751b343e9-0
+01:16:36.200 --> 01:16:36.400
+Yes.
+
+b40b0cd2-dcaf-4561-9c29-e307cb4a70cd-0
+01:16:36.400 --> 01:16:36.600
+Issue.
+
+0b701e10-e379-4227-8c1e-9236e22c77c2-0
+01:16:36.720 --> 01:16:36.960
+Yeah.
+
+9b3548aa-06d0-4e63-885b-d664bd2eaba5-0
+01:16:38.720 --> 01:16:40.760
+I'll stop the recording.
+
+a3867281-16c2-474f-bc8b-938cfe9944e6-0
+01:16:42.000 --> 01:16:42.160
+Yeah.
+
+d2121273-da7f-4ce7-8b2d-9c7284bfef77-0
+01:16:42.160 --> 01:16:42.440
+OK.
+
+18e685e4-bdd9-4082-8aaf-21ff9199c383-0
+01:16:44.560 --> 01:16:45.320
+Sandhya Rani.
+
+ee44eda9-f502-43bb-9950-5e2dfd250b62-0
+01:16:45.600 --> 01:16:49.200
+Like, yeah, yeah, like you can.
+
+778bb875-c03d-41cf-8b8a-6de15e2f6dc5-0
+01:16:49.200 --> 01:16:50.120
+You can stop there, correct?
