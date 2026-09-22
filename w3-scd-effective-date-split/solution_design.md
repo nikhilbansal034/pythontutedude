@@ -52,7 +52,7 @@ which the POC asserts as T12.
               ▼                ▼
         STEP 2 — 'D'      STEP 3 — 'I'
         Update            Insert
-        is_del = 'Y'      new versions
+        retire the row    new versions
               └────────┬───────┘
                        ▼
                  Zone2 target
@@ -63,6 +63,8 @@ instruction list. **Step 1 writes nothing to the target**, so Steps 2 and 3 are 
 contain no logic; they read a flag and act.
 
 **Step 2 must run before Step 3.**
+
+**How a row is retired depends on what its expiration date said** — see §6.
 
 ---
 
@@ -139,13 +141,30 @@ honest: this is not an upsert. It is closing one set of rows and appending a dif
 
 ## 6. Steps 2 and 3
 
+### Two ways a row is retired
+
+A superseded target row is not always retired the same way. The rule, confirmed by the team:
+
+| The row being superseded | How it is retired | Result |
+|---|---|---|
+| Its `ROW_EXP_DTE` is the **high end date** (9999-12-31) | **Dead record** — set `ROW_EXP_DTE` equal to that row's own `ROW_EFF_DTE` | The row spans zero days, so no as-of query can return it |
+| Its `ROW_EXP_DTE` is a **real date** | **Delete indicator** — set `IS_DEL = 'Y'`, leave both dates alone | The row is excluded by a consumer filtering on `IS_DEL` |
+
+Both apply only when `execution_type` is **not** a Zone 1 rerun; see §12 for that open decision.
+
+A dead record is the stronger of the two, because it is invisible to an as-of query **whether or not the
+consumer knows to filter on a flag**. A delete indicator only works if every consumer remembers. Whether
+that argues for using dead records everywhere is open — see §13.
+
 ```sql
--- STEP 2 — soft-delete
-UPDATE Z2_BROKER_PARTY_DIM
-SET IS_DEL = 'Y', AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+-- STEP 2 — retire, by whichever mechanism the row's expiry calls for
+UPDATE Z2_BROKER_PARTY_DIM T
+SET IS_DEL      = CASE WHEN T.ROW_EXP_DTE = '9999-12-31'::DATE THEN T.IS_DEL ELSE 'Y' END,
+    ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = '9999-12-31'::DATE THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+    AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
 FROM STG_Z2_BROKER_PARTY_DIM S
 WHERE S.ACTION_FLAG = 'D'
-  AND Z2_BROKER_PARTY_DIM.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK;
+  AND T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK;
 
 -- STEP 3 — insert
 INSERT INTO Z2_BROKER_PARTY_DIM (...)
@@ -154,8 +173,11 @@ FROM STG_Z2_BROKER_PARTY_DIM WHERE ACTION_FLAG = 'I';
 ```
 
 **The `D` rows carry the target row's own surrogate key**, so the update matches on one column. Matching on
-`(BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE)` instead would also hit a row soft-deleted in an *earlier* run that
+`(BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE)` instead would also hit a row retired in an *earlier* run that
 happened to cover the same interval.
+
+**The POC predates this rule** — it retired every row with `IS_DEL = 'Y'`. The dead-record branch above is
+written but not yet run; see §9.
 
 ---
 
@@ -194,6 +216,11 @@ bottom. Every `EVIDENCE` block returns a result set to capture.
 
 **It has been run.** All **26 assertions PASS**, and every evidence block matched the row counts written
 down before execution. Captioned screenshots of every step are in `POC_Evidence.docx`.
+
+**One thing the POC does not yet cover.** It was written before the dead-record rule (§6) was confirmed, so
+it retires every superseded row with `IS_DEL = 'Y'`. Wherever the retired row's expiry was the high end
+date, the correct behaviour is now a dead record instead. That affects the expected results of BR001 and
+BR006 and needs a re-run; nothing about the timeline rebuild changes.
 
 ### Objects — what is real and what is illustrative
 
@@ -468,7 +495,33 @@ it reports full pushdown.
 
 ## 13. Still open on the problem side
 
-Carried from `scenario_matrix.md` §11 — these do not block the POC but do affect scope:
+### From the scenario walkthrough
+
+`Final_Scenarios.xlsx` sets out every scenario with its own worked data — the source tables, the target
+before and after, and what each one is testing. These came out of that review and are the ones that would
+change what gets built:
+
+| | Question | Why it matters |
+|---|---|---|
+| 1 | When several source rows share a key **and** effective date in one window, are they restatements where the latest wins, or distinct versions that must all land? | The only one that changes the design rather than the documentation. If all must land, two live rows would share a key and effective date and the timeline becomes ambiguous |
+| 2 | Is `ROW_EFF_DTE` a **date** or a **timestamp**? | If intraday runs carry different times, question 1 resolves itself — the rows never collide |
+| 3 | On a Zone 1 rerun, update in place or retire and replace? | See §12. A branch makes the target depend on how the run was triggered rather than on what the data says |
+| 4 | Is `IS_DEL` also set on a dead record, or left at `'N'`? | Decides how consumers and the framework's restart cleanup identify live rows |
+| 5 | Should Step 1 read a zero-length row as live at all? | Filtering `ROW_EFF_DTE < ROW_EXP_DTE` in the target read would exclude dead records however `IS_DEL` is set, and would settle question 4 |
+| 6 | Are both sources always keyed the same way? | If one is a parent that several keys point at, a parent-only change must fan out to every child before the rebuild — and the current Step 1 would find nothing, producing an empty stage and a job that reports success |
+| 7 | Can more than two SCD2 sources feed one target? | Same arithmetic, but the SQL is written for exactly two |
+
+**Restart is settled.** Tracing the failure row by row (`Final_Scenarios.xlsx`, RESTART tab) shows the
+design recovers on its own, and shows why: the restart keeps the same sourcing window, so Step 1 rebuilds
+the same timeline, and the diff runs against whatever the target holds at that moment. A half-applied run
+is simply a different starting state. The framework's own cleanup cannot find our retired rows — they carry
+the id of the run that *inserted* them — but that turns out not to matter, because we never depend on it.
+Worth stating explicitly, because the moment Step 1 is "optimised" to trust the target instead of
+rebuilding, this stops being true.
+
+### Carried from `scenario_matrix.md` §11
+
+These do not block the POC but do affect scope:
 
 - Does a current-bucket read give one row per key, or all versions?
 - Can a source *remove* one of its own versions? If so, nothing in the delta will ever flag it.
