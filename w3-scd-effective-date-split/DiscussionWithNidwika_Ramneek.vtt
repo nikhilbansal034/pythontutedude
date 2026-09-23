@@ -1,0 +1,48 @@
+Vedanaparthi, Nidwika
+9:40 AM
+Information.
+Bansal, Nikhil
+9:40 AM
+Okay.
+Vedanaparthi, Nidwika
+9:40 AM
+Okay, now if you take an example of that here on the left hand side, you see you had B1 record with 99 to high end date. Now you have that B1 record expired by 15th, and then B2 from 15th to 22nd, and then B3 from 22nd to 31st.
+Bansal, Nikhil
+9:40 AM
+Understand.
+Correct.
+Vedanaparthi, Nidwika
+9:41 AM
+Okay, but A1 and A2, nothing has changed over there.
+Now what has happened earlier? Ramneek, can you...
+Just leave it. That's fine. I mean, just leave it there. It's okay.
+No, I need the bottom data. Don't change anything for now, just one minute.
+Kaur, Ramneek
+9:41 AM
+Perfect.
+Vedanaparthi, Nidwika
+9:41 AM
+I'm trying to explain to him he has to see the day one data and day to data both on the right hand side.
+Yeah, okay. Keep in there.
+Okay, so for K1.
+As a key and what is the lowest row effect to date that you see in this? 9-9-26 right? Now from there, what will be the expiration date of it based on the new data set?
+Bansal, Nikhil
+9:42 AM
+Right, yeah.
+Vedanaparthi, Nidwika
+9:42 AM
+Until 9:10, right?
+Bansal, Nikhil
+9:42 AM
+Yeah, Nitin.
+Vedanaparthi, Nidwika
+9:42 AM
+For 99 to 910, now the key K1 and 99 entry you already have in the target, right? For that, the combination of values, it is blank and B1. So nothing has changed. Even the expiration date did not change. So you are not touching it.
+Bansal, Nikhil
+9:42 AM
+Correct, that will be in touch.
+Hmm.
+Vedanaparthi, Nidwika
+9:42 AM
+Now the next higher row effective date is 910. Here you have the row effective date as 910 for the key K1. And what is the combination of values and what is the expiration date of this? On day two, the expiration date of it will be...
+15th September instead of the 21st September that you had on day one, right? So one change is the expiration date has been modified for it.
