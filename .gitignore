@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+
+# transient outputs from w3 tools/
+w3-scd-effective-date-split/tools/_mut.xlsx
+w3-scd-effective-date-split/tools/*.xlsx
