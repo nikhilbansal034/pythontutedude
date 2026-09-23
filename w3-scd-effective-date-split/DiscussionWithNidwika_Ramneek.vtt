@@ -1,48 +1,176 @@
 Vedanaparthi, Nidwika
-9:40 AM
+0 minutes 3 seconds0:03
+Vedanaparthi, Nidwika 0 minutes 3 seconds
 Information.
+
 Bansal, Nikhil
-9:40 AM
+0 minutes 6 seconds0:06
+Bansal, Nikhil 0 minutes 6 seconds
 Okay.
+
 Vedanaparthi, Nidwika
-9:40 AM
+0 minutes 7 seconds0:07
+Vedanaparthi, Nidwika 0 minutes 7 seconds
 Okay, now if you take an example of that here on the left hand side, you see you had B1 record with 99 to high end date. Now you have that B1 record expired by 15th, and then B2 from 15th to 22nd, and then B3 from 22nd to 31st.
+
 Bansal, Nikhil
-9:40 AM
+0 minutes 8 seconds0:08
+Bansal, Nikhil 0 minutes 8 seconds
 Understand.
+Bansal, Nikhil 0 minutes 25 seconds
 Correct.
+
 Vedanaparthi, Nidwika
-9:41 AM
+0 minutes 26 seconds0:26
+Vedanaparthi, Nidwika 0 minutes 26 seconds
 Okay, but A1 and A2, nothing has changed over there.
+Vedanaparthi, Nidwika 0 minutes 32 seconds
 Now what has happened earlier? Ramneek, can you...
+Vedanaparthi, Nidwika 0 minutes 38 seconds
 Just leave it. That's fine. I mean, just leave it there. It's okay.
+Vedanaparthi, Nidwika 0 minutes 44 seconds
 No, I need the bottom data. Don't change anything for now, just one minute.
+KR
+
 Kaur, Ramneek
-9:41 AM
+0 minutes 46 seconds0:46
+Kaur, Ramneek 0 minutes 46 seconds
 Perfect.
+
 Vedanaparthi, Nidwika
-9:41 AM
+0 minutes 50 seconds0:50
+Vedanaparthi, Nidwika 0 minutes 50 seconds
 I'm trying to explain to him he has to see the day one data and day to data both on the right hand side.
+Vedanaparthi, Nidwika 0 minutes 56 seconds
 Yeah, okay. Keep in there.
+Vedanaparthi, Nidwika 1 minute 3 seconds
 Okay, so for K1.
+Vedanaparthi, Nidwika 1 minute 7 seconds
 As a key and what is the lowest row effect to date that you see in this? 9-9-26 right? Now from there, what will be the expiration date of it based on the new data set?
+
 Bansal, Nikhil
-9:42 AM
+1 minute 12 seconds1:12
+Bansal, Nikhil 1 minute 12 seconds
 Right, yeah.
+
 Vedanaparthi, Nidwika
-9:42 AM
+1 minute 21 seconds1:21
+Vedanaparthi, Nidwika 1 minute 21 seconds
 Until 9:10, right?
+
 Bansal, Nikhil
-9:42 AM
+1 minute 23 seconds1:23
+Bansal, Nikhil 1 minute 23 seconds
 Yeah, Nitin.
+
 Vedanaparthi, Nidwika
-9:42 AM
+1 minute 25 seconds1:25
+Vedanaparthi, Nidwika 1 minute 25 seconds
 For 99 to 910, now the key K1 and 99 entry you already have in the target, right? For that, the combination of values, it is blank and B1. So nothing has changed. Even the expiration date did not change. So you are not touching it.
+
 Bansal, Nikhil
-9:42 AM
+1 minute 33 seconds1:33
+Bansal, Nikhil 1 minute 33 seconds
 Correct, that will be in touch.
+Bansal, Nikhil 1 minute 45 seconds
 Hmm.
+
 Vedanaparthi, Nidwika
-9:42 AM
+1 minute 45 seconds1:45
+Vedanaparthi, Nidwika 1 minute 45 seconds
 Now the next higher row effective date is 910. Here you have the row effective date as 910 for the key K1. And what is the combination of values and what is the expiration date of this? On day two, the expiration date of it will be...
+Vedanaparthi, Nidwika 2 minutes 5 seconds
 15th September instead of the 21st September that you had on day one, right? So one change is the expiration date has been modified for it.
+
+Bansal, Nikhil
+2 minutes 10 seconds2:10
+Bansal, Nikhil 2 minutes 10 seconds
+Correct.
+
+Vedanaparthi, Nidwika
+2 minutes 17 seconds2:17
+Vedanaparthi, Nidwika 2 minutes 17 seconds
+And the values wise, it is still A1 and B1.
+
+Bansal, Nikhil
+2 minutes 17 seconds2:17
+Bansal, Nikhil 2 minutes 17 seconds
+Ohh.
+Bansal, Nikhil 2 minutes 22 seconds
+Correct.
+
+Vedanaparthi, Nidwika
+2 minutes 24 seconds2:24
+Vedanaparthi, Nidwika 2 minutes 24 seconds
+Right, so for the combination of it, earlier we have given to the downstream system as a report to go on to say that, okay, from 9, 10 to 21st September, A1 and B1 is the valid range is what we have given them.
+Vedanaparthi, Nidwika 2 minutes 42 seconds
+It's not a high-end date as such, but in between dates it has been from 10th to 21st is what we had originally. Now we are saying no, that was incorrect. It must have been from 10th to 15th.
+Vedanaparthi, Nidwika 2 minutes 56 seconds
+Right? So that's why we are retiring that record, whatever we gave them yesterday, so that they have traceable, like, okay, yesterday I got this data, why was it? They can come and see, yeah, it was provided yesterday, but today we have a change for it.
+
+Bansal, Nikhil
+2 minutes 57 seconds2:57
+Bansal, Nikhil 2 minutes 57 seconds
+Mm-hmm. Okay.
+
+Vedanaparthi, Nidwika
+3 minutes 11 seconds3:11
+Vedanaparthi, Nidwika 3 minutes 11 seconds
+Right, that's why we are not deleting that entry, rather expiring that entry with delete indicator as Y and then creating a new version for it with the expiration date as 915. In this case, your hash is also same. Just the difference is when your key and the row effective date is same.
+
+Bansal, Nikhil
+3 minutes 12 seconds3:12
+Bansal, Nikhil 3 minutes 12 seconds
+Okay.
+
+Vedanaparthi, Nidwika
+3 minutes 31 seconds3:31
+Vedanaparthi, Nidwika 3 minutes 31 seconds
+And hash is same, is your expiration date the high end date or not in the current state?
+Vedanaparthi, Nidwika 3 minutes 38 seconds
+If it is not a high end date, then you will create it as a retired record and create a new version.
+Vedanaparthi, Nidwika 3 minutes 45 seconds
+If it is a high end date, then you would create it as a dead record if hash has changed. Otherwise, you will just expire the record in place.
+
+Bansal, Nikhil
+3 minutes 59 seconds3:59
+Bansal, Nikhil 3 minutes 59 seconds
+Okay, and by expiring, I mean like I will update, I will update the expiration date.
+
+Vedanaparthi, Nidwika
+4 minutes 1 second4:01
+Vedanaparthi, Nidwika 4 minutes 1 second
+Okay, I mean, just to clarify, on the 910, right, you had the 910 with the 21st September yesterday, right, in the data set target. But today we are saying it was not valid until 21st. It should be valid only until 15th. So you are going to create a record with 15th as the expiration date for it.
+
+Bansal, Nikhil
+4 minutes 19 seconds4:19
+Bansal, Nikhil 4 minutes 19 seconds
+Uh-huh.
+
+Vedanaparthi, Nidwika
+4 minutes 21 seconds4:21
+Vedanaparthi, Nidwika 4 minutes 21 seconds
+And you are not going to delete what you had before. You will mark it as a soft delete.
+Vedanaparthi, Nidwika 4 minutes 28 seconds
+The difference between this one versus the second scenario where we are seeing the similar kind of change where my hash value also is the same is your expiration date in the current state for this record is high end date. It is just state they are setting the expiration date. It was not an incorrect date.
+Vedanaparthi, Nidwika 4 minutes 49 seconds
+date range that they have provided. It is just that that was the latest version and now I have a change of detail for it.
+Vedanaparthi, Nidwika 4 minutes 56 seconds
+Whereas in the previous one, it is a correction to the record that you have.
+
+Bansal, Nikhil
+5 minutes 4 seconds5:04
+Bansal, Nikhil 5 minutes 4 seconds
+Understood.
+KR
+Kaur, Ramneek
+16 minutes 47 seconds16:47
+Kaur, Ramneek 16 minutes 47 seconds
+Yeah, I'll just go through once and maybe we can reconnect, and then, like, if I have any questions, because I, yeah.
+
+Vedanaparthi, Nidwika
+16 minutes 52 seconds16:52
+Vedanaparthi, Nidwika 16 minutes 52 seconds
+Sure.
+Vedanaparthi, Nidwika 16 minutes 55 seconds
+OK, but for today I have one priority task for you, Ramneek, on the demo preparation.
