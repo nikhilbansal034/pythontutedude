@@ -1,7 +1,7 @@
 """Independently re-derives every target table in the workbook from its own source
 tables, applying the rule, and compares against what the sheet actually says.
 Parses the built file - it does not import build.py - so a typo in the data shows up."""
-import sys, openpyxl
+import re, sys, openpyxl
 from collections import defaultdict
 
 HIGH = "9999-12-31"
@@ -72,19 +72,25 @@ def rebuild(src1, src2):
 
 
 def diff(rebuilt, existing):
-    """Applies the rule table. Returns {(key, eff): (action, nk1, nk2, exp)}."""
-    have = {(r["PRIMARY_KEY"], str(r["ROW_EFF_DATE"])): r for r in existing}
+    """Applies the rule table. The EXISTING row's expiry decides first; the hash
+    only decides inside the high-end-date branch. Returns {(key, eff): (action, nk1, nk2, exp)}."""
+    have = {(r["PRIMARY_KEY"], str(r["ROW_EFF_DATE"])[:10]): r for r in existing}
     acts = {}
     for k, nk1, nk2, eff, exp in rebuilt:
-        old = have.get((k, eff))
+        old = have.get((k, eff[:10]))
         if old is None:
             acts[(k, eff)] = ("insert", nk1, nk2, exp)
-        elif (norm(old["NON_KEY_1"]), norm(old["NON_KEY_2"])) != (nk1, nk2):
-            acts[(k, eff)] = ("retire+insert", nk1, nk2, exp)
-        elif str(old["ROW_EXP_DATE"]) != exp:
-            acts[(k, eff)] = ("update", nk1, nk2, exp)
-        else:
+            continue
+        same_hash = (norm(old["NON_KEY_1"]), norm(old["NON_KEY_2"])) == (nk1, nk2)
+        if same_hash and str(old["ROW_EXP_DATE"])[:10] == exp[:10]:
             acts[(k, eff)] = ("untouched", nk1, nk2, exp)
+        elif str(old["ROW_EXP_DATE"])[:10] != HIGH:
+            # already closed with a real date - changing it is a CORRECTION, keep the trail
+            acts[(k, eff)] = ("retire+insert", nk1, nk2, exp)
+        elif not same_hash:
+            acts[(k, eff)] = ("dead+insert", nk1, nk2, exp)
+        else:
+            acts[(k, eff)] = ("update", nk1, nk2, exp)
     return acts
 
 
@@ -92,7 +98,7 @@ def classify(action_text):
     a = (action_text or "").lower()
     if "not read" in a or "untouched" in a or "no change" in a:
         return "untouched"
-    if "update exp" in a or "no-op" in a or "expiry updated" in a:
+    if "update exp" in a or "no-op" in a or "expiry updated" in a or a == "update":
         return "update"
     if "dead record" in a or "retired" in a or "delete_ind" in a or "already dead" in a:
         return "retire"
@@ -113,6 +119,8 @@ def check(path):
             return [(h, as_dicts(c, r)) for h, _, _, c, r in blocks if pred(h.upper())]
         def tag(h):
             u = h.upper()
+            m = re.search(r"(?:EXECUTION[ _]RUN(?:_ID)?[ \-]*)(\d+)", u)
+            if m: return "R" + m.group(1)
             if "CASE 1" in u: return "C1"
             if "CASE 2" in u: return "C2"
             if "DAY 2" in u:  return "D2"
@@ -121,27 +129,34 @@ def check(path):
         s2 = {tag(h): d for h, d in find(lambda h: "SRC_2" in h)}
         tgs = defaultdict(list)
         for h, d in find(lambda h: "TGT" in h or "READ (" in h):
-            if "READ (B)" in h.upper():
+            u = h.upper()
+            # Blocks that deliberately show a REJECTED alternative are not the rule.
+            if "READ (B)" in u or "OPTION 2" in u:
                 continue
             tgs[tag(h)].append(d)
         tg = {k: v[-1] for k, v in tgs.items()}   # last block for a tag = the final state
-        if not ("D1" in s1 and "D1" in s2 and "D1" in tg):
-            print(f"  {name}: skipped (needs a Day 1 SRC_1, SRC_2 and TGT)"); continue
+        runs = sorted(t for t in tg if t.startswith("R"))
+        base = runs[0] if runs else "D1"
+        if not (base in s1 and base in s2 and base in tg):
+            print(f"  {name}: skipped (needs a baseline SRC_1, SRC_2 and TGT)"); continue
 
-        # Day 1 target must be a pure rebuild of the Day 1 sources.
-        d1 = rebuild(s1["D1"], s2["D1"])
+        # The baseline target must be a pure rebuild of the baseline sources.
+        d1 = rebuild(s1[base], s2[base])
         got1 = [(r["PRIMARY_KEY"], norm(r["NON_KEY_1"]), norm(r["NON_KEY_2"]),
-                 str(r["ROW_EFF_DATE"]), str(r["ROW_EXP_DATE"])) for r in tg["D1"]]
+                 str(r["ROW_EFF_DATE"]), str(r["ROW_EXP_DATE"])) for r in tg[base]]
         exp1 = [tuple([k, a, b, e, x]) for k, a, b, e, x in d1]
         if got1 != exp1:
             fails.append(f"{name}: Day 1 target does not match a rebuild of its sources\n"
                          f"      expected {exp1}\n      got      {got1}")
 
-        # Every later stage: rebuild its own sources, diff against the Day 1 target.
-        for t in [x for x in ("D2", "C1", "C2") if x in s1 and x in s2 and x in tg]:
+        # Later stages. A numbered run diffs against what the PREVIOUS run left;
+        # named branches (CASE 1 / CASE 2) are alternatives, each from the baseline.
+        later = runs[1:] if runs else [x for x in ("D2", "C1", "C2") if x in tg]
+        for i, t in enumerate([x for x in later if x in s1 and x in s2 and x in tg]):
+            prev = runs[runs.index(t) - 1] if runs else base
             d2 = rebuild(s1[t], s2[t])
-            acts = diff(d2, tg["D1"])
-            live = {(r["PRIMARY_KEY"], str(r["ROW_EFF_DATE"])) for r in tg["D1"]}
+            acts = diff(d2, tg[prev])
+            live = {(r["PRIMARY_KEY"], str(r["ROW_EFF_DATE"])) for r in tg[prev]}
             sheet_rows = tg[t]
             seen = defaultdict(list)
             for r in sheet_rows:
@@ -155,13 +170,15 @@ def check(path):
                 want = {"insert"} if act == "insert" else \
                        {"update"} if act == "update" else \
                        {"untouched"} if act == "untouched" else {"retire", "insert"}
+                # retire+insert and dead+insert both need a retired row and an inserted row
                 if not want <= kinds:
                     fails.append(f"{name} [{t}]: {k}@{eff} rule says {act} (needs {sorted(want)}), "
                                  f"sheet shows {sorted(kinds)}")
                 # Whichever row carries the NEW state must match the rebuild exactly.
                 # For retire+insert that is the inserted half, not the retired one.
                 carries_new = {"insert": ("insert",), "update": ("update",),
-                               "untouched": ("untouched",), "retire+insert": ("insert",)}[act]
+                               "untouched": ("untouched",), "retire+insert": ("insert",),
+                               "dead+insert": ("insert",)}[act]
                 for r in [x for x in rows if classify(x.get("ACTION")) in carries_new]:
                     if str(r["ROW_EXP_DATE"]) != exp:
                         fails.append(f"{name} [{t}]: {k}@{eff} ({act}) expiry should be {exp}, "
