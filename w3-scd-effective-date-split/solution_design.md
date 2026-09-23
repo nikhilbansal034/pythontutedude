@@ -47,14 +47,15 @@ which the POC asserts as T12.
         rebuild the timeline for every changed key, diff against the target
                       ▼
               STAGE table (truncate + reload)
-              every row carries action_flag 'I' or 'D'
-              ┌───────┴────────┐
-              ▼                ▼
-        STEP 2 — 'D'      STEP 3 — 'I'
-        Update            Insert
-        retire the row    new versions
-              └────────┬───────┘
-                       ▼
+              every row carries action_flag 'U', 'D' or 'I'
+       ┌──────────────┼──────────────┐
+       ▼              ▼              ▼
+  STEP 2a — 'U'  STEP 2b — 'D'  STEP 3 — 'I'
+  Update         Update         Insert
+  move the       retire the     new versions
+  expiry only    row
+       └──────────────┼──────────────┘
+                      ▼
                  Zone2 target
 ```
 
@@ -62,9 +63,10 @@ which the POC asserts as T12.
 instruction list. **Step 1 writes nothing to the target**, so Steps 2 and 3 are needed to apply it. They
 contain no logic; they read a flag and act.
 
-**Step 2 must run before Step 3.**
+**Steps 2a and 2b must both run before Step 3.**
 
-**How a row is retired depends on what its expiration date said** — see §6.
+**A matched row is only retired when its values actually changed** — if only its expiry moved it is updated
+in place. How a row that *is* retired gets retired then depends on what its expiration date said. See §6.
 
 ---
 
@@ -79,7 +81,7 @@ contain no logic; they read a flag and act.
 | 5 | **Build intervals** | `row_exp_dte = LEAD(boundary)`; the final boundary closes the last interval |
 | 6 | **Fill intervals** | LEFT JOIN each source on containment |
 | 7 | **Read the target** | Current rows for those keys where `is_del = 'N'` |
-| 8 | **Diff** | New not in current → `'I'`. Current not in new → `'D'`. Identical → left alone |
+| 8 | **Diff** | Match on `(business_key, row_eff_dte)`, then compare the **hash** of the target-bound columns — see §6 for the four outcomes |
 
 ### Four things that are easy to get wrong
 
@@ -141,23 +143,58 @@ honest: this is not an upsert. It is closing one set of rows and appending a dif
 
 ## 6. Steps 2 and 3
 
-### Two ways a row is retired
+### The rule: match on the effective date, then let the hash decide
 
-A superseded target row is not always retired the same way. The rule, confirmed by the team:
+Every rebuilt interval is matched to the existing target row on `(business_key, row_eff_dte)`. What happens
+next is decided by a **hash taken over the columns that actually reach the target** — not over every source
+column, and not by comparing dates alone.
 
-| The row being superseded | How it is retired | Result |
+| Target row at that effective date | Hash | `row_exp_dte` | Action | Stage flag |
+|---|---|---|---|---|
+| exists | same | same | nothing is written | *no stage row* |
+| exists | same | different | update `row_exp_dte` in place | `'U'` |
+| exists | changed | any | retire the old row, insert the new one | `'D'` + `'I'` |
+| none | — | — | insert | `'I'` |
+| exists, but that effective date is gone from the rebuilt timeline | — | — | retire | `'D'` |
+
+The `'U'` branch is what keeps the target stable. When a source closes an interval early, the values covering
+that interval usually have not changed — only the boundary moved. Retiring and re-inserting such a row would
+churn its surrogate key and lose its audit history for no reason.
+
+**Why the hash is needed at all**: two rows can be identical on both dates and still differ in value — a
+source restating a row in place. Dates alone cannot tell them apart, and a date-only comparison would write
+nothing, leave the stale value in the target, and report success. See scenario S06.
+
+**Why the hash is taken only over target-bound columns**: a source column the target never carries can change
+without meaning anything to a consumer. Hashing it would split the target into two identical rows. See S03.
+
+### Two ways a retired row is retired
+
+Once the hash says a row must go, *how* it goes depends on its expiry. The rule, confirmed by the team:
+
+| The row being retired | How it is retired | Result |
 |---|---|---|
 | Its `ROW_EXP_DTE` is the **high end date** (9999-12-31) | **Dead record** — set `ROW_EXP_DTE` equal to that row's own `ROW_EFF_DTE` | The row spans zero days, so no as-of query can return it |
 | Its `ROW_EXP_DTE` is a **real date** | **Delete indicator** — set `IS_DEL = 'Y'`, leave both dates alone | The row is excluded by a consumer filtering on `IS_DEL` |
-
-Both apply only when `execution_type` is **not** a Zone 1 rerun; see §12 for that open decision.
 
 A dead record is the stronger of the two, because it is invisible to an as-of query **whether or not the
 consumer knows to filter on a flag**. A delete indicator only works if every consumer remembers. Whether
 that argues for using dead records everywhere is open — see §13.
 
+Note that the `'U'` branch narrows where `IS_DEL = 'Y'` can fire at all: it now requires a row whose values
+changed **and** whose expiry was already a real date. In scenario S01 that combination never occurs, so the
+delete indicator does not fire there at any point.
+
 ```sql
--- STEP 2 — retire, by whichever mechanism the row's expiry calls for
+-- STEP 2a — the values did not change, only the boundary moved: update in place
+UPDATE Z2_BROKER_PARTY_DIM T
+SET ROW_EXP_DTE           = S.ROW_EXP_DTE,
+    AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+FROM STG_Z2_BROKER_PARTY_DIM S
+WHERE S.ACTION_FLAG = 'U'
+  AND T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK;
+
+-- STEP 2b — the values changed: retire, by whichever mechanism the row's expiry calls for
 UPDATE Z2_BROKER_PARTY_DIM T
 SET IS_DEL      = CASE WHEN T.ROW_EXP_DTE = '9999-12-31'::DATE THEN T.IS_DEL ELSE 'Y' END,
     ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = '9999-12-31'::DATE THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
@@ -172,12 +209,16 @@ SELECT SEQ_BROKER_PARTY_DIM_SK.NEXTVAL, ...
 FROM STG_Z2_BROKER_PARTY_DIM WHERE ACTION_FLAG = 'I';
 ```
 
-**The `D` rows carry the target row's own surrogate key**, so the update matches on one column. Matching on
-`(BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE)` instead would also hit a row retired in an *earlier* run that
-happened to cover the same interval.
+**Both the `U` and `D` rows carry the target row's own surrogate key**, so each update matches on one column.
+Matching on `(BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE)` instead would also hit a row retired in an *earlier* run
+that happened to cover the same interval.
 
-**The POC predates this rule** — it retired every row with `IS_DEL = 'Y'`. The dead-record branch above is
-written but not yet run; see §9.
+**Every action here is idempotent**, which is what makes restart safe without depending on ABC's cleanup:
+re-applying a `'U'` writes the value already there, re-retiring a dead record leaves it dead, and an interval
+already inserted matches on the next run with the same hash and expiry, so it falls to "nothing is written".
+
+**The POC predates this rule** — it retired every row with `IS_DEL = 'Y'` and had no `'U'` branch at all.
+BR001 and BR006 need re-running; see §9.
 
 ---
 
@@ -186,14 +227,19 @@ written but not yet run; see §9.
 | Step | Component | Notes |
 |---|---|---|
 | 1 | Mapping: Source transformation with **custom query / SQL override** → stage table, operation **Insert** | Needs the **Create Temporary View** session property for pushdown to work with a SQL override |
-| 2 | Mapping: Source = stage filtered `action_flag='D'` → Zone2 target, operation **Update** | Informatica's docs state Create Temporary View is mandatory before configuring update, upsert or delete |
+| 2a | Mapping: Source = stage filtered `action_flag='U'` → Zone2 target, operation **Update** | Writes `row_exp_dte` only. Informatica's docs state Create Temporary View is mandatory before configuring update, upsert or delete |
+| 2b | Mapping: Source = stage filtered `action_flag='D'` → Zone2 target, operation **Update** | Writes `is_del` and/or `row_exp_dte`, per the retirement rule |
 | 3 | Mapping: Source = stage filtered `action_flag='I'` → Zone2 target, operation **Insert** | Plain insert |
 
-All three push down: source and target are both in Snowflake.
+All four push down: source and target are both in Snowflake.
+
+Steps 2a and 2b are both updates against the same target and could be one mapping driven by a `CASE`, but
+they write different columns for different reasons and keeping them apart makes a run's counts readable:
+"12 expiry moves, 3 retirements, 5 inserts" says more than "20 updates".
 
 **Possible consolidation**: Snowflake targets in IDMC support a **Data Driven** operation, where a flag
-column decides insert vs. update per row, which would collapse Steps 2 and 3 into one mapping. Keep them
-separate for v1 — unambiguous and easier to debug — and test Data Driven afterwards.
+column decides insert vs. update per row, which would collapse Steps 2a, 2b and 3 into one mapping. Keep
+them separate for v1 — unambiguous and easier to debug — and test Data Driven afterwards.
 
 ---
 
@@ -497,24 +543,26 @@ it reports full pushdown.
 
 ### From the scenario walkthrough
 
-`Final_Scenarios.xlsx` sets out every scenario with its own worked data — the source tables, the target
-before and after, and what each one is testing. These came out of that review and are the ones that would
-change what gets built:
+`Final_Scenarios_v2.xlsx` sets out every scenario with its own worked data — the source tables carrying a
+`HASH` column, the target before and after, and what each one is testing. Each tab's target is re-derived
+from its own sources by `verify.py` and checked against the rule, so the workbook cannot drift from §6.
+These questions came out of that review and are the ones that would change what gets built:
 
 | | Question | Why it matters |
 |---|---|---|
 | 1 | When several source rows share a key **and** effective date in one window, are they restatements where the latest wins, or distinct versions that must all land? | The only one that changes the design rather than the documentation. If all must land, two live rows would share a key and effective date and the timeline becomes ambiguous |
 | 2 | Is `ROW_EFF_DTE` a **date** or a **timestamp**? | If intraday runs carry different times, question 1 resolves itself — the rows never collide |
-| 3 | On a Zone 1 rerun, update in place or retire and replace? | See §12. A branch makes the target depend on how the run was triggered rather than on what the data says |
+| ~~3~~ | ~~On a Zone 1 rerun, update in place or retire and replace?~~ **DECIDED** — no separate path. The rule in §6 already gives the right answer for a rerun, whether or not anything changed. The only rerun-specific act is restamping the row's `UUID`. | Settled in the walkthrough with Nidwika and Ramneek; see `Final_Scenarios_v2.xlsx`, tab S10 |
 | 4 | Is `IS_DEL` also set on a dead record, or left at `'N'`? | Decides how consumers and the framework's restart cleanup identify live rows |
 | 5 | Should Step 1 read a zero-length row as live at all? | Filtering `ROW_EFF_DTE < ROW_EXP_DTE` in the target read would exclude dead records however `IS_DEL` is set, and would settle question 4 |
 | 6 | Are both sources always keyed the same way? | If one is a parent that several keys point at, a parent-only change must fan out to every child before the rebuild — and the current Step 1 would find nothing, producing an empty stage and a job that reports success |
 | 7 | Can more than two SCD2 sources feed one target? | Same arithmetic, but the SQL is written for exactly two |
+| 8 | What is `UUID` on the target row — an id we generate per target row and restamp each run, or a source `UNIQUE_ID` carried through? | If it is carried through, which source supplies it? A target row is built from both, and an interval covered by only one source has no value from the other |
 
-**Restart is settled.** Tracing the failure row by row (`Final_Scenarios.xlsx`, RESTART tab) shows the
+**Restart is settled.** Tracing the failure row by row (`Final_Scenarios_v2.xlsx`, tab S11) shows the
 design recovers on its own, and shows why: the restart keeps the same sourcing window, so Step 1 rebuilds
 the same timeline, and the diff runs against whatever the target holds at that moment. A half-applied run
-is simply a different starting state. The framework's own cleanup cannot find our retired rows — they carry
+is simply a different starting state, and every action in §6 is idempotent. The framework's own cleanup cannot find our retired rows — they carry
 the id of the run that *inserted* them — but that turns out not to matter, because we never depend on it.
 Worth stating explicitly, because the moment Step 1 is "optimised" to trust the target instead of
 rebuilding, this stops being true.

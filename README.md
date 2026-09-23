@@ -82,9 +82,13 @@ enrichment — where the driving table alone sets the target dates.
 | `poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Loads seven brokers across four runs, exercises all three steps, asserts twenty-six results. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header |
 | `solution_deck.html` | The slide deck — 12 slides covering the problem, the worked Day 1 / Day 2 example, which join combinations break, the solution architecture, and the object map showing which pieces are new, which get swapped for real tables, and what changes on integration. Standalone single file: open it in a browser, no server and no build step. Speaker notes behind the toggle in the header; `Ctrl`/`Cmd`+`P` prints one slide per page |
 | `POC_Evidence.docx` | Execution evidence — 53 captioned screenshots of the POC running against Snowflake, in sixteen sections, each stating what it tests, the steps, and the expected result before the screenshots. Summary table at the top |
-| `Final_Scenarios.xlsx` | Every scenario with its own worked data — the two source tables for Day 1 and Day 2, the target before and after, and what each one is testing. The reference for what the design does and does not cover |
+| `Final_Scenarios_v2.xlsx` | **The scenario reference.** Eleven scenarios, each with its own worked data — the two source tables for Day 1 and Day 2 carrying a `HASH` column, the target before and after, and what each one is testing. Every target is machine-checked against the rule in `solution_design.md` §6 |
+| `Final_Scenarios_v1.xlsx` | The reviewed copy this was rebuilt from, carrying the review comments that produced the update-in-place rule |
+| `tools/` | `build.py` regenerates the workbook, `verify.py` re-derives every target from its own sources and checks it against the rule, `mutate.py` proves the checks are not vacuous |
 | `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
-| `sources/Possible_Scenarios.xlsx` | The scenario sheet shared by the team, 2026-09-22. The input that `Final_Scenarios.xlsx` was reconciled against |
+| `sources/DiscussionWithNidwika_Ramneek.vtt` | The walkthrough that settled the update-in-place rule, 2026-09-23 |
+| `sources/Possible_Scenarios.xlsx` | The scenario sheet shared by the team, 2026-09-22. The input the scenarios were reconciled against |
+| `sources/Final_Scenarios_pre_hash.xlsx` | Superseded. The scenario set before the hash rule, kept only as a record of what changed |
 | `sources/…vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
 | `sources/scenario_screenshot.png` | The Excel mock-up shared on that call — Day 1 and Day 2 worked example |
 
