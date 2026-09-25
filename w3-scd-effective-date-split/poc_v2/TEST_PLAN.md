@@ -23,62 +23,80 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 
 | Scenario | TC | Type | What it does | Rules |
 |---|---|---|---|---|
-| **S01** One source changes | TC01 (D1R1) | P | initial load into an EMPTY target — the day-1 build, run not asserted | 17 |
-| | TC02 (D1R2) | P | SRC_2 splits one version into three. SRC_1 untouched. The base case | 3, 7, 13, 17 |
-| | TC03 (D1R3) | I | re-run of the SAME window — key still impacted, nothing changed | 1, 3 |
-| | TC04 (D2R1) | E | SRC_2 splits on a boundary SRC_1 already uses — no new interval | **11** |
-| | TC05 (D2R2) | E | a value corrected in place, both dates unchanged | **9** |
-| | TC06 (D2R3) | C | a NULL business key arrives — dropped **silently** | — |
-| | TC07 (D3R1) | P | new version ahead of the open row — EXPIRE IN PLACE, key survives | **5**, 17 |
-| **S02** Both sources change | TC01 | P | both split in the same run; target row sat at 9999 | 5, 17 |
-| | TC02 | I | re-run, zero writes | 1 |
-| | TC03 | E | both sources close on the same date | 5, 17 |
-| **S03** Non-target column | TC01 | P | only a column the target never carries changes | 1 |
-| | TC02 | N | 0 rows written, stage is empty | — |
-| | TC03 | E | the non-target column changes on every version at once | 1 |
-| **S04** Value returns later | TC01 | P | A1 → A2 → A1; the two A1 runs must stay separate | 17 |
-| | TC02 | E | three alternations in one key | 17 |
-| **S05** Gap in cover | TC01 | P | uncovered interval carries a blank | 17 |
-| | TC02 | E | gap at the start, and a gap ending at the high end date | 17 |
-| **S06** Corrected, same dates | TC01 | P | value changes, both dates identical. Target at 9999 | 9, 17 |
-| | TC02 | I | re-run, zero writes | 1 |
-| | TC03 | E | correction to a value that is NULL on one side | 9 |
-| **S07** Several runs one day | TC01 | P | two runs same day, run 2 sees what run 1 left | 5, 17 |
-| | TC02 | P | both same-day rows inside ONE window — the Q1 case | 5, 17 |
-| | TC03 | E | three runs in one day | 5, 17 |
-| | TC04 | C | duplicate (key, eff date) with identical timestamps — no tie-break | — |
-| **S08** Key not touched | TC01 | P | K1 impacted, K8 outside the window | 1, 3, 7, 13, 17 |
-| | TC02 | N | K8 neither read nor written — prove by row count | — |
-| | TC03 | E | a key impacted but whose content is identical — read, zero writes | 1, 3 |
-| **S09** Brand new key | TC01 | P | empty target, everything inserts | 17 |
-| | TC02 | E | new key whose first version already sits at the high end date | 17 |
-| **S10** Back-dated correction | TC01 | P | hash changes on a closed row, expiry unchanged | **11** |
-| | TC02 | P | hash and expiry both change on a closed row | **15** |
-| | TC03 | I | re-run, zero writes | 1, 3 |
-| | TC04 | E | correction to the oldest row in a long history | 11 |
-| **S11** Stale / orphan row | TC01 | P | Zone1 loses history; orphan left live, untouched | **18** |
-| | TC02 | I | re-run while degraded — orphan still untouched | 18 |
-| | TC03 | P | Zone1 recovers; timeline self-heals, orphan falls to rule 1 | 1, 5 |
-| | TC04 | E | two overlapping live rows — prove read-by-effective-date returns the right one | 18 |
-| **S12** execution_type RERUN | TC01 | P | rerun, nothing changed, target at 9999 | **2** |
-| | TC02 | P | rerun, nothing changed, target at a real date | **4** |
-| | TC03 | P | rerun, expire in place, target at 9999 | **6** |
-| | TC04 | P | rerun, retire, hash same, target at a real date | **8** |
-| | TC05 | P | rerun, dead record, hash diff, expiry same, target at 9999 | **10** |
-| | TC06 | P | rerun, retire, hash diff, expiry same, target at a real date | **12** |
-| | TC07 | P | rerun, dead record, hash and expiry diff, target at 9999 | **14** |
-| | TC08 | P | rerun, retire, hash and expiry diff, target at a real date | **16** |
-| | TC09 | I | rerun twice — UUID restamped, nothing else moves | 2, 4 |
-| **S13** execution_type RESTART | TC01 | P | MERGE commits, run marked failed, restart re-applies | — |
-| | TC02 | I | restart writes zero rows | 1, 3 |
-| | TC03 | E | restart when the stage is half-built | — |
-| | TC04 | C | restart with the target read missing its dead-record filter — must fail loudly | — |
-| **S14** Hash-definition change | TC01 | P | column added; an impacted key re-derives under rules 9–16 | 9, 11, 13, 15 |
-| | TC02 | N | a quiet key is untouched and keeps the new column empty | — |
-| | TC03 | E | surrogate-key churn measured and recorded | — |
-| **S15** Volume / differential | TC01 | V | 1,000 random keys, one run, compared against `verify.py` | all |
-| | TC02 | V | 10 consecutive runs with random mutations, compared each run | all |
-| | TC03 | V | random data including corrupt rows | all |
+| **S01** One source changes, the other does not | TC01 (D1R1) | P | initial load into an empty target | 17 |
+|  | TC02 (D1R2) | P | SRC_2 splits one version into three | 7, 13, 17 |
+|  | TC03 (D1R3) | I | re-run of the same window, nothing changed | — (0 writes) |
+|  | TC04 (D2R1) | E | SRC_2 splits on a boundary SRC_1 already uses | 11 |
+|  | TC05 (D2R2) | E | a value corrected in place, dates unchanged | 9 |
+|  | TC06 (D2R3) | C | a NULL business key arrives | — (0 writes) |
+|  | TC07 (D3R1) | P | a new version arrives ahead of the open row | 5, 17 |
+| **S02** Both sources change in the same run | TC01 (D1R1) | P | initial load into an empty target | 17 |
+|  | TC02 (D1R2) | P | both sources split in the same run | 5, 17 |
+|  | TC03 (D1R3) | I | re-run of the same window | — (0 writes) |
+|  | TC04 (D2R1) | E | both sources close on the SAME date | 5, 17 |
+| **S03** A change in a column the target never carries | TC01 (D1R1) | P | initial load into an empty target | 17 |
+|  | TC02 (D1R2) | N | only NOTE_TEXT changes | — (0 writes) |
+|  | TC03 (D1R3) | P | a real split, so there are several versions to test against | 5, 17 |
+|  | TC04 (D2R1) | N | NOTE_TEXT changes on EVERY version at once | — (0 writes) |
+| **S04** A value comes back after a different one | TC01 (D1R1) | P | initial load with a value that already repeats | 17 |
+|  | TC02 (D1R2) | I | re-run -- the two A1 runs must still not collapse | — (0 writes) |
+|  | TC03 (D1R3) | E | a third alternation | 5, 17 |
+|  | TC04 (D2R1) | E | a fourth alternation, back to A1 again | 5, 17 |
+| **S05** A gap in cover, with the same value either side | TC01 (D1R1) | P | initial load with a hole in SRC_1 | 17 |
+|  | TC02 (D1R2) | I | re-run -- the gap must survive | — (0 writes) |
+|  | TC03 (D1R3) | E | a gap at the START of the timeline | 17 |
+|  | TC04 (D2R1) | E | a gap that runs to the high end date | 5, 17 |
+| **S06** A value corrected with no change to its dates | TC01 (D1R1) | P | initial load into an empty target | 17 |
+|  | TC02 (D1R2) | P | the value is corrected, both dates unchanged | 9 |
+|  | TC03 (D1R3) | I | re-run of the same window | — (0 writes) |
+|  | TC04 (D2R1) | E | corrected to NULL | 9 |
+| **S07** Several runs in one day against the same key | TC01 (D1R1) | P | day 1 run 1 -- initial load | 17 |
+|  | TC02 (D1R2) | P | day 1 run 2 -- SRC_2 moves | 5, 17 |
+|  | TC03 (D1R3) | P | day 1 run 3 -- and it sees what run 2 left | 5, 17 |
+|  | TC04 (D2R1) | P | TWO deliveries inside ONE window | 5, 17 |
+|  | TC05 (D2R2) | C | duplicate (key, effective date) with IDENTICAL timestamps | — (0 writes) |
+| **S08** A key no source touched this run | TC01 (D1R1) | P | initial load of TWO keys | 17 |
+|  | TC02 (D1R2) | P | only K1 changes -- K8 is outside the window | 5, 17 |
+|  | TC03 (D1R3) | I | re-run -- K8 still untouched | — (0 writes) |
+|  | TC04 (D2R1) | E | K8 IS impacted, but its content is identical | — (0 writes) |
+| **S09** A key appearing for the first time | TC01 (D1R1) | P | an empty target -- everything inserts | 17 |
+|  | TC02 (D1R2) | P | a second brand-new key, alongside an existing one | 17 |
+|  | TC03 (D1R3) | E | a new key arriving with SEVERAL versions at once | 17 |
+|  | TC04 (D2R1) | I | re-run -- no key inserts twice | — (0 writes) |
+| **S10** A back-dated correction to an already-closed interval | TC01 (D1R1) | P | initial load with closed intervals to correct later | 17 |
+|  | TC02 (D1R2) | P | hash changes on a closed row, expiry unchanged | 11 |
+|  | TC03 (D1R3) | I | re-run of the same window | — (0 writes) |
+|  | TC04 (D2R1) | E | hash AND expiry both change on a closed row | 15, 17 |
+| **S11** A stale / orphan row after Zone1 loses history | TC01 (D1R1) | P | initial load, three intervals | 17 |
+|  | TC02 (D1R2) | P | Zone1 loses its early history | — (0 writes) |
+|  | TC03 (D1R3) | I | re-run while still degraded | — (0 writes) |
+|  | TC04 (D2R1) | E | PARTIAL recovery -- and this is where it costs | 17 |
+|  | TC05 (D2R2) | E | FULL recovery -- the original orphan self-heals | — (0 writes) |
+| **S12** execution_type = Z1_RERUN | TC01 (D1R1) | P | initial load, one closed row and one open row | 17 |
+|  | TC02 (D1R2) | P | rerun, nothing changed -- rules 2 AND 4 | 2, 4 |
+|  | TC03 (D1R3) | E | rerun with a genuinely NEW interval -- rule 6 and rule 17 | 4, 6, 17 |
+|  | TC04 (D2R1) | P | rerun, dead record -- rule 10 | 4, 10 |
+|  | TC05 (D2R2) | P | rerun, back-dated correction -- rule 12 | 2, 4, 12 |
+|  | TC06 (D2R3) | P | rerun, expiry moves on a closed row -- rule 8 | 2, 4, 8, 17 |
+|  | TC07 (D3R1) | P | rerun, hash AND expiry move at the high end date -- rule 14 | 4, 14, 17 |
+|  | TC08 (D3R2) | P | rerun, hash AND expiry move on a closed row -- rule 16 | 2, 4, 16 |
+| **S13** execution_type = RESTART | TC01 (D1R1) | P | initial load | 17 |
+|  | TC02 (D1R2) | N | the run FAILS before it processes anything | — (0 writes) |
+|  | TC03 (D1R3) | P | the RESTART picks it up | 5, 17 |
+|  | TC04 (D2R1) | I | restarting twice applies it once | — (0 writes) |
+| **S14** The hash definition itself changes | TC01 (D1R1) | P | initial load of two independent keys | 17 |
+|  | TC02 (D1R2) | P | the hash definition changes -- and only K1 is impacted | 9, 11 |
+|  | TC03 (D1R3) | I | re-run under the NEW definition | — (0 writes) |
+|  | TC04 (D2R1) | P | K2 becomes impacted, and re-derives in its turn | 9, 11 |
+|  | TC05 (D2R2) | P | restore the original hash definition | 9, 11 |
+| **S15** Many keys at once, and the invariants that must always hold | TC01 (D1R1) | V | six keys of different shapes, loaded at once | 17 |
+|  | TC02 (D1R2) | V | several keys change at once, in different ways | 5, 9, 17 |
+|  | TC03 (D1R3) | C | corrupt rows arrive alongside good ones | — (0 writes) |
+
+**69 test cases across 15 scenarios.** Every one of the 18 rules is reached.
+Rules **1, 3 and 18 emit no stage row at all** -- they are the do-nothing rules -- so they are
+proved by ZERO WRITES in the idempotent cases rather than by an observable row.
+The Rules column is measured from a real run, not asserted.
 
 **56 test cases across 15 scenarios.** All 18 rules are exercised at least once.
 
