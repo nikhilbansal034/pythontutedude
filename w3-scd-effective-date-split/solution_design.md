@@ -549,8 +549,7 @@ on string literals. If the framework writes fully-qualified names, or a differen
 nothing → `impacted_keys` is empty → the stage is empty → the job succeeds having done nothing. Read one
 real row of that table before trusting it.
 
-**C. `GRS_REFINED_TIMESTAMP` is an invented name.** The ABC reference describes the column but never names
-it. Every delta-detection predicate depends on it.
+**C. `GRS_REFINED_TIMESTAMP` is confirmed.** Previously flagged as a name this design invented because the ABC reference describes the column without naming it. The team confirms this is the column they already use to fetch the latest SCD2 records from source, so the POC and the real pipeline agree.
 
 **D. Cross-database qualification.** If Zone1 and Zone2 are in different databases or schemas, every
 reference needs full `DB.SCHEMA.TABLE` qualification and the connection needs read on both. This also
@@ -720,3 +719,75 @@ cost of one large run. If the empty-column effect later becomes a problem, a bac
 point — the decision is reversible.
 
 ---
+
+---
+
+## 16. Test strategy for POC v2
+
+**Everything proved in POC v1 is treated as unproven.** The rule changed after v1 ran, so its evidence
+describes behaviour the design no longer specifies. POC v2 re-establishes coverage from nothing.
+
+### Rule coverage is counted, not assumed
+
+Running the 18 rules against `Final_Scenarios_v2.xlsx` shows **11 of 18 exercised**. Seven were never
+reached, and two of those are substantive:
+
+| Rule | Gap | Why it matters |
+|---|---|---|
+| 6, 10 | rerun variants of expire-in-place and dead-record | `execution_type` paths untested |
+| **11, 15** | **retire — hash changed on a back-dated row** | **a correction to an already-closed interval — the very case retirement exists for** |
+| 12, 16 | rerun variants of the above | |
+| 18 | orphan / stale row | the decision recorded in §14 has no test |
+
+### Fifteen scenarios, chosen to close every gap
+
+| | Scenario | Rules it must exercise |
+|---|---|---|
+| S01 | One source changes, the other does not | 1, 3, 7, 13, 17 |
+| S02 | Both sources change in the same run | 5, 17 |
+| S03 | Change in a column the target never carries | 1 |
+| S04 | A value comes back after a different one | 17 |
+| S05 | A gap in cover, same value either side | 17 |
+| S06 | A value corrected with no change to its dates | 9, 17 |
+| S07 | Several runs in one day, same key and eff date | 5, 17 |
+| S08 | A key no source touched this run | 1, 3, 7, 13, 17 |
+| S09 | A key appearing for the first time | 17 |
+| **S10** | **Back-dated correction** | **11, 15** |
+| **S11** | **Stale / orphan row** | **18** |
+| **S12** | **execution_type = Z1 RERUN** | **2, 4, 6, 8, 10, 12, 14, 16** |
+| **S13** | **execution_type = RESTART** | MERGE atomicity, idempotence |
+| **S14** | **Hash-definition change** | §15, gradual re-derivation |
+| **S15** | **Volume and differential** | all rules, on random data |
+
+All 18 rules are covered. S12 carries every rerun variant, so it needs one test case per rule.
+
+### Test case types
+
+| Code | Proves |
+|---|---|
+| **P** positive | the canonical case produces the expected target |
+| **I** idempotent | re-running the same input writes **zero** rows |
+| **N** negative | input that must produce no change at all |
+| **E** edge | zero-length rows, same eff and exp, high-end-date boundaries |
+| **C** corrupt | NULL key, duplicate (key, eff date), timestamp outside the window |
+| **V** volume | random keys at scale, target compared row for row against `tools/verify.py` |
+
+**S15 is the one that finds what hand-written cases miss.** It generates random source data, computes the
+expected target independently in Python, and asserts Snowflake produces exactly that. A hand-written case
+proves the rule you were thinking about; a differential test proves the rules you were not.
+
+### Structure
+
+One SQL script per scenario, with a section per test case inside it. Each section is self-contained —
+truncate, seed, run, verify — so it can be executed and screenshotted on its own.
+
+```
+poc_v2/
+  00_objects.sql      tables, sequence, the Step 1 diff view, the live view. Run once
+  S01.sql ... S15.sql one per scenario; TC sections within
+  TEST_PLAN.md        the full scenario x test case grid
+  evidence/           POC_v2_Evidence.xlsx, one tab per scenario
+```
+
+Step 1 lives in the objects script as a **view**, since stored procedures are not allowed. Each test case
+then reads: `TRUNCATE` stage → `INSERT INTO stage SELECT FROM view` → `MERGE` → verify.
