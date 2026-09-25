@@ -25,8 +25,8 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 |---|---|---|---|---|
 | **S01** One source changes | TC01 | P | SRC_2 splits, SRC_1 untouched. The base case | 1, 3, 7, 13, 17 |
 | | TC02 | I | run S01 twice, second run writes nothing | 1, 3 |
-| | TC03 | E | SRC_2's new boundary lands exactly on an existing target eff date | 7, 13 |
-| | TC04 | C | SRC_2 carries a NULL business key | — |
+| | TC03 | E | SRC_2 changes exactly on an existing boundary — no new interval | **9** |
+| | TC04 | C | SRC_2 carries a NULL business key — dropped **silently** | — |
 | **S02** Both sources change | TC01 | P | both split in the same run; target row sat at 9999 | 5, 17 |
 | | TC02 | I | re-run, zero writes | 1 |
 | | TC03 | E | both sources close on the same date | 5, 17 |
