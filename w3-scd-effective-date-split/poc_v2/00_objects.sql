@@ -32,7 +32,7 @@ CREATE OR REPLACE TABLE ETL_DATA_INGESTION_SOURCE_WINDOW (
 
 
 -- ---------------------------------------------------------------------------
--- ZONE 1 — history buckets. Both SCD2. Both ~1000 columns in reality;
+-- ZONE 1 — history buckets. Both SCD2. Both ~1000 columns in reality —
 -- only the target-bound ones are modelled here.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE Z1_BROKER_PARTY_HIST (
@@ -88,13 +88,53 @@ WHERE  IS_DEL = 'N' AND ROW_EFF_DTE < ROW_EXP_DTE;
 -- ---------------------------------------------------------------------------
 -- STAGE — Step 1's only output. Truncate + reload each run.
 -- ---------------------------------------------------------------------------
+-- The stage structure is SHARED ACROSS PIPELINES, so every column added here
+-- costs an ALTER everywhere. ACTION_FLAG is the only column the apply adds, and
+-- only because it cannot be derived. Everything else was removed or already
+-- existed. See STEP 2 at the foot of this file.
+-- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE STG_Z2_BROKER_PARTY_DIM (
-    MERGE_KEY               NUMBER(38,0),  -- target SK on 'U'/'D'; a fresh SK on 'I' (cannot match)
-    ACTION_FLAG             CHAR(1),       -- 'U' expire in place | 'D' retire | 'I' insert
-    RETIRE_MODE             CHAR(1),       -- 'X' dead record | 'Y' delete indicator. DEBUG: the
-                                           -- MERGE derives this from T.ROW_EXP_DTE and never reads it
-    DEL_IND                 CHAR(1),       -- IS_DEL to apply. Already present in the real stage
-    BROKER_PARTY_DIM_SK     NUMBER(38,0),  -- pre-assigned in Step 1; used by the INSERT branch
+
+    -- ---- the merge key ----------------------------------------------------
+    -- Already on the stage. Carries the TARGET's surrogate key on 'U' and 'D'
+    -- rows, and a NEWLY allocated one on 'I' rows. There is no separate
+    -- MERGE_KEY column — this is the merge key.
+    BROKER_PARTY_DIM_SK     NUMBER(38,0),
+
+    -- ---- ACTION_FLAG : what the apply should DO with this row -------------
+    --
+    --   'U'  EXPIRE IN PLACE.  Move ROW_EXP_DTE on the matched target row.
+    --                          Nothing is retired, nothing is inserted, the
+    --                          surrogate key survives. Rules 2, 4, 5, 6.
+    --   'D'  RETIRE.           Retire the matched target row. WHICH mechanism
+    --                          is NOT carried here — the MERGE derives it from
+    --                          T.ROW_EXP_DTE. Rules 7-16.
+    --   'I'  INSERT.           A new version. Rule 17, plus the insert half of
+    --                          every rule 7-16, which emit TWO stage rows.
+    --
+    -- WHY THIS COLUMN CANNOT BE DERIVED, AND SO HAS TO EXIST:
+    --
+    -- 'U' and 'D' both match an existing target row, so the MERGE has to tell
+    -- them apart. It cannot do so by comparing hashes, because a 'D' row
+    -- deliberately carries the OLD (target) values for debugging — a hash
+    -- comparison would report "unchanged" on precisely the rows that changed.
+    -- Nor can it use ROW_EXP_DTE: rules 5 and 9 both sit at the high end date
+    -- and differ only by hash, which Step 1 has already evaluated.
+    --
+    -- The distinction is a CONCLUSION Step 1 reaches from both sources and the
+    -- target together. The MERGE sees one stage row and one target row, so it
+    -- cannot re-derive it. Hence one column, carrying one decision.
+    --
+    -- IF THE REAL STAGE ALREADY HAS an operation or CDC indicator (I/U/D),
+    -- rename this to that column and the apply adds NOTHING at all.
+    ACTION_FLAG             CHAR(1),
+
+    -- ---- already on the real stage — carried for lineage, never read ------
+    -- The MERGE derives IS_DEL from T.ROW_EXP_DTE instead, which is the value
+    -- actually being overwritten rather than a snapshot taken in Step 1.
+    DEL_IND                 CHAR(1),
+
+    -- ---- the row being written --------------------------------------------
     BROKER_ID               VARCHAR(20),
     ROW_EFF_DTE             DATE,
     ROW_EXP_DTE             DATE,
@@ -102,7 +142,10 @@ CREATE OR REPLACE TABLE STG_Z2_BROKER_PARTY_DIM (
     COMMISSION_TIER_CDE     VARCHAR(20),   -- DEBUG on 'U'/'D' rows
     ROW_HASH                VARCHAR(64),   -- DEBUG on 'U'/'D' rows
     UUID                    VARCHAR(64),
-    RULE_NO                 NUMBER(2,0),   -- DEBUG: which of the 18 rules produced this row
+    RULE_NO                 NUMBER(2,0),   -- POC ONLY: which of the 18 rules produced this row.
+                                           -- Drop this column when folding into the real pipeline
+
+    -- ---- audit -------------------------------------------------------------
     AUDIT_BATCH_ID          NUMBER(38,0),
     AUDIT_JOB_ID            NUMBER(38,0)
 );
@@ -169,7 +212,7 @@ s2_dedup AS (
 -- stage 3 continued — collapse CONSECUTIVE identical versions.
 -- A new island starts when the value changes OR the previous row's expiry does
 -- not meet this row's effective date. The second test is what preserves the
--- gap in S05; without it two A1 versions either side of a gap would merge.
+-- gap in S05 — without it two A1 versions either side of a gap would merge.
 s1_flag AS (
     SELECT *, CASE WHEN LAG(VAL)         OVER (PARTITION BY BROKER_ID ORDER BY ROW_EFF_DTE)
                         IS NOT DISTINCT FROM VAL
@@ -237,7 +280,7 @@ cur_tgt AS (
     JOIN   impacted i ON i.BROKER_ID = t.BROKER_ID
 ),
 
--- stage 8 — classify. One row per (key, eff date); rule 18 rows are simply
+-- stage 8 — classify. One row per (key, eff date) — rule 18 rows are simply
 -- absent from new_rows and are deliberately NOT emitted, so the orphan is left
 -- live and untouched. See solution_design.md section 14.
 classified AS (
@@ -266,15 +309,15 @@ classified AS (
 )
 
 -- ---- the 'U' branch: rules 5,6 -------------------------------------------
-SELECT TGT_SK AS MERGE_KEY, 'U' AS ACTION_FLAG, NULL AS RETIRE_MODE, NULL AS DEL_IND,
-       TGT_SK AS BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+SELECT TGT_SK AS BROKER_PARTY_DIM_SK, 'U' AS ACTION_FLAG, NULL AS DEL_IND,
+       BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH,
        UUID_STRING() AS UUID, RULE_NO, BATCH_ID, JOB_ID
 FROM   classified WHERE RULE_NO IN (5,6)
 
 UNION ALL
 -- ---- the 'U' branch: rules 2,4 — rerun, nothing changed but the UUID -------
-SELECT TGT_SK, 'U', NULL, NULL, TGT_SK, BROKER_ID, ROW_EFF_DTE, TGT_EXP,
+SELECT TGT_SK, 'U', NULL, BROKER_ID, ROW_EFF_DTE, TGT_EXP,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH,
        UUID_STRING(), RULE_NO, BATCH_ID, JOB_ID
 FROM   classified WHERE RULE_NO IN (2,4)
@@ -282,23 +325,87 @@ FROM   classified WHERE RULE_NO IN (2,4)
 UNION ALL
 -- ---- the 'D' branch: rules 7-16, the retire half --------------------------
 SELECT TGT_SK, 'D',
-       CASE WHEN TGT_EXP = DATE '9999-12-31' THEN 'X' ELSE 'Y' END,
-       CASE WHEN TGT_EXP = DATE '9999-12-31' THEN NULL ELSE 'Y' END,
-       TGT_SK, BROKER_ID, ROW_EFF_DTE, TGT_EXP,
+       CASE WHEN TGT_EXP = DATE '9999-12-31' THEN NULL ELSE 'Y' END,   -- lineage only
+       BROKER_ID, ROW_EFF_DTE, TGT_EXP,
        TGT_STATUS, TGT_TIER, TGT_HASH,          -- the row being RETIRED, not the new one
        NULL, RULE_NO, BATCH_ID, JOB_ID
 FROM   classified WHERE RULE_NO BETWEEN 7 AND 16
 
 UNION ALL
 -- ---- the 'I' branch: rule 17, and the insert half of rules 7-16 -----------
--- A freshly allocated SK cannot exist in the target, so these never match and
--- always reach WHEN NOT MATCHED. NEXTVAL is consumed ONCE, in the inner SELECT,
+-- These reach WHEN NOT MATCHED because the MERGE's ON clause excludes
+-- ACTION_FLAG = 'I' outright -- it does NOT rely on the new SK being absent
+-- from the target, so a reset or externally-seeded sequence cannot break it. NEXTVAL is consumed ONCE, in the inner SELECT,
 -- then referenced twice -- never call NEXTVAL twice on one row and assume the
 -- two references agree.
-SELECT NEW_SK, 'I', NULL, 'N',
-       NEW_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+SELECT NEW_SK, 'I', 'N',
+       BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH,
        UUID_STRING(), RULE_NO, BATCH_ID, JOB_ID
 FROM  (SELECT SEQ_BROKER_PARTY_DIM_SK.NEXTVAL AS NEW_SK, c.*
        FROM   classified c
        WHERE  c.RULE_NO = 17 OR c.RULE_NO BETWEEN 7 AND 16);
+
+
+-- ===========================================================================
+-- STEP 2 — the apply. ONE atomic MERGE.
+--
+-- Separate UPDATE and INSERT statements are not approved by the client, and a
+-- single MERGE cannot both update a matched row and insert its replacement
+-- from the same source row. The stage solves that: a retire-plus-insert emits
+-- TWO rows — one carrying the target's surrogate key, one carrying a new one.
+--
+-- Determinism: the diff emits at most one instruction per target row, so no
+-- target row is ever matched twice and ERROR_ON_NONDETERMINISTIC_MERGE
+-- (default TRUE) stays quiet.
+--
+-- Running this as part of 00_objects.sql is a NO-OP, because the CREATE OR
+-- REPLACE above leaves the stage empty. That makes it a free syntax check of
+-- the statement itself, which is the highest-risk unverified thing here.
+-- ===========================================================================
+MERGE INTO Z2_BROKER_PARTY_DIM T
+USING STG_Z2_BROKER_PARTY_DIM S
+   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
+   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
+WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
+     T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
+     T.UUID                  = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+     T.UUID        = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (
+     BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+VALUES (
+     S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
+     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
+     S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+
+
+-- ===========================================================================
+-- WHY THE 'D' BRANCH NEEDS NO RETIRE_MODE COLUMN
+--
+-- Both CASE expressions test T.ROW_EXP_DTE, the value the target row holds
+-- BEFORE this statement. Every right-hand side in an UPDATE is evaluated
+-- against the pre-update row, so the second assignment does not see the value
+-- the first one would write. The two branches are therefore:
+--
+--   target sat at 9999-12-31  ->  DEAD RECORD.      IS_DEL untouched ('N'),
+--                                 ROW_EXP_DTE pulled back to ROW_EFF_DTE
+--   target sat at a real date ->  DELETE INDICATOR. IS_DEL = 'Y',
+--                                 both dates left exactly as they are
+--
+-- Safe because stage 7 excludes dead records (row_eff_dte < row_exp_dte), so a
+-- row already retired can never re-enter the diff, and nothing writes to the
+-- target between Step 1 and Step 2 within a run.
+--
+-- Reading the mechanism from the target at apply time is also strictly more
+-- robust than carrying it on the stage: a stage column is a snapshot taken in
+-- Step 1, while T.ROW_EXP_DTE is the value actually being overwritten.
+-- ===========================================================================

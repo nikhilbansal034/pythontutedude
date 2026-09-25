@@ -150,10 +150,68 @@ Three problems:
 | **A** | **Double-row stage.** Step 1 emits *two* stage rows for a retire-plus-insert: one that matches the target (drives the retire) and one carrying a deliberately non-matching join key (drives the insert). One MERGE with several `WHEN MATCHED ... AND action_flag = ...` clauses plus `WHEN NOT MATCHED` then performs `'U'`, `'D'` and `'I'` in one statement | Changes Step 1's output shape; the stage roughly doubles for changed keys |
 | **B** | **IDMC's own SCD2 merge pattern** — two target transformations writing to the same table, one Update and one Insert, combined by *context-based optimization for multiple targets* | None, if it pushes down as one MERGE. This is the vendor's documented pattern |
 
-**Decision: route A, the double-row stage.** `MERGE_KEY` carries the target surrogate key on `'U'` and `'D'`
-rows and **NULL** on `'I'` rows; NULL can never equal a surrogate key, so those rows fall to
-`WHEN NOT MATCHED`. Determinism holds by construction — the diff emits at most one instruction per target
-row, so no target row is matched twice.
+**Decision: route A, the double-row stage.** Determinism holds by construction — the diff emits at most one
+instruction per target row, so no target row is matched twice.
+
+### No column is added to the stage
+
+The stage structure is shared across pipelines, so adding a column to it means an `ALTER` everywhere. The
+apply therefore adds **nothing**:
+
+| Column | Status | Why it is not new |
+|---|---|---|
+| `BROKER_PARTY_DIM_SK` | already there | Carries the target SK on `'U'`/`'D'` and a newly allocated SK on `'I'`. It **is** the merge key |
+| `ACTION_FLAG` | the one added column | Cannot be derived — see below. Rename it to the stage's existing operation/CDC indicator if there is one, and the apply adds nothing |
+| `DEL_IND` | already there | Populated for lineage, but the MERGE no longer reads it |
+| `RULE_NO` | POC only | Debug — records which of the 18 rules produced the row. Dropped when this folds into the real pipeline |
+
+An earlier draft carried two more, and both were avoidable:
+
+- **`MERGE_KEY`** was byte-for-byte identical to `BROKER_PARTY_DIM_SK` on every branch of the diff. Pure
+  duplication. The MERGE joins on the surrogate key directly, and `'I'` rows are excluded from matching by
+  `AND S.ACTION_FLAG <> 'I'` in the `ON` clause — which is a stronger guarantee than the original
+  NULL-never-matches trick, because it does not depend on a freshly allocated key being absent from the
+  target. A reset or externally-seeded sequence cannot break it.
+- **`RETIRE_MODE`** told the MERGE which retirement mechanism to apply. It never needed telling: the
+  mechanism is decided by the **target row's current expiry**, which the MERGE already reads as
+  `T.ROW_EXP_DTE`:
+
+```sql
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END
+```
+
+Both right-hand sides test the value the row held **before** the statement — every right-hand side in an
+`UPDATE` is evaluated against the pre-update row, so the second assignment does not see what the first would
+write. Reading the mechanism from the target at apply time is also strictly more robust than carrying it on
+the stage, because a stage column is a snapshot taken in Step 1 while `T.ROW_EXP_DTE` is the value actually
+being overwritten.
+
+Verified in DuckDB against `scenarios/S01.sql`: both branches fire (a dead record at `SK 103`, a delete
+indicator at `SK 102`), and swapping the two mechanisms changes the target — so the evidence is not vacuous.
+
+**`ACTION_FLAG` stays, and is the only column the apply adds.** It cannot be derived:
+
+- `'U'` and `'D'` both match an existing target row, so the MERGE has to tell them apart.
+- It cannot do so by comparing hashes — a `'D'` stage row deliberately carries the **old** target values for
+  debugging, so a hash comparison reports *unchanged* on precisely the rows that changed.
+- Nor by expiry — rules 5 and 9 both sit at the high end date and differ only by hash, which Step 1 has
+  already evaluated.
+
+The distinction is a **conclusion Step 1 reaches** from both sources and the target together. The MERGE sees
+one stage row and one target row, so it cannot re-derive it. One column, carrying one decision. If the real
+stage already has an operation or CDC indicator (I/U/D), rename `ACTION_FLAG` to that and the apply adds
+nothing at all.
+
+**One file, not two.** An earlier draft split the objects across `00_objects.sql` and `01_ddl_and_merge.sql`,
+and the second re-declared the target, the live view, the stage and the sequence. Two copies of the same DDL
+is how they came to disagree about `MERGE_KEY` — one said NULL on `'I'` rows, the other wrote the new
+surrogate key — without anything failing, because only one was ever executed. `00_objects.sql` now carries
+every object plus the Step 2 MERGE, and `tools/check_merge_drift.py` fails the build if any scenario's copy
+of the MERGE diverges from it.
 
 **IDMC is deferred.** The POC is proved at Snowflake level first, with no stored procedures, and the objects
 are shaped so they can be folded into the existing ETL pipeline afterwards. Whether IDMC renders this as one

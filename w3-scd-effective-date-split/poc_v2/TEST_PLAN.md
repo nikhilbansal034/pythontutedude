@@ -91,7 +91,11 @@ One SQL script per scenario. Each test case is a self-contained section — trun
 it can be executed and screenshotted independently.
 
 ```
-00_objects.sql   tables, sequence, the Step 1 diff view, the live view. Run once
+00_objects.sql   EVERYTHING that is not a test case: tables, sequence, the live
+                 view, the Step 1 diff view, and the Step 2 MERGE. Run once.
+                 The MERGE at the foot is a no-op there (CREATE OR REPLACE
+                 leaves the stage empty), so running the file also syntax-checks
+                 the statement without touching data
 S01.sql … S15.sql one per scenario, TC sections within
 evidence/        POC_v2_Evidence.xlsx
                  tab 1 the 18 rules, tab 2 this grid, tabs 3+ one per scenario as it is run
