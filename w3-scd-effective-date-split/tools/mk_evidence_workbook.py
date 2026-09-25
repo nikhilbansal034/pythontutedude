@@ -1,6 +1,6 @@
 """Builds POC_v2_Evidence.xlsx — tab 1 the rules, tab 2 the test-case grid.
 Tabs 3+ are left for the user to add as each scenario is run."""
-import sys, openpyxl
+import os, sys, openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
@@ -202,6 +202,23 @@ for k,v in [("P","the canonical case produces the expected target"),
 ws.freeze_panes="A5"
 
 out=sys.argv[1] if len(sys.argv)>1 else "POC_v2_Evidence.xlsx"
+
+# REFUSE TO DESTROY EVIDENCE.
+# Once a scenario tab carries screenshots, this file is no longer a build
+# artefact -- openpyxl drops embedded images on save, so regenerating over it
+# silently deletes them. Tabs 1 and 2 must then be edited in place, or the
+# captions and screenshots rebuilt by hand.
+if os.path.exists(out):
+    import zipfile
+    with zipfile.ZipFile(out) as _z:
+        _imgs = [n for n in _z.namelist() if "/media/" in n]
+    _extra = [n for n in openpyxl.load_workbook(out).sheetnames
+              if n not in ("01 Rules", "02 Test Cases")]
+    if _imgs or _extra:
+        sys.exit(f"REFUSING to overwrite {out}: it holds {len(_imgs)} embedded image(s) "
+                 f"and the tab(s) {_extra}. openpyxl would drop every image. "
+                 f"Edit tabs 1-2 in place, or pass a different output path.")
+
 wb.save(out)
 print(f"wrote {out}")
 print(f"  tabs: {wb.sheetnames}")
