@@ -150,10 +150,53 @@ Three problems:
 | **A** | **Double-row stage.** Step 1 emits *two* stage rows for a retire-plus-insert: one that matches the target (drives the retire) and one carrying a deliberately non-matching join key (drives the insert). One MERGE with several `WHEN MATCHED ... AND action_flag = ...` clauses plus `WHEN NOT MATCHED` then performs `'U'`, `'D'` and `'I'` in one statement | Changes Step 1's output shape; the stage roughly doubles for changed keys |
 | **B** | **IDMC's own SCD2 merge pattern** — two target transformations writing to the same table, one Update and one Insert, combined by *context-based optimization for multiple targets* | None, if it pushes down as one MERGE. This is the vendor's documented pattern |
 
-**Decision: route A, the double-row stage.** `MERGE_KEY` carries the target surrogate key on `'U'` and `'D'`
-rows and **NULL** on `'I'` rows; NULL can never equal a surrogate key, so those rows fall to
-`WHEN NOT MATCHED`. Determinism holds by construction — the diff emits at most one instruction per target
-row, so no target row is matched twice.
+**Decision: route A, the double-row stage.** Determinism holds by construction — the diff emits at most one
+instruction per target row, so no target row is matched twice.
+
+### No column is added to the stage
+
+The stage structure is shared across pipelines, so adding a column to it means an `ALTER` everywhere. The
+apply therefore adds **nothing**:
+
+| Column | Status | Why it is not new |
+|---|---|---|
+| `BROKER_PARTY_DIM_SK` | already there | Carries the target SK on `'U'`/`'D'` and a newly allocated SK on `'I'`. It **is** the merge key |
+| `ACTION_FLAG` | control column | The only genuinely load-bearing one. See the open question below |
+| `DEL_IND` | already there | Populated for lineage, but the MERGE no longer reads it |
+| `RULE_NO` | POC only | Debug — records which of the 18 rules produced the row. Dropped when this folds into the real pipeline |
+
+An earlier draft carried two more, and both were avoidable:
+
+- **`MERGE_KEY`** was byte-for-byte identical to `BROKER_PARTY_DIM_SK` on every branch of the diff. Pure
+  duplication. The MERGE joins on the surrogate key directly, and `'I'` rows are excluded from matching by
+  `AND S.ACTION_FLAG <> 'I'` in the `ON` clause — which is a stronger guarantee than the original
+  NULL-never-matches trick, because it does not depend on a freshly allocated key being absent from the
+  target. A reset or externally-seeded sequence cannot break it.
+- **`RETIRE_MODE`** told the MERGE which retirement mechanism to apply. It never needed telling: the
+  mechanism is decided by the **target row's current expiry**, which the MERGE already reads as
+  `T.ROW_EXP_DTE`:
+
+```sql
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END
+```
+
+Both right-hand sides test the value the row held **before** the statement — every right-hand side in an
+`UPDATE` is evaluated against the pre-update row, so the second assignment does not see what the first would
+write. Reading the mechanism from the target at apply time is also strictly more robust than carrying it on
+the stage, because a stage column is a snapshot taken in Step 1 while `T.ROW_EXP_DTE` is the value actually
+being overwritten.
+
+Verified in DuckDB against `scenarios/S01.sql`: both branches fire (a dead record at `SK 103`, a delete
+indicator at `SK 102`), and swapping the two mechanisms changes the target — so the evidence is not vacuous.
+
+**Open:** `ACTION_FLAG` is the one control column the apply cannot derive, because the `'D'` stage row
+deliberately carries the *old* values for debugging, so the MERGE cannot tell `'U'` from `'D'` by comparing
+hashes. If the existing stage already has an operation or CDC indicator, reuse that column name and the count
+of new columns is **zero**.
 
 **IDMC is deferred.** The POC is proved at Snowflake level first, with no stored procedures, and the objects
 are shaped so they can be folded into the existing ETL pipeline afterwards. Whether IDMC renders this as one

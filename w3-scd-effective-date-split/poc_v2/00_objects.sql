@@ -32,7 +32,7 @@ CREATE OR REPLACE TABLE ETL_DATA_INGESTION_SOURCE_WINDOW (
 
 
 -- ---------------------------------------------------------------------------
--- ZONE 1 — history buckets. Both SCD2. Both ~1000 columns in reality;
+-- ZONE 1 — history buckets. Both SCD2. Both ~1000 columns in reality —
 -- only the target-bound ones are modelled here.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE Z1_BROKER_PARTY_HIST (
@@ -88,13 +88,15 @@ WHERE  IS_DEL = 'N' AND ROW_EFF_DTE < ROW_EXP_DTE;
 -- ---------------------------------------------------------------------------
 -- STAGE — Step 1's only output. Truncate + reload each run.
 -- ---------------------------------------------------------------------------
+-- NO COLUMN HERE IS NEW. The apply needs the surrogate key (already on the stage)
+-- and an action indicator — DEL_IND already exists. RETIRE_MODE and MERGE_KEY were
+-- removed -- see the note above the MERGE in 01_ddl_and_merge.sql.
 CREATE OR REPLACE TABLE STG_Z2_BROKER_PARTY_DIM (
-    MERGE_KEY               NUMBER(38,0),  -- target SK on 'U'/'D'; a fresh SK on 'I' (cannot match)
+    BROKER_PARTY_DIM_SK     NUMBER(38,0),  -- the target SK on 'U'/'D' — a NEWLY allocated SK on 'I'.
+                                           -- This IS the merge key. No separate MERGE_KEY column.
     ACTION_FLAG             CHAR(1),       -- 'U' expire in place | 'D' retire | 'I' insert
-    RETIRE_MODE             CHAR(1),       -- 'X' dead record | 'Y' delete indicator. DEBUG: the
-                                           -- MERGE derives this from T.ROW_EXP_DTE and never reads it
-    DEL_IND                 CHAR(1),       -- IS_DEL to apply. Already present in the real stage
-    BROKER_PARTY_DIM_SK     NUMBER(38,0),  -- pre-assigned in Step 1; used by the INSERT branch
+    DEL_IND                 CHAR(1),       -- already on the real stage. Carried for lineage only --
+                                           -- the MERGE derives IS_DEL from T.ROW_EXP_DTE, not from this
     BROKER_ID               VARCHAR(20),
     ROW_EFF_DTE             DATE,
     ROW_EXP_DTE             DATE,
@@ -102,7 +104,8 @@ CREATE OR REPLACE TABLE STG_Z2_BROKER_PARTY_DIM (
     COMMISSION_TIER_CDE     VARCHAR(20),   -- DEBUG on 'U'/'D' rows
     ROW_HASH                VARCHAR(64),   -- DEBUG on 'U'/'D' rows
     UUID                    VARCHAR(64),
-    RULE_NO                 NUMBER(2,0),   -- DEBUG: which of the 18 rules produced this row
+    RULE_NO                 NUMBER(2,0),   -- POC ONLY: which of the 18 rules produced this row.
+                                           -- Drop this column when folding into the real pipeline
     AUDIT_BATCH_ID          NUMBER(38,0),
     AUDIT_JOB_ID            NUMBER(38,0)
 );
@@ -169,7 +172,7 @@ s2_dedup AS (
 -- stage 3 continued — collapse CONSECUTIVE identical versions.
 -- A new island starts when the value changes OR the previous row's expiry does
 -- not meet this row's effective date. The second test is what preserves the
--- gap in S05; without it two A1 versions either side of a gap would merge.
+-- gap in S05 — without it two A1 versions either side of a gap would merge.
 s1_flag AS (
     SELECT *, CASE WHEN LAG(VAL)         OVER (PARTITION BY BROKER_ID ORDER BY ROW_EFF_DTE)
                         IS NOT DISTINCT FROM VAL
@@ -237,7 +240,7 @@ cur_tgt AS (
     JOIN   impacted i ON i.BROKER_ID = t.BROKER_ID
 ),
 
--- stage 8 — classify. One row per (key, eff date); rule 18 rows are simply
+-- stage 8 — classify. One row per (key, eff date) — rule 18 rows are simply
 -- absent from new_rows and are deliberately NOT emitted, so the orphan is left
 -- live and untouched. See solution_design.md section 14.
 classified AS (
@@ -266,15 +269,15 @@ classified AS (
 )
 
 -- ---- the 'U' branch: rules 5,6 -------------------------------------------
-SELECT TGT_SK AS MERGE_KEY, 'U' AS ACTION_FLAG, NULL AS RETIRE_MODE, NULL AS DEL_IND,
-       TGT_SK AS BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+SELECT TGT_SK AS BROKER_PARTY_DIM_SK, 'U' AS ACTION_FLAG, NULL AS DEL_IND,
+       BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH,
        UUID_STRING() AS UUID, RULE_NO, BATCH_ID, JOB_ID
 FROM   classified WHERE RULE_NO IN (5,6)
 
 UNION ALL
 -- ---- the 'U' branch: rules 2,4 — rerun, nothing changed but the UUID -------
-SELECT TGT_SK, 'U', NULL, NULL, TGT_SK, BROKER_ID, ROW_EFF_DTE, TGT_EXP,
+SELECT TGT_SK, 'U', NULL, BROKER_ID, ROW_EFF_DTE, TGT_EXP,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH,
        UUID_STRING(), RULE_NO, BATCH_ID, JOB_ID
 FROM   classified WHERE RULE_NO IN (2,4)
@@ -282,21 +285,21 @@ FROM   classified WHERE RULE_NO IN (2,4)
 UNION ALL
 -- ---- the 'D' branch: rules 7-16, the retire half --------------------------
 SELECT TGT_SK, 'D',
-       CASE WHEN TGT_EXP = DATE '9999-12-31' THEN 'X' ELSE 'Y' END,
-       CASE WHEN TGT_EXP = DATE '9999-12-31' THEN NULL ELSE 'Y' END,
-       TGT_SK, BROKER_ID, ROW_EFF_DTE, TGT_EXP,
+       CASE WHEN TGT_EXP = DATE '9999-12-31' THEN NULL ELSE 'Y' END,   -- lineage only
+       BROKER_ID, ROW_EFF_DTE, TGT_EXP,
        TGT_STATUS, TGT_TIER, TGT_HASH,          -- the row being RETIRED, not the new one
        NULL, RULE_NO, BATCH_ID, JOB_ID
 FROM   classified WHERE RULE_NO BETWEEN 7 AND 16
 
 UNION ALL
 -- ---- the 'I' branch: rule 17, and the insert half of rules 7-16 -----------
--- A freshly allocated SK cannot exist in the target, so these never match and
--- always reach WHEN NOT MATCHED. NEXTVAL is consumed ONCE, in the inner SELECT,
+-- These reach WHEN NOT MATCHED because the MERGE's ON clause excludes
+-- ACTION_FLAG = 'I' outright -- it does NOT rely on the new SK being absent
+-- from the target, so a reset or externally-seeded sequence cannot break it. NEXTVAL is consumed ONCE, in the inner SELECT,
 -- then referenced twice -- never call NEXTVAL twice on one row and assume the
 -- two references agree.
-SELECT NEW_SK, 'I', NULL, 'N',
-       NEW_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+SELECT NEW_SK, 'I', 'N',
+       BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_HASH,
        UUID_STRING(), RULE_NO, BATCH_ID, JOB_ID
 FROM  (SELECT SEQ_BROKER_PARTY_DIM_SK.NEXTVAL AS NEW_SK, c.*

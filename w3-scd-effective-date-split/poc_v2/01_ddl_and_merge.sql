@@ -43,37 +43,44 @@ WHERE  IS_DEL = 'N'
 
 
 -- ---------------------------------------------------------------------------
--- STAGE — Step 1's only output, truncate + reload each run
+-- STAGE — Step 1's only output, truncate + reload each run.
 --
--- NOTE ON EXISTING PIPELINES: the shared stage structure is not recreated per
--- run, so any column added here needs an ALTER across pipelines. See the
--- comment above the MERGE — RETIRE_MODE and DEL_IND are NOT required by the
--- apply logic and can be dropped if the ALTER is unwelcome.
+-- NO NEW COLUMNS. An earlier draft carried MERGE_KEY and RETIRE_MODE — both are
+-- gone, because both were avoidable:
+--
+--   MERGE_KEY    was byte-for-byte identical to BROKER_PARTY_DIM_SK on every
+--                branch. Pure duplication. The MERGE joins on the SK directly.
+--   RETIRE_MODE  told the MERGE which retirement mechanism to use. It never
+--                needed telling: the mechanism is decided by the TARGET row's
+--                current expiry, which the MERGE reads as T.ROW_EXP_DTE.
+--
+-- DEL_IND already exists on the real stage, so it is not an ALTER either, and
+-- the MERGE no longer depends on it. That leaves ACTION_FLAG as the only
+-- genuinely load-bearing control column, and RULE_NO as POC-only debug.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TABLE STG_Z2_BROKER_PARTY_DIM (
     -- ---- drives the MERGE -------------------------------------------------
-    MERGE_KEY               NUMBER(38,0),  -- target SK on 'U'/'D'; NULL on 'I' so it can never match
+    BROKER_PARTY_DIM_SK     NUMBER(38,0),  -- target SK on 'U'/'D' — a NEW SK on 'I'. IS the merge key
     ACTION_FLAG             CHAR(1),       -- 'U' expire in place | 'D' retire | 'I' insert
-    RETIRE_MODE             CHAR(1),       -- 'X' dead record | 'Y' delete indicator. NULL unless 'D'
-    DEL_IND                 CHAR(1),       -- IS_DEL to apply: 'Y' retire, 'N' insert, NULL = leave as is
+
+    -- ---- already on the real stage — carried for lineage, not read ---------
+    DEL_IND                 CHAR(1),       -- the MERGE derives IS_DEL from T.ROW_EXP_DTE instead
 
     -- ---- the row being written -------------------------------------------
-    BROKER_PARTY_DIM_SK     NUMBER(38,0),  -- pre-assigned in Step 1; used by the INSERT branch
     BROKER_ID               VARCHAR(20),
     ROW_EFF_DTE             DATE,
     ROW_EXP_DTE             DATE,
     BROKER_STATUS_CDE       VARCHAR(20),   -- DEBUG ONLY on 'D'/'U' rows — the MERGE never reads it there
-    COMMISSION_TIER_CDE     VARCHAR(20),   -- DEBUG ONLY on 'D'/'U' rows — the MERGE never reads it there
-    ROW_HASH                VARCHAR(64),   -- DEBUG ONLY on 'D'/'U' rows — the MERGE never reads it there
+    COMMISSION_TIER_CDE     VARCHAR(20),   -- DEBUG ONLY on 'D'/'U' rows
+    ROW_HASH                VARCHAR(64),   -- DEBUG ONLY on 'D'/'U' rows
     UUID                    VARCHAR(64),
+    RULE_NO                 NUMBER(2,0),   -- POC ONLY. Drop when folding into the real pipeline
 
     -- ---- audit ------------------------------------------------------------
     AUDIT_BATCH_ID          NUMBER(38,0),
     AUDIT_JOB_ID            NUMBER(38,0)
 );
 
--- Surrogate keys are assigned in STEP 1, not inside the MERGE, so nothing
--- depends on a sequence behaving correctly under pushdown later.
 CREATE SEQUENCE IF NOT EXISTS SEQ_BROKER_PARTY_DIM_SK START = 1 INCREMENT = 1;
 
 
@@ -91,57 +98,47 @@ CREATE SEQUENCE IF NOT EXISTS SEQ_BROKER_PARTY_DIM_SK START = 1 INCREMENT = 1;
 -- ===========================================================================
 MERGE INTO Z2_BROKER_PARTY_DIM T
 USING STG_Z2_BROKER_PARTY_DIM S
-   ON T.BROKER_PARTY_DIM_SK = S.MERGE_KEY
-
--- rules 5-6 : sat at the high end date, values unchanged -> move the expiry only
+   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
+   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
 WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
      T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
      T.UUID                  = COALESCE(S.UUID, T.UUID),
      T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
-
--- rules 7-16 : retire.
---   RETIRE_MODE 'X' = dead record      -> pull ROW_EXP_DTE back to the row's own ROW_EFF_DTE
---   RETIRE_MODE 'Y' = delete indicator -> set IS_DEL = 'Y', leave both dates alone
 WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
-     T.IS_DEL                = COALESCE(S.DEL_IND, T.IS_DEL),
-     T.ROW_EXP_DTE           = CASE WHEN S.RETIRE_MODE = 'X'
-                                    THEN T.ROW_EFF_DTE
-                                    ELSE T.ROW_EXP_DTE END,
-     T.UUID                  = COALESCE(S.UUID, T.UUID),
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+     T.UUID        = COALESCE(S.UUID, T.UUID),
      T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
-
--- rule 17, and the insert half of rules 7-16.
--- MERGE_KEY is NULL on these rows and NULL never equals a surrogate key,
--- so they can only ever reach this branch.
 WHEN NOT MATCHED THEN INSERT (
      BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
      BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
      AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
 VALUES (
      S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
-     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, COALESCE(S.DEL_IND,'N'), S.ROW_HASH, S.UUID,
+     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
      S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
 
 
 -- ===========================================================================
--- ALTERNATIVE 'D' BRANCH — needs NO new stage columns
+-- WHY THE 'D' BRANCH NEEDS NO RETIRE_MODE COLUMN
 --
--- The retirement mechanism is decided purely by the TARGET row's current
--- expiry, and the MERGE can already see it as T.ROW_EXP_DTE. So RETIRE_MODE
--- and DEL_IND do not have to be carried on the stage at all:
+-- Both CASE expressions test T.ROW_EXP_DTE, the value the target row holds
+-- BEFORE this statement. Every right-hand side in an UPDATE is evaluated
+-- against the pre-update row, so the second assignment does not see the value
+-- the first one would write. The two branches are therefore:
 --
---   WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
---        T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
---                             THEN T.IS_DEL ELSE 'Y' END,
---        T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
---                             THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
---        T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+--   target sat at 9999-12-31  ->  DEAD RECORD.      IS_DEL untouched ('N'),
+--                                 ROW_EXP_DTE pulled back to ROW_EFF_DTE
+--   target sat at a real date ->  DELETE INDICATOR. IS_DEL = 'Y',
+--                                 both dates left exactly as they are
 --
--- Safe because stage 7 excludes dead records, so a row already retired can
--- never re-enter the diff, and nothing writes to the target between Step 1
--- and Step 2 within a run.
+-- Safe because stage 7 excludes dead records (row_eff_dte < row_exp_dte), so a
+-- row already retired can never re-enter the diff, and nothing writes to the
+-- target between Step 1 and Step 2 within a run.
 --
--- If the ALTER across existing pipelines is unwelcome, switch to this branch
--- and drop RETIRE_MODE and DEL_IND from the stage. The apply behaves
--- identically; the two columns become debugging aids only.
+-- Reading the mechanism from the target at apply time is also strictly more
+-- robust than carrying it on the stage: a stage column is a snapshot taken in
+-- Step 1, while T.ROW_EXP_DTE is the value actually being overwritten.
 -- ===========================================================================
