@@ -161,7 +161,7 @@ apply therefore adds **nothing**:
 | Column | Status | Why it is not new |
 |---|---|---|
 | `BROKER_PARTY_DIM_SK` | already there | Carries the target SK on `'U'`/`'D'` and a newly allocated SK on `'I'`. It **is** the merge key |
-| `ACTION_FLAG` | control column | The only genuinely load-bearing one. See the open question below |
+| `ACTION_FLAG` | the one added column | Cannot be derived — see below. Rename it to the stage's existing operation/CDC indicator if there is one, and the apply adds nothing |
 | `DEL_IND` | already there | Populated for lineage, but the MERGE no longer reads it |
 | `RULE_NO` | POC only | Debug — records which of the 18 rules produced the row. Dropped when this folds into the real pipeline |
 
@@ -193,10 +193,25 @@ being overwritten.
 Verified in DuckDB against `scenarios/S01.sql`: both branches fire (a dead record at `SK 103`, a delete
 indicator at `SK 102`), and swapping the two mechanisms changes the target — so the evidence is not vacuous.
 
-**Open:** `ACTION_FLAG` is the one control column the apply cannot derive, because the `'D'` stage row
-deliberately carries the *old* values for debugging, so the MERGE cannot tell `'U'` from `'D'` by comparing
-hashes. If the existing stage already has an operation or CDC indicator, reuse that column name and the count
-of new columns is **zero**.
+**`ACTION_FLAG` stays, and is the only column the apply adds.** It cannot be derived:
+
+- `'U'` and `'D'` both match an existing target row, so the MERGE has to tell them apart.
+- It cannot do so by comparing hashes — a `'D'` stage row deliberately carries the **old** target values for
+  debugging, so a hash comparison reports *unchanged* on precisely the rows that changed.
+- Nor by expiry — rules 5 and 9 both sit at the high end date and differ only by hash, which Step 1 has
+  already evaluated.
+
+The distinction is a **conclusion Step 1 reaches** from both sources and the target together. The MERGE sees
+one stage row and one target row, so it cannot re-derive it. One column, carrying one decision. If the real
+stage already has an operation or CDC indicator (I/U/D), rename `ACTION_FLAG` to that and the apply adds
+nothing at all.
+
+**One file, not two.** An earlier draft split the objects across `00_objects.sql` and `01_ddl_and_merge.sql`,
+and the second re-declared the target, the live view, the stage and the sequence. Two copies of the same DDL
+is how they came to disagree about `MERGE_KEY` — one said NULL on `'I'` rows, the other wrote the new
+surrogate key — without anything failing, because only one was ever executed. `00_objects.sql` now carries
+every object plus the Step 2 MERGE, and `tools/check_merge_drift.py` fails the build if any scenario's copy
+of the MERGE diverges from it.
 
 **IDMC is deferred.** The POC is proved at Snowflake level first, with no stored procedures, and the objects
 are shaped so they can be folded into the existing ETL pipeline afterwards. Whether IDMC renders this as one
