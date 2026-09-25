@@ -57,7 +57,14 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 | | TC02 | I | re-run while degraded — orphan still untouched | 18 |
 | | TC03 | P | Zone1 recovers; timeline self-heals, orphan falls to rule 1 | 1, 5 |
 | | TC04 | E | two overlapping live rows — prove read-by-effective-date returns the right one | 18 |
-| **S12** execution_type RERUN | TC01–TC08 | P | one per rerun rule | **2, 4, 6, 8, 10, 12, 14, 16** |
+| **S12** execution_type RERUN | TC01 | P | rerun, nothing changed, target at 9999 | **2** |
+| | TC02 | P | rerun, nothing changed, target at a real date | **4** |
+| | TC03 | P | rerun, expire in place, target at 9999 | **6** |
+| | TC04 | P | rerun, retire, hash same, target at a real date | **8** |
+| | TC05 | P | rerun, dead record, hash diff, expiry same, target at 9999 | **10** |
+| | TC06 | P | rerun, retire, hash diff, expiry same, target at a real date | **12** |
+| | TC07 | P | rerun, dead record, hash and expiry diff, target at 9999 | **14** |
+| | TC08 | P | rerun, retire, hash and expiry diff, target at a real date | **16** |
 | | TC09 | I | rerun twice — UUID restamped, nothing else moves | 2, 4 |
 | **S13** execution_type RESTART | TC01 | P | MERGE commits, run marked failed, restart re-applies | — |
 | | TC02 | I | restart writes zero rows | 1, 3 |
@@ -70,7 +77,7 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 | | TC02 | V | 10 consecutive runs with random mutations, compared each run | all |
 | | TC03 | V | random data including corrupt rows | all |
 
-**59 test cases across 15 scenarios.**
+**53 test cases across 15 scenarios.** All 18 rules are exercised at least once.
 
 ## Why S15 matters most
 
@@ -86,7 +93,8 @@ it can be executed and screenshotted independently.
 ```
 00_objects.sql   tables, sequence, the Step 1 diff view, the live view. Run once
 S01.sql … S15.sql one per scenario, TC sections within
-evidence/        POC_v2_Evidence.xlsx, one tab per scenario
+evidence/        POC_v2_Evidence.xlsx
+                 tab 1 the 18 rules, tab 2 this grid, tabs 3+ one per scenario as it is run
 ```
 
 Step 1 is a **view**, since stored procedures are not allowed. Each test case section reads:
