@@ -79,6 +79,29 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 
 **53 test cases across 15 scenarios.** All 18 rules are exercised at least once.
 
+## Two clocks, and the seed rules that follow from them
+
+| | Column | Meaning |
+|---|---|---|
+| **Business time** | `ROW_EFF_DTE` / `ROW_EXP_DTE` | when the fact was true |
+| **Process time** | `GRS_REFINED_TIMESTAMP`, `AUDIT_*` | when the row was loaded |
+
+Process time runs forward across runs and every seed value is a **fixed literal**:
+
+```
+run 101  "day 1"  loaded 2026-09-21 08:00
+run 102  "day 2"  window 2026-09-21 08:00 (EXCLUSIVE) -> 2026-09-22 10:00
+```
+
+Two rules hold for every scenario, both enforced by `../tools/check_sql_lint.py`:
+
+1. **Never `CURRENT_TIMESTAMP()` in a seed.** A day-1 row stamped "now" is dated *later* than the day-2
+   window meant to follow it. The MERGE is exempt — stamping the audit columns at apply time is what
+   production does, so rows a run touches carry today's date and rows it does not keep the seeded one.
+2. **Never a function call inside `VALUES`.** Snowflake rejects it outright
+   (`Invalid expression [SHA2(...)] in VALUES clause`); DuckDB accepts it, so the harness cannot see this.
+   Seeds use `INSERT .. SELECT .. UNION ALL`.
+
 ## Why S15 matters most
 
 A hand-written case proves the rule you were thinking about. A differential test proves the rules you were
