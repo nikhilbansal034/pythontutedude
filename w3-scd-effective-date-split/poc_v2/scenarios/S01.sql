@@ -12,6 +12,31 @@
 -- can be executed and screenshotted on its own.
 -- ===========================================================================
 
+-- ---------------------------------------------------------------------------
+-- THE TIMELINE THIS SCENARIO REPLAYS
+--
+-- Two clocks, and they must not be confused:
+--
+--   BUSINESS TIME  ROW_EFF_DTE / ROW_EXP_DTE — when the fact was true.
+--                  09-Sep, 10-Sep, 21-Sep, 22-Sep, 9999-12-31 below.
+--   PROCESS TIME   GRS_REFINED_TIMESTAMP, AUDIT_* — when a row was LOADED.
+--
+-- Process time runs forward and is FIXED, never CURRENT_TIMESTAMP():
+--
+--   run 101  "day 1"  loaded 2026-09-21 08:00. Wrote the target rows seeded below
+--   run 102  "day 2"  window 2026-09-21 08:00 (EXCLUSIVE) -> 2026-09-22 10:00,
+--                     so it picks up only what Zone1 refined after day 1 finished
+--
+-- Seeding the day 1 target with CURRENT_TIMESTAMP() would date it LATER than the
+-- day 2 window that is supposed to follow it, which cannot happen.
+--
+-- The MERGE still stamps AUDIT_UPDATE_DATETIME with CURRENT_TIMESTAMP(), because
+-- that is what production does and the MERGE is the thing under test. So rows run
+-- 102 touches carry today's date — that is run 102 executing now, replaying data
+-- dated September. Rows it does not touch keep 2026-09-21 08:00.
+-- ---------------------------------------------------------------------------
+
+
 USE ROLE      POC_ROLE;
 USE WAREHOUSE POC_WH;
 USE DATABASE  LM_POC_DB;
@@ -58,13 +83,20 @@ INSERT INTO Z1_BROKER_COMMISSION_HIST VALUES
  ('K1','B3',NULL,'2026-09-22','9999-12-31','U-103','2026-09-22 08:00');
 
 -- ---- seed : the target as day 1 left it ----------------------------------
-INSERT INTO Z2_BROKER_PARTY_DIM VALUES
- (101,'K1','2026-09-09','2026-09-10',NULL,'B1','N',
-  SHA2('~|B1',256),'T-001',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP()),
- (102,'K1','2026-09-10','2026-09-21','A1','B1','N',
-  SHA2('A1|B1',256),'T-002',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP()),
- (103,'K1','2026-09-21','9999-12-31','A2','B1','N',
-  SHA2('A2|B1',256),'T-003',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP());
+-- Day 1 = run 101, loaded at 2026-09-21 08:00:00 — exactly run 102's WINDOW_START,
+-- which is EXCLUSIVE, so these rows are not re-picked by run 102.
+-- INSERT .. SELECT, not VALUES: Snowflake rejects a function call such as
+-- SHA2() inside a VALUES clause.
+INSERT INTO Z2_BROKER_PARTY_DIM
+SELECT    101, 'K1', DATE '2026-09-09', DATE '2026-09-10', NULL, 'B1', 'N',
+          SHA2('~|B1',256), 'T-001', 101, 1,
+          TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
+UNION ALL SELECT 102, 'K1', DATE '2026-09-10', DATE '2026-09-21', 'A1', 'B1', 'N',
+                 SHA2('A1|B1',256), 'T-002', 101, 1,
+                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
+UNION ALL SELECT 103, 'K1', DATE '2026-09-21', DATE '9999-12-31', 'A2', 'B1', 'N',
+                 SHA2('A2|B1',256), 'T-003', 101, 1,
+                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00';
 
 SELECT 'S01 TC01 — target BEFORE' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
        BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL
@@ -229,13 +261,20 @@ INSERT INTO Z1_BROKER_COMMISSION_HIST VALUES
  ('K1','B1',NULL,'2026-09-09','2026-09-21','U-101','2026-09-22 08:00'),
  ('K1','B9',NULL,'2026-09-21','9999-12-31','U-102','2026-09-22 08:00');
 
-INSERT INTO Z2_BROKER_PARTY_DIM VALUES
- (101,'K1','2026-09-09','2026-09-10',NULL,'B1','N',
-  SHA2('~|B1',256),'T-001',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP()),
- (102,'K1','2026-09-10','2026-09-21','A1','B1','N',
-  SHA2('A1|B1',256),'T-002',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP()),
- (103,'K1','2026-09-21','9999-12-31','A2','B1','N',
-  SHA2('A2|B1',256),'T-003',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP());
+-- Day 1 = run 101, loaded at 2026-09-21 08:00:00 — exactly run 102's WINDOW_START,
+-- which is EXCLUSIVE, so these rows are not re-picked by run 102.
+-- INSERT .. SELECT, not VALUES: Snowflake rejects a function call such as
+-- SHA2() inside a VALUES clause.
+INSERT INTO Z2_BROKER_PARTY_DIM
+SELECT    101, 'K1', DATE '2026-09-09', DATE '2026-09-10', NULL, 'B1', 'N',
+          SHA2('~|B1',256), 'T-001', 101, 1,
+          TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
+UNION ALL SELECT 102, 'K1', DATE '2026-09-10', DATE '2026-09-21', 'A1', 'B1', 'N',
+                 SHA2('A1|B1',256), 'T-002', 101, 1,
+                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
+UNION ALL SELECT 103, 'K1', DATE '2026-09-21', DATE '9999-12-31', 'A2', 'B1', 'N',
+                 SHA2('A2|B1',256), 'T-003', 101, 1,
+                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00';
 
 TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
 INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
@@ -321,9 +360,14 @@ INSERT INTO Z1_BROKER_COMMISSION_HIST VALUES
  ('K1', 'B1',NULL,'2026-09-10','9999-12-31','U-101','2026-09-22 08:00'),
  (NULL, 'B9',NULL,'2026-09-10','9999-12-31','U-999','2026-09-22 08:00');   -- corrupt
 
-INSERT INTO Z2_BROKER_PARTY_DIM VALUES
- (101,'K1','2026-09-10','9999-12-31','A1','B1','N',
-  SHA2('A1|B1',256),'T-001',101,1,CURRENT_TIMESTAMP(),CURRENT_TIMESTAMP());
+-- Day 1 = run 101, loaded at 2026-09-21 08:00:00 — exactly run 102's WINDOW_START,
+-- which is EXCLUSIVE, so these rows are not re-picked by run 102.
+-- INSERT .. SELECT, not VALUES: Snowflake rejects a function call such as
+-- SHA2() inside a VALUES clause.
+INSERT INTO Z2_BROKER_PARTY_DIM
+SELECT    101, 'K1', DATE '2026-09-10', DATE '9999-12-31', 'A1', 'B1', 'N',
+          SHA2('A1|B1',256), 'T-001', 101, 1,
+          TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00';
 
 TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
 INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
