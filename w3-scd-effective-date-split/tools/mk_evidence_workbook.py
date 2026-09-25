@@ -49,10 +49,13 @@ RULES = [
 # (scenario, tc, type, what it does, rules validated)
 TCS = [
  ("S01  One source changes, the other does not",
-  [("TC01","P","SRC_2 splits one version into three. SRC_1 untouched. The base case","1, 3, 7, 13, 17"),
-   ("TC02","I","Re-run with the key STILL impacted but nothing changed. 0 stage rows","1, 3"),
-   ("TC03","E","SRC_2 changes exactly on an existing boundary — no new interval appears","9"),
-   ("TC04","C","SRC_2 carries a NULL business key — dropped SILENTLY, K1 unaffected","—")]),
+  [("TC01 (D1R1)","P","Initial load into an EMPTY target — the day-1 build, run not asserted","17"),
+   ("TC02 (D1R2)","P","SRC_2 splits one version into three. SRC_1 untouched. The base case","3, 7, 13, 17"),
+   ("TC03 (D1R3)","I","Re-run of the SAME window — key still impacted, nothing changed","1, 3"),
+   ("TC04 (D2R1)","E","SRC_2 splits on a boundary SRC_1 already uses — no new interval","11"),
+   ("TC05 (D2R2)","E","A value corrected in place, both dates unchanged","9"),
+   ("TC06 (D2R3)","C","A NULL business key arrives — dropped SILENTLY, K1 unaffected","—"),
+   ("TC07 (D3R1)","P","New version ahead of the open row — EXPIRE IN PLACE, key survives","5, 17")]),
  ("S02  Both sources change in the same run",
   [("TC01","P","Both split in the same run; the target row sat at the high end date","5, 17"),
    ("TC02","I","Re-run, zero writes","1"),

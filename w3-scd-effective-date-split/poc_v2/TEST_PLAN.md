@@ -23,10 +23,13 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 
 | Scenario | TC | Type | What it does | Rules |
 |---|---|---|---|---|
-| **S01** One source changes | TC01 | P | SRC_2 splits, SRC_1 untouched. The base case | 1, 3, 7, 13, 17 |
-| | TC02 | I | run S01 twice, second run writes nothing | 1, 3 |
-| | TC03 | E | SRC_2 changes exactly on an existing boundary — no new interval | **9** |
-| | TC04 | C | SRC_2 carries a NULL business key — dropped **silently** | — |
+| **S01** One source changes | TC01 (D1R1) | P | initial load into an EMPTY target — the day-1 build, run not asserted | 17 |
+| | TC02 (D1R2) | P | SRC_2 splits one version into three. SRC_1 untouched. The base case | 3, 7, 13, 17 |
+| | TC03 (D1R3) | I | re-run of the SAME window — key still impacted, nothing changed | 1, 3 |
+| | TC04 (D2R1) | E | SRC_2 splits on a boundary SRC_1 already uses — no new interval | **11** |
+| | TC05 (D2R2) | E | a value corrected in place, both dates unchanged | **9** |
+| | TC06 (D2R3) | C | a NULL business key arrives — dropped **silently** | — |
+| | TC07 (D3R1) | P | new version ahead of the open row — EXPIRE IN PLACE, key survives | **5**, 17 |
 | **S02** Both sources change | TC01 | P | both split in the same run; target row sat at 9999 | 5, 17 |
 | | TC02 | I | re-run, zero writes | 1 |
 | | TC03 | E | both sources close on the same date | 5, 17 |
@@ -77,7 +80,7 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 | | TC02 | V | 10 consecutive runs with random mutations, compared each run | all |
 | | TC03 | V | random data including corrupt rows | all |
 
-**53 test cases across 15 scenarios.** All 18 rules are exercised at least once.
+**56 test cases across 15 scenarios.** All 18 rules are exercised at least once.
 
 ## Two clocks, and the seed rules that follow from them
 
@@ -123,10 +126,34 @@ A hand-written case proves the rule you were thinking about. A differential test
 not. TC02 in particular — ten consecutive runs, random mutations, compared after every one — is the closest
 thing to a proof that the design is stable under repeated application, which is what production actually is.
 
-## Structure
+## Structure — chained runs, not reset-per-test-case
 
-One SQL script per scenario. Each test case is a self-contained section — truncate, seed, run, verify — so
-it can be executed and screenshotted independently.
+One SQL script per scenario. **The target is never hand-seeded.** TC01 loads an empty target through the
+real pipeline, and every later test case is the **next run** against whatever the previous one left behind.
+
+| | |
+|---|---|
+| **Reset** | Once, at the top of the scenario file. Test cases do not reset |
+| **Order** | Test cases run top to bottom. Each is still a section you can execute and screenshot on its own |
+| **Isolation** | Scenarios stay fully independent of each other |
+| **Labels** | `TC02 (D1R2)` — test case 2, day 1 run 2. Three runs a day, 08:00 / 12:00 / 16:00 |
+
+Why: the thing under test is **incremental** SCD2 loading. Truncating before every test case never tests an
+increment — it tests 53 single loads against hand-placed targets, and hand-placing the target means the
+expected day-1 state is asserted rather than derived. The bugs this design actually risks — older rows
+touched when they should not be, impacted-key detection reaching too far, windows overlapping at the
+boundary — only appear across consecutive runs. Every test case from TC02 on therefore carries an explicit
+**older rows untouched** assertion, keyed on `AUDIT_BATCH_ID`.
+
+A scenario whose premise needs a clean slate (S09's brand-new key, S11's degraded Zone1) resets explicitly
+and says so in the file.
+
+Source changes are written the way Zone1 writes them — `UPDATE` the previous version's `ROW_EXP_DTE` and
+`INSERT` the new one, both carrying a fresh `GRS_REFINED_TIMESTAMP` — not as a reseed.
+
+**The two clocks are kept in different months** so they cannot be confused: business time
+(`ROW_EFF_DTE`/`ROW_EXP_DTE`) in **August**, process time (`GRS_REFINED_TIMESTAMP`, windows, `AUDIT_*`) in
+**September**.
 
 ```
 00_objects.sql   EVERYTHING that is not a test case: tables, sequence, the live

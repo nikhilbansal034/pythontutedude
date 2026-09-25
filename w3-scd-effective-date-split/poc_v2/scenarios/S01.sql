@@ -1,41 +1,40 @@
 -- ===========================================================================
 -- POC v2  —  S01  |  One source changes, the other does not
 --
--- The core problem in one picture: SRC_1 is not touched at all on day 2, yet
--- its target rows still have to move, because neither source can decide the
--- target's dates alone.
+-- The core problem in one picture: SRC_1 is not touched at all, yet its target
+-- rows still have to move, because neither source can decide the target's dates
+-- alone.
 --
--- Rules exercised : 1, 3, 7, 9, 13, 17     (../TEST_PLAN.md)
+-- HOW THIS SCENARIO IS STRUCTURED
+--
+-- The target is NEVER hand-seeded. TC01 loads an empty target through the real
+-- pipeline, and every later test case is the NEXT RUN against whatever the
+-- previous one left behind -- which is what a real ETL schedule does, and the
+-- only way to test that older rows stay untouched.
+--
+-- There is ONE reset, at the top of this file. Test cases do not reset. They
+-- must therefore be run IN ORDER, top to bottom; each is still a self-contained
+-- section to execute and screenshot. Scenarios remain independent of each other.
+--
+-- TWO CLOCKS, kept in different months so they can never be confused:
+--
+--   BUSINESS TIME  ROW_EFF_DTE / ROW_EXP_DTE -- when the fact was true. AUGUST.
+--   PROCESS TIME   GRS_REFINED_TIMESTAMP, windows, AUDIT_* -- when a row was
+--                  loaded. SEPTEMBER. Three runs a day, 08:00 / 12:00 / 16:00.
+--
+--   TC01  D1R1  run 101   window  2026-09-01 00:00 -> 2026-09-21 08:00
+--   TC02  D1R2  run 102   window  2026-09-21 08:00 -> 2026-09-21 12:00
+--   TC03  D1R3  run 103   window  2026-09-21 08:00 -> 2026-09-21 12:00  (re-run)
+--   TC04  D2R1  run 104   window  2026-09-21 12:00 -> 2026-09-22 08:00
+--   TC05  D2R2  run 105   window  2026-09-22 08:00 -> 2026-09-22 12:00
+--   TC06  D2R3  run 106   window  2026-09-22 12:00 -> 2026-09-22 16:00
+--   TC07  D3R1  run 107   window  2026-09-22 16:00 -> 2026-09-23 08:00
+--
+-- Windows are half-open: GRS_REFINED_TIMESTAMP > WINDOW_START AND <= WINDOW_END.
+--
+-- Rules exercised : see ../TEST_PLAN.md
 -- Prerequisite    : ../00_objects.sql has been run
---
--- Each TC section below is self-contained — reset, seed, run, verify — so it
--- can be executed and screenshotted on its own.
 -- ===========================================================================
-
--- ---------------------------------------------------------------------------
--- THE TIMELINE THIS SCENARIO REPLAYS
---
--- Two clocks, and they must not be confused:
---
---   BUSINESS TIME  ROW_EFF_DTE / ROW_EXP_DTE — when the fact was true.
---                  09-Sep, 10-Sep, 21-Sep, 22-Sep, 9999-12-31 below.
---   PROCESS TIME   GRS_REFINED_TIMESTAMP, AUDIT_* — when a row was LOADED.
---
--- Process time runs forward and is FIXED, never CURRENT_TIMESTAMP():
---
---   run 101  "day 1"  loaded 2026-09-21 08:00. Wrote the target rows seeded below
---   run 102  "day 2"  window 2026-09-21 08:00 (EXCLUSIVE) -> 2026-09-22 10:00,
---                     so it picks up only what Zone1 refined after day 1 finished
---
--- Seeding the day 1 target with CURRENT_TIMESTAMP() would date it LATER than the
--- day 2 window that is supposed to follow it, which cannot happen.
---
--- The MERGE still stamps AUDIT_UPDATE_DATETIME with CURRENT_TIMESTAMP(), because
--- that is what production does and the MERGE is the thing under test. So rows run
--- 102 touches carry today's date — that is run 102 executing now, replaying data
--- dated September. Rows it does not touch keep 2026-09-21 08:00.
--- ---------------------------------------------------------------------------
-
 
 USE ROLE      POC_ROLE;
 USE WAREHOUSE POC_WH;
@@ -44,69 +43,54 @@ USE SCHEMA    POC_SCHEMA;
 
 
 -- ###########################################################################
--- TC01  |  POSITIVE  |  rules 1, 3, 7, 13, 17
---
--- WHAT   SRC_2 splits one version into three. SRC_1 is untouched.
--- STEPS  seed day-1 target (3 rows) -> run -> inspect stage -> MERGE -> inspect
--- EXPECT 6 stage rows. Target grows 3 -> 7. Live view = 5 rows, no gaps or
---        overlaps. SK 102 retired by delete indicator (its expiry was a real
---        date). SK 103 becomes a dead record (its expiry was 9999).
---        SK 101 is NOT touched — rule 1 emits no stage row at all.
+-- RESET -- the ONLY one in this file. Everything after this accumulates.
+-- The surrogate-key sequence is deliberately NOT reset: production never
+-- reuses a key, so neither do we. See ../TEST_PLAN.md.
 -- ###########################################################################
-
--- ---- reset ---------------------------------------------------------------
 TRUNCATE TABLE ETL_DATA_INGESTION_SOURCE_WINDOW;
 TRUNCATE TABLE Z1_BROKER_PARTY_HIST;
 TRUNCATE TABLE Z1_BROKER_COMMISSION_HIST;
 TRUNCATE TABLE Z2_BROKER_PARTY_DIM;
 TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
 
--- ---- seed : the sourcing window for run 102 ------------------------------
+-- ###########################################################################
+-- TC01  (D1R1)  |  POSITIVE  |  initial load into an empty target
+--
+-- WHAT   Zone1's first delivery. SRC_2 holds ONE version covering the whole period.
+-- EXPECT 3 stage rows, all rule 17. Target 0 -> 3. Live view 3.
+-- ###########################################################################
+
+-- ---- the run window ------------------------------------------------------
 INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
  (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
   WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
 VALUES
- (102,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
-  '2026-09-21 08:00','2026-09-22 10:00','NEW','Completed'),
- (102,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
-  '2026-09-21 08:00','2026-09-22 10:00','NEW','Completed');
+ (101,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
+  TIMESTAMP '2026-09-01 00:00', TIMESTAMP '2026-09-21 08:00','NEW','Completed'),
+ (101,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
+  TIMESTAMP '2026-09-01 00:00', TIMESTAMP '2026-09-21 08:00','NEW','Completed');
 
--- ---- seed : SRC_1, NOT touched on day 2 (timestamps stay at 21-Sep) ------
-INSERT INTO Z1_BROKER_PARTY_HIST VALUES
- ('K1','A1',NULL,'2026-09-10','2026-09-21','U-001','2026-09-21 08:00'),
- ('K1','A2',NULL,'2026-09-21','9999-12-31','U-002','2026-09-21 08:00');
+-- ---- what Zone1 did between the last run and this one -------------------
+INSERT INTO Z1_BROKER_PARTY_HIST
+SELECT    'K1','A1',NULL,DATE '2026-08-10',DATE '2026-08-21','U-001',TIMESTAMP '2026-09-21 08:00'
+UNION ALL SELECT 'K1','A2',NULL,DATE '2026-08-21',DATE '9999-12-31','U-002',TIMESTAMP '2026-09-21 08:00';
 
--- ---- seed : SRC_2, changed on day 2 (timestamps move to 22-Sep) ----------
-INSERT INTO Z1_BROKER_COMMISSION_HIST VALUES
- ('K1','B1',NULL,'2026-09-09','2026-09-15','U-101','2026-09-22 08:00'),
- ('K1','B2',NULL,'2026-09-15','2026-09-22','U-102','2026-09-22 08:00'),
- ('K1','B3',NULL,'2026-09-22','9999-12-31','U-103','2026-09-22 08:00');
+INSERT INTO Z1_BROKER_COMMISSION_HIST
+SELECT    'K1','B1',NULL,DATE '2026-08-09',DATE '9999-12-31','U-101',TIMESTAMP '2026-09-21 08:00';
 
--- ---- seed : the target as day 1 left it ----------------------------------
--- Day 1 = run 101, loaded at 2026-09-21 08:00:00 — exactly run 102's WINDOW_START,
--- which is EXCLUSIVE, so these rows are not re-picked by run 102.
--- INSERT .. SELECT, not VALUES: Snowflake rejects a function call such as
--- SHA2() inside a VALUES clause.
-INSERT INTO Z2_BROKER_PARTY_DIM
-SELECT    101, 'K1', DATE '2026-09-09', DATE '2026-09-10', NULL, 'B1', 'N',
-          SHA2('~|B1',256), 'T-001', 101, 1,
-          TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
-UNION ALL SELECT 102, 'K1', DATE '2026-09-10', DATE '2026-09-21', 'A1', 'B1', 'N',
-                 SHA2('A1|B1',256), 'T-002', 101, 1,
-                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
-UNION ALL SELECT 103, 'K1', DATE '2026-09-21', DATE '9999-12-31', 'A2', 'B1', 'N',
-                 SHA2('A2|B1',256), 'T-003', 101, 1,
-                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00';
+SELECT 'S01 TC01 D1R1 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
 
-SELECT 'S01 TC01 — target BEFORE' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
-       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL
-FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE;
+SELECT 'S01 TC01 D1R1 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
 
--- ---- STEP 1 : build the instruction list ---------------------------------
+-- ---- STEP 1 : build the stage --------------------------------------------
 TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
 INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
 
-SELECT 'S01 TC01 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+SELECT 'S01 TC01 D1R1 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
        BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
 FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
 
@@ -135,154 +119,66 @@ VALUES (
      S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
      S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
 
--- ---- verify --------------------------------------------------------------
-SELECT 'S01 TC01 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
-       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC01 D1R1 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
 FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
 
-SELECT 'S01 TC01 — what a consumer sees' AS EVIDENCE, BROKER_STATUS_CDE,
-       COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+SELECT 'S01 TC01 D1R1 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
 FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
 
-SELECT 'S01 TC01' AS TEST,
-       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                       = 6
-             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                           = 7
-             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                    = 5
-             AND (SELECT IS_DEL FROM Z2_BROKER_PARTY_DIM WHERE BROKER_PARTY_DIM_SK=102)= 'Y'
-             AND (SELECT ROW_EXP_DTE FROM Z2_BROKER_PARTY_DIM WHERE BROKER_PARTY_DIM_SK=103)
-                                                                          = DATE '2026-09-21'
-             AND (SELECT IS_DEL FROM Z2_BROKER_PARTY_DIM WHERE BROKER_PARTY_DIM_SK=101)= 'N'
-            THEN 'PASS' ELSE 'FAIL' END AS RESULT;
-
--- no gaps and no overlaps in the live timeline
-SELECT 'S01 TC01 timeline' AS TEST,
-       CASE WHEN count(*) = 0 THEN 'PASS' ELSE 'FAIL' END AS RESULT
-FROM  (SELECT ROW_EXP_DTE,
-              LEAD(ROW_EFF_DTE) OVER (PARTITION BY BROKER_ID ORDER BY ROW_EFF_DTE) AS NXT
-       FROM   V_Z2_BROKER_PARTY_DIM_LIVE)
-WHERE NXT IS NOT NULL AND NXT <> ROW_EXP_DTE;
-
+SELECT 'S01 TC01 D1R1' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                      = 3
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE RULE_NO = 17)    = 3
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                           = 3
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                    = 3
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM WHERE AUDIT_BATCH_ID = 101) = 3
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
 
 -- ###########################################################################
--- TC02  |  IDEMPOTENT  |  rules 1, 3
+-- TC02  (D1R2)  |  POSITIVE  |  SRC_2 splits one version into three
 --
--- WHAT   Run again with the key STILL impacted — its GRS_REFINED_TIMESTAMP
---        falls inside the new window — but with no source change.
--- STEPS  add a later window, re-run step 1 and the MERGE. No reseeding.
--- EXPECT The logic RUNS and decides nothing needs writing: 0 stage rows,
---        target unchanged at 7 rows, live view unchanged at 5.
---        This is stronger than "the key was skipped" — it proves every
---        interval matched and fell to rule 1 or 3.
--- NOTE   Run TC01 first. This section deliberately does not reset.
+-- WHAT   Zone1 closes B1 early and adds B2 and B3. SRC_1 is NOT touched -- its timestamps stay at D1R1.
+-- EXPECT 6 stage rows: rules 3, 7, 13, 17. Target 3 -> 7. Live 5. SK from run 101 at 08-09 untouched.
 -- ###########################################################################
 
-INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
- (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
-  WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
-VALUES
- (103,2,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
-  '2026-09-22 00:00','2026-09-23 10:00','NEW','Completed'),
- (103,2,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
-  '2026-09-22 00:00','2026-09-23 10:00','NEW','Completed');
-
-TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
-INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
-
-SELECT 'S01 TC02 — stage must be EMPTY' AS EVIDENCE, count(*) AS STAGE_ROWS
-FROM   STG_Z2_BROKER_PARTY_DIM;
-
-MERGE INTO Z2_BROKER_PARTY_DIM T
-USING STG_Z2_BROKER_PARTY_DIM S
-   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
-   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
-WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
-     T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
-     T.UUID                  = COALESCE(S.UUID, T.UUID),
-     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
-WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
-     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
-                          THEN T.IS_DEL ELSE 'Y' END,
-     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
-                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
-     T.UUID        = COALESCE(S.UUID, T.UUID),
-     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
-WHEN NOT MATCHED THEN INSERT (
-     BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
-     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
-     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
-VALUES (
-     S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
-     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
-     S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
-
-SELECT 'S01 TC02' AS TEST,
-       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)    = 0
-             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)        = 7
-             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE) = 5
-            THEN 'PASS' ELSE 'FAIL' END AS RESULT;
-
-
--- ###########################################################################
--- TC03  |  EDGE  |  rule 9
---
--- WHAT   SRC_2 changes its value EXACTLY on a date that is already a boundary
---        (21-Sep, where SRC_1 also changes). No new interval is created —
---        only the value at an existing effective date differs.
--- STEPS  full reset, seed, run, MERGE, verify.
--- EXPECT 2 stage rows. Rule 9 fires: the target row at 21-Sep sat at the high
---        end date and its hash changed, so it becomes a DEAD RECORD
---        (expiry pulled back to 21-Sep) and the new version is inserted.
---        SK 101 and SK 102 are untouched.
--- WHY    TC01 never reaches rule 9 — it produces rule 13 instead, because there
---        the expiry changed too. This is the expiry-unchanged variant.
--- ###########################################################################
-
-TRUNCATE TABLE ETL_DATA_INGESTION_SOURCE_WINDOW;
-TRUNCATE TABLE Z1_BROKER_PARTY_HIST;
-TRUNCATE TABLE Z1_BROKER_COMMISSION_HIST;
-TRUNCATE TABLE Z2_BROKER_PARTY_DIM;
-TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
-
+-- ---- the run window ------------------------------------------------------
 INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
  (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
   WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
 VALUES
  (102,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
-  '2026-09-21 08:00','2026-09-22 10:00','NEW','Completed'),
+  TIMESTAMP '2026-09-21 08:00', TIMESTAMP '2026-09-21 12:00','NEW','Completed'),
  (102,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
-  '2026-09-21 08:00','2026-09-22 10:00','NEW','Completed');
+  TIMESTAMP '2026-09-21 08:00', TIMESTAMP '2026-09-21 12:00','NEW','Completed');
 
-INSERT INTO Z1_BROKER_PARTY_HIST VALUES
- ('K1','A1',NULL,'2026-09-10','2026-09-21','U-001','2026-09-21 08:00'),
- ('K1','A2',NULL,'2026-09-21','9999-12-31','U-002','2026-09-21 08:00');
+-- ---- what Zone1 did between the last run and this one -------------------
+UPDATE Z1_BROKER_COMMISSION_HIST
+SET    ROW_EXP_DTE = DATE '2026-08-15', GRS_REFINED_TIMESTAMP = TIMESTAMP '2026-09-21 12:00'
+WHERE  BROKER_ID = 'K1' AND ROW_EFF_DTE = DATE '2026-08-09';
 
--- B1 now runs to 21-Sep and B9 takes over there: the SAME boundary SRC_1 uses
-INSERT INTO Z1_BROKER_COMMISSION_HIST VALUES
- ('K1','B1',NULL,'2026-09-09','2026-09-21','U-101','2026-09-22 08:00'),
- ('K1','B9',NULL,'2026-09-21','9999-12-31','U-102','2026-09-22 08:00');
+INSERT INTO Z1_BROKER_COMMISSION_HIST
+SELECT    'K1','B2',NULL,DATE '2026-08-15',DATE '2026-08-22','U-102',TIMESTAMP '2026-09-21 12:00'
+UNION ALL SELECT 'K1','B3',NULL,DATE '2026-08-22',DATE '9999-12-31','U-103',TIMESTAMP '2026-09-21 12:00';
 
--- Day 1 = run 101, loaded at 2026-09-21 08:00:00 — exactly run 102's WINDOW_START,
--- which is EXCLUSIVE, so these rows are not re-picked by run 102.
--- INSERT .. SELECT, not VALUES: Snowflake rejects a function call such as
--- SHA2() inside a VALUES clause.
-INSERT INTO Z2_BROKER_PARTY_DIM
-SELECT    101, 'K1', DATE '2026-09-09', DATE '2026-09-10', NULL, 'B1', 'N',
-          SHA2('~|B1',256), 'T-001', 101, 1,
-          TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
-UNION ALL SELECT 102, 'K1', DATE '2026-09-10', DATE '2026-09-21', 'A1', 'B1', 'N',
-                 SHA2('A1|B1',256), 'T-002', 101, 1,
-                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00'
-UNION ALL SELECT 103, 'K1', DATE '2026-09-21', DATE '9999-12-31', 'A2', 'B1', 'N',
-                 SHA2('A2|B1',256), 'T-003', 101, 1,
-                 TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00';
+SELECT 'S01 TC02 D1R2 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
 
+SELECT 'S01 TC02 D1R2 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+-- ---- STEP 1 : build the stage --------------------------------------------
 TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
 INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
 
-SELECT 'S01 TC03 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+SELECT 'S01 TC02 D1R2 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
        BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
 FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
 
+-- ---- STEP 2 : apply, one atomic MERGE ------------------------------------
 MERGE INTO Z2_BROKER_PARTY_DIM T
 USING STG_Z2_BROKER_PARTY_DIM S
    ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
@@ -307,75 +203,71 @@ VALUES (
      S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
      S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
 
-SELECT 'S01 TC03 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
-       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC02 D1R2 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
 FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
 
-SELECT 'S01 TC03' AS TEST,
-       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                        = 2
-             AND (SELECT count(DISTINCT RULE_NO) FROM STG_Z2_BROKER_PARTY_DIM)         = 1
-             AND (SELECT MAX(RULE_NO) FROM STG_Z2_BROKER_PARTY_DIM)                    = 9
-             AND (SELECT ROW_EXP_DTE FROM Z2_BROKER_PARTY_DIM WHERE BROKER_PARTY_DIM_SK=103)
-                                                                           = DATE '2026-09-21'
-             AND (SELECT IS_DEL FROM Z2_BROKER_PARTY_DIM WHERE BROKER_PARTY_DIM_SK=103) = 'N'
-             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                      = 3
-            THEN 'PASS' ELSE 'FAIL' END AS RESULT;
+SELECT 'S01 TC02 D1R2 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
 
+SELECT 'S01 TC02 D1R2' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                       = 6
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE ACTION_FLAG = 'D') = 2
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE ACTION_FLAG = 'I') = 4
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                            = 7
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                     = 5
+             -- retired by DELETE INDICATOR: its expiry was a real date
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE ROW_EFF_DTE = DATE '2026-08-10' AND IS_DEL = 'Y'
+                    AND ROW_EXP_DTE = DATE '2026-08-21')                               = 1
+             -- retired as a DEAD RECORD: its expiry was the high end date
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE ROW_EFF_DTE = DATE '2026-08-21' AND IS_DEL = 'N'
+                    AND ROW_EXP_DTE = DATE '2026-08-21')                               = 1
+             -- OLDER ROW UNTOUCHED: still run 101's, still live, dates unchanged
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE AUDIT_BATCH_ID = 101 AND ROW_EFF_DTE = DATE '2026-08-09'
+                    AND ROW_EXP_DTE = DATE '2026-08-10' AND IS_DEL = 'N')              = 1
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
 
 -- ###########################################################################
--- TC04  |  CORRUPT  |  no rule should fire for the bad row
+-- TC03  (D1R3)  |  IDEMPOTENT  |  re-run of the same window, nothing changed
 --
--- WHAT   SRC_2 carries a row with a NULL business key alongside a good key.
--- STEPS  full reset, seed K1 plus one NULL-key row, run, MERGE, verify.
--- EXPECT The NULL-key row produces NOTHING — it cannot join to itself, so it
---        never becomes an impacted key and never reaches the target. K1 is
---        rebuilt, matches what is already there, and falls to rule 1, so the
---        stage is empty and the target is untouched at 1 row.
---
--- FINDING TO RECORD: the bad row is dropped SILENTLY. Nothing errors and
---        nothing is logged. If Zone1 can emit a NULL key, this design will
---        quietly ignore it. Worth a data-quality check upstream rather than
---        relying on this behaviour.
+-- WHAT   Same window as D1R2, so K1 is STILL impacted and the diff really does look at it.
+-- EXPECT 0 stage rows. MERGE writes nothing. Target stays 7, live stays 5.
 -- ###########################################################################
 
-TRUNCATE TABLE ETL_DATA_INGESTION_SOURCE_WINDOW;
-TRUNCATE TABLE Z1_BROKER_PARTY_HIST;
-TRUNCATE TABLE Z1_BROKER_COMMISSION_HIST;
-TRUNCATE TABLE Z2_BROKER_PARTY_DIM;
-TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
-
+-- ---- the run window ------------------------------------------------------
 INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
  (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
   WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
 VALUES
- (102,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
-  '2026-09-21 08:00','2026-09-22 10:00','NEW','Completed'),
- (102,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
-  '2026-09-21 08:00','2026-09-22 10:00','NEW','Completed');
+ (103,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
+  TIMESTAMP '2026-09-21 08:00', TIMESTAMP '2026-09-21 12:00','NEW','Completed'),
+ (103,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
+  TIMESTAMP '2026-09-21 08:00', TIMESTAMP '2026-09-21 12:00','NEW','Completed');
 
-INSERT INTO Z1_BROKER_PARTY_HIST VALUES
- ('K1','A1',NULL,'2026-09-10','9999-12-31','U-001','2026-09-21 08:00');
+-- ---- NO source change. This run re-reads the same window ----------------
 
-INSERT INTO Z1_BROKER_COMMISSION_HIST VALUES
- ('K1', 'B1',NULL,'2026-09-10','9999-12-31','U-101','2026-09-22 08:00'),
- (NULL, 'B9',NULL,'2026-09-10','9999-12-31','U-999','2026-09-22 08:00');   -- corrupt
+SELECT 'S01 TC03 D1R3 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
 
--- Day 1 = run 101, loaded at 2026-09-21 08:00:00 — exactly run 102's WINDOW_START,
--- which is EXCLUSIVE, so these rows are not re-picked by run 102.
--- INSERT .. SELECT, not VALUES: Snowflake rejects a function call such as
--- SHA2() inside a VALUES clause.
-INSERT INTO Z2_BROKER_PARTY_DIM
-SELECT    101, 'K1', DATE '2026-09-10', DATE '9999-12-31', 'A1', 'B1', 'N',
-          SHA2('A1|B1',256), 'T-001', 101, 1,
-          TIMESTAMP '2026-09-21 08:00:00', TIMESTAMP '2026-09-21 08:00:00';
+SELECT 'S01 TC03 D1R3 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
 
+-- ---- STEP 1 : build the stage --------------------------------------------
 TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
 INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
 
-SELECT 'S01 TC04 — stage' AS EVIDENCE, count(*) AS STAGE_ROWS,
-       count_if(BROKER_ID IS NULL) AS NULL_KEY_ROWS
-FROM   STG_Z2_BROKER_PARTY_DIM;
+SELECT 'S01 TC03 D1R3 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+       BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
 
+-- ---- STEP 2 : apply, one atomic MERGE ------------------------------------
 MERGE INTO Z2_BROKER_PARTY_DIM T
 USING STG_Z2_BROKER_PARTY_DIM S
    ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
@@ -400,14 +292,380 @@ VALUES (
      S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
      S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
 
-SELECT 'S01 TC04 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
-       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL
-FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE;
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC03 D1R3 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
+FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
 
-SELECT 'S01 TC04' AS TEST,
-       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                = 0
-             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                    = 1
-             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID IS NULL) = 0
-             AND (SELECT COMMISSION_TIER_CDE FROM Z2_BROKER_PARTY_DIM
-                  WHERE BROKER_PARTY_DIM_SK = 101)                             = 'B1'
-            THEN 'PASS' ELSE 'FAIL' END AS RESULT;
+SELECT 'S01 TC03 D1R3 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
+
+SELECT 'S01 TC03 D1R3' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                        = 0
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                             = 7
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                      = 5
+             -- nothing was created by this run
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM WHERE AUDIT_BATCH_ID = 103)  = 0
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
+
+-- ###########################################################################
+-- TC04  (D2R1)  |  EDGE  |  SRC_2 splits on a boundary SRC_1 already uses
+--
+-- WHAT   B2 is split at 2026-08-21 -- the date SRC_1 already changes on -- so NO new interval appears.
+-- EXPECT 2 stage rows, rule 11. Target 7 -> 8. Live stays 5.
+-- ###########################################################################
+
+-- ---- the run window ------------------------------------------------------
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+ (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
+  WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
+VALUES
+ (104,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
+  TIMESTAMP '2026-09-21 12:00', TIMESTAMP '2026-09-22 08:00','NEW','Completed'),
+ (104,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
+  TIMESTAMP '2026-09-21 12:00', TIMESTAMP '2026-09-22 08:00','NEW','Completed');
+
+-- ---- what Zone1 did between the last run and this one -------------------
+UPDATE Z1_BROKER_COMMISSION_HIST
+SET    ROW_EXP_DTE = DATE '2026-08-21', GRS_REFINED_TIMESTAMP = TIMESTAMP '2026-09-22 08:00'
+WHERE  BROKER_ID = 'K1' AND ROW_EFF_DTE = DATE '2026-08-15';
+
+INSERT INTO Z1_BROKER_COMMISSION_HIST
+SELECT 'K1','B9',NULL,DATE '2026-08-21',DATE '2026-08-22','U-104',TIMESTAMP '2026-09-22 08:00';
+
+SELECT 'S01 TC04 D2R1 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+SELECT 'S01 TC04 D2R1 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+-- ---- STEP 1 : build the stage --------------------------------------------
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+SELECT 'S01 TC04 D2R1 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+       BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
+
+-- ---- STEP 2 : apply, one atomic MERGE ------------------------------------
+MERGE INTO Z2_BROKER_PARTY_DIM T
+USING STG_Z2_BROKER_PARTY_DIM S
+   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
+   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
+WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
+     T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
+     T.UUID                  = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+     T.UUID        = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (
+     BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+VALUES (
+     S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
+     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
+     S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC04 D2R1 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
+FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
+
+SELECT 'S01 TC04 D2R1 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
+
+SELECT 'S01 TC04 D2R1' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                        = 2
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE RULE_NO = 11)      = 2
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                             = 8
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                      = 5
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE
+                  WHERE ROW_EFF_DTE = DATE '2026-08-21'
+                    AND COMMISSION_TIER_CDE = 'B9')                                     = 1
+             -- OLDER ROWS UNTOUCHED: run 101's row and the run-102 rows this
+             -- change does not concern are all still exactly as they were
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE AUDIT_BATCH_ID = 101 AND ROW_EFF_DTE = DATE '2026-08-09'
+                    AND ROW_EXP_DTE = DATE '2026-08-10' AND IS_DEL = 'N')               = 1
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE AUDIT_BATCH_ID = 102 AND IS_DEL = 'N'
+                    AND ROW_EFF_DTE IN (DATE '2026-08-10', DATE '2026-08-15',
+                                        DATE '2026-08-22'))                             = 3
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
+
+-- ###########################################################################
+-- TC05  (D2R2)  |  EDGE  |  a value corrected in place, dates unchanged
+--
+-- WHAT   Zone1 restates B3 as B7 over the SAME interval. Hash changes, both dates stay, target sits at the high end date.
+-- EXPECT 2 stage rows, rule 9 -- dead record plus insert. Target 8 -> 9. Live stays 5.
+-- ###########################################################################
+
+-- ---- the run window ------------------------------------------------------
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+ (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
+  WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
+VALUES
+ (105,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
+  TIMESTAMP '2026-09-22 08:00', TIMESTAMP '2026-09-22 12:00','NEW','Completed'),
+ (105,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
+  TIMESTAMP '2026-09-22 08:00', TIMESTAMP '2026-09-22 12:00','NEW','Completed');
+
+-- ---- what Zone1 did between the last run and this one -------------------
+UPDATE Z1_BROKER_COMMISSION_HIST
+SET    COMMISSION_TIER_CDE = 'B7', GRS_REFINED_TIMESTAMP = TIMESTAMP '2026-09-22 12:00'
+WHERE  BROKER_ID = 'K1' AND ROW_EFF_DTE = DATE '2026-08-22';
+
+SELECT 'S01 TC05 D2R2 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+SELECT 'S01 TC05 D2R2 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+-- ---- STEP 1 : build the stage --------------------------------------------
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+SELECT 'S01 TC05 D2R2 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+       BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
+
+-- ---- STEP 2 : apply, one atomic MERGE ------------------------------------
+MERGE INTO Z2_BROKER_PARTY_DIM T
+USING STG_Z2_BROKER_PARTY_DIM S
+   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
+   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
+WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
+     T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
+     T.UUID                  = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+     T.UUID        = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (
+     BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+VALUES (
+     S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
+     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
+     S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC05 D2R2 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
+FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
+
+SELECT 'S01 TC05 D2R2 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
+
+SELECT 'S01 TC05 D2R2' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                        = 2
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE RULE_NO = 9)       = 2
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                             = 9
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                      = 5
+             -- the replaced row became a DEAD RECORD, not a delete indicator
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE ROW_EFF_DTE = DATE '2026-08-22' AND ROW_EXP_DTE = DATE '2026-08-22'
+                    AND IS_DEL = 'N')                                                   = 1
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE
+                  WHERE ROW_EFF_DTE = DATE '2026-08-22'
+                    AND COMMISSION_TIER_CDE = 'B7')                                     = 1
+             -- OLDER ROW UNTOUCHED
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE AUDIT_BATCH_ID = 101 AND ROW_EFF_DTE = DATE '2026-08-09'
+                    AND ROW_EXP_DTE = DATE '2026-08-10' AND IS_DEL = 'N')               = 1
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
+
+-- ###########################################################################
+-- TC06  (D2R3)  |  CORRUPT  |  a NULL business key arrives
+--
+-- WHAT   Zone1 delivers a row with no BROKER_ID. Nothing else changes in this window.
+-- EXPECT The NULL key is dropped SILENTLY -- 0 stage rows, MERGE writes nothing, target stays 9.
+-- ###########################################################################
+
+-- ---- the run window ------------------------------------------------------
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+ (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
+  WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
+VALUES
+ (106,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
+  TIMESTAMP '2026-09-22 12:00', TIMESTAMP '2026-09-22 16:00','NEW','Completed'),
+ (106,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
+  TIMESTAMP '2026-09-22 12:00', TIMESTAMP '2026-09-22 16:00','NEW','Completed');
+
+-- ---- what Zone1 did between the last run and this one -------------------
+INSERT INTO Z1_BROKER_COMMISSION_HIST
+SELECT NULL,'BX',NULL,DATE '2026-08-10',DATE '9999-12-31','U-999',TIMESTAMP '2026-09-22 16:00';
+
+SELECT 'S01 TC06 D2R3 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+SELECT 'S01 TC06 D2R3 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+-- ---- STEP 1 : build the stage --------------------------------------------
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+SELECT 'S01 TC06 D2R3 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+       BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
+
+-- ---- STEP 2 : apply, one atomic MERGE ------------------------------------
+MERGE INTO Z2_BROKER_PARTY_DIM T
+USING STG_Z2_BROKER_PARTY_DIM S
+   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
+   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
+WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
+     T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
+     T.UUID                  = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+     T.UUID        = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (
+     BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+VALUES (
+     S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
+     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
+     S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC06 D2R3 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
+FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
+
+SELECT 'S01 TC06 D2R3 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
+
+SELECT 'S01 TC06 D2R3' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                        = 0
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                             = 9
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                      = 5
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM WHERE BROKER_ID IS NULL)     = 0
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM WHERE AUDIT_BATCH_ID = 106)  = 0
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
+
+-- ###########################################################################
+-- TC07  (D3R1)  |  POSITIVE  |  a new version arrives ahead of the open row
+--
+-- WHAT   B7 is closed at 2026-08-25 and B8 takes over. The open target row's VALUES do not change -- only its expiry.
+-- EXPECT 2 stage rows: rule 5 (expire in place) and rule 17. The surrogate key SURVIVES -- no retire, no replacement row at 08-22. Target 9 -> 10, live 5 -> 6.
+-- ###########################################################################
+
+-- ---- the run window ------------------------------------------------------
+INSERT INTO ETL_DATA_INGESTION_SOURCE_WINDOW
+ (EXECUTION_RUN_ID, JOB_RUN_ID, TARGET_TABLE_NAME, SOURCE_TABLE_NAME,
+  WINDOW_START, WINDOW_END, EXECUTION_TYPE, JOB_STATUS)
+VALUES
+ (107,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_PARTY_HIST',
+  TIMESTAMP '2026-09-22 16:00', TIMESTAMP '2026-09-23 08:00','NEW','Completed'),
+ (107,1,'Z2_BROKER_PARTY_DIM','Z1_BROKER_COMMISSION_HIST',
+  TIMESTAMP '2026-09-22 16:00', TIMESTAMP '2026-09-23 08:00','NEW','Completed');
+
+-- ---- what Zone1 did between the last run and this one -------------------
+UPDATE Z1_BROKER_COMMISSION_HIST
+SET    ROW_EXP_DTE = DATE '2026-08-25', GRS_REFINED_TIMESTAMP = TIMESTAMP '2026-09-23 08:00'
+WHERE  BROKER_ID = 'K1' AND ROW_EFF_DTE = DATE '2026-08-22';
+
+INSERT INTO Z1_BROKER_COMMISSION_HIST
+SELECT 'K1','B8',NULL,DATE '2026-08-25',DATE '9999-12-31','U-107',TIMESTAMP '2026-09-23 08:00';
+
+SELECT 'S01 TC07 D3R1 — SRC_1' AS EVIDENCE, BROKER_ID, BROKER_STATUS_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_PARTY_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+SELECT 'S01 TC07 D3R1 — SRC_2' AS EVIDENCE, BROKER_ID, COMMISSION_TIER_CDE,
+       ROW_EFF_DTE, ROW_EXP_DTE, GRS_REFINED_TIMESTAMP
+FROM   Z1_BROKER_COMMISSION_HIST ORDER BY BROKER_ID, ROW_EFF_DTE;
+
+-- ---- STEP 1 : build the stage --------------------------------------------
+TRUNCATE TABLE STG_Z2_BROKER_PARTY_DIM;
+INSERT INTO STG_Z2_BROKER_PARTY_DIM SELECT * FROM V_STEP1_BROKER_PARTY_DIM_DIFF;
+
+SELECT 'S01 TC07 D3R1 — stage' AS EVIDENCE, RULE_NO, ACTION_FLAG, DEL_IND,
+       BROKER_PARTY_DIM_SK, BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   STG_Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, ACTION_FLAG;
+
+-- ---- STEP 2 : apply, one atomic MERGE ------------------------------------
+MERGE INTO Z2_BROKER_PARTY_DIM T
+USING STG_Z2_BROKER_PARTY_DIM S
+   ON  T.BROKER_PARTY_DIM_SK = S.BROKER_PARTY_DIM_SK
+   AND S.ACTION_FLAG <> 'I'          -- 'I' rows can never match, whatever SK they carry
+WHEN MATCHED AND S.ACTION_FLAG = 'U' THEN UPDATE SET
+     T.ROW_EXP_DTE           = S.ROW_EXP_DTE,
+     T.UUID                  = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN MATCHED AND S.ACTION_FLAG = 'D' THEN UPDATE SET
+     T.IS_DEL      = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.IS_DEL ELSE 'Y' END,
+     T.ROW_EXP_DTE = CASE WHEN T.ROW_EXP_DTE = DATE '9999-12-31'
+                          THEN T.ROW_EFF_DTE ELSE T.ROW_EXP_DTE END,
+     T.UUID        = COALESCE(S.UUID, T.UUID),
+     T.AUDIT_UPDATE_DATETIME = CURRENT_TIMESTAMP()
+WHEN NOT MATCHED THEN INSERT (
+     BROKER_PARTY_DIM_SK, BROKER_ID, ROW_EFF_DTE, ROW_EXP_DTE,
+     BROKER_STATUS_CDE, COMMISSION_TIER_CDE, IS_DEL, ROW_HASH, UUID,
+     AUDIT_BATCH_ID, AUDIT_JOB_ID, AUDIT_CREATE_DATETIME, AUDIT_UPDATE_DATETIME)
+VALUES (
+     S.BROKER_PARTY_DIM_SK, S.BROKER_ID, S.ROW_EFF_DTE, S.ROW_EXP_DTE,
+     S.BROKER_STATUS_CDE, S.COMMISSION_TIER_CDE, 'N', S.ROW_HASH, S.UUID,
+     S.AUDIT_BATCH_ID, S.AUDIT_JOB_ID, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+
+-- ---- verify ---------------------------------------------------------------
+SELECT 'S01 TC07 D3R1 — target AFTER' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE, IS_DEL, AUDIT_BATCH_ID
+FROM   Z2_BROKER_PARTY_DIM ORDER BY ROW_EFF_DTE, BROKER_PARTY_DIM_SK;
+
+SELECT 'S01 TC07 D3R1 — live view' AS EVIDENCE, BROKER_PARTY_DIM_SK, BROKER_ID,
+       BROKER_STATUS_CDE, COMMISSION_TIER_CDE, ROW_EFF_DTE, ROW_EXP_DTE
+FROM   V_Z2_BROKER_PARTY_DIM_LIVE ORDER BY ROW_EFF_DTE;
+
+SELECT 'S01 TC07 D3R1' AS TEST,
+       CASE WHEN (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM)                        = 2
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE ACTION_FLAG = 'U') = 1
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE RULE_NO = 5)       = 1
+             AND (SELECT count(*) FROM STG_Z2_BROKER_PARTY_DIM WHERE RULE_NO = 17)      = 1
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM)                             = 10
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE)                      = 6
+             -- EXPIRED IN PLACE: exactly ONE LIVE row at 08-22, still the row
+             -- run 105 created, expiry moved and nothing else changed.
+             -- (The table also holds TC05's DEAD RECORD at 08-22 -- eff = exp, so
+             --  the live view correctly hides it. Counting the base table here
+             --  finds 2 rows and says nothing about expire-in-place.)
+             AND (SELECT count(*) FROM V_Z2_BROKER_PARTY_DIM_LIVE
+                  WHERE ROW_EFF_DTE = DATE '2026-08-22')                                = 1
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE ROW_EFF_DTE = DATE '2026-08-22' AND ROW_EXP_DTE = DATE '2026-08-25'
+                    AND IS_DEL = 'N' AND COMMISSION_TIER_CDE = 'B7'
+                    AND AUDIT_BATCH_ID = 105)                                            = 1
+             -- and NOTHING was retired by this run
+             AND (SELECT count(*) FROM Z2_BROKER_PARTY_DIM
+                  WHERE ROW_EFF_DTE = DATE '2026-08-22' AND IS_DEL = 'Y')               = 0
+       THEN 'PASS' ELSE 'FAIL' END AS RESULT;
