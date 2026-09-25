@@ -38,7 +38,7 @@ which the POC asserts as T12.
 
 ---
 
-## 3. Three steps
+## 3. Two steps
 
 ```
    Zone1 Table 1              Zone1 Table 2
@@ -50,13 +50,11 @@ which the POC asserts as T12.
               STAGE table (truncate + reload)
               every row carries action_flag 'U', 'D' or 'I'
               ('U' is rare - only a row that sat at the high end date)
-       ┌──────────────┼──────────────┐
-       ▼              ▼              ▼
-  STEP 2a — 'U'  STEP 2b — 'D'  STEP 3 — 'I'
-  Update         Update         Insert
-  move the       retire the     new versions
-  expiry only    row
-       └──────────────┼──────────────┘
+                      ▼
+        STEP 2 — ONE MERGE, atomic
+        'U' expire in place · 'D' retire · 'I' insert
+        a retire+insert emits TWO stage rows:
+        one carrying the target SK, one carrying NULL
                       ▼
                  Zone2 target
 ```
@@ -65,7 +63,8 @@ which the POC asserts as T12.
 instruction list. **Step 1 writes nothing to the target**, so Steps 2 and 3 are needed to apply it. They
 contain no logic; they read a flag and act.
 
-**Steps 2a and 2b must both run before Step 3.**
+**Step 2 is a single atomic statement**, so there is no ordering to get wrong and no window in which the
+target holds retired rows with no replacement.
 
 **What happens to a matched row is decided by its CURRENT expiration date, not by its hash.** A row already
 closed with a real date was a statement published downstream, so changing it is a correction and the old row
@@ -151,8 +150,15 @@ Three problems:
 | **A** | **Double-row stage.** Step 1 emits *two* stage rows for a retire-plus-insert: one that matches the target (drives the retire) and one carrying a deliberately non-matching join key (drives the insert). One MERGE with several `WHEN MATCHED ... AND action_flag = ...` clauses plus `WHEN NOT MATCHED` then performs `'U'`, `'D'` and `'I'` in one statement | Changes Step 1's output shape; the stage roughly doubles for changed keys |
 | **B** | **IDMC's own SCD2 merge pattern** — two target transformations writing to the same table, one Update and one Insert, combined by *context-based optimization for multiple targets* | None, if it pushes down as one MERGE. This is the vendor's documented pattern |
 
-**Test B before designing A.** If IDMC generates a single MERGE from its own SCD2 pattern, the constraint
-costs nothing. That test is the pushdown spike in §12.
+**Decision: route A, the double-row stage.** `MERGE_KEY` carries the target surrogate key on `'U'` and `'D'`
+rows and **NULL** on `'I'` rows; NULL can never equal a surrogate key, so those rows fall to
+`WHEN NOT MATCHED`. Determinism holds by construction — the diff emits at most one instruction per target
+row, so no target row is matched twice.
+
+**IDMC is deferred.** The POC is proved at Snowflake level first, with no stored procedures, and the objects
+are shaped so they can be folded into the existing ETL pipeline afterwards. Whether IDMC renders this as one
+pushed-down MERGE — via a Data Driven target operation, or via its own two-target SCD2 pattern — is a
+separate spike, not a blocker.
 
 > **Sourcing caveat**: `docs.snowflake.com` and `docs.informatica.com` are both blocked by this environment's
 > network egress proxy. The statements above about MERGE clause semantics and IDMC's SCD2 pattern come from
@@ -164,20 +170,44 @@ costs nothing. That test is the pushdown spike in §12.
 
 ## 6. Steps 2 and 3
 
-### The rule: match on the effective date, then let the hash decide
+### The locked decision table
 
-Every rebuilt interval is matched to the existing target row on `(business_key, row_eff_dte)`. What happens
-next is decided by a **hash taken over the columns that actually reach the target** — not over every source
-column, and not by comparing dates alone.
+Every rebuilt interval is matched to the existing target row on `(business_key, row_eff_dte)`. The matched
+row's **current expiry** decides first; the **hash** — taken over the columns that actually reach the target —
+only decides inside the high-end-date branch.
 
-| Target row at that effective date | Its **current** `row_exp_dte` | Hash | Action | Stage flag |
-|---|---|---|---|---|
-| exists | any | same, and expiry unchanged | nothing is written | *no stage row* |
-| exists | **a real date** | same **or** changed | retire (`IS_DEL = 'Y'`) + insert the new version | `'D'` + `'I'` |
-| exists | **9999-12-31** | changed | dead record + insert | `'D'` + `'I'` |
-| exists | **9999-12-31** | same | expire in place | `'U'` |
-| none | — | — | insert | `'I'` |
-| exists, but that effective date is gone from the rebuilt timeline | — | — | retire | `'D'` |
+**Source of truth: `sources/Requirement.xlsx`**, confirmed with leadership. Where its wording was struck
+through in the spreadsheet, the surviving bracketed text is authoritative — `upd` was a shorthand that was
+struck precisely because it read as "update in place" when it means retire-and-replace.
+
+Each row below describes what happens at **one** effective date. A run processes every effective date in the
+rebuilt timeline, so one key normally triggers several of these in the same run.
+
+| # | EFF_DATE | HASH | EXP_DATE | EXECUTION_TYPE | ACTION | Stage flag |
+|---|---|---|---|---|---|---|
+| 1 | matches a target row | same | same · target at 9999 | regular | do nothing | *none* |
+| 2 | matches a target row | same | same · target at 9999 | rerun | update UUID | `'U'` |
+| 3 | matches a target row | same | same · target at real date | regular | do nothing | *none* |
+| 4 | matches a target row | same | same · target at real date | rerun | update UUID | `'U'` |
+| 5 | matches a target row | same | **diff** · target at 9999 | regular | **expire in place** — update `row_exp_dte`; no retire, no `is_del`, surrogate key survives — **and insert** the new version at the new effective date **if the source supplies one** | `'U'` (+ `'I'`) |
+| 6 | matches a target row | same | **diff** · target at 9999 | rerun | as 5, + update UUID | `'U'` (+ `'I'`) |
+| 7 | matches a target row | same | **diff** · target at **real date** | regular | **retire** — `is_del='Y'`, both dates untouched — **+ insert** a new entry at the **same** effective date | `'D'` + `'I'` |
+| 8 | matches a target row | same | **diff** · target at **real date** | rerun | as 7, + update UUID | `'D'` + `'I'` |
+| 9 | matches a target row | **diff** | same · target at 9999 | regular | **dead record** — `row_exp_dte` pulled back to the row's own `row_eff_dte` — **+ insert** at the same effective date | `'D'` + `'I'` |
+| 10 | matches a target row | **diff** | same · target at 9999 | rerun | as 9, + update UUID | `'D'` + `'I'` |
+| 11 | matches a target row | **diff** | same · target at **real date** | regular | **retire** (`is_del='Y'`) **+ insert** at the same effective date | `'D'` + `'I'` |
+| 12 | matches a target row | **diff** | same · target at **real date** | rerun | as 11, + update UUID | `'D'` + `'I'` |
+| 13 | matches a target row | **diff** | **diff** · target at 9999 | regular | **dead record + insert** at the same effective date | `'D'` + `'I'` |
+| 14 | matches a target row | **diff** | **diff** · target at 9999 | rerun | as 13, + update UUID | `'D'` + `'I'` |
+| 15 | matches a target row | **diff** | **diff** · target at **real date** | regular | **retire** (`is_del='Y'`) **+ insert** at the same effective date | `'D'` + `'I'` |
+| 16 | matches a target row | **diff** | **diff** · target at **real date** | rerun | as 15, + update UUID | `'D'` + `'I'` |
+| 17 | **no target row at that effective date** | — | — | either | **insert** | `'I'` |
+| 18 | **target row's effective date is gone from the rebuilt timeline** | — | — | either | **no action — the row is left live, deliberately.** See §14 | *none* |
+
+`execution_type` changes nothing but the UUID stamp: rows 1–16 pair up identically apart from it. Two kinds
+of insert are distinguished deliberately — rows 5–6 insert at a **new** effective date (which is rule 17
+firing at the next boundary), rows 7–16 insert at the **same** effective date as the row being retired, which
+is why a dead record and its replacement share an effective date.
 
 **The expiry decides first; the hash only decides inside the high-end-date branch.** A row already closed with
 a real date was a statement published downstream — "valid 10-Sep to 21-Sep" went out as a report. Changing it
@@ -249,7 +279,7 @@ BR001 and BR006 need re-running; see §9.
 
 ---
 
-## 7. IDMC components
+## 7. IDMC components — deferred
 
 | Step | Component | Notes |
 |---|---|---|
@@ -258,7 +288,8 @@ BR001 and BR006 need re-running; see §9.
 | 2b | Mapping: Source = stage filtered `action_flag='D'` → Zone2 target, operation **Update** | Writes `is_del` and/or `row_exp_dte`, per the retirement rule |
 | 3 | Mapping: Source = stage filtered `action_flag='I'` → Zone2 target, operation **Insert** | Plain insert |
 
-All four push down: source and target are both in Snowflake.
+**This section is deferred.** The POC is being proved at Snowflake level first. It is kept because the
+mapping shapes below are still the likely landing point once the SQL is settled.
 
 Steps 2a and 2b are both updates against the same target and could be one mapping driven by a `CASE`, but
 they write different columns for different reasons and keeping them apart makes a run's counts readable:
@@ -518,8 +549,7 @@ on string literals. If the framework writes fully-qualified names, or a differen
 nothing → `impacted_keys` is empty → the stage is empty → the job succeeds having done nothing. Read one
 real row of that table before trusting it.
 
-**C. `GRS_REFINED_TIMESTAMP` is an invented name.** The ABC reference describes the column but never names
-it. Every delta-detection predicate depends on it.
+**C. `GRS_REFINED_TIMESTAMP` is confirmed.** Previously flagged as a name this design invented because the ABC reference describes the column without naming it. The team confirms this is the column they already use to fetch the latest SCD2 records from source, so the POC and the real pipeline agree.
 
 **D. Cross-database qualification.** If Zone1 and Zone2 are in different databases or schemas, every
 reference needs full `DB.SCHEMA.TABLE` qualification and the connection needs read on both. This also
@@ -595,12 +625,15 @@ review and are the ones that would change what gets built:
 |---|---|---|
 | 1 | When several source rows share a key **and** effective date in one window, are they restatements where the latest wins, or distinct versions that must all land? | The only one that changes the design rather than the documentation. If all must land, two live rows would share a key and effective date and the timeline becomes ambiguous |
 | 2 | Is `ROW_EFF_DTE` a **date** or a **timestamp**? | If intraday runs carry different times, question 1 resolves itself — the rows never collide |
-| 3 | On a Zone 1 rerun, does `execution_type` override the retirement rule? The colleague's sheet says *"if execution type = Z1 rerun then update all, else mark the existing record as Dead Record"*. Neither transcript mentions rerun at all. | **REOPENED.** Option 1 (ignore `execution_type`, §6 applies unchanged) keeps the audit trail; Option 2 ("update all") suppresses it on the grounds that a rerun's previous output was a processing artefact, not a published statement. Both are worked in `Final_Scenarios_v2.xlsx` tab S09. Her requirement — her call |
+| ~~3~~ | **CLOSED** — `execution_type` does not override the rule. `Requirement.xlsx` gives the same action for regular and rerun in every cell, differing only by the UUID stamp. ~~On a Zone 1 rerun, does `execution_type` override the retirement rule?~~ The colleague's sheet says *"if execution type = Z1 rerun then update all, else mark the existing record as Dead Record"*. Neither transcript mentions rerun at all. | **REOPENED.** Option 1 (ignore `execution_type`, §6 applies unchanged) keeps the audit trail; Option 2 ("update all") suppresses it on the grounds that a rerun's previous output was a processing artefact, not a published statement. Both are worked in `Final_Scenarios_v2.xlsx` tab S09. Her requirement — her call |
 | 4 | Is `IS_DEL` also set on a dead record, or left at `'N'`? | Decides how consumers and the framework's restart cleanup identify live rows |
 | 5 | Should Step 1 read a zero-length row as live at all? | Filtering `ROW_EFF_DTE < ROW_EXP_DTE` in the target read would exclude dead records however `IS_DEL` is set, and would settle question 4 |
 | 6 | Are both sources always keyed the same way? | If one is a parent that several keys point at, a parent-only change must fan out to every child before the rebuild — and the current Step 1 would find nothing, producing an empty stage and a job that reports success |
 | 7 | Can more than two SCD2 sources feed one target? | Same arithmetic, but the SQL is written for exactly two |
-| 8 | Does the target read filter `row_eff_dte < row_exp_dte`? §4 and §8 now require it | Without it a restart sees two live rows at one effective date. Stated as a requirement, not yet confirmed with the team |
+| 8 | Does the target read filter `row_eff_dte < row_exp_dte`? §4 and §8 require it | Without it a re-run sees two live rows at one effective date and cannot match. Stated as a requirement; still to be confirmed with the team |
+| ~~9~~ | ~~Can a source remove one of its own versions, leaving a stale Zone2 row?~~ **CLOSED** — yes, and the row is left live deliberately. See §14 | |
+| ~~10~~ | ~~What happens when the hash definition changes?~~ **CLOSED** — gradual re-derivation, no truncate. See §15 | |
+| ~~11~~ | ~~Can an SCD1 source feed this?~~ **CLOSED** — the Zone1 history bucket is never SCD1, so the combination cannot arise | |
 | 9 | What is `UUID` on the target row — an id we generate per target row and restamp each run, or a source `UNIQUE_ID` carried through? | If it is carried through, which source supplies it? A target row is built from both, and an interval covered by only one source has no value from the other |
 
 **Restart is settled, on one condition.** See §8: a single MERGE is atomic, so the half-applied target cannot
@@ -621,3 +654,140 @@ These do not block the POC but do affect scope:
 - Is "current value only + current value only → SCD2 target" already a solved pattern?
 - Are SCD1 and SCD2 the only target types?
 - Does a join returning many rows per key per date need handling here, or is it a separate track?
+
+---
+
+## 14. Stale Zone2 rows, and how to read the target
+
+**Decision: a Zone2 row whose effective date no longer appears in the rebuilt timeline is left live and
+untouched.** It is not retired, not flagged, not removed. Rule 18.
+
+This happens when Zone1 does a full rerun or loses its checkpoint and re-sources only the latest version, so
+history Zone2 already holds disappears from the source. The architects want that row retained: it was
+published and reporting has used it.
+
+It costs nothing in Step 1. Our diff matches on `(business_key, row_eff_dte)`, and the orphan sits at an
+effective date the rebuilt timeline no longer contains — so no rule matches it and no instruction is emitted.
+One row per match, no ambiguity.
+
+**It is also self-healing.** When Zone1 recovers and re-supplies the missing version, the rebuilt timeline
+regains that boundary, the orphan matches again, its hash and expiry compare equal, and it falls to rule 1 —
+untouched. The row that was orphaned turns out to be the row that makes recovery free. Retiring it would have
+forced a re-insert with a new surrogate key.
+
+### The one cost, and the trap in it
+
+While Zone1 is degraded the target can hold **two live rows covering the same date** — the orphan and the
+rebuilt row. Consumers must therefore be told how to choose.
+
+**Read by effective date: take the row with the greatest `row_eff_dte` that is on or before the as-of date.**
+That is the ordinary way to read an SCD2 dimension and it returns the orphan, which is the historically
+correct value — the one Zone1 lost.
+
+**Do not read by load order.** Picking the most recently written row — by `audit_create_datetime`,
+`audit_batch_id` or the highest surrogate key — selects the row derived from Zone1 *after* it lost history and
+discards exactly the row this decision exists to preserve. This must be stated to whoever builds reports; it
+is the obvious choice and it is the wrong one.
+
+---
+
+## 15. Changing the hash definition
+
+When a column is added to the Zone2 target the hash is computed over a different column set, so every
+existing row's stored hash was built on the old definition.
+
+**Decision: no truncate and reload.** Zone1 may itself have lost history, so reloading from it can lose
+versions Zone2 has been reporting on. Truncating destroys everything published to date.
+
+**Decision: let it happen gradually.** No special migration job. Keys are re-derived whenever they next
+become impacted, and each daily run stays small.
+
+**Decision: when a key is re-derived, the ordinary rules apply** — rules 9–16. A row at the high end date
+becomes a dead record; a back-dated row gets `is_del = 'Y'`. Both keep their original surrogate keys and
+remain in the table. The new versions are inserted alongside. Nothing is lost.
+
+### What this costs, stated plainly
+
+- The target carries a **mix of old-definition and new-definition hashes indefinitely**.
+- A key that never changes again **keeps the new column empty forever**. A report on that column will show
+  blanks for quiet keys, and the reason will not be obvious from the data.
+- Every key that is re-derived has its whole history soft-deleted and re-inserted, so **surrogate keys churn**
+  for that key. Anything downstream joining on the surrogate key sees new values.
+
+This was chosen over a single deliberate pass across all keys, which would have made the table uniform at the
+cost of one large run. If the empty-column effect later becomes a problem, a backfill can be run at that
+point — the decision is reversible.
+
+---
+
+---
+
+## 16. Test strategy for POC v2
+
+**Everything proved in POC v1 is treated as unproven.** The rule changed after v1 ran, so its evidence
+describes behaviour the design no longer specifies. POC v2 re-establishes coverage from nothing.
+
+### Rule coverage is counted, not assumed
+
+Running the 18 rules against `Final_Scenarios_v2.xlsx` shows **11 of 18 exercised**. Seven were never
+reached, and two of those are substantive:
+
+| Rule | Gap | Why it matters |
+|---|---|---|
+| 6, 10 | rerun variants of expire-in-place and dead-record | `execution_type` paths untested |
+| **11, 15** | **retire — hash changed on a back-dated row** | **a correction to an already-closed interval — the very case retirement exists for** |
+| 12, 16 | rerun variants of the above | |
+| 18 | orphan / stale row | the decision recorded in §14 has no test |
+
+### Fifteen scenarios, chosen to close every gap
+
+| | Scenario | Rules it must exercise |
+|---|---|---|
+| S01 | One source changes, the other does not | 1, 3, 7, 13, 17 |
+| S02 | Both sources change in the same run | 5, 17 |
+| S03 | Change in a column the target never carries | 1 |
+| S04 | A value comes back after a different one | 17 |
+| S05 | A gap in cover, same value either side | 17 |
+| S06 | A value corrected with no change to its dates | 9, 17 |
+| S07 | Several runs in one day, same key and eff date | 5, 17 |
+| S08 | A key no source touched this run | 1, 3, 7, 13, 17 |
+| S09 | A key appearing for the first time | 17 |
+| **S10** | **Back-dated correction** | **11, 15** |
+| **S11** | **Stale / orphan row** | **18** |
+| **S12** | **execution_type = Z1 RERUN** | **2, 4, 6, 8, 10, 12, 14, 16** |
+| **S13** | **execution_type = RESTART** | MERGE atomicity, idempotence |
+| **S14** | **Hash-definition change** | §15, gradual re-derivation |
+| **S15** | **Volume and differential** | all rules, on random data |
+
+All 18 rules are covered. S12 carries every rerun variant, so it needs one test case per rule.
+
+### Test case types
+
+| Code | Proves |
+|---|---|
+| **P** positive | the canonical case produces the expected target |
+| **I** idempotent | re-running the same input writes **zero** rows |
+| **N** negative | input that must produce no change at all |
+| **E** edge | zero-length rows, same eff and exp, high-end-date boundaries |
+| **C** corrupt | NULL key, duplicate (key, eff date), timestamp outside the window |
+| **V** volume | random keys at scale, target compared row for row against `tools/verify.py` |
+
+**S15 is the one that finds what hand-written cases miss.** It generates random source data, computes the
+expected target independently in Python, and asserts Snowflake produces exactly that. A hand-written case
+proves the rule you were thinking about; a differential test proves the rules you were not.
+
+### Structure
+
+One SQL script per scenario, with a section per test case inside it. Each section is self-contained —
+truncate, seed, run, verify — so it can be executed and screenshotted on its own.
+
+```
+poc_v2/
+  00_objects.sql      tables, sequence, the Step 1 diff view, the live view. Run once
+  S01.sql ... S15.sql one per scenario; TC sections within
+  TEST_PLAN.md        the full scenario x test case grid
+  evidence/           POC_v2_Evidence.xlsx, one tab per scenario
+```
+
+Step 1 lives in the objects script as a **view**, since stored procedures are not allowed. Each test case
+then reads: `TRUNCATE` stage → `INSERT INTO stage SELECT FROM view` → `MERGE` → verify.
