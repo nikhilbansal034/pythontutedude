@@ -102,6 +102,21 @@ Two rules hold for every scenario, both enforced by `../tools/check_sql_lint.py`
    (`Invalid expression [SHA2(...)] in VALUES clause`); DuckDB accepts it, so the harness cannot see this.
    Seeds use `INSERT .. SELECT .. UNION ALL`.
 
+## Surrogate keys are never reset
+
+`SEQ_BROKER_PARTY_DIM_SK` is **not** restarted between runs or test cases — production never reuses a
+surrogate key, and the POC replicates that. Re-running a scenario therefore allocates fresh keys: TC01
+produced `1-4`, then `6-9`, then `11-14` across three consecutive runs.
+
+Two consequences:
+
+1. **No assertion may reference a generated surrogate key.** Assertions check row counts, date continuity,
+   `IS_DEL` and the live-view shape — never a key the sequence produced. Seeded keys (`101`, `102`, `103`)
+   are fixed and safe to name. Verified by running S01 three times against one advancing sequence: 5/5 every
+   time, with different keys each run.
+2. **Screenshots of the same test case will show different keys on a re-run.** That is expected. Record what
+   the run produced rather than expecting a fixed value.
+
 ## Why S15 matters most
 
 A hand-written case proves the rule you were thinking about. A differential test proves the rules you were
