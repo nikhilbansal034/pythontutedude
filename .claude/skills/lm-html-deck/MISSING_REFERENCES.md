@@ -1,38 +1,30 @@
-# The reference files this skill depends on are not in this repository
+# Reference inventory
 
-`SKILL.md` is written as a **pointer** to proven reference decks, and is explicit that the
-prose is not the source of truth:
+Checked 2026-09-26, after the two breakdown files were supplied.
 
-> Then open the specific reference file(s) named below directly — copy their CSS/JS verbatim
-> rather than retyping from memory or from this file's prose. […] the reference `.html` files
-> are the source of truth for *the exact values*.
+| Referenced by SKILL.md | Present | Note |
+|---|---|---|
+| `references/deck-01-premium-cde-monitoring.md` | **YES** | Carries the exact `:root` palette and font stacks |
+| `references/deck-02-history-load-design.md` | **YES** | Carries the full diagram vocabulary and slide archetypes |
+| `reference docs/premium-cde-monitoring-deck.html` | NO | |
+| `reference docs/HISTORY-LOAD-DESIGN.html` | NO | |
+| `POC/ABC framework/claude/abc_framework_deck.html` | NO | Deck 3, already deprecated by the user's 2026-09-22 direction |
 
-None of those files is present here. Checked 2026-09-26:
+There are still **zero `.html` files** in the repository.
 
-| Referenced by SKILL.md | Present |
-|---|---|
-| `reference docs/premium-cde-monitoring-deck.html` | NO |
-| `reference docs/HISTORY-LOAD-DESIGN.html` | NO |
-| `POC/ABC framework/claude/abc_framework_deck.html` | NO |
-| `references/deck-01-premium-cde-monitoring.md` | NO |
-| `references/deck-02-history-load-design.md` | NO |
+## Consequence, stated precisely
 
-There are **zero** `.html` files anywhere in the repository.
+The breakdowns are enough to reproduce the **visual system** exactly: every colour token
+is documented with its hex value, both font stacks are given verbatim, and deck 2's
+diagram vocabulary is documented class by class.
 
-## What this means
+They are **not** enough to satisfy SKILL.md's instruction to *"copy their CSS/JS verbatim
+rather than retyping from memory or from this file's prose."* The stage engine exists here
+only as prose, with approximate numbers (`fitStage()` "clamped roughly 0.2-1.35",
+`fitContent()` "floor ~0.55").
 
-The skill cannot be followed as written. Its ship checklist requires
-*"Colors used are the reference deck's actual token values (copied from its `:root`), not
-approximated"* — which is unachievable without the files. Building a deck from the prose alone
-would produce exactly the drift the skill was written to prevent, while appearing to comply.
+A deck built from the breakdowns therefore has a **faithful visual system** and a
+**reimplemented shell**. Both facts should be stated when the deck is handed over. See
+`reference docs/README.md`.
 
-## To resolve, either
-
-1. **Add the reference files** to this repo at the paths above, or
-2. Treat the next deck as a **new baseline**: build it, then document it as
-   `references/deck-03-<name>.md` and add a catalog row, per SKILL.md's own
-   "Extending this skill" workflow.
-
-Until one of those happens, any deck built here is a new visual identity, not a continuation
-of decks 1 or 2 — and should be described that way rather than implying it matches a house
-style it was never able to read.
+To close the gap, add the two `.html` files to `reference docs/` — the paths already match.
