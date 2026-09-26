@@ -1,30 +1,24 @@
 # Reference inventory
 
-Checked 2026-09-26, after the two breakdown files were supplied.
+Checked 2026-09-26. **Complete — nothing missing.**
 
-| Referenced by SKILL.md | Present | Note |
-|---|---|---|
-| `references/deck-01-premium-cde-monitoring.md` | **YES** | Carries the exact `:root` palette and font stacks |
-| `references/deck-02-history-load-design.md` | **YES** | Carries the full diagram vocabulary and slide archetypes |
-| `reference docs/premium-cde-monitoring-deck.html` | NO | |
-| `reference docs/HISTORY-LOAD-DESIGN.html` | NO | |
-| `POC/ABC framework/claude/abc_framework_deck.html` | NO | Deck 3, already deprecated by the user's 2026-09-22 direction |
+| Referenced by SKILL.md | Present |
+|---|---|
+| `reference docs/premium-cde-monitoring-deck.html` | **YES** (37 KB) |
+| `reference docs/HISTORY-LOAD-DESIGN.html` | **YES** (515 KB) |
+| `references/deck-01-premium-cde-monitoring.md` | **YES** |
+| `references/deck-02-history-load-design.md` | **YES** |
+| `POC/ABC framework/claude/abc_framework_deck.html` | NO — deck 3, already deprecated by the user's 2026-09-22 direction |
 
-There are still **zero `.html` files** in the repository.
+Both reference decks carry the real `fitStage()` / `fitContent()` / `.slide-inner` shell code
+and their full `:root` token sets (20 and 22 tokens), so SKILL.md's instruction to *"copy
+their CSS/JS verbatim rather than retyping from memory or from this file's prose"* can be
+followed literally. Do that — the breakdowns in `references/` describe what is there and why;
+these two files are the source of truth for the exact values.
 
-## Consequence, stated precisely
+## One reading caution
 
-The breakdowns are enough to reproduce the **visual system** exactly: every colour token
-is documented with its hex value, both font stacks are given verbatim, and deck 2's
-diagram vocabulary is documented class by class.
-
-They are **not** enough to satisfy SKILL.md's instruction to *"copy their CSS/JS verbatim
-rather than retyping from memory or from this file's prose."* The stage engine exists here
-only as prose, with approximate numbers (`fitStage()` "clamped roughly 0.2-1.35",
-`fitContent()` "floor ~0.55").
-
-A deck built from the breakdowns therefore has a **faithful visual system** and a
-**reimplemented shell**. Both facts should be stated when the deck is handed over. See
-`reference docs/README.md`.
-
-To close the gap, add the two `.html` files to `reference docs/` — the paths already match.
+`HISTORY-LOAD-DESIGN.html` has a longest line of ~168,000 characters: embedded base64
+screenshots. Strip lines over a few thousand characters before reading it with a text tool,
+as `references/deck-02-history-load-design.md` notes at its top. The images carry no
+information a prose summary cannot, and they will consume a large amount of context.
