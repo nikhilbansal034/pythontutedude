@@ -1,9 +1,15 @@
 # W3 solution design — multi-source SCD2 effective-date split
 
-Status: **draft.** The scenario catalogue is `Final_Scenarios_v2.xlsx`; this file covers how it gets solved
-and the POC that proves it. Vocabulary is in `glossary.md`.
+Status: **rule locked, POC written and passing.** This file covers how the problem gets solved and the POC
+that proves it. Vocabulary is in `glossary.md`.
 
-The runnable POC is `poc_snowflake.sql`.
+The runnable POC is `poc_v2/` — `00_objects.sql` for the objects and both steps, then `scenarios/S01.sql`
+through `S15.sql`. **69 test cases, 69 passing.**
+
+> The first POC (`poc_snowflake.sql`, `POC_Evidence.docx`, `solution_deck.html`) has been **deleted**. It was
+> written before the 18-rule table in §6 existed and implemented a plain hash-diff instead, so running it
+> would have produced behaviour this design no longer specifies. Its scenario catalogue survives as
+> `sources/Final_Scenarios_v2.xlsx`, kept as historical input rather than a live artefact.
 
 ---
 
@@ -388,16 +394,43 @@ restart safety now rests on.
 
 ## 9. The POC
 
-`poc_snowflake.sql` runs the whole thing against `LM_POC_DB.POC_SCHEMA`. Copy, paste, execute top to
-bottom. Every `EVIDENCE` block returns a result set to capture.
+`poc_v2/` runs against `LM_POC_DB.POC_SCHEMA`. Run `00_objects.sql` **once**, then each scenario file top
+to bottom. Every `EVIDENCE` block returns a result set to capture; every test case ends in a single
+`PASS`/`FAIL` row.
 
-**It has been run.** All **26 assertions PASS**, and every evidence block matched the row counts written
-down before execution. Captioned screenshots of every step are in `POC_Evidence.docx`.
+| | |
+|---|---|
+| `00_objects.sql` | every object, the Step 1 diff view, and the Step 2 MERGE. The MERGE at its foot is a no-op there — `CREATE OR REPLACE` leaves the stage empty — so running the file also syntax-checks the statement without touching data |
+| `scenarios/S01.sql` … `S15.sql` | one file per scenario, test cases chained as successive ETL runs |
+| `evidence/` | the workbook: tab 1 the rules, tab 2 the test-case grid, tab 3 on for screenshots |
 
-**One thing the POC does not yet cover.** It was written before the dead-record rule (§6) was confirmed, so
-it retires every superseded row with `IS_DEL = 'Y'`. Wherever the retired row's expiry was the high end
-date, the correct behaviour is now a dead record instead. That affects the expected results of BR001 and
-BR006 and needs a re-run; nothing about the timeline rebuild changes.
+**The target is never hand-seeded.** TC01 of each scenario loads an empty target through the real pipeline
+and every later test case is the next run against whatever the previous one left. There is one reset, at the
+top of each file. That is the only way to test the property that matters most here — that rows an incremental
+run should not touch stay untouched — and every test case from TC02 on asserts it explicitly, keyed on
+`AUDIT_BATCH_ID`.
+
+**Status: 69 test cases, 69 passing** in the DuckDB harness (`tools/run_scenario_duckdb.py`), which executes
+the `.sql` files statement by statement so what runs is what is on disk. Snowflake has confirmed the parts
+DuckDB cannot: the multi-clause MERGE is valid, `ERROR_ON_NONDETERMINISTIC_MERGE` stays quiet,
+`SEQ_BROKER_PARTY_DIM_SK.NEXTVAL` works inside the view alongside `QUALIFY`, and `SHA2`, `UUID_STRING()` and
+`count_if` all behave.
+
+### A defect the rerun scenario exposed
+
+Writing S12 found a real bug in Step 1. The classifier added 1 to **every** rule on a `Z1_RERUN`, including
+rule 17. A brand-new interval arriving during a rerun therefore classified as **18** — which means something
+else entirely, *"this target row is gone from the timeline, do nothing"* — and the `'I'` branch does not
+select it:
+
+```
+before:  stage = [rule 6 'U']                 ->  cover ends at the split date
+after:   stage = [rule 6 'U', rule 17 'I']    ->  cover reaches the high end date
+```
+
+**The insert was silently dropped and the target lost all cover from that date onward.** The `+1` now applies
+only to the matched rules, 1–16. `S12 TC03` is the regression guard and asserts `RULE_NO = 18` never appears
+in a stage.
 
 ### Objects — what is real and what is illustrative
 
@@ -673,17 +706,17 @@ it reports full pushdown.
 
 ### From the scenario walkthrough
 
-`Final_Scenarios_v2.xlsx` sets out every scenario with its own worked data — the source tables carrying a
-`HASH` column, the target before and after, and what each one is testing. Each tab's target is re-derived
-from its own sources by `tools/verify.py` and checked against the rule in §6, so the workbook cannot drift
-from this document; `tools/mutate.py` proves those checks are not vacuous. These questions came out of the
-review and are the ones that would change what gets built:
+The live scenario catalogue is `poc_v2/TEST_PLAN.md` and tab 2 of the evidence workbook, both generated
+from `tools/scenario_specs.py` **plus a real run** by `tools/refresh_docs.py`, so neither can drift from the
+SQL. `sources/Final_Scenarios_v2.xlsx` is the earlier hand-built catalogue, kept for provenance only.
+
+These questions came out of the review and are the ones that would change what gets built:
 
 | | Question | Why it matters |
 |---|---|---|
 | 1 | When several source rows share a key **and** effective date in one window, are they restatements where the latest wins, or distinct versions that must all land? | The only one that changes the design rather than the documentation. If all must land, two live rows would share a key and effective date and the timeline becomes ambiguous |
 | 2 | Is `ROW_EFF_DTE` a **date** or a **timestamp**? | If intraday runs carry different times, question 1 resolves itself — the rows never collide |
-| ~~3~~ | **CLOSED** — `execution_type` does not override the rule. `Requirement.xlsx` gives the same action for regular and rerun in every cell, differing only by the UUID stamp. ~~On a Zone 1 rerun, does `execution_type` override the retirement rule?~~ The colleague's sheet says *"if execution type = Z1 rerun then update all, else mark the existing record as Dead Record"*. Neither transcript mentions rerun at all. | **REOPENED.** Option 1 (ignore `execution_type`, §6 applies unchanged) keeps the audit trail; Option 2 ("update all") suppresses it on the grounds that a rerun's previous output was a processing artefact, not a published statement. Both are worked in `Final_Scenarios_v2.xlsx` tab S09. Her requirement — her call |
+| ~~3~~ | **CLOSED** — `execution_type` does not override the rule. `Requirement.xlsx` gives the same action for regular and rerun in every cell, differing only by the UUID stamp. ~~On a Zone 1 rerun, does `execution_type` override the retirement rule?~~ The colleague's sheet says *"if execution type = Z1 rerun then update all, else mark the existing record as Dead Record"*. Neither transcript mentions rerun at all. | **REOPENED.** Option 1 (ignore `execution_type`, §6 applies unchanged) keeps the audit trail; Option 2 ("update all") suppresses it on the grounds that a rerun's previous output was a processing artefact, not a published statement. Settled as option 1: `execution_type` only restamps the UUID, and S12 tests all eight rerun rules |
 | 4 | Is `IS_DEL` also set on a dead record, or left at `'N'`? | Decides how consumers and the framework's restart cleanup identify live rows |
 | 5 | Should Step 1 read a zero-length row as live at all? | Filtering `ROW_EFF_DTE < ROW_EXP_DTE` in the target read would exclude dead records however `IS_DEL` is set, and would settle question 4 |
 | 6 | Are both sources always keyed the same way? | If one is a parent that several keys point at, a parent-only change must fan out to every child before the rebuild — and the current Step 1 would find nothing, producing an empty stage and a job that reports success |
@@ -787,15 +820,24 @@ describes behaviour the design no longer specifies. POC v2 re-establishes covera
 
 ### Rule coverage is counted, not assumed
 
-Running the 18 rules against `Final_Scenarios_v2.xlsx` shows **11 of 18 exercised**. Seven were never
-reached, and two of those are substantive:
+The earlier catalogue exercised **11 of 18** rules. POC v2 reaches **all 18**, and the coverage is
+**measured from a real run** by `tools/refresh_docs.py` rather than asserted by hand.
 
-| Rule | Gap | Why it matters |
+Fifteen rules emit a stage row and are directly observable. **Rules 1, 3 and 18 emit nothing at all** — they
+are the do-nothing rules — so they are proved by **zero writes** in the idempotent cases, not by a visible
+row. Saying they are "covered" the same way as the others would be false.
+
+| Rule | Where | |
 |---|---|---|
-| 6, 10 | rerun variants of expire-in-place and dead-record | `execution_type` paths untested |
-| **11, 15** | **retire — hash changed on a back-dated row** | **a correction to an already-closed interval — the very case retirement exists for** |
-| 12, 16 | rerun variants of the above | |
-| 18 | orphan / stale row | the decision recorded in §14 has no test |
+| 1, 3 | every idempotent case | 0 stage rows, 0 written |
+| 2, 4, 6, 8, 10, 12, 14, 16 | S12, one per test case | all eight rerun variants |
+| 5 | S01, S02, S03, S04, S05, S07, S08, S13, S15 | expire in place — the only rule where the surrogate key survives |
+| 7, 13 | S01 | |
+| 9 | S01, S06, S14, S15 | |
+| 11 | S01, S10, S14 | back-dated correction, previously untested |
+| 15 | S10 | hash **and** expiry move on a closed row |
+| 17 | all fifteen scenarios | |
+| 18 | S11 | the orphan stays live and untouched, 0 stage rows |
 
 ### Fifteen scenarios, chosen to close every gap
 
@@ -828,16 +870,35 @@ All 18 rules are covered. S12 carries every rerun variant, so it needs one test 
 | **N** negative | input that must produce no change at all |
 | **E** edge | zero-length rows, same eff and exp, high-end-date boundaries |
 | **C** corrupt | NULL key, duplicate (key, eff date), timestamp outside the window |
-| **V** volume | random keys at scale, target compared row for row against `tools/verify.py` |
+| **V** volume | many keys of different shapes at once, checked against structural invariants |
 
-**S15 is the one that finds what hand-written cases miss.** It generates random source data, computes the
-expected target independently in Python, and asserts Snowflake produces exactly that. A hand-written case
-proves the rule you were thinking about; a differential test proves the rules you were not.
+**S15 is the one that finds what hand-written cases miss**, but not the way it was first planned. Comparing
+against a second Python implementation was dropped — a second implementation is a second thing to get wrong,
+and it cannot run in Snowflake where the evidence is captured. S15 asserts **invariants** instead, which hold
+whatever the rules did:
+
+- no two **live** rows for one key may overlap
+- a corrupt source row must never reach the target
+- a duplicate `(key, effective date)` must never produce two live rows
+
+A hand-written case proves the rule you were thinking about. An invariant proves the rules you were not.
 
 ### Structure
 
-One SQL script per scenario, with a section per test case inside it. Each section is self-contained —
-truncate, seed, run, verify — so it can be executed and screenshotted on its own.
+One SQL script per scenario. **One reset, at the top of the file** — test cases do not reset, because each
+is the next run against what the previous one left. They must therefore run in order, top to bottom; each is
+still a section you can execute and screenshot on its own, and scenarios stay independent of each other.
+
+Test cases are labelled with the run they represent: `TC02 (D1R2)` is test case 2, day 1 run 2. Three runs a
+day, 08:00 / 12:00 / 16:00.
+
+Source changes are written the way Zone1 writes them — `UPDATE` the previous version's `ROW_EXP_DTE` and
+`INSERT` the new one, both carrying a fresh `GRS_REFINED_TIMESTAMP` — not as a reseed.
+
+The surrogate-key sequence is **never restarted**: production does not reuse a key, so neither does the POC.
+That holds only because no assertion references a generated key, which is verified rather than assumed.
+Snowflake's sequence is not gapless — it allocated 301–304 and then 401 — so this is a demonstrated
+requirement, not a precaution.
 
 ```
 poc_v2/
