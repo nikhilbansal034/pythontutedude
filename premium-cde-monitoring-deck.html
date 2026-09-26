@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Premium CDE Monitoring</title>
+<style>
+:root{
+  --teal:#0097A9; --teal-dk:#007680; --teal-dp:#004F59; --teal-1:#DDEFE8; --teal-2:#9DD4CF;
+  --navy:#012169; --blue-ac:#007CB0; --green:#86BC25; --green-ac:#26890D;
+  --orange:#ED8B00; --red:#DA291C;
+  --g1:#F2F2F2; --g2:#D0D0CE; --g6:#A7A8AA; --g9:#75787B; --g11:#53565A;
+  --white:#FFFFFF; --ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);
+     font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* ---------- left sidebar navigation ---------- */
+.sidenav{background:var(--white);border-bottom:3px solid var(--teal);}
+.brandmark{display:flex;align-items:center;padding:18px 18px 14px;font-size:15px;font-weight:700;
+  color:var(--navy);white-space:nowrap;border-bottom:1px solid var(--g2);}
+.brandmark .dot{color:var(--green);font-size:22px;line-height:0;margin-left:3px;}
+.tabs{display:flex;flex-wrap:wrap;}
+.navsec{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--teal);
+  padding:14px 18px 3px;text-transform:uppercase;}
+.tab{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--font);
+  font-size:14px;font-weight:600;color:var(--g9);padding:8px 18px;text-align:left;
+  border-left:3px solid transparent;line-height:1.3;white-space:normal;}
+.tab .tnum{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--g6);margin-bottom:1px;}
+.tab:hover{color:var(--navy);background:var(--g1);}
+.tab[aria-selected="true"]{color:var(--navy);font-weight:700;border-left-color:var(--teal);background:var(--g1);}
+.tab[aria-selected="true"] .tnum{color:var(--teal);}
+.tab:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:12px;color:var(--g6);}
+.navbtn{appearance:none;border:1px solid var(--g2);background:var(--white);cursor:pointer;
+  font-family:var(--font);font-size:14px;font-weight:700;color:var(--navy);
+  width:30px;height:30px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);color:var(--white);border-color:var(--teal);}
+.navbtn:disabled{color:var(--g2);cursor:default;background:var(--white);border-color:var(--g2);}
+body.js .sidenav{position:fixed;left:0;top:0;bottom:0;width:240px;border-bottom:0;
+  border-right:3px solid var(--teal);z-index:50;display:flex;flex-direction:column;}
+body.js .tabs{flex-direction:column;flex-wrap:nowrap;flex:1;overflow-y:auto;padding:2px 0 8px;}
+body.js .tab{width:100%;}
+body.js .navhint{border-top:1px solid var(--g2);}
+
+/* ---------- deck shell ---------- */
+.deck{max-width:1320px;margin:0 auto;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;
+  margin:0 0 28px;padding:44px 54px 78px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{margin-left:240px;max-width:none;padding:14px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:646px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:12px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+/* ---------- type ---------- */
+h1{font-size:44px;line-height:1.15;font-weight:700;color:var(--navy);margin:0 0 16px;}
+h2{font-size:30px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.sub{font-size:16px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 18px;}
+h3{font-size:14px;font-weight:700;color:var(--g11);text-transform:uppercase;
+   letter-spacing:.09em;margin:0 0 10px;}
+h3.gap{margin-top:16px;}
+
+/* ---------- cover ---------- */
+.cover .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:20px;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin-bottom:24px;}
+.cover .lede{font-size:19px;color:var(--g11);margin:0 0 28px;line-height:1.5;}
+.cover .meta{font-size:15px;color:var(--g9);line-height:1.9;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+.agenda{border:1px solid var(--g2);border-top:5px solid var(--teal);background:var(--white);padding:20px 26px 14px;}
+.agenda .ttl{font-size:14px;font-weight:700;letter-spacing:.14em;color:var(--g11);text-transform:uppercase;margin-bottom:4px;}
+.agenda .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:14px 0 7px;}
+.agenda .item{display:flex;gap:14px;align-items:baseline;font-size:17.5px;font-weight:600;color:var(--navy);margin-bottom:9px;line-height:1.3;}
+.agenda .item .k{font-size:14px;font-weight:700;color:var(--white);background:var(--navy);
+  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:16px;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:10px 12px;
+  font-size:15px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:10px 12px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);line-height:1.4;}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:40px;text-align:center;color:var(--g9);font-weight:700;}
+td b{color:var(--navy);}
+td.id,th.id{width:58px;text-align:center;font-weight:700;color:var(--navy);white-space:nowrap;}
+th.id{color:var(--white);}
+table.tight td{padding:8px 12px;}
+table.req th{padding:8px 10px;font-size:14px;}
+table.req td{padding:7px 10px;font-size:15px;line-height:1.35;}
+table.req.snug td{padding:5px 10px;}
+.feat{display:block;font-family:var(--mono);font-size:12.5px;color:var(--teal-dp);line-height:1.4;}
+.dsc{display:block;font-size:13.5px;color:var(--g11);line-height:1.35;margin-top:2px;}
+.olbl{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1px;}
+.olbl.alt{color:var(--g9);}
+.src{font-size:13px;color:var(--g9);line-height:1.4;margin:7px 0 0;}
+.src b{color:var(--g11);}
+.rtag{display:inline-block;font-size:12px;font-weight:700;color:var(--navy);background:var(--teal-1);
+  border:1px solid var(--teal-2);padding:1px 6px;margin:6px 4px 0 0;white-space:nowrap;}
+.st{font-size:13.5px;color:var(--g11);}
+
+/* ---------- chips ---------- */
+.chip{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;
+  padding:3px 9px;border-radius:2px;white-space:nowrap;text-transform:uppercase;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.warn{background:var(--orange);color:#3d2400;}
+.chip.no{background:var(--red);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+.chip.chk{background:var(--white);color:#7A4000;border:1px solid var(--orange);}
+
+/* ---------- takeaway bar ---------- */
+.takeaway{position:absolute;left:62px;right:54px;bottom:32px;background:var(--teal);
+  color:var(--white);font-size:17px;font-weight:700;text-align:center;padding:13px 18px;line-height:1.3;}
+
+/* ---------- callouts, lists, layout ---------- */
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;
+  padding:12px 16px;font-size:15.5px;line-height:1.5;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.callout ul{margin:4px 0 0;padding-left:20px;} .callout li{margin-bottom:3px;}
+.stmt{border-left:5px solid var(--navy);background:var(--g1);padding:14px 18px;font-size:17px;line-height:1.5;color:var(--ink);}
+.stmt b{color:var(--navy);}
+.cols{display:flex;gap:30px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.c55>*:first-child{flex:0 0 55%;}
+.cols.c60>*:first-child{flex:0 0 60%;}
+.also{font-size:15px;color:var(--g11);margin:10px 0 0;}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:st;}
+ol.steps li{counter-increment:st;position:relative;padding:8px 12px 8px 48px;margin-bottom:7px;
+  border:1px solid var(--g2);background:var(--white);font-size:15.5px;line-height:1.35;}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:0;bottom:0;width:36px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;}
+ol.steps.teal li::before{background:var(--teal);}
+ol.steps.chk li::before{background:var(--orange);color:#3d2400;}
+ol.steps li b{color:var(--navy);}
+
+/* ---------- horizon strip ---------- */
+.hz{display:flex;gap:8px;margin:0 0 16px;}
+.hz .a{flex:1;border:1px solid var(--g2);background:var(--g1);padding:8px 12px;}
+.hz .a .h{font-size:14px;font-weight:700;color:var(--g11);line-height:1.25;}
+.hz .a .x{font-size:12.5px;color:var(--g9);line-height:1.3;margin-top:2px;}
+.hz .a.on{background:var(--teal-1);border-color:var(--teal);border-top:4px solid var(--teal);}
+.hz .a.on .h{color:var(--navy);}
+.hz .a.on .x{color:var(--teal-dp);}
+.hz .lbl{flex:0 0 150px;display:flex;flex-direction:column;justify-content:center;padding-right:4px;}
+.hz .lbl .h{font-size:14px;font-weight:700;color:var(--navy);line-height:1.25;}
+.hz .lbl .x{font-size:12.5px;color:var(--g11);line-height:1.3;margin-top:2px;}
+
+/* ---------- feature cards ---------- */
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.fcard{border:1px solid var(--g2);border-top:4px solid var(--teal);background:var(--white);padding:9px 12px 10px;display:flex;flex-direction:column;}
+.fcard.ml{border-top-color:var(--navy);background:#F7F9FC;}
+.fcard .nm{font-size:15.5px;font-weight:700;color:var(--navy);line-height:1.3;}
+.fcard .nm .chip{font-size:10.5px;padding:2px 6px;vertical-align:2px;}
+.fcard .wi{font-size:13px;color:var(--g11);line-height:1.35;margin:3px 0 6px;}
+.fcard .wi .chip{font-size:10.5px;padding:2px 6px;}
+.fcard .us{font-size:14px;color:var(--ink);line-height:1.35;border-top:1px dashed var(--g2);padding-top:6px;flex:1;}
+.fcard .us b{color:var(--teal-dp);}
+.fcard .rtag{margin-top:6px;}
+
+/* ---------- scenario cards ---------- */
+.scen{border:1px solid var(--g2);border-left:7px solid var(--green-ac);padding:12px 18px 14px;margin-bottom:14px;background:var(--white);}
+.scen.bad{border-left-color:var(--red);background:#FFF6F5;}
+.scen .hd{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--g9);text-transform:uppercase;margin-bottom:6px;}
+.scen .nums{display:flex;gap:20px;}
+.scen .nb .l{font-size:13px;color:var(--g9);}
+.scen .nb .v{font-size:32px;font-weight:700;color:var(--navy);line-height:1.1;}
+.scen.bad .nb .v.hot{color:var(--red);}
+.scen .res{margin-top:10px;font-size:15px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--g11);}
+
+/* ---------- process / step strips ---------- */
+.flow{display:flex;gap:10px;align-items:stretch;}
+.flow .step{flex:1;border:1px solid var(--g2);border-top:4px solid var(--teal);background:var(--white);padding:9px 12px 10px;min-width:0;}
+.flow .step .n{font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.1em;}
+.flow .step .t{font-size:17px;font-weight:700;color:var(--navy);margin:1px 0 2px;line-height:1.2;}
+.flow .step .d{font-size:13.5px;color:var(--g11);line-height:1.35;}
+.flow .step .fx{font-size:12.5px;font-weight:700;color:var(--teal-dp);line-height:1.3;margin-top:5px;}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .sidenav{display:none;}
+  .deck,body.js .deck{max-width:none;margin:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;zoom:0.78;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidenav" aria-label="Slide navigation">
+  <div class="brandmark">CDE Monitoring<span class="dot">.</span></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-target="s1" aria-selected="true"  aria-controls="s1"><span class="tnum">01</span>Overview &amp; agenda</button>
+    <div class="navsec">Problem</div>
+    <button class="tab" role="tab" data-target="s2" aria-selected="false" aria-controls="s2"><span class="tnum">02</span>Today's checks &amp; the gap</button>
+    <div class="navsec">Requirements</div>
+    <button class="tab" role="tab" data-target="s3" aria-selected="false" aria-controls="s3"><span class="tnum">03</span>Requirements &amp; open decisions</button>
+    <div class="navsec">Solution</div>
+    <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>Options &amp; direction</button>
+    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>Snowflake features, used how</button>
+    <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>ML anomaly detection</button>
+    <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>Answers &amp; next steps</button>
+  </div>
+  <div class="navhint">
+    <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>arrow keys</span>
+  </div>
+</nav>
+
+<div class="deck">
+
+<!-- ===================== SLIDE 1 — COVER + AGENDA ===================== -->
+<section class="slide cover active" id="s1" role="tabpanel">
+  <div class="cols c55" style="align-items:center;">
+    <div>
+      <div class="eyebrow">Data Quality Monitoring</div>
+      <h1>Catching unreasonable premium values &mdash; not just missing or lost ones</h1>
+      <div class="rule"></div>
+      <p class="lede">Current controls prove premium data arrives <b>complete</b>. This shows how to also check that premium values are <b>reasonable</b> &mdash; using Snowflake's own monitoring, without adding logic to ETL.</p>
+      <div class="meta">
+        <b>Basis</b> &nbsp;Internal design discussion (18 Sep) + Snowflake documentation<br>
+        <b>Audience</b> &nbsp;CDE review<br>
+        <b>Status</b> &nbsp;Proposed direction &mdash; requirements to be validated
+      </div>
+    </div>
+    <div class="agenda">
+      <div class="ttl">Agenda</div>
+      <div class="sec">Problem</div>
+      <div class="item"><span class="k">1</span>Today's checks and the gap</div>
+      <div class="sec">Requirements</div>
+      <div class="item"><span class="k">2</span>What the monitoring must do &mdash; and what is still open</div>
+      <div class="sec">Solution</div>
+      <div class="item"><span class="k">3</span>Options considered and the direction</div>
+      <div class="item"><span class="k">4</span>Snowflake features &mdash; which one, used how</div>
+      <div class="item"><span class="k">5</span>ML anomaly detection for premium trends</div>
+      <div class="item"><span class="k">6</span>Answers, next steps and what is still to be checked</div>
+    </div>
+  </div>
+  <div class="slide-no">1 / 7</div>
+</section>
+
+<!-- ===================== SLIDE 2 — PROBLEM ===================== -->
+<section class="slide" id="s2" role="tabpanel">
+  <h2>Our checks prove premium data is complete &mdash; not that it is right</h2>
+  <p class="sub">Today's two controls, what they miss, and the problem to solve</p>
+
+  <div class="cols">
+    <div>
+      <h3>Today's controls</h3>
+      <table>
+        <thead><tr><th>Control</th><th>What it does</th><th>What it misses</th></tr></thead>
+        <tbody>
+          <tr><td><b>Null checks</b> on CDE columns</td><td>Flags blank values (informational &mdash; doesn't reject)</td><td>A value that is present but wrong</td></tr>
+          <tr><td><b>Balance reconciliation</b></td><td>Proves source total = loaded total</td><td>Whether the source value was right</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="gap">The problem to solve</h3>
+      <div class="stmt">We need a way to identify <b>premium outliers and unusual trends</b> &mdash; whether the business value itself is reasonable, and whether trends deviate from historical norms.</div>
+    </div>
+
+    <div>
+      <h3>Why reconciliation isn't enough</h3>
+      <div class="scen">
+        <div class="hd">Scenario A</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Source sent</div><div class="v">1,000</div></div>
+          <div class="nb"><div class="l">Loaded</div><div class="v">1,000</div></div>
+        </div>
+        <div class="res">Reconciliation <span class="chip ok">Pass</span> &nbsp; Value right? <span class="chip ok">Yes</span></div>
+      </div>
+      <div class="scen bad">
+        <div class="hd">Scenario B</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Expected</div><div class="v">~1,000</div></div>
+          <div class="nb"><div class="l">Source sent</div><div class="v hot">1,000,000</div></div>
+          <div class="nb"><div class="l">Loaded</div><div class="v hot">1,000,000</div></div>
+        </div>
+        <div class="res">Reconciliation <span class="chip ok">Pass</span> &nbsp; Value right? <span class="chip no">No</span></div>
+      </div>
+      <div class="callout teal"><b>Reconciliation asks:</b> did we load everything we received?<br><b>A validity check asks:</b> did we receive the right value in the first place?</div>
+    </div>
+  </div>
+
+  <div class="takeaway">Both scenarios pass reconciliation &mdash; we need a validity check (is the value reasonable?) alongside it.</div>
+  <div class="slide-no">2 / 7</div>
+</section>
+
+<!-- ===================== SLIDE 3 — REQUIREMENTS ===================== -->
+<section class="slide" id="s3" role="tabpanel">
+  <h2>What the monitoring must do &mdash; and what is still open</h2>
+  <p class="sub">Requirements from the discussion (R1&ndash;R11) and decisions still to make (D1&ndash;D6)</p>
+
+  <div class="cols c60">
+    <div>
+      <h3>Requirements</h3>
+      <table class="req">
+        <thead><tr><th class="id">ID</th><th>The monitoring must&hellip;</th></tr></thead>
+        <tbody>
+          <tr><td class="id">R1</td><td><b>Keep the null checks</b> on CDE columns &mdash; they flag, they don't reject</td></tr>
+          <tr><td class="id">R2</td><td><b>Keep balance reconciliation</b> &mdash; source amount = loaded amount</td></tr>
+          <tr><td class="id">R3</td><td><b>Flag premiums much higher or much lower</b> than normal &mdash; spikes, big drops</td></tr>
+          <tr><td class="id">R4</td><td><b>Flag trend deviations</b> &mdash; latest week vs prior weeks, far from history</td></tr>
+          <tr><td class="id">R5</td><td><b>Work at aggregate level</b>, weekly and/or monthly &mdash; not record by record</td></tr>
+          <tr><td class="id">R6</td><td><b>Run after load, separate from ETL</b> &mdash; no trend logic inside ETL</td></tr>
+          <tr><td class="id">R7</td><td><b>Run automatically</b> on a schedule &mdash; no repeated manual runs &nbsp;<span class="chip warn">To confirm</span></td></tr>
+          <tr><td class="id">R8</td><td><b>Produce DQ results, trend metrics and anomaly indicators</b>, kept as history</td></tr>
+          <tr><td class="id">R9</td><td><b>Let the team set thresholds</b> &mdash; how far off is too far &nbsp;<span class="chip warn">To confirm</span></td></tr>
+          <tr><td class="id">R10</td><td><b>Notify the responsible team</b> on a deviation &mdash; once D1&ndash;D4 are agreed</td></tr>
+          <tr><td class="id">R11</td><td><b>Use Snowflake-native first</b>, keep data in Snowflake &mdash; Informatica only if needed</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Still to be defined</h3>
+      <table class="req">
+        <thead><tr><th class="id">ID</th><th>Decision needed</th></tr></thead>
+        <tbody>
+          <tr><td class="id">D1</td><td>What counts as an <b>anomaly</b> for premium?</td></tr>
+          <tr><td class="id">D2</td><td>Which <b>thresholds</b> to monitor?</td></tr>
+          <tr><td class="id">D3</td><td>Which <b>business scenarios</b> to detect?</td></tr>
+          <tr><td class="id">D4</td><td><b>Who is notified</b>, on which channel?</td></tr>
+          <tr><td class="id">D5</td><td>Which premium <b>tables and columns</b> are in scope?</td></tr>
+          <tr><td class="id">D6</td><td><b>Weekly, monthly</b>, or both?</td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal" style="margin-top:14px;"><b>Order matters:</b> agree D1&ndash;D3 first &mdash; who gets alerted (D4) is decided last.</div>
+      <p class="also"><span class="chip warn">To confirm</span> &nbsp;= our reading of the discussion &mdash; please confirm or correct.</p>
+    </div>
+  </div>
+
+  <div class="takeaway">Confirm R1&ndash;R11 and agree D1&ndash;D6 &mdash; every part of the solution traces back to these IDs.</div>
+  <div class="slide-no">3 / 7</div>
+</section>
+
+<!-- ===================== SLIDE 4 — OPTIONS & DIRECTION ===================== -->
+<section class="slide" id="s4" role="tabpanel">
+  <h2>Three options discussed &mdash; Snowflake-native is preferred</h2>
+  <p class="sub" style="margin-bottom:14px;">What each option is, and how it measures up against the requirements</p>
+
+  <table class="req snug">
+    <thead><tr><th style="width:20%">Option</th><th style="width:33%">What it is</th><th style="width:17%">Verdict</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><span class="olbl">Option 1</span><b>Dedicated data quality checks</b></td><td>Separate quality checks just for premium CDEs, outside ETL &mdash; giving DQ results, trend metrics and anomaly indicators</td><td><span class="chip part">The goal</span><br><span class="rtag">R8</span></td><td>This is the outcome we want &mdash; the question is which tool builds it</td></tr>
+      <tr><td><span class="olbl">Option 2</span><b>Snowflake monitoring capabilities</b></td><td>Use Snowflake's own metric functions to watch selected columns over time, spot unusual changes and raise alerts</td><td><span class="chip ok">Preferred</span><br><span class="rtag">Meets R6</span><span class="rtag">R7</span><span class="rtag">R11</span></td><td>Snowflake is the main platform; ETL already runs inside it (pushdown); data stays put</td></tr>
+      <tr><td><span class="olbl">Option 3</span><b>ETL-based monitoring</b></td><td>Build the trend and outlier logic into the ETL jobs themselves</td><td><span class="chip no">Least attractive</span><br><span class="rtag">Fails R6</span></td><td>More ETL complexity and processing load; trend analysis isn't a loading task</td></tr>
+      <tr><td><span class="olbl alt">Also discussed</span><b>Informatica profiling</b> (CDGC)</td><td>Profile the data &mdash; min, max, value patterns &mdash; with Informatica</td><td><span class="chip warn">Set aside for now</span><br><span class="rtag">Fails R7</span><span class="rtag">R11</span></td><td>Profiles must be re-run repeatedly; extra operational effort</td></tr>
+    </tbody>
+  </table>
+  <p class="src"><b>Source:</b> design-discussion meeting notes &mdash; Option 1: lines 146&ndash;156 &middot; Option 2: 158&ndash;177 &middot; Option 3: 178&ndash;186 &middot; Informatica: 203&ndash;217 (raised separately)</p>
+
+  <h3 class="gap" style="margin-top:12px;">How option 2 would run &mdash; and the Snowflake feature at each step</h3>
+  <div class="flow">
+    <div class="step"><div class="n">STEP 1</div><div class="t">Load</div><div class="d">Unchanged; existing checks stay (R1, R2)</div><div class="fx">Existing ETL</div></div>
+    <div class="step"><div class="n">STEP 2</div><div class="t">Measure</div><div class="d">Checks run on a schedule (R5, R7)</div><div class="fx">DMFs + schedule</div></div>
+    <div class="step"><div class="n">STEP 3</div><div class="t">Store</div><div class="d">Every result kept (R8)</div><div class="fx">Results history</div></div>
+    <div class="step"><div class="n">STEP 4</div><div class="t">Check</div><div class="d">Threshold and trend (R3, R4, R9)</div><div class="fx">Expectations + ML anomaly detection</div></div>
+    <div class="step"><div class="n">STEP 5</div><div class="t">Alert</div><div class="d">Notify the team (R10)</div><div class="fx">Notifications + alerts</div></div>
+    <div class="step"><div class="n">STEP 6</div><div class="t">Review</div><div class="d">See results, tune thresholds</div><div class="fx">Snowsight quality view</div></div>
+  </div>
+
+  <div class="takeaway">Option 1 is the goal, option 2 is how we get there &mdash; the ETL jobs stay as they are.</div>
+  <div class="slide-no">4 / 7</div>
+</section>
+
+<!-- ===================== SLIDE 5 — SNOWFLAKE FEATURES, USED HOW ===================== -->
+<section class="slide" id="s5" role="tabpanel">
+  <h2>Which Snowflake feature does what for premium monitoring</h2>
+  <p class="sub">All of it sits inside Snowflake Horizon Catalog &mdash; Snowflake's built-in catalog to find, govern and trust data</p>
+
+  <div class="hz">
+    <div class="lbl"><div class="h">Horizon Catalog</div><div class="x">four areas &mdash; we use two</div></div>
+    <div class="a"><div class="h">Discovery &amp; connectivity</div><div class="x">Iceberg, external tables, Marketplace</div></div>
+    <div class="a on"><div class="h">AI context layer</div><div class="x">Lineage &mdash; downstream impact</div></div>
+    <div class="a on"><div class="h">Governance &amp; trust</div><div class="x">Data quality monitoring &mdash; the core</div></div>
+    <div class="a"><div class="h">Business continuity</div><div class="x">Replication</div></div>
+  </div>
+
+  <div class="fgrid">
+    <div class="fcard"><div class="nm">System DMFs</div><div class="wi">Built-in quality metrics &mdash; nulls, row count, average, spread</div><div class="us"><b>For premium:</b> track nulls, load volume, average and spread on the CDE columns</div><div><span class="rtag">R8</span></div></div>
+    <div class="fcard"><div class="nm">Custom DMF</div><div class="wi">A quality metric written in SQL</div><div class="us"><b>For premium:</b> count premiums outside the normal band (IQR) &mdash; catches the 1,000,000 case</div><div><span class="rtag">R3</span></div></div>
+    <div class="fcard"><div class="nm">DMF schedule</div><div class="wi">Runs a table's checks every N minutes, on a cron, or on data change</div><div class="us"><b>For premium:</b> weekly and/or monthly run on the premium table</div><div><span class="rtag">R5</span><span class="rtag">R7</span></div></div>
+    <div class="fcard"><div class="nm">Expectations</div><div class="wi">A pass/fail rule on a check's result</div><div class="us"><b>For premium:</b> e.g. "outlier count = 0" &mdash; the threshold the business agrees</div><div><span class="rtag">R9</span></div></div>
+    <div class="fcard"><div class="nm">DMF anomaly detection <span class="chip warn">Preview</span></div><div class="wi">Learns the normal range of row count and freshness</div><div class="us"><b>For premium:</b> flag unusually small or late premium loads</div><div><span class="rtag">R7</span></div></div>
+    <div class="fcard ml"><div class="nm">ML anomaly detection <span class="chip chk">To check</span></div><div class="wi">Forecasts the expected range of a time series</div><div class="us"><b>For premium:</b> flag weekly / monthly premium totals out of line &mdash; next slide</div><div><span class="rtag">R4</span><span class="rtag">R5</span></div></div>
+    <div class="fcard"><div class="nm">Notifications &amp; alerts</div><div class="wi">Email or webhook (Slack, Teams, PagerDuty&hellip;); alerts run a check on a schedule <span class="chip chk">Alerts: to check</span></div><div class="us"><b>For premium:</b> tell the responsible team when a check fails</div><div><span class="rtag">R10</span></div></div>
+    <div class="fcard"><div class="nm">Snowsight quality view <span class="chip chk">To check</span></div><div class="wi">Latest results, 7-day trend, failed checks, downstream impact, failing records</div><div class="us"><b>For premium:</b> day-to-day review of the checks by the team</div><div><span class="rtag">R8</span></div></div>
+  </div>
+  <p class="also"><b>Edition &amp; cost:</b> data quality monitoring needs Enterprise Edition; scheduled checks run on serverless compute. &nbsp;<span class="chip chk">To check</span> = release status or edition not confirmed in Snowflake docs yet.</p>
+
+  <div class="takeaway">Everything runs inside Snowflake Horizon &mdash; no new tool, no data movement (R11).</div>
+  <div class="slide-no">5 / 7</div>
+</section>
+
+<!-- ===================== SLIDE 6 — ML ANOMALY DETECTION ===================== -->
+<section class="slide" id="s6" role="tabpanel">
+  <h2>ML anomaly detection can watch premium trends automatically</h2>
+  <p class="sub">Snowflake ML Functions &mdash; how it works, what it needs, and which detector fits which job</p>
+
+  <div class="cols">
+    <div>
+      <h3>How it works</h3>
+      <ol class="steps teal">
+        <li><b>Train on history</b> &mdash; e.g. weekly total premium per product line</li>
+        <li><b>Forecast the expected range</b> &mdash; learns weekly and yearly patterns itself</li>
+        <li><b>Flag values outside the range</b> &mdash; with forecast, bounds and distance</li>
+        <li><b>Run on a schedule</b> &mdash; a task runs it; an alert emails the team</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Know before you go</h3>
+      <div class="callout">
+        <ul>
+          <li>Needs <b>12+ data points per series</b> &mdash; 12 weeks (weekly) or 12 months (monthly)</li>
+          <li>Trains on historical data &mdash; can use premium history already in Snowflake</li>
+          <li>One sensitivity setting &mdash; default flags about 1% of values</li>
+          <li>Trained models can't be updated &mdash; retrain on a schedule</li>
+          <li>Can't flag anomalies inside its own training data &mdash; history must be clean</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="gap">Three detectors, three jobs</h3>
+  <table class="req">
+    <thead><tr><th style="width:36%">Job</th><th style="width:30%">Best tool</th><th class="id">Req</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td><b>One policy's premium is wildly off</b> (1,000 &rarr; 1,000,000)</td><td>Custom outlier check (IQR) + expectation</td><td class="id">R3</td><td>A threshold the business agrees (D1, D2)</td></tr>
+      <tr><td><b>This week's or month's premium total is out of line</b></td><td>ML anomaly detection</td><td class="id">R4 R5</td><td>12+ periods of clean premium history</td></tr>
+      <tr><td><b>A premium load is unusually small or late</b></td><td>DMF anomaly detection (row count, freshness)</td><td class="id">R7</td><td>2+ weeks of check history (60 days recommended); Preview</td></tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway">Use the right detector for the job &mdash; a rule for single bad records, ML for weekly and monthly trends.</div>
+  <div class="slide-no">6 / 7</div>
+</section>
+
+<!-- ===================== SLIDE 7 — ANSWERS & NEXT STEPS ===================== -->
+<section class="slide" id="s7" role="tabpanel">
+  <h2>Answers for the review &mdash; and what is still to be checked</h2>
+  <p class="sub">The questions raised in the discussion, answered against Snowflake documentation, with the requirement each meets</p>
+
+  <table class="tight">
+    <thead><tr><th class="id">Req</th><th style="width:36%">Question</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td class="id">R8</td><td><b>What monitoring information can be produced?</b></td><td>Per-column metrics &mdash; nulls, volume, freshness, average, spread &mdash; kept as history</td></tr>
+      <tr><td class="id">R9</td><td><b>Can thresholds be configured?</b></td><td><span class="chip ok">Yes</span> &nbsp;A pass/fail rule (expectation) on each metric</td></tr>
+      <tr><td class="id">R10</td><td><b>Can alerts be sent?</b></td><td><span class="chip ok">Yes</span> &nbsp;Email, or Slack / Teams / PagerDuty via webhook</td></tr>
+      <tr><td class="id">R3 R4</td><td><b>Can premium anomalies be detected automatically?</b></td><td><span class="chip warn">Mostly</span> &nbsp;Trends: ML learns the normal pattern (12+ periods). Load volume: automatic (Preview). Single bad records: a rule we set</td></tr>
+      <tr><td class="id">R4 R5</td><td><b>Can we compare this week with prior weeks?</b></td><td><span class="chip ok">Yes</span> &nbsp;Against stored check history, or with ML anomaly detection</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols" style="margin-top:18px;">
+    <div>
+      <h3>Next steps</h3>
+      <ol class="steps">
+        <li><b>Validate</b> R1&ndash;R11 and agree D1&ndash;D6</li>
+        <li>Confirm LM is on <b>Enterprise Edition</b> (required)</li>
+        <li><b>Build and test</b> the premium outlier check on LM's account</li>
+        <li>Set up <b>alerts</b> once D1&ndash;D4 are agreed</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Yet to be checked</h3>
+      <ol class="steps chk">
+        <li><b>12+ periods of clean premium history</b> in Snowflake (for ML)</li>
+        <li>Which <b>system DMFs</b> are available on LM's account</li>
+        <li><b>ML anomaly detection</b> &mdash; edition and release status</li>
+        <li><b>Alerts</b> and <b>Snowsight quality view</b> &mdash; release status</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="takeaway">Trends and load volumes can be watched automatically; single bad records need a threshold we agree (D1, D2).</div>
+  <div class="slide-no">7 / 7</div>
+</section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+
+  var SLIDE_W = 1280, SLIDE_H = 720;
+  var INNER_W = 1164, INNER_TOP = 34, BOTTOM_RESERVE = 86;
+  var MIN_FIT = 0.55, NAV_W = 240;
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 &&
+          (node.classList.contains("takeaway") || node.classList.contains("slide-no"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+  }
+
+  function fitStage() {
+    var z = Math.min((window.innerWidth - NAV_W - 26) / SLIDE_W,
+                     (window.innerHeight - 26) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+    else if (e.key >= "1" && e.key <= "7") { show(parseInt(e.key, 10) - 1); e.preventDefault(); }
+  });
+
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>
