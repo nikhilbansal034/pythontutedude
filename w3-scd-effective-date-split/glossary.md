@@ -1,7 +1,7 @@
 # W3 glossary — zones, buckets, and source systems
 
-Working definitions for the terms used in the SCD multi-source effective-date split work (W3). See
-`README.md` for the workstream index.
+Working definitions for the terms used in the SCD multi-source effective-date split work (W3). The design
+itself is `solution_design.md`; the POC is `poc_v2/`.
 
 **Confidence warning.** None of these terms are defined in `../w2-abc-framework/reference.md` — the word
 "bucket" does not appear in it at all. Everything here is assembled from the 2026-09-18 meeting transcript,
@@ -127,7 +127,14 @@ That makes the history bucket **bi-temporal** and the current bucket uni-tempora
 
 ---
 
-## Open question — Q1, blocking the scenario matrix
+## Q1 — no longer blocking, but still unanswered
+
+**Why it stopped blocking.** Every scenario in the POC draws from **history bucket** tables only, and those
+are confirmed always SCD2 — so the shape of the *current* bucket does not affect the rule table in
+`solution_design.md` §6 or any of the 15 scenarios. SCD1 sources are ruled out on the same grounds.
+
+The question below is still genuinely open for the wider programme: it decides whether a current-bucket
+source could ever contribute to a target's effective dates. Nothing built so far depends on the answer.
 
 The transcript confirms the source systems keep Type 2 themselves:
 
@@ -150,6 +157,8 @@ source*, not *current version per key*.
 If **Q1b**, that rule is structural and safe. If **Q1a**, it is a **convention** that happens to hold for the
 assets built so far, not a guarantee — a current-bucket source could still contribute to target effective
 dates, and the problem is wider than the transcript implies.
+
+Either way the current design stands, because it only ever reads history buckets.
 
 ### How to settle it
 

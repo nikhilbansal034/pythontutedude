@@ -220,7 +220,7 @@ for k,v in [("P","the canonical case produces the expected target"),
             ("N","input that must produce no change at all"),
             ("E","zero-length rows, same eff and exp, high-end-date boundaries"),
             ("C","NULL key, duplicate (key, eff date), timestamp outside the window"),
-            ("V","random keys at scale, compared row for row against tools/verify.py")]:
+            ("V","many keys of different shapes at once, checked against structural invariants")]:
     put(ws,r,["",k,TYPE_NAME[k],v,"",""],fill=TYPE_FILL[k]); r+=1
 ws.freeze_panes="A5"
 

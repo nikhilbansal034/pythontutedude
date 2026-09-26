@@ -17,7 +17,7 @@ rule-specific: idempotence, atomicity, determinism, and behaviour on corrupt inp
 | **N** | negative | input that must produce no change at all |
 | **E** | edge | zero-length rows, same eff and exp, high-end-date boundaries |
 | **C** | corrupt | NULL key, duplicate (key, eff date), timestamp outside the window |
-| **V** | volume | random keys at scale, compared row for row against `../tools/verify.py` |
+| **V** | volume | many keys of different shapes at once, checked against structural invariants |
 
 ## The grid
 
