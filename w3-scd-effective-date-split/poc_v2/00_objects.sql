@@ -292,17 +292,26 @@ classified AS (
            t.BROKER_STATUS_CDE      AS TGT_STATUS,
            t.COMMISSION_TIER_CDE    AS TGT_TIER,
            m.EXECUTION_TYPE, m.BATCH_ID, m.JOB_ID,
+           -- The rerun +1 applies ONLY to the MATCHED rules, 1-16. Adding it to
+           -- rule 17 would produce 18 -- which means something else entirely
+           -- ("this target row is gone from the timeline, do nothing") and is
+           -- not selected by the 'I' branch. A genuinely new interval arriving
+           -- during a Z1_RERUN would then be silently DROPPED, leaving the
+           -- target with no cover from that date on. Caught by S12 TC03.
            CASE
-             WHEN t.BROKER_PARTY_DIM_SK IS NULL                                       THEN 17
-             WHEN t.ROW_HASH = n.ROW_HASH AND t.ROW_EXP_DTE = n.ROW_EXP_DTE
-                  THEN CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 1 ELSE 3 END
-             WHEN t.ROW_HASH = n.ROW_HASH
-                  THEN CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 5 ELSE 7 END
-             WHEN t.ROW_EXP_DTE = n.ROW_EXP_DTE
-                  THEN CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 9 ELSE 11 END
-             ELSE CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 13 ELSE 15 END
-           END
-           + CASE WHEN m.EXECUTION_TYPE = 'Z1_RERUN' THEN 1 ELSE 0 END AS RULE_NO
+             WHEN t.BROKER_PARTY_DIM_SK IS NULL THEN 17
+             ELSE
+               CASE
+                 WHEN t.ROW_HASH = n.ROW_HASH AND t.ROW_EXP_DTE = n.ROW_EXP_DTE
+                      THEN CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 1 ELSE 3 END
+                 WHEN t.ROW_HASH = n.ROW_HASH
+                      THEN CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 5 ELSE 7 END
+                 WHEN t.ROW_EXP_DTE = n.ROW_EXP_DTE
+                      THEN CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 9 ELSE 11 END
+                 ELSE CASE WHEN t.ROW_EXP_DTE = DATE '9999-12-31' THEN 13 ELSE 15 END
+               END
+               + CASE WHEN m.EXECUTION_TYPE = 'Z1_RERUN' THEN 1 ELSE 0 END
+           END AS RULE_NO
     FROM      new_rows n
     LEFT JOIN cur_tgt  t ON t.BROKER_ID = n.BROKER_ID AND t.ROW_EFF_DTE = n.ROW_EFF_DTE
     CROSS JOIN run_meta m
