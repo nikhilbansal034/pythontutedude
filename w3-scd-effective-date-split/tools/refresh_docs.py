@@ -6,6 +6,8 @@ import os, sys, collections, importlib.util, duckdb
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 os.chdir(os.path.join(HERE, ".."))
 from scenario_specs import SPECS
+import json
+VERDICTS = json.load(open(os.path.join(HERE, "..", "poc_v2", "evidence", "verdicts.json")))
 spec = importlib.util.spec_from_file_location("R", "tools/run_scenario_duckdb.py")
 R = importlib.util.module_from_spec(spec); spec.loader.exec_module(R)
 
@@ -48,7 +50,8 @@ for scen in sorted(SPECS):
         for r in rules: cover[r].append(f"{scen} TC{i:02d}")
         head = f"| **{scen}** {sp['title']}" if first else "| "
         first = False
-        rows.append(f"{head} | {label(t,i)} | {KIND[t['kind']]} | {t['title']} | {rtxt} |")
+        res = VERDICTS.get(scen, {}).get(str(i), "—")
+        rows.append(f"{head} | {label(t,i)} | {KIND[t['kind']]} | {t['title']} | {rtxt} | {res} |")
         tcs.append((label(t,i), KIND[t["kind"]], t["title"], rtxt))
     wb_rows.append((f"{scen}  {sp['title']}", tcs))
 
@@ -57,10 +60,17 @@ print(f"  {len(SPECS)} scenarios, {total} test cases")
 
 # ---- TEST_PLAN.md ---------------------------------------------------------
 p = "poc_v2/TEST_PLAN.md"; s = open(p).read()
-a = s.index("| Scenario | TC | Type | What it does | Rules |")
-b = s.index("\n\n", s.index("**", a))
-s = (s[:a] + "| Scenario | TC | Type | What it does | Rules |\n|---|---|---|---|---|\n" + grid
-     + f"\n\n**{total} test cases across {len(SPECS)} scenarios.** Every one of the 18 rules is reached.\n"
+# Replace the grid AND the summary paragraph that follows it. Anchoring on the
+# first "**" after the header lands inside the grid's own bold scenario names, which
+# leaves the old summary in place and appends a second one.
+a = s.index("| Scenario | TC | Type |")
+b = s.index("\n\n", s.index("test cases across", a))
+npass = sum(1 for v in VERDICTS.values() for r in v.values() if r == "PASS")
+s = (s[:a] + "| Scenario | TC | Type | What it does | Rules | Result |\n|---|---|---|---|---|---|\n" + grid
+     + f"\n\n**{total} test cases across {len(SPECS)} scenarios, {npass} passing.**\n"
+       f"The Result column is read from `evidence/verdicts.json`, the verdict reached by checking every\n"
+       f"screenshot in `evidence/POC_Evidence.xlsx` against `evidence/expected_results.txt` field by\n"
+       f"field. Every one of the 18 rules is reached.\n"
        "Rules **1, 3 and 18 emit no stage row at all** -- they are the do-nothing rules -- so they are\n"
        "proved by ZERO WRITES in the idempotent cases rather than by an observable row.\n"
        "The Rules column is measured from a real run, not asserted." + s[b:])

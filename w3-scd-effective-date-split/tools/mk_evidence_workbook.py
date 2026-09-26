@@ -224,7 +224,10 @@ for k,v in [("P","the canonical case produces the expected target"),
     put(ws,r,["",k,TYPE_NAME[k],v,"",""],fill=TYPE_FILL[k]); r+=1
 ws.freeze_panes="A5"
 
-out=sys.argv[1] if len(sys.argv)>1 else "POC_v2_Evidence.xlsx"
+# Default to the REAL evidence workbook so the guard below always applies. Pointing
+# this at a fresh name would quietly produce a second, image-less workbook that
+# looks like evidence and is not.
+out=sys.argv[1] if len(sys.argv)>1 else "poc_v2/evidence/POC_Evidence.xlsx"
 
 # REFUSE TO DESTROY EVIDENCE.
 # Once a scenario tab carries screenshots, this file is no longer a build

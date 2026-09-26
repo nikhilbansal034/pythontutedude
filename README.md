@@ -77,12 +77,11 @@ enrichment — where the driving table alone sets the target dates.
 
 | File | What it is |
 |------|-----------|
-| `solution_design.md` | How it gets solved: the three-step architecture, why a single MERGE fails, the IDMC components, and what the POC proves |
-| `poc_snowflake.sql` | Runnable POC for `LM_POC_DB.POC_SCHEMA`. Loads seven brokers across four runs, exercises all three steps, asserts twenty-six results. Uses the real `ETL_DATA_INGESTION_SOURCE_WINDOW` and audit-column conventions; business table names are illustrative and flagged in the header |
-| `solution_deck.html` | The slide deck — 12 slides covering the problem, the worked Day 1 / Day 2 example, which join combinations break, the solution architecture, and the object map showing which pieces are new, which get swapped for real tables, and what changes on integration. Standalone single file: open it in a browser, no server and no build step. Speaker notes behind the toggle in the header; `Ctrl`/`Cmd`+`P` prints one slide per page |
-| `POC_Evidence.docx` | Execution evidence — 53 captioned screenshots of the POC running against Snowflake, in sixteen sections, each stating what it tests, the steps, and the expected result before the screenshots. Summary table at the top |
-| `Final_Scenarios_v2.xlsx` | **The scenario reference.** Nine scenarios plus a `Rule` tab, each with its own worked data — the source tables for each run carrying a `HASH` column, the target before and after, and what each one is testing. Every target is machine-checked against the rule in `solution_design.md` §6 |
-| `tools/` | `build.py` regenerates the workbook, `verify.py` re-derives every target from its own sources and checks it against the rule, `mutate.py` proves the checks are not vacuous |
+| `solution_design.md` | How it gets solved: the architecture, the locked 18-rule table (§6), the two retirement mechanisms, the IDMC components, the test strategy and its result (§16), and the defect the POC found (§17) |
+| `poc_v2/` | **The POC.** `00_objects.sql` holds every object, the Step 1 diff view and the Step 2 MERGE; `scenarios/S01.sql … S15.sql` are one file per scenario; `TEST_PLAN.md` is the 15-scenario × 69-test-case grid with the rules each reaches and its result; `evidence/POC_Evidence.xlsx` carries 346 captioned screenshots of the run against Snowflake. See `poc_v2/README.md` |
+| `tools/` | Generators and checks, all runnable: `mk_scenarios.py` generates the 15 scenario files from one spec, `refresh_docs.py` rebuilds the test-plan grid from a real run, `check_sql_lint.py` catches the two Snowflake-only errors DuckDB accepts, `check_merge_drift.py` proves all 70 copies of the apply MERGE are byte-identical, `run_scenario_duckdb.py` is the offline harness, `annotate_evidence.py` captions the evidence workbook |
+| `Requirement.xlsx` | The client's requirement, and the source of truth for the rules alongside `solution_design.md` §6 |
+| `sources/Final_Scenarios_v2.xlsx` | The v1 scenario catalogue, kept for provenance only. It predates the 18-rule table |
 | `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
 | `sources/DiscussionWithNidwika_Ramneek.vtt` | The walkthrough that settled the update-in-place rule, 2026-09-23 |
 | `sources/Possible_Scenarios.xlsx` | The scenario sheet shared by the team, 2026-09-22. The input the scenarios were reconciled against |
@@ -94,17 +93,32 @@ enrichment — where the driving table alone sets the target dates.
 
 ### Current stage
 
-Solution design drafted, POC written, and **executed against Snowflake — all 26 assertions pass**. Evidence
-for every step is in `POC_Evidence.docx`.
+**The POC is proven: 69 test cases across 15 scenarios, 69 passing**, executed against Snowflake and
+evidenced by 346 captioned screenshots in `poc_v2/evidence/POC_Evidence.xlsx`. Every screenshot was checked
+against the expected result field by field, with per-test-case verdicts in `poc_v2/evidence/verdicts.json`
+and in the Result column of `poc_v2/TEST_PLAN.md`.
 
-The four cases most likely to fail silently are covered and confirmed: a value returning after a different
-one in between, a gap in cover with the same value either side, a value corrected without its dates moving,
-and the same version arriving twice in one window. Each was also checked against a deliberately broken
-implementation, to confirm the assertions fail when the logic is wrong (`solution_design.md` §9).
+Coverage is **measured, not claimed**: 15 of the 18 rules emit a stage row and were observed directly in the
+evidence; rules 1, 3 and 18 emit nothing at all, so they are proved by zero writes rather than by a visible
+row. The cases most likely to fail silently are all covered and confirmed — a value returning after a
+different one in between, a gap in cover with the same value either side, a value corrected without its
+dates moving, the same version arriving twice in one window, a back-dated correction, an orphaned row, and a
+hash-definition change mid-pipeline.
 
-**Settled**: periods where one source has no value are kept with the missing side blank; superseded rows are
-soft-deleted and reinserted rather than updated in place; the load is three steps (build-and-diff → stage →
-soft-delete → insert) rather than a single MERGE.
+The POC also **found a real defect** in the rule set: on a Zone1 rerun a genuinely new interval was
+misclassified and its insert silently dropped, losing all target cover from that date onward. Fixed, with
+S12 TC03 as the regression guard (`solution_design.md` §17).
+
+**This settles the design question, not delivery.** IDMC is deferred, the objects still have to fold into the
+existing pipeline, and the open items in `poc_v2/README.md` remain open.
+
+**Settled**: periods where one source has no value are kept with the missing side blank. The target timeline
+is rebuilt from the union of both sources' boundaries and diffed against what is already loaded. The action
+is decided by the **18-rule table** — the existing target row's current expiry decides first, and the hash
+only decides inside the high-end-date branch. Retirement has **two** mechanisms, not one: a **dead record**
+(expiry was `9999-12-31`, so it is pulled back to the row's own effective date and `IS_DEL` stays `'N'`) and
+a **delete indicator** (expiry was a real date, so `IS_DEL` becomes `'Y'` and both dates are left alone).
+The apply is **one `MERGE`** — separate `UPDATE` and `INSERT` statements are not approved by the client.
 
 **Working assumption, not confirmed**: the problem sits on the Zone1 → Zone2 hop. The mechanics are identical
 wherever it sits, but the layer decides which engine runs the SQL and who owns the build.

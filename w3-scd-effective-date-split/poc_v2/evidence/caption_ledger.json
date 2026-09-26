@@ -1,0 +1,2454 @@
+{
+ "S01": [
+  {
+   "media": "image1.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image2.png",
+   "row": 14,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image3.png",
+   "row": 24,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 3 insert."
+  },
+  {
+   "media": "image4.png",
+   "row": 37,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 3 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image5.png",
+   "row": 47,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 3 rows, 3 live."
+  },
+  {
+   "media": "image6.png",
+   "row": 62,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image7.png",
+   "row": 72,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 2 new version rows arrive."
+  },
+  {
+   "media": "image8.png",
+   "row": 84,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 6 stage rows: rule 7 (RETIRE by delete indicator), rule 13 (DEAD RECORD, hash and expiry both moved), rule 17 (INSERT). 2 retire, 0 expire in place, 4 insert."
+  },
+  {
+   "media": "image9.png",
+   "row": 100,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 4 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image10.png",
+   "row": 111,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 7 rows, 5 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image11.png",
+   "row": 130,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image12.png",
+   "row": 140,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image13.png",
+   "row": 152,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image14.png",
+   "row": 169,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 7 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image15.png",
+   "row": 187,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image16.png",
+   "row": 197,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image17.png",
+   "row": 209,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 11 (RETIRE by delete indicator, back-dated). 1 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image18.png",
+   "row": 221,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image19.png",
+   "row": 235,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 7 -> 8 rows, 5 live. The superseded row is retired by DELETE INDICATOR: IS_DEL 'Y', both dates untouched."
+  },
+  {
+   "media": "image20.png",
+   "row": 254,
+   "tc": 5,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image21.png",
+   "row": 265,
+   "tc": 5,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: COMMISSION_TIER_CDE corrected in place."
+  },
+  {
+   "media": "image22.png",
+   "row": 278,
+   "tc": 5,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 9 (DEAD RECORD). 1 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image23.png",
+   "row": 291,
+   "tc": 5,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image24.png",
+   "row": 302,
+   "tc": 5,
+   "shot": "target AFTER",
+   "caption": "Target 8 -> 9 rows, 5 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image25.png",
+   "row": 324,
+   "tc": 6,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image26.png",
+   "row": 335,
+   "tc": 6,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image27.png",
+   "row": 349,
+   "tc": 6,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image28.png",
+   "row": 367,
+   "tc": 6,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image29.png",
+   "row": 381,
+   "tc": 6,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 9 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image30.png",
+   "row": 403,
+   "tc": 7,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image31.png",
+   "row": 413,
+   "tc": 7,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image32.png",
+   "row": 426,
+   "tc": 7,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image33.png",
+   "row": 438,
+   "tc": 7,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image34.png",
+   "row": 448,
+   "tc": 7,
+   "shot": "target AFTER",
+   "caption": "Target 9 -> 10 rows, 6 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  }
+ ],
+ "S02": [
+  {
+   "media": "image35.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image36.png",
+   "row": 13,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image37.png",
+   "row": 23,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image38.png",
+   "row": 35,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image39.png",
+   "row": 46,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 1 rows, 1 live."
+  },
+  {
+   "media": "image40.png",
+   "row": 61,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image41.png",
+   "row": 71,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image42.png",
+   "row": 80,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 2 insert."
+  },
+  {
+   "media": "image43.png",
+   "row": 93,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image44.png",
+   "row": 102,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 1 -> 3 rows, 3 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image45.png",
+   "row": 117,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image46.png",
+   "row": 127,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image47.png",
+   "row": 137,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image48.png",
+   "row": 152,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image49.png",
+   "row": 164,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image50.png",
+   "row": 178,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image51.png",
+   "row": 190,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image52.png",
+   "row": 201,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image53.png",
+   "row": 215,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image54.png",
+   "row": 224,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 4 rows, 4 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  }
+ ],
+ "S03": [
+  {
+   "media": "image55.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image56.png",
+   "row": 13,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image57.png",
+   "row": 22,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image58.png",
+   "row": 34,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image59.png",
+   "row": 44,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 1 rows, 1 live."
+  },
+  {
+   "media": "image60.png",
+   "row": 57,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image61.png",
+   "row": 66,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image62.png",
+   "row": 75,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image63.png",
+   "row": 87,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image64.png",
+   "row": 97,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 1 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image65.png",
+   "row": 110,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image66.png",
+   "row": 119,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 2 new version rows arrive."
+  },
+  {
+   "media": "image67.png",
+   "row": 130,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 2 insert."
+  },
+  {
+   "media": "image68.png",
+   "row": 143,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image69.png",
+   "row": 154,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 1 -> 3 rows, 3 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image70.png",
+   "row": 169,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image71.png",
+   "row": 179,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image72.png",
+   "row": 190,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image73.png",
+   "row": 205,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image74.png",
+   "row": 216,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ],
+ "S04": [
+  {
+   "media": "image75.png",
+   "row": 3,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 3 new version rows arrive."
+  },
+  {
+   "media": "image76.png",
+   "row": 15,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image77.png",
+   "row": 24,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 3 insert."
+  },
+  {
+   "media": "image78.png",
+   "row": 37,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 3 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image79.png",
+   "row": 48,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 3 rows, 3 live."
+  },
+  {
+   "media": "image80.png",
+   "row": 62,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image81.png",
+   "row": 75,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image82.png",
+   "row": 84,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image83.png",
+   "row": 98,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image84.png",
+   "row": 108,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image85.png",
+   "row": 123,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image86.png",
+   "row": 135,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image87.png",
+   "row": 144,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image88.png",
+   "row": 157,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image89.png",
+   "row": 168,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 4 rows, 4 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image90.png",
+   "row": 183,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image91.png",
+   "row": 196,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image92.png",
+   "row": 205,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image93.png",
+   "row": 218,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image94.png",
+   "row": 230,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 4 -> 5 rows, 5 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  }
+ ],
+ "S05": [
+  {
+   "media": "image95.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image96.png",
+   "row": 14,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image97.png",
+   "row": 23,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 3 insert."
+  },
+  {
+   "media": "image98.png",
+   "row": 35,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 3 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image99.png",
+   "row": 46,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 3 rows, 3 live."
+  },
+  {
+   "media": "image100.png",
+   "row": 61,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image101.png",
+   "row": 71,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image102.png",
+   "row": 80,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image103.png",
+   "row": 94,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image104.png",
+   "row": 103,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image105.png",
+   "row": 118,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image106.png",
+   "row": 128,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image107.png",
+   "row": 138,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image108.png",
+   "row": 149,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image109.png",
+   "row": 161,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 4 rows, 4 live."
+  },
+  {
+   "media": "image110.png",
+   "row": 177,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early."
+  },
+  {
+   "media": "image111.png",
+   "row": 188,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image112.png",
+   "row": 198,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image113.png",
+   "row": 211,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image114.png",
+   "row": 222,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 4 -> 5 rows, 5 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  }
+ ],
+ "S06": [
+  {
+   "media": "image115.png",
+   "row": 3,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image116.png",
+   "row": 13,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image117.png",
+   "row": 22,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image118.png",
+   "row": 33,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image119.png",
+   "row": 42,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 1 rows, 1 live."
+  },
+  {
+   "media": "image120.png",
+   "row": 55,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image121.png",
+   "row": 64,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: COMMISSION_TIER_CDE corrected in place."
+  },
+  {
+   "media": "image122.png",
+   "row": 73,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 9 (DEAD RECORD). 1 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image123.png",
+   "row": 86,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image124.png",
+   "row": 96,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 1 -> 2 rows, 1 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image125.png",
+   "row": 110,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image126.png",
+   "row": 119,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image127.png",
+   "row": 128,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image128.png",
+   "row": 141,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image129.png",
+   "row": 153,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 2 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image130.png",
+   "row": 169,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image131.png",
+   "row": 179,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: COMMISSION_TIER_CDE corrected in place."
+  },
+  {
+   "media": "image132.png",
+   "row": 189,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 9 (DEAD RECORD). 1 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image133.png",
+   "row": 202,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image134.png",
+   "row": 213,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 2 -> 3 rows, 1 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  }
+ ],
+ "S07": [
+  {
+   "media": "image135.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image136.png",
+   "row": 14,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image137.png",
+   "row": 23,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image138.png",
+   "row": 33,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image139.png",
+   "row": 43,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 1 rows, 1 live."
+  },
+  {
+   "media": "image140.png",
+   "row": 55,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image141.png",
+   "row": 64,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image142.png",
+   "row": 74,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image143.png",
+   "row": 86,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image144.png",
+   "row": 96,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 1 -> 2 rows, 2 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image145.png",
+   "row": 110,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image146.png",
+   "row": 119,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image147.png",
+   "row": 130,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image148.png",
+   "row": 142,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image149.png",
+   "row": 151,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 2 -> 3 rows, 3 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image150.png",
+   "row": 166,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image151.png",
+   "row": 176,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image152.png",
+   "row": 189,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 2 insert."
+  },
+  {
+   "media": "image153.png",
+   "row": 203,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image154.png",
+   "row": 213,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 5 rows, 5 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image155.png",
+   "row": 229,
+   "tc": 5,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image156.png",
+   "row": 238,
+   "tc": 5,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image157.png",
+   "row": 252,
+   "tc": 5,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image158.png",
+   "row": 267,
+   "tc": 5,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image159.png",
+   "row": 278,
+   "tc": 5,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 5 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ],
+ "S08": [
+  {
+   "media": "image160.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image161.png",
+   "row": 15,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image162.png",
+   "row": 27,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image163.png",
+   "row": 39,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image164.png",
+   "row": 50,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 2 rows, 2 live."
+  },
+  {
+   "media": "image165.png",
+   "row": 65,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image166.png",
+   "row": 76,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image167.png",
+   "row": 88,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image168.png",
+   "row": 101,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image169.png",
+   "row": 113,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 2 -> 3 rows, 3 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image170.png",
+   "row": 128,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image171.png",
+   "row": 139,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image172.png",
+   "row": 151,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image173.png",
+   "row": 165,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image174.png",
+   "row": 178,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image175.png",
+   "row": 194,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image176.png",
+   "row": 205,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image177.png",
+   "row": 218,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image178.png",
+   "row": 230,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image179.png",
+   "row": 245,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ],
+ "S09": [
+  {
+   "media": "image180.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image181.png",
+   "row": 15,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image182.png",
+   "row": 25,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image183.png",
+   "row": 39,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image184.png",
+   "row": 50,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 2 rows, 2 live."
+  },
+  {
+   "media": "image185.png",
+   "row": 67,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image186.png",
+   "row": 78,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image187.png",
+   "row": 90,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image188.png",
+   "row": 103,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image189.png",
+   "row": 115,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 2 -> 3 rows, 3 live."
+  },
+  {
+   "media": "image190.png",
+   "row": 131,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image191.png",
+   "row": 146,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image192.png",
+   "row": 158,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 3 insert."
+  },
+  {
+   "media": "image193.png",
+   "row": 174,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 3 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image194.png",
+   "row": 186,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 6 rows, 6 live."
+  },
+  {
+   "media": "image195.png",
+   "row": 205,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image196.png",
+   "row": 221,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image197.png",
+   "row": 233,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image198.png",
+   "row": 248,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image199.png",
+   "row": 258,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 6 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ],
+ "S10": [
+  {
+   "media": "image200.png",
+   "row": 3,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 3 new version rows arrive."
+  },
+  {
+   "media": "image201.png",
+   "row": 15,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image202.png",
+   "row": 24,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 3 insert."
+  },
+  {
+   "media": "image203.png",
+   "row": 38,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 3 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image204.png",
+   "row": 49,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 3 rows, 3 live."
+  },
+  {
+   "media": "image205.png",
+   "row": 65,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: BROKER_STATUS_CDE corrected in place."
+  },
+  {
+   "media": "image206.png",
+   "row": 77,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image207.png",
+   "row": 86,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 11 (RETIRE by delete indicator, back-dated). 1 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image208.png",
+   "row": 100,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image209.png",
+   "row": 111,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 4 rows, 3 live. The superseded row is retired by DELETE INDICATOR: IS_DEL 'Y', both dates untouched."
+  },
+  {
+   "media": "image210.png",
+   "row": 127,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image211.png",
+   "row": 141,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image212.png",
+   "row": 151,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image213.png",
+   "row": 166,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image214.png",
+   "row": 177,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 4 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image215.png",
+   "row": 192,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early, BROKER_STATUS_CDE corrected in place."
+  },
+  {
+   "media": "image216.png",
+   "row": 204,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image217.png",
+   "row": 214,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 15 (RETIRE, hash and expiry both moved), rule 17 (INSERT). 1 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image218.png",
+   "row": 228,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image219.png",
+   "row": 239,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 4 -> 6 rows, 4 live. The superseded row is retired by DELETE INDICATOR: IS_DEL 'Y', both dates untouched."
+  }
+ ],
+ "S11": [
+  {
+   "media": "image220.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 3 new version rows arrive."
+  },
+  {
+   "media": "image221.png",
+   "row": 14,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image222.png",
+   "row": 23,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 3 insert."
+  },
+  {
+   "media": "image223.png",
+   "row": 36,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 3 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image224.png",
+   "row": 46,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 3 rows, 3 live."
+  },
+  {
+   "media": "image225.png",
+   "row": 61,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 row deleted outright."
+  },
+  {
+   "media": "image226.png",
+   "row": 72,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives, 1 row deleted outright."
+  },
+  {
+   "media": "image227.png",
+   "row": 82,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image228.png",
+   "row": 96,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image229.png",
+   "row": 107,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image230.png",
+   "row": 122,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image231.png",
+   "row": 132,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image232.png",
+   "row": 141,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image233.png",
+   "row": 157,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image234.png",
+   "row": 167,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 3 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image235.png",
+   "row": 182,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image236.png",
+   "row": 193,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives, 1 row deleted outright."
+  },
+  {
+   "media": "image237.png",
+   "row": 203,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image238.png",
+   "row": 217,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image239.png",
+   "row": 228,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 4 rows, 4 live."
+  },
+  {
+   "media": "image240.png",
+   "row": 246,
+   "tc": 5,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image241.png",
+   "row": 258,
+   "tc": 5,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives, 1 row deleted outright."
+  },
+  {
+   "media": "image242.png",
+   "row": 268,
+   "tc": 5,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image243.png",
+   "row": 281,
+   "tc": 5,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image244.png",
+   "row": 293,
+   "tc": 5,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 4 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ],
+ "S12": [
+  {
+   "media": "image245.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image246.png",
+   "row": 15,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image247.png",
+   "row": 24,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image248.png",
+   "row": 37,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image249.png",
+   "row": 49,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 2 rows, 2 live."
+  },
+  {
+   "media": "image250.png",
+   "row": 62,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image251.png",
+   "row": 73,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image252.png",
+   "row": 83,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 2 (rerun no-op), rule 4 (rerun no-op on a closed interval). 0 retire, 2 expire in place, 0 insert."
+  },
+  {
+   "media": "image253.png",
+   "row": 96,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 0 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image254.png",
+   "row": 107,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 2 -> 2 rows, 2 live."
+  },
+  {
+   "media": "image255.png",
+   "row": 121,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image256.png",
+   "row": 131,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image257.png",
+   "row": 142,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 3 stage rows: rule 4 (rerun no-op on a closed interval), rule 6 (rerun expire-in-place), rule 17 (INSERT). 0 retire, 2 expire in place, 1 insert."
+  },
+  {
+   "media": "image258.png",
+   "row": 156,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image259.png",
+   "row": 168,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 2 -> 3 rows, 3 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image260.png",
+   "row": 184,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image261.png",
+   "row": 194,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: COMMISSION_TIER_CDE corrected in place."
+  },
+  {
+   "media": "image262.png",
+   "row": 204,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 4 (rerun no-op on a closed interval), rule 10 (rerun dead record). 1 retire, 2 expire in place, 1 insert."
+  },
+  {
+   "media": "image263.png",
+   "row": 219,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 3 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image264.png",
+   "row": 230,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 3 -> 4 rows, 3 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image265.png",
+   "row": 246,
+   "tc": 5,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: BROKER_STATUS_CDE corrected in place."
+  },
+  {
+   "media": "image266.png",
+   "row": 256,
+   "tc": 5,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image267.png",
+   "row": 266,
+   "tc": 5,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 2 (rerun no-op), rule 4 (rerun no-op on a closed interval), rule 12 (rerun back-dated correction). 1 retire, 2 expire in place, 1 insert."
+  },
+  {
+   "media": "image268.png",
+   "row": 280,
+   "tc": 5,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 3 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image269.png",
+   "row": 291,
+   "tc": 5,
+   "shot": "target AFTER",
+   "caption": "Target 4 -> 5 rows, 3 live. The superseded row is retired by DELETE INDICATOR: IS_DEL 'Y', both dates untouched."
+  },
+  {
+   "media": "image270.png",
+   "row": 306,
+   "tc": 6,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early."
+  },
+  {
+   "media": "image271.png",
+   "row": 317,
+   "tc": 6,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image272.png",
+   "row": 327,
+   "tc": 6,
+   "shot": "stage",
+   "caption": "Step 1 output -- 5 stage rows: rule 2 (rerun no-op), rule 4 (rerun no-op on a closed interval), rule 8 (rerun retire by delete indicator), rule 17 (INSERT). 1 retire, 2 expire in place, 2 insert."
+  },
+  {
+   "media": "image273.png",
+   "row": 343,
+   "tc": 6,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 3 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image274.png",
+   "row": 352,
+   "tc": 6,
+   "shot": "target AFTER",
+   "caption": "Target 5 -> 7 rows, 4 live. The superseded row is retired by DELETE INDICATOR: IS_DEL 'Y', both dates untouched."
+  },
+  {
+   "media": "image275.png",
+   "row": 370,
+   "tc": 7,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image276.png",
+   "row": 381,
+   "tc": 7,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives, COMMISSION_TIER_CDE corrected in place."
+  },
+  {
+   "media": "image277.png",
+   "row": 392,
+   "tc": 7,
+   "shot": "stage",
+   "caption": "Step 1 output -- 6 stage rows: rule 4 (rerun no-op on a closed interval), rule 14 (rerun dead record, hash and expiry both moved), rule 17 (INSERT). 1 retire, 3 expire in place, 2 insert."
+  },
+  {
+   "media": "image278.png",
+   "row": 409,
+   "tc": 7,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 4 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image279.png",
+   "row": 420,
+   "tc": 7,
+   "shot": "target AFTER",
+   "caption": "Target 7 -> 9 rows, 5 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image280.png",
+   "row": 440,
+   "tc": 8,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 existing version closed early, BROKER_STATUS_CDE corrected in place."
+  },
+  {
+   "media": "image281.png",
+   "row": 450,
+   "tc": 8,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_1 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image282.png",
+   "row": 461,
+   "tc": 8,
+   "shot": "stage",
+   "caption": "Step 1 output -- 5 stage rows: rule 2 (rerun no-op), rule 4 (rerun no-op on a closed interval), rule 16 (rerun retire, hash and expiry both moved). 1 retire, 3 expire in place, 1 insert."
+  },
+  {
+   "media": "image283.png",
+   "row": 477,
+   "tc": 8,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 4 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image284.png",
+   "row": 488,
+   "tc": 8,
+   "shot": "target AFTER",
+   "caption": "Target 9 -> 10 rows, 5 live. The superseded row is retired by DELETE INDICATOR: IS_DEL 'Y', both dates untouched."
+  }
+ ],
+ "S13": [
+  {
+   "media": "image285.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image286.png",
+   "row": 13,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 new version row arrives."
+  },
+  {
+   "media": "image287.png",
+   "row": 21,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 1 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 1 insert."
+  },
+  {
+   "media": "image288.png",
+   "row": 32,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image289.png",
+   "row": 42,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 1 rows, 1 live."
+  },
+  {
+   "media": "image290.png",
+   "row": 54,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image291.png",
+   "row": 63,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives."
+  },
+  {
+   "media": "image292.png",
+   "row": 72,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image293.png",
+   "row": 86,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image294.png",
+   "row": 95,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 1 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image295.png",
+   "row": 108,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image296.png",
+   "row": 117,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image297.png",
+   "row": 126,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 output -- 2 stage rows: rule 5 (EXPIRE IN PLACE), rule 17 (INSERT). 0 retire, 1 expire in place, 1 insert."
+  },
+  {
+   "media": "image298.png",
+   "row": 138,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 1 inserted, 1 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image299.png",
+   "row": 148,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target 1 -> 2 rows, 2 live. Nothing was retired: the expired row keeps its surrogate key and its batch id."
+  },
+  {
+   "media": "image300.png",
+   "row": 161,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image301.png",
+   "row": 170,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image302.png",
+   "row": 179,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image303.png",
+   "row": 191,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image304.png",
+   "row": 201,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 2 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ],
+ "S14": [
+  {
+   "media": "image305.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 4 new version rows arrive."
+  },
+  {
+   "media": "image306.png",
+   "row": 14,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image307.png",
+   "row": 23,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 4 insert."
+  },
+  {
+   "media": "image308.png",
+   "row": 36,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 4 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image309.png",
+   "row": 45,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 4 rows, 4 live."
+  },
+  {
+   "media": "image310.png",
+   "row": 59,
+   "tc": 2,
+   "shot": "DDL",
+   "caption": "The Step 1 view is REDEFINED here, changing the hash formula mid-pipeline. The change alone re-derives nothing: only keys whose source timestamp moves are rebuilt, which is what makes the migration gradual."
+  },
+  {
+   "media": "image311.png",
+   "row": 71,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image312.png",
+   "row": 82,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image313.png",
+   "row": 91,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 9 (DEAD RECORD), rule 11 (RETIRE by delete indicator, back-dated). 2 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image314.png",
+   "row": 104,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image315.png",
+   "row": 114,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 4 -> 6 rows, 4 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image316.png",
+   "row": 129,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is unchanged, and so is SRC_2: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image317.png",
+   "row": 142,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) is unchanged, and so is SRC_1: this run re-reads identical inputs, which is what makes it a true idempotency check."
+  },
+  {
+   "media": "image318.png",
+   "row": 151,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image319.png",
+   "row": 163,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image320.png",
+   "row": 173,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 6 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  },
+  {
+   "media": "image321.png",
+   "row": 189,
+   "tc": 4,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image322.png",
+   "row": 201,
+   "tc": 4,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image323.png",
+   "row": 211,
+   "tc": 4,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 9 (DEAD RECORD), rule 11 (RETIRE by delete indicator, back-dated). 2 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image324.png",
+   "row": 225,
+   "tc": 4,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image325.png",
+   "row": 236,
+   "tc": 4,
+   "shot": "target AFTER",
+   "caption": "Target 6 -> 8 rows, 4 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image326.png",
+   "row": 255,
+   "tc": 5,
+   "shot": "DDL",
+   "caption": "The Step 1 view is REDEFINED here, changing the hash formula mid-pipeline. The change alone re-derives nothing: only keys whose source timestamp moves are rebuilt, which is what makes the migration gradual."
+  },
+  {
+   "media": "image327.png",
+   "row": 267,
+   "tc": 5,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image328.png",
+   "row": 278,
+   "tc": 5,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: NOTE_TEXT corrected in place."
+  },
+  {
+   "media": "image329.png",
+   "row": 288,
+   "tc": 5,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 9 (DEAD RECORD), rule 11 (RETIRE by delete indicator, back-dated). 2 retire, 0 expire in place, 2 insert."
+  },
+  {
+   "media": "image330.png",
+   "row": 301,
+   "tc": 5,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image331.png",
+   "row": 311,
+   "tc": 5,
+   "shot": "target AFTER",
+   "caption": "Target 8 -> 10 rows, 4 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  }
+ ],
+ "S15": [
+  {
+   "media": "image332.png",
+   "row": 4,
+   "tc": 1,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) after this run's delivery: 9 new version rows arrive."
+  },
+  {
+   "media": "image333.png",
+   "row": 19,
+   "tc": 1,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 8 new version rows arrive."
+  },
+  {
+   "media": "image334.png",
+   "row": 33,
+   "tc": 1,
+   "shot": "stage",
+   "caption": "Step 1 output -- 14 stage rows: rule 17 (INSERT). 0 retire, 0 expire in place, 14 insert."
+  },
+  {
+   "media": "image335.png",
+   "row": 55,
+   "tc": 1,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 14 inserted, 0 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image336.png",
+   "row": 67,
+   "tc": 1,
+   "shot": "target AFTER",
+   "caption": "Target 0 -> 14 rows, 14 live."
+  },
+  {
+   "media": "image337.png",
+   "row": 92,
+   "tc": 2,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image338.png",
+   "row": 108,
+   "tc": 2,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 1 existing version closed early, 1 new version row arrives, COMMISSION_TIER_CDE corrected in place."
+  },
+  {
+   "media": "image339.png",
+   "row": 125,
+   "tc": 2,
+   "shot": "stage",
+   "caption": "Step 1 output -- 4 stage rows: rule 5 (EXPIRE IN PLACE), rule 9 (DEAD RECORD), rule 17 (INSERT). 1 retire, 1 expire in place, 2 insert."
+  },
+  {
+   "media": "image340.png",
+   "row": 139,
+   "tc": 2,
+   "shot": "MERGE",
+   "caption": "One atomic MERGE applies the whole stage: 2 inserted, 2 updated -- retire and insert land in a single statement, not two."
+  },
+  {
+   "media": "image341.png",
+   "row": 149,
+   "tc": 2,
+   "shot": "target AFTER",
+   "caption": "Target 14 -> 16 rows, 15 live. The superseded row is a DEAD RECORD: effective date equals expiry, IS_DEL stays 'N'."
+  },
+  {
+   "media": "image342.png",
+   "row": 177,
+   "tc": 3,
+   "shot": "SRC_1",
+   "caption": "SRC_1 (Zone1 party history) is UNTOUCHED this run -- same rows, same GRS_REFINED_TIMESTAMP as before -- yet its target rows still have to move, because only SRC_2 moved. This is the problem the POC exists to solve."
+  },
+  {
+   "media": "image343.png",
+   "row": 194,
+   "tc": 3,
+   "shot": "SRC_2",
+   "caption": "SRC_2 (Zone1 commission history) after this run's delivery: 2 new version rows arrive."
+  },
+  {
+   "media": "image344.png",
+   "row": 214,
+   "tc": 3,
+   "shot": "stage",
+   "caption": "Step 1 produced ZERO stage rows: the rebuilt timeline already matches the target, so this run has nothing to write."
+  },
+  {
+   "media": "image345.png",
+   "row": 226,
+   "tc": 3,
+   "shot": "MERGE",
+   "caption": "The MERGE writes NOTHING: 0 inserted, 0 updated. Re-running costs nothing and changes nothing."
+  },
+  {
+   "media": "image346.png",
+   "row": 236,
+   "tc": 3,
+   "shot": "target AFTER",
+   "caption": "Target unchanged at 16 rows: every row still carries the batch id of the run that created it, so nothing was silently restamped."
+  }
+ ]
+}

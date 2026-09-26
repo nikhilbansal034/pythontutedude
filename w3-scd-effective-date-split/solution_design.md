@@ -240,7 +240,7 @@ Every rebuilt interval is matched to the existing target row on `(business_key, 
 row's **current expiry** decides first; the **hash** — taken over the columns that actually reach the target —
 only decides inside the high-end-date branch.
 
-**Source of truth: `sources/Requirement.xlsx`**, confirmed with leadership. Where its wording was struck
+**Source of truth: `Requirement.xlsx`**, confirmed with leadership. Where its wording was struck
 through in the spreadsheet, the surviving bracketed text is authoritative — `upd` was a shorthand that was
 struck precisely because it read as "update in place" when it means retire-and-replace.
 
@@ -813,10 +813,20 @@ point — the decision is reversible.
 
 ---
 
-## 16. Test strategy for POC v2
+## 16. Test strategy for POC v2, and its result
+
+**POC v2 is complete: 69 test cases across 15 scenarios, 69 passing**, executed against Snowflake and
+evidenced by 346 captioned screenshots in `poc_v2/evidence/POC_Evidence.xlsx`. Every screenshot was checked
+against `poc_v2/evidence/expected_results.txt` field by field — `RULE_NO`, `ACTION_FLAG`, `DEL_IND`,
+business key, status and tier codes, both dates, `IS_DEL`, `AUDIT_BATCH_ID`, row counts and the MERGE
+inserted/updated counts. No discrepancies. Per-test-case verdicts are in
+`poc_v2/evidence/verdicts.json` and in the Result column of `poc_v2/TEST_PLAN.md`.
+
+This settles the design question. It does **not** settle delivery: IDMC is deferred, the objects still have
+to fold into the existing pipeline, and the open items in `poc_v2/README.md` remain open.
 
 **Everything proved in POC v1 is treated as unproven.** The rule changed after v1 ran, so its evidence
-describes behaviour the design no longer specifies. POC v2 re-establishes coverage from nothing.
+describes behaviour the design no longer specifies. POC v2 re-established coverage from nothing.
 
 ### Rule coverage is counted, not assumed
 
@@ -841,7 +851,7 @@ row. Saying they are "covered" the same way as the others would be false.
 
 ### Fifteen scenarios, chosen to close every gap
 
-| | Scenario | Rules it must exercise |
+| | Scenario | Rules reached (measured) |
 |---|---|---|
 | S01 | One source changes, the other does not | 1, 3, 7, 13, 17 |
 | S02 | Both sources change in the same run | 5, 17 |
@@ -859,7 +869,7 @@ row. Saying they are "covered" the same way as the others would be false.
 | **S14** | **Hash-definition change** | §15, gradual re-derivation |
 | **S15** | **Volume and differential** | all rules, on random data |
 
-All 18 rules are covered. S12 carries every rerun variant, so it needs one test case per rule.
+All 18 rules are covered, and the coverage above is measured from a real run by `tools/refresh_docs.py`, not asserted. S12 carries every rerun variant, so it needs one test case per rule — and it is where a genuine defect surfaced, described in §17.
 
 ### Test case types
 
@@ -903,10 +913,57 @@ requirement, not a precaution.
 ```
 poc_v2/
   00_objects.sql      tables, sequence, the Step 1 diff view, the live view. Run once
-  S01.sql ... S15.sql one per scenario; TC sections within
+  scenarios/          S01.sql ... S15.sql, one per scenario; TC sections within
   TEST_PLAN.md        the full scenario x test case grid
-  evidence/           POC_v2_Evidence.xlsx, one tab per scenario
+  evidence/           POC_Evidence.xlsx -- tab 1 the rules, tab 2 the grid with its Result
+                      column, then one tab per scenario holding 346 captioned screenshots.
+                      expected_results.txt, verdicts.json, caption_ledger.json alongside
 ```
 
 Step 1 lives in the objects script as a **view**, since stored procedures are not allowed. Each test case
 then reads: `TRUNCATE` stage → `INSERT INTO stage SELECT FROM view` → `MERGE` → verify.
+
+---
+
+## 17. The defect POC v2 found
+
+POC v2 surfaced a real defect in the rule set, not a test bug. It is recorded here because the fix is part
+of the design, not an implementation detail.
+
+### What was wrong
+
+The rerun variants (rules 2, 4, 6, 8, 10, 12, 14, 16) are the even-numbered twins of the matched rules
+1–16, so the classifier reached them by adding 1 when `EXECUTION_TYPE = 'Z1_RERUN'`. That offset was applied
+to **every** branch — including rule **17**, the unmatched-insert rule.
+
+`17 + 1 = 18`. But rule 18 does not mean "insert during a rerun". It means **"this target row is gone from
+the timeline, do nothing"**, and it is not selected by the `'I'` branch of the apply.
+
+So on a rerun, a genuinely new interval was classified 18 and **the insert was silently dropped**. No error,
+no failed assertion on the run itself — the target simply lost all cover from that date onward.
+
+### The fix
+
+The `+1` applies only to the **matched** rules, 1–16. Rule 17 has no rerun variant, because "there is no
+target row to match" is the same fact on a first run and a rerun:
+
+```sql
+CASE
+  WHEN t.BROKER_PARTY_DIM_SK IS NULL THEN 17     -- no +1, ever
+  ELSE <matched classification, 1..16>
+       + CASE WHEN m.EXECUTION_TYPE = 'Z1_RERUN' THEN 1 ELSE 0 END
+END AS RULE_NO
+```
+
+### Why it stays fixed
+
+**S12 TC03 is the regression guard.** It runs a rerun in which a new interval arrives, and the evidence
+shows `RULE_NO = 18` appearing **nowhere** in any of S12's forty screenshots, the rule-17 insert reaching
+`9999-12-31`, and cover unbroken across `08-10 → 08-20 → 08-25 → 9999-12-31`.
+
+### What it says about the method
+
+The bug was not reachable by any single-run test, and not by any test that reseeded the target before each
+case. It needed a rerun executed against the state a previous run had left — which is why every test case
+from TC02 on is the **next run** against its predecessor's output rather than a fresh load. That structural
+choice is what made this defect findable at all.
