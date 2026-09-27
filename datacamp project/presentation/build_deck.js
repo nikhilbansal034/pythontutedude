@@ -31,16 +31,16 @@ s.background = { color: CH };
 s.addText('Reducing Scooter Downtime', { x:0.7, y:1.5, w:8.6, h:0.8, fontFace:HF, fontSize:40, bold:true, color:W, isTextBox:true, margin:0 });
 s.addText('What actually predicts a scooter going out of service — and what to do about it',
   { x:0.7, y:2.4, w:8.6, h:0.6, fontFace:BF, fontSize:16, color:'CADCFC', isTextBox:true, margin:0 });
-s.addText('Nikhil Bansal   |   Data Science   |   Fleet Reliability Review, QuorWatt Urban Mobility',
+s.addText('Nikhil Bansal',
   { x:0.7, y:4.5, w:8.6, h:0.35, fontFace:BF, fontSize:12, color:'A8B0B5', isTextBox:true, margin:0 });
 s.addNotes(
-`Good morning, and thanks for making the time.
+`Good morning. I am Nikhil, from the data science team.
 
-You asked two things. Which factors most strongly predict a scooter going out of service in the next twenty-four hours. And whether we could predict that with at least ninety percent accuracy.
+The Fleet Reliability Team asked for two things. First, identify the strongest predictors of a scooter being taken out of service in the twenty-four hours after a snapshot. Second, predict that outcome with at least ninety percent accuracy.
 
-I have a clear answer to the first. On the second I am going to push back, and I will show you exactly why — because chasing ninety percent would lead us to a model that does nothing useful.
+I can answer the first clearly. On the second, I am going to recommend a different target, and I will show you the evidence for that.
 
-I will also leave you something you can act on immediately, with no model at all.`);
+I will cover the data and its quality, why the accuracy target is the wrong one, what actually drives failures, how the two models compare, the metric I recommend instead, and four recommendations.`);
 
 /* ---------------- 2. The data ---------------- */
 s = p.addSlide();
@@ -61,17 +61,17 @@ s.addText('Only 12.3% of scooters go out of service. That imbalance shaped every
   { x:0.5, y:4.70, w:8.6, h:0.35, fontFace:BF, fontSize:13, italic:true, color:MU, isTextBox:true, margin:0 });
 foot(s,2);
 s.addNotes(
-`First, the data itself.
+`First, the data.
 
-Eighteen hundred scooter snapshots. Each row is one scooter, the previous twenty-four hours summarised, and a flag for whether it went out of service in the twenty-four hours after.
+Eighteen hundred scooter snapshots. Each row is one scooter: trips, battery health and rider-reported issues over the previous twenty-four hours, plus service area and hardware model. The target is whether it went out of service in the twenty-four hours that followed - so this is a binary classification problem.
 
-I checked every column and found four problems. "Downtown" misspelt on eighteen rows, which would have been read as a sixth, separate zone. Fifty-four rows where the trip count was the text "na" instead of a number, which forced the whole column to be stored as text. Eighteen negative counts of rider-reported issues, which is impossible, so I treated those as sign errors. And seventy-two missing battery readings.
+I validated every column against the data dictionary first, and found four problems.
 
-None were fatal, but they will keep recurring until collection is fixed, and I come back to that later.
+"Downtown" was misspelt on eighteen rows, which would have been read as a sixth, separate service area. Fifty-four rows had the text "na" where the trip count should be, which forced the whole column to be stored as text instead of numbers. Eighteen rows had a negative count of rider-reported issues, which is not possible, so I treated those as sign errors and took the absolute value. And seventy-two battery readings were missing, which I filled with the column median at the modelling step.
 
-The chart is the battery health distribution — most of the fleet between eighty and ninety, tailing down to fifty-five.
+The chart is the battery health distribution - most of the fleet between eighty and ninety, tailing down to fifty-five.
 
-The most important line is at the bottom. Only twelve point three percent of scooters go out of service. Nearly seven in eight are fine. Hold onto that, because the next slide is about it.`);
+The line at the bottom matters most. Only twelve point three percent of scooters go out of service. The next slide is about what that does to the accuracy target.`);
 
 /* ---------------- 3. The accuracy trap ---------------- */
 s = p.addSlide();
@@ -87,17 +87,17 @@ s.addText('So we optimised for breakdowns caught, and accepted lower accuracy to
   { x:6.52, y:3.85, w:2.98, h:0.8, fontFace:BF, fontSize:12.5, bold:true, color:CH, isTextBox:true, margin:0 });
 foot(s,3);
 s.addNotes(
-`This is the most important slide, so let me spend a moment on it.
+`This is the central slide, so I will spend a moment here.
 
-Look at the left pair of bars. That is a model that does nothing at all — it answers "this scooter is fine" every single time, without ever looking at the data. It scores eighty-seven point eight percent accuracy, because that is simply how often "fine" is the right answer.
+The left pair of bars is a model that does nothing. It answers "this scooter is fine" every time, without looking at the data at all. It scores eighty-seven point eight percent accuracy, because that is simply how often "fine" is the correct answer when only twelve percent of scooters fail.
 
-Now the red bar beside it. Zero. It catches none of the forty-four scooters that actually broke down.
+The red bar beside it is zero. It catches none of the forty-four scooters that actually broke down in the test set.
 
-So we already have a model that is nearly at your target and completely worthless. Pushing it to ninety percent does not improve it — it gets there by guessing "fine" more often, catching even fewer real breakdowns.
+So a model that is almost at your ninety percent target is completely useless. And pushing it to ninety would make it worse, not better - it gets there by answering "fine" more often, which means catching even fewer real breakdowns.
 
-That is why accuracy is the wrong target. We did not fail to reach ninety percent. Reaching it would have meant building something that does not help you.
+The technical reason is class imbalance: accuracy is dominated by the majority class. The fix is to tell the model that the rare class matters as much as the common one - in scikit-learn, the balanced class weight setting. Without it, both of my models predicted "in service" for every single row.
 
-The right pair is our actual model. Accuracy is lower, at fifty-nine percent, and I want to be upfront about that. But it catches twenty-two of the forty-four. That is the trade we made deliberately, and I would make it again.`);
+The right pair is the result. Accuracy drops to fifty-nine percent, which looks worse by that measure, but it catches twenty-two of the forty-four. That is a deliberate trade.`);
 
 /* ---------------- 4. What predicts failure ---------------- */
 s = p.addSlide();
@@ -110,15 +110,17 @@ s.addText('Weakest fifth of the fleet fails 24% of the time. Healthiest fifth, 5
   { x:0.5, y:4.55, w:5.5, h:0.45, fontFace:BF, fontSize:12.5, bold:true, color:AC, isTextBox:true, margin:0 });
 foot(s,4);
 s.addNotes(
-`So what did we actually find?
+`So what drives failures?
 
-Battery health, by a wide margin. I am confident because we tested it three separate ways — the regression coefficients, the forest's importance scores, and a shuffle test where we scramble one column at a time and measure the damage. All three put battery health first, and trip count second.
+Battery health, by a clear margin. I tested this three ways rather than trusting one: the standardised logistic regression coefficients, the random forest's feature importances, and a permutation test where I shuffle one column at a time and measure how much the model's ranking ability degrades. All three rank battery health first and trip count second.
 
-The left chart is the clearest view. Split the fleet into five equal groups by battery health. The weakest fifth goes out of service twenty-four percent of the time. The healthiest fifth, five percent. Almost a five-fold difference, and a smooth gradient the whole way down — not one odd group distorting things.
+I standardised the features before fitting. Without that, the coefficients sit on different scales and cannot be compared against each other.
 
-The box plot says the same differently — scooters that failed had noticeably lower median battery health. There is overlap, which is why this is not a perfect predictor, but the gap is real.
+The left chart is the clearest view. Split the fleet into five equal groups by battery health. The weakest fifth goes out of service twenty-four percent of the time; the healthiest fifth, five percent. Close to a five-fold difference, and a smooth gradient the whole way down.
 
-One finding surprised me. Rider-reported issues barely help — removing that column entirely does not hurt the model. Service area and scooter model add little, and no hardware family is meaningfully more fragile than the others, which matters if that was feeding the purchasing decision.`);
+The box plot shows the same relationship - scooters that failed had a lower median battery health, around seventy-seven against eighty-two. The distributions overlap, which is why this is not a perfect predictor, but the separation is real.
+
+One result went against expectation. Rider-reported issues add almost nothing; removing that column does not hurt the model. Service area and hardware model contribute very little, and no scooter family is meaningfully more failure-prone than the others, which is relevant to the purchasing decision.`);
 
 /* ---------------- 5. The models ---------------- */
 s = p.addSlide();
@@ -137,17 +139,19 @@ s.addText('A ranking score of 0.50 is a coin flip. 0.66 is a real signal, but a 
   { x:0.5, y:4.45, w:9.0, h:0.6, fontFace:BF, fontSize:12, italic:true, color:MU, isTextBox:true, margin:0 });
 foot(s,5);
 s.addNotes(
-`Here are the two models side by side, with the do-nothing benchmark first for context.
+`Here are the two models, with the do-nothing benchmark in the first column for reference.
 
-The logistic regression is our baseline — simple and explainable, which matters when you make staffing calls off it. The random forest is the comparison, because it catches patterns a straight line cannot.
+On method: I split the data eighty-twenty, stratified so both halves keep the same twelve point three percent failure rate. Fourteen hundred and forty scooters to train on, three hundred and sixty held back.
 
-Read the middle row, in red. The benchmark catches zero. The regression catches twenty-two of forty-four. The forest, nineteen.
+The baseline is logistic regression - simple and explainable, which matters when someone asks why a scooter was flagged. The comparison is a random forest, which captures non-linear patterns a straight line cannot. I capped its depth, because a fully grown forest memorises fourteen hundred rows rather than learning from them.
 
-The bottom row measures how well each ranks scooters by risk. Naught point five is a coin flip. Both land near naught point six-five, confirmed by cross-validation across all eighteen hundred rows, because forty-four breakdowns in one test set is a thin basis for any claim.
+The middle row, in red, is the one that matters. The benchmark catches zero. Logistic regression catches twenty-two of forty-four. The forest, nineteen.
 
-We recommend the regression. It catches the most, ranks slightly better, and you can interrogate it when someone asks why a scooter was flagged.
+The bottom row is ROC-AUC, which measures how well each model ranks scooters by risk. Zero point five is a coin flip. Both land near zero point six-five, confirmed with five-fold cross-validation across all eighteen hundred rows, because forty-four failures in one test set is too small a sample to conclude from.
 
-I want to be straight about that naught point six-five. It is well above a coin flip, so the signal is real. But it is modest. Good enough to sort the fleet by risk. Not good enough to point at one scooter and promise you it fails tomorrow.`);
+I recommend the logistic regression - it catches the most and ranks marginally better.
+
+On that zero point six-five: clearly above chance, so the signal is real, but modest. Enough to rank the fleet by risk. Not enough to say a specific scooter will fail tomorrow.`);
 
 /* ---------------- 6. The metric ---------------- */
 s = p.addSlide();
@@ -162,17 +166,17 @@ s.addText('Rank the fleet by risk each morning, inspect the top 10%, and measure
 });
 foot(s,6);
 s.addNotes(
-`If not accuracy, what goes on the dashboard?
+`So if not accuracy, what should you track?
 
-Swapping one model statistic for another tells you nothing about your business. So I built the metric around the decision you actually make — how many scooters your technicians can inspect in a day.
+Swapping one model statistic for another tells you nothing about the business, so I built the metric around the decision you actually make: how many scooters your technicians can inspect in a day.
 
-The metric is the pre-emptive catch rate. Each morning, rank the fleet by risk, inspect the top ten percent, and measure what share of that day's breakdowns were in that group.
+The metric is the pre-emptive catch rate. Each morning, rank the fleet by predicted risk, inspect the top ten percent, and measure what share of that day's breakdowns were in the group you inspected.
 
-The comparison on the left is the honest one. Today it is zero — maintenance is reactive, so every breakdown is found after the fact, usually by a rider. With the model, at a ten percent budget, it is twenty-three percent.
+The comparison on the left is the honest baseline. Today it is zero percent - maintenance is reactive, so every breakdown is found after it happens, usually by a rider. With the model, at a ten percent inspection budget, it is twenty-three percent.
 
-Ten percent of an eighteen hundred scooter fleet is a hundred and eighty inspections a day. You catch roughly a quarter of breakdowns before they happen, and about one inspection in three and a half finds a real fault. That is two point three times better than inspecting at random.
+In operational terms: ten percent of an eighteen hundred scooter fleet is a hundred and eighty inspections a day. You would catch roughly a quarter of breakdowns before they occur, and about one inspection in three and a half would find a real fault - two point three times better than inspecting at random. These figures are cross-validated across the full dataset.
 
-Report catch rate and hit rate together, always. Catch rate alone pushes you to inspect everything; hit rate alone, almost nothing. The pair keeps the cost trade-off visible.`);
+Report catch rate and hit rate together. Catch rate alone pushes you to inspect everything; hit rate alone, almost nothing. The pair keeps labour and parts cost visible against the downtime saved.`);
 
 /* ---------------- 7. Recommendations ---------------- */
 s = p.addSlide();
@@ -194,36 +198,18 @@ s.addText('The first two cost nothing and can begin immediately.',
   { x:0.5, y:4.86, w:8.6, h:0.35, fontFace:BF, fontSize:12.5, italic:true, bold:true, color:AC, isTextBox:true, margin:0 });
 foot(s,7);
 s.addNotes(
-`Four recommendations, ordered by how fast you can move.
+`Four recommendations, ordered by how quickly you can act.
 
-First, and I would start today: inspect from the bottom of the battery health ranking. You need neither the model nor us for this. Sort by battery health, work upward from the weakest, and you are targeting the group that fails twenty-four percent of the time instead of the fleet average of twelve.
+First, start today: inspect from the bottom of the battery health ranking. This needs no model. Sort the fleet by battery health and work upward from the weakest, and you are targeting a group that fails twenty-four percent of the time instead of the fleet average of twelve.
 
-Second, change what you measure. Replace the ninety percent accuracy target with the catch rate and hit rate pair, at whatever budget you can staff. I will be blunt: if the accuracy target stays, it will push whoever picks this up next towards a model that does nothing, because that is what accuracy rewards.
+Second, replace the ninety percent accuracy target with catch rate and hit rate, at whatever inspection budget you can staff, reviewed monthly. If the accuracy target stays, it will push whoever works on this next toward a model that does nothing, because that is what accuracy rewards on imbalanced data.
 
-Third, use the model to order the daily queue, but do not size the technician team or the parts order from it yet. A two point three times lift is worth having; it is not precise enough to plan headcount around. I know those decisions are close, and I would rather say that now than have you over-commit.
+Third, use the model to order the daily inspection queue, but do not size the technician team or the parts order from it yet. A two point three times lift is worth acting on; it is not precise enough to plan headcount against, and I know those decisions are close.
 
-Fourth, fix the data and capture richer battery telemetry — charge cycles, fault codes, scooter age. Battery health carrying almost all the signal tells us where the next gain is.
+Fourth, fix the collection issues I showed earlier, and capture richer battery telemetry - charge cycles, fault codes, and scooter age. Battery health carrying most of the signal tells us where the next improvement will come from.
 
-The first two cost you nothing.`);
+To close. We cannot tell you which scooter will fail tomorrow; the data does not support that. We can tell you which ten percent to inspect first, which moves you from catching zero percent of breakdowns in advance to roughly twenty-three, using data you already collect.
 
-/* ---------------- 8. Close ---------------- */
-s = p.addSlide();
-s.background = { color: CH };
-s.addText('In one line', { x:0.7, y:1.15, w:8.6, h:0.45, fontFace:BF, fontSize:15, color:'A8B0B5', isTextBox:true, margin:0 });
-s.addText('We cannot predict which scooter will fail.\nWe can tell you which 10% to look at first.',
-  { x:0.7, y:1.75, w:8.6, h:1.3, fontFace:HF, fontSize:26, bold:true, color:W, lineSpacing:38, isTextBox:true, margin:0 });
-s.addText('That moves you from catching 0% of breakdowns in advance to roughly 23% — starting with the battery health ranking you already have.',
-  { x:0.7, y:3.25, w:8.6, h:0.8, fontFace:BF, fontSize:14, color:'CADCFC', isTextBox:true, margin:0 });
-s.addText('Questions', { x:0.7, y:4.45, w:8.6, h:0.4, fontFace:BF, fontSize:15, bold:true, color:W, isTextBox:true, margin:0 });
-s.addNotes(
-`Let me close with the one sentence worth taking away.
-
-We cannot tell you which scooter will fail tomorrow. The data does not support that, and I would rather say so plainly than dress it up.
-
-What we can tell you is which ten percent to look at first. That moves you from catching zero percent of breakdowns in advance to roughly twenty-three — starting from a battery health ranking that is already in the data you collect today.
-
-That is a real improvement, available now, at no extra cost. And it grows as the data gets richer.
-
-Happy to take questions.`);
+Thank you. Happy to take questions.`);
 
 p.writeFile({ fileName: path.join(PROJECT, 'scooter_reliability_presentation.pptx') }).then(f => console.log('WROTE', f));
