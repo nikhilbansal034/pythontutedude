@@ -825,6 +825,14 @@ inserted/updated counts. No discrepancies. Per-test-case verdicts are in
 This settles the design question. It does **not** settle delivery: IDMC is deferred, the objects still have
 to fold into the existing pipeline, and the open items in `poc_v2/README.md` remain open.
 
+The POC was afterwards put through an **independent test lead review** (`TEST_LEAD_REVIEW.md`), which gave
+a **conditional sign-off**: the logic is sound and genuinely evidenced, but four exit criteria must close
+before the IDMC build starts. Every finding was independently re-executed before being accepted, and the
+outcome is recorded in `TEST_LEAD_REVIEW_RESPONSE.md`. The headline is that one unstated precondition is
+load-bearing &mdash; see §18.
+
+`scd_date_split_design_deck.html` is the walkthrough deck built from this document.
+
 **Everything proved in POC v1 is treated as unproven.** The rule changed after v1 ran, so its evidence
 describes behaviour the design no longer specifies. POC v2 re-established coverage from nothing.
 
@@ -967,3 +975,45 @@ The bug was not reachable by any single-run test, and not by any test that resee
 case. It needed a rerun executed against the state a previous run had left — which is why every test case
 from TC02 on is the **next run** against its predecessor's output rather than a fresh load. That structural
 choice is what made this defect findable at all.
+
+---
+
+## 18. What is open after the test lead review
+
+The review gave a **conditional sign-off**. The logic is sound; the reservation is that one unstated
+precondition is load-bearing and the test suite cannot currently detect its violation. Every finding was
+independently re-executed before being accepted (`TEST_LEAD_REVIEW_RESPONSE.md`).
+
+Nothing below has been actioned. These are recorded so that the decisions are taken deliberately rather
+than by default.
+
+### A. Needs an answer from outside the team
+
+| | Question | Why it cannot wait |
+|---|---|---|
+| **A1** | **Can a Zone1 history table hold two overlapping periods for the same business key?** | Decides whether the overlap problem is a documented precondition or a code guard. It is the single highest-value question in the pack, and it becomes an order of magnitude more expensive to answer after the IDMC mappings exist |
+| **A2** | **What is `UUID` on a target row** — generated per row and restamped, or carried from a source? (§13 Q9) | Rules 2 and 4 exist *solely* to restamp it. Its correctness cannot be asserted in test until its definition is settled. If it is carried from a source, which source supplies it for an interval only one source covers? |
+| **A3** | **How many assets will use this pattern?** (§12 Q5) | At two or three, a hand-written view per target is fine. At fifteen or more it is the wrong shape, and that is hard to reverse once built |
+
+### B. Ours to do, no external answer needed
+
+| | Work | What it closes |
+|---|---|---|
+| **B1** | Decide the overlap position — document the precondition **or** add a Step 1 guard — then add a corrupt-input test case that fails without it | The overlap gap |
+| **B2** | Add genuine de-duplication coverage: a duplicate `(key, effective date)` with **distinct** timestamps where **neither** value matches the incumbent | De-dup and "latest wins" are both currently untested |
+| **B3** | Fix S05 to test its own stated premise — the **same** value either side of the gap | The gap guard is currently never exercised |
+| **B4** | Bring the offline harness under drift control: generate its apply logic from `00_objects.sql`, or extend `check_merge_drift.py` to cover it | The shipped MERGE is not executed by any test |
+
+**B4 should be sequenced first.** The review recommends replacing "18 of 18 rules reached" with a mutation
+score as the coverage gate, which is right — rule coverage measures *reachability* and says nothing about
+*sensitivity*. But a mutation score is only as good as the code it mutates, and today mutating
+`00_objects.sql` scores zero, because none of that file is executed by the suite.
+
+### C. Documentation corrections
+
+Seven places where the written package is out of step with the code, mostly POC v1 residue: §10.A's claim
+about `TARGET_TABLE_NAME` filtering, §9's surviving v1 content, §4's trap-coverage claims, `TEST_PLAN.md`'s
+description of an S15 test that does not exist, the "volume" label on a six-key scenario, §6's UUID column
+for rules 8/10/12/14/16, and the root `README.md`'s coverage claims. Detail in
+`TEST_LEAD_REVIEW_RESPONSE.md` §1.
+

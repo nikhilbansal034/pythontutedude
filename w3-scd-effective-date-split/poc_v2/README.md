@@ -157,8 +157,34 @@ the harness ran green on a file Snowflake would not parse. Both rules it enforce
 The POC's own coverage is complete. **Turning it into the delivered pipeline is not** — the items below are
 outstanding, and this list is not closed.
 
+An independent test lead review has since given a **conditional sign-off**: the logic is sound and
+genuinely evidenced, but four exit criteria must close before the IDMC build starts. The full list lives in
+`../solution_design.md` §18; the findings and our verification of them are in `../TEST_LEAD_REVIEW.md` and
+`../TEST_LEAD_REVIEW_RESPONSE.md`.
+
+**Waiting on an answer from outside the team**
+
+- **Can a Zone1 history table hold two overlapping periods for one business key?** The design assumes not,
+  that assumption is stated nowhere, and the suite cannot detect its violation. Highest-value question open.
+- **What is `UUID` on a target row** — generated per row, or carried from a source? Rules 2 and 4 exist only
+  to restamp it, and it cannot be asserted in test until it is defined.
+- **How many assets will use this pattern?** Decides whether a hand-written view per target is the right
+  shape at all.
 - Does the real stage table already have an operation / CDC indicator column? If so `ACTION_FLAG` takes that
-  name and the apply adds **no column at all**. If not, it is the one genuine `ALTER`. **Still open.**
+  name and the apply adds **no column at all**. If not, it is the one genuine `ALTER`.
+
+**Ours to do**
+
+- Settle the overlap position, then add a corrupt-input case that fails without it.
+- Add real de-duplication coverage — a duplicate `(key, effective date)` with **distinct** timestamps where
+  **neither** value matches the incumbent.
+- Fix S05 to test its stated premise: the **same** value either side of the gap.
+- Bring the offline harness under drift control. Do this first — the shipped `MERGE` is not executed by any
+  test, so a mutation score over `00_objects.sql` is currently zero.
+- Correct the seven documentation defects listed in `../solution_design.md` §18C.
+
+**Other**
+
 - IDMC is deferred. The objects are shaped to fold into the existing ETL pipeline, but the mapping,
   task and workflow build has not been done.
 - The evidence workbook has not had a visual pass in Excel itself — the caption layout is verified by
