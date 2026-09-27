@@ -151,6 +151,21 @@ svg.dg .nb{fill:var(--orange)}
 svg.dg .nt{font:700 10.5px var(--font);fill:#fff}
 svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 
+/* ---------- cover agenda panel (copied from deck 1, premium-cde-monitoring-deck.html) ---------- */
+.cols.c55>*:first-child{flex:0 0 55%;}
+.agenda{border:1px solid var(--g2);border-top:5px solid var(--teal);background:var(--white);padding:20px 26px 14px;}
+.agenda .ttl{font-size:14px;font-weight:700;letter-spacing:.14em;color:var(--g11);text-transform:uppercase;margin-bottom:4px;}
+.agenda .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:14px 0 7px;}
+.agenda .item{display:flex;gap:14px;align-items:baseline;font-size:17.5px;font-weight:600;color:var(--navy);margin-bottom:9px;line-height:1.3;}
+.agenda .item .k{font-size:14px;font-weight:700;color:var(--white);background:var(--navy);
+  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* The 18-rule reference table is the one genuinely dense table in the deck: 19 rows in a
+   608px content box. Tighten its row padding only, scoped to that slide, so the deck's
+   shared table.sm rhythm is unchanged everywhere else and fitContent stays a no-op here. */
+#s3 table.sm td{padding:3px 7px;}
+#s3 table.sm th{padding:4px 7px;}
+
 @media print{
   body,body.js{background:#fff;overflow:visible;}
   .sidenav{display:none;}
@@ -172,21 +187,20 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 </defs></svg>
 
 <nav class="sidenav" aria-label="Slide navigation">
-  <div class="brand"><b>SCD2 effective-date split</b><span>W3 · Zone1 &rarr; Zone2<br>Design &middot; 8 slides</span></div>
+  <div class="brand"><b>SCD2 effective-date split</b><span>Zone1 &rarr; Zone2<br>Design &middot; 7 slides</span></div>
 
   <div class="grp">Problem</div>
   <button class="navbtn2" role="tab" aria-selected="true"><span class="n">01</span>Cover</button>
   <button class="navbtn2" role="tab" aria-selected="false"><span class="n">02</span>The problem</button>
 
   <div class="grp">The rules</div>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">03</span>18 rules &mdash; decision + table</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">04</span>18 rules &mdash; grouped<span class="int">ALT</span></button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">03</span>The 18 rules</button>
 
   <div class="grp">Solution</div>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">05</span>Two retirement mechanisms</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">06</span>Architecture</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">07</span>How a run works</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">08</span>Worked example</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">04</span>Two retirement mechanisms</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">05</span>Architecture</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">06</span>How a run works</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">07</span>Worked example</button>
 
   <div class="navfoot">
     <button class="pgbtn" id="prev" aria-label="Previous slide">&#8249;</button>
@@ -197,18 +211,29 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 
 <main class="deck">
 <section class="slide cover" id="s1" role="tabpanel">
-  <div class="eyebrow">W3 &middot; GRS / MVP &middot; Design walkthrough</div>
-  <h1>When two SCD2 sources load one SCD2 target</h1>
-  <div class="rule"></div>
-  <p class="lede">Neither source alone can determine the target's effective dates. The target's
-  timeline has to be derived from the union of <i>both</i> sources' version boundaries &mdash; and rows
-  already loaded have to be reconciled when a later run splits an interval that was already written.</p>
-  <div class="meta">
-    <b>Scope</b> &nbsp;Zone1 &rarr; Zone2, Snowflake only, no stored procedures<br>
-    <b>Rules</b> &nbsp;18-row decision table, <span class="mono">Requirement.xlsx</span> confirmed with leadership<br>
-    <b>Audience</b> &nbsp;Internal &mdash; delivery team and technical leads
+  <div class="cols c55" style="align-items:center;">
+    <div>
+      <div class="eyebrow">GRS / MVP &middot; Design walkthrough</div>
+      <h1>When two SCD2 sources load one SCD2 target</h1>
+      <div class="rule"></div>
+      <p class="lede">Neither source alone can determine the target's effective dates. The target's
+      timeline has to be derived from the union of <b>both</b> sources' version boundaries &mdash; and rows
+      already loaded have to be reconciled when a later run splits an interval that was already written.</p>
+    </div>
+    <div class="agenda">
+      <div class="ttl">Agenda</div>
+      <div class="sec">Problem</div>
+      <div class="item"><span class="k">2</span>One source moves, the other's rows still have to move</div>
+      <div class="sec">The rules</div>
+      <div class="item"><span class="k">3</span>The 18-rule decision table</div>
+      <div class="item"><span class="k">4</span>The two ways a row is retired</div>
+      <div class="sec">Solution</div>
+      <div class="item"><span class="k">5</span>Architecture &mdash; two steps, one MERGE</div>
+      <div class="item"><span class="k">6</span>How a single run works</div>
+      <div class="item"><span class="k">7</span>Worked example, end to end</div>
+    </div>
   </div>
-  <div class="slide-no">1 / 8</div>
+  <div class="slide-no">1 / 7</div>
 </section>
 
 <section class="slide" id="s2" role="tabpanel">
@@ -269,164 +294,112 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
         <tr><td>A row is written once per driving version</td>
             <td>A row may be <b>re-cut by a later run</b> that splits it</td></tr>
       </table>
-      <p class="note">Confirmed on the 2026-09-18 walkthrough and the 2026-09-23 session with
-      Nidwika and Ramneek.</p>
     </div>
   </div>
 
   <div class="takeaway">Neither source can drive the load &mdash; the target timeline is the union of both
   sources' boundaries, so a change in one re-cuts rows derived from the other.</div>
-  <div class="slide-no">2 / 8</div>
+  <div class="slide-no">2 / 7</div>
 </section>
 <section class="slide" id="s3" role="tabpanel">
   <h2>The 18 rules &mdash; the decision, then the table</h2>
-  <p class="sub">The matched row's current expiry decides first; the hash only decides inside the high-end-date branch</p>
+  <p class="sub">The matched row&apos;s current expiry decides first; the hash only decides inside the high-end-date branch</p>
 
-  <div class="cols w40-60">
-    <div>
-      <div class="figure">
-      <svg class="dg" viewBox="0 0 440 300" role="img"
-           aria-label="Decision procedure: match, then expiry, then hash">
-        <rect class="box alt" x="70" y="6" width="300" height="34" rx="5"/>
-        <text class="t" x="220" y="20" text-anchor="middle">Match interval to target row</text>
-        <text class="t s" x="220" y="33" text-anchor="middle">on (business_key, row_eff_dte)</text>
+  <div class="cols" style="gap:18px">
+    <div style="flex:0 0 33%">
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 430 432" role="img"
+       aria-label="Decision procedure: match, expiry, target expiry, hash, then execution type">
+    <rect class="box alt" x="72" y="4" width="286" height="32" rx="5"/>
+    <text class="t" x="215" y="17" text-anchor="middle">Rebuilt interval</text>
+    <text class="t s" x="215" y="30" text-anchor="middle">matched on (business_key, ROW_EFF_DTE)</text>
 
-        <path class="arw" d="M110,40 L60,40 L60,62"/>
-        <rect class="box" x="6" y="62" width="108" height="32" rx="5"/>
-        <text class="t" x="60" y="82" text-anchor="middle">no match</text>
-        <path class="arw" d="M60,94 L60,116"/>
-        <rect class="box warnb" x="6" y="116" width="108" height="30" rx="5"/>
-        <text class="t" x="60" y="135" text-anchor="middle">17 &mdash; INSERT</text>
+    <path class="arw" d="M120,36 L52,36 L52,54"/>
+    <rect class="box warnb" x="2" y="54" width="100" height="44" rx="5"/>
+    <text class="t s" x="52" y="70" text-anchor="middle">no target row</text>
+    <text class="t w" x="52" y="88" text-anchor="middle">17 &middot; INSERT</text>
 
-        <path class="arw" d="M330,40 L380,40 L380,62"/>
-        <rect class="box" x="326" y="62" width="108" height="32" rx="5"/>
-        <text class="t s" x="380" y="76" text-anchor="middle">target eff date</text>
-        <text class="t s" x="380" y="88" text-anchor="middle">gone from timeline</text>
-        <path class="arw" d="M380,94 L380,116"/>
-        <rect class="box grey" x="326" y="116" width="108" height="30" rx="5"/>
-        <text class="t" x="380" y="135" text-anchor="middle">18 &mdash; NO ACTION</text>
+    <path class="arw" d="M310,36 L378,36 L378,54"/>
+    <rect class="box grey" x="328" y="54" width="100" height="44" rx="5"/>
+    <text class="t s" x="378" y="70" text-anchor="middle">eff date gone</text>
+    <text class="t s" x="378" y="88" text-anchor="middle">18 &middot; NO ACTION</text>
 
-        <path class="arw" d="M220,40 L220,68"/>
-        <rect class="box" x="130" y="68" width="180" height="30" rx="5"/>
-        <text class="t" x="220" y="87" text-anchor="middle">matched &mdash; rules 1&ndash;16</text>
-        <path class="arw" d="M220,98 L220,124"/>
-        <rect class="box alt" x="130" y="124" width="180" height="46" rx="5"/>
-        <text class="t s" x="220" y="140" text-anchor="middle">Is the target row's expiry</text>
-        <text class="t" x="220" y="156" text-anchor="middle">9999-12-31, or a real date?</text>
-        <path class="arw" d="M220,170 L220,196"/>
-        <rect class="box" x="130" y="196" width="180" height="42" rx="5"/>
-        <text class="t s" x="220" y="212" text-anchor="middle">then, within that branch:</text>
-        <text class="t" x="220" y="228" text-anchor="middle">did the hash change?</text>
-        <path class="arw d" d="M220,238 L220,262"/>
-        <rect class="box grey" x="100" y="262" width="240" height="32" rx="5"/>
-        <text class="t s" x="220" y="276" text-anchor="middle">rerun adds 1 to the rule number</text>
-        <text class="t s" x="220" y="288" text-anchor="middle">&mdash; UUID restamp, nothing else moves</text>
-      </svg>
-      </div>
+    <path class="arw" d="M215,36 L215,62"/>
+    <rect class="box" x="112" y="62" width="206" height="26" rx="5"/>
+    <text class="t" x="215" y="80" text-anchor="middle">matched &mdash; rules 1 to 16</text>
+
+    <path class="arw" d="M215,88 L215,110"/>
+    <rect class="box alt" x="96" y="110" width="238" height="52" rx="5"/>
+    <text class="t s" x="215" y="126" text-anchor="middle">1 &middot; ROW_EXP_DTE vs the rebuilt interval</text>
+    <rect class="box" x="106" y="132" width="106" height="24" rx="3"/>
+    <text class="t" x="159" y="148" text-anchor="middle">same</text>
+    <rect class="box" x="218" y="132" width="106" height="24" rx="3"/>
+    <text class="t" x="271" y="148" text-anchor="middle">different</text>
+
+    <path class="arw" d="M215,162 L215,184"/>
+    <rect class="box alt" x="96" y="184" width="238" height="52" rx="5"/>
+    <text class="t s" x="215" y="200" text-anchor="middle">2 &middot; the target row&apos;s expiry is</text>
+    <rect class="box" x="106" y="206" width="106" height="24" rx="3"/>
+    <text class="t" x="159" y="222" text-anchor="middle">9999-12-31</text>
+    <rect class="box" x="218" y="206" width="106" height="24" rx="3"/>
+    <text class="t" x="271" y="222" text-anchor="middle">a real date</text>
+
+    <path class="arw" d="M215,236 L215,258"/>
+    <rect class="box alt" x="96" y="258" width="238" height="52" rx="5"/>
+    <text class="t s" x="215" y="274" text-anchor="middle">3 &middot; ROW_HASH, target-bound columns only</text>
+    <rect class="box" x="106" y="280" width="106" height="24" rx="3"/>
+    <text class="t" x="159" y="296" text-anchor="middle">same</text>
+    <rect class="box" x="218" y="280" width="106" height="24" rx="3"/>
+    <text class="t" x="271" y="296" text-anchor="middle">different</text>
+
+    <path class="arw" d="M215,310 L215,332"/>
+    <rect class="box warnb" x="96" y="332" width="238" height="52" rx="5"/>
+    <text class="t w" x="215" y="348" text-anchor="middle">4 &middot; EXECUTION_TYPE</text>
+    <rect class="box" x="106" y="354" width="106" height="24" rx="3"/>
+    <text class="t" x="159" y="370" text-anchor="middle">regular</text>
+    <rect class="box" x="218" y="354" width="106" height="24" rx="3"/>
+    <text class="t" x="271" y="370" text-anchor="middle">rerun &rarr; +1</text>
+
+    <path class="arw" d="M215,384 L215,404"/>
+    <rect class="box" x="96" y="404" width="238" height="26" rx="5"/>
+    <text class="t" x="215" y="422" text-anchor="middle">one rule number, 1 to 18</text>
+  </svg>
+  </div>
       <p class="note"><b>Order matters.</b> A row closed with a real date was published downstream, so
       changing it is a <i>correction</i> &mdash; retire and keep it visible. A row at the high end date never
       committed to an end, so closing it is the natural progression &mdash; expire it in place.</p>
     </div>
-
     <div>
-      <div class="cols">
-        <div>
-          <table class="sm">
-            <tr><th class="num">#</th><th>HASH</th><th>EXP</th><th>Action</th></tr>
-            <tr><td class="num">1</td><td>same</td><td>same &middot; 9999</td><td>do nothing</td></tr>
-            <tr><td class="num">2</td><td>same</td><td>same &middot; 9999</td><td>UUID <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">3</td><td>same</td><td>same &middot; real</td><td>do nothing</td></tr>
-            <tr><td class="num">4</td><td>same</td><td>same &middot; real</td><td>UUID <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">5</td><td>same</td><td><b>diff</b> &middot; 9999</td><td><b>expire in place</b> + insert</td></tr>
-            <tr><td class="num">6</td><td>same</td><td><b>diff</b> &middot; 9999</td><td>as 5 <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">7</td><td>same</td><td><b>diff</b> &middot; real</td><td><b>retire</b> + insert</td></tr>
-            <tr><td class="num">8</td><td>same</td><td><b>diff</b> &middot; real</td><td>as 7 <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">9</td><td><b>diff</b></td><td>same &middot; 9999</td><td><b>dead record</b> + insert</td></tr>
-          </table>
-        </div>
-        <div>
-          <table class="sm">
-            <tr><th class="num">#</th><th>HASH</th><th>EXP</th><th>Action</th></tr>
-            <tr><td class="num">10</td><td><b>diff</b></td><td>same &middot; 9999</td><td>as 9 <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">11</td><td><b>diff</b></td><td>same &middot; real</td><td><b>retire</b> + insert</td></tr>
-            <tr><td class="num">12</td><td><b>diff</b></td><td>same &middot; real</td><td>as 11 <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">13</td><td><b>diff</b></td><td><b>diff</b> &middot; 9999</td><td><b>dead record</b> + insert</td></tr>
-            <tr><td class="num">14</td><td><b>diff</b></td><td><b>diff</b> &middot; 9999</td><td>as 13 <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">15</td><td><b>diff</b></td><td><b>diff</b> &middot; real</td><td><b>retire</b> + insert</td></tr>
-            <tr><td class="num">16</td><td><b>diff</b></td><td><b>diff</b> &middot; real</td><td>as 15 <span class="chip part">rerun</span></td></tr>
-            <tr><td class="num">17</td><td colspan="2">no target row at that eff date</td><td><b>insert</b></td></tr>
-            <tr><td class="num">18</td><td colspan="2">target eff date gone</td><td>no action, row left live</td></tr>
-          </table>
-        </div>
-      </div>
-      <p class="note"><b>Source:</b> <span class="mono">Requirement.xlsx</span>, confirmed with leadership.
-      Where its wording was struck through, the surviving bracketed text is authoritative &mdash;
-      <span class="mono">upd</span> was struck precisely because it read as "update in place" when it
-      means retire-and-replace. Verified at file-format level in the spreadsheet's raw XML.</p>
+      <table class="sm" style="font-size:11.4px">
+<tr><th class="num">#</th><th>EFF_DTE</th><th>HASH</th><th>EXP_DTE</th><th>TARGET&nbsp;EXPIRY</th><th>EXEC_TYPE</th><th>ACTION</th><th>STAGE</th></tr>
+<tr><td class="num">1</td><td>matches</td><td>same</td><td>same</td><td>9999-12-31</td><td>regular</td><td>do nothing</td><td><span class="mono">&mdash;</span></td></tr>
+<tr><td class="num">2</td><td>matches</td><td>same</td><td>same</td><td>9999-12-31</td><td>rerun</td><td>update UUID</td><td><span class="mono">'U'</span></td></tr>
+<tr><td class="num">3</td><td>matches</td><td>same</td><td>same</td><td>real date</td><td>regular</td><td>do nothing</td><td><span class="mono">&mdash;</span></td></tr>
+<tr><td class="num">4</td><td>matches</td><td>same</td><td>same</td><td>real date</td><td>rerun</td><td>update UUID</td><td><span class="mono">'U'</span></td></tr>
+<tr><td class="num">5</td><td>matches</td><td>same</td><td><b>diff</b></td><td>9999-12-31</td><td>regular</td><td><b>expire in place</b> + insert</td><td><span class="mono">'U','I'</span></td></tr>
+<tr><td class="num">6</td><td>matches</td><td>same</td><td><b>diff</b></td><td>9999-12-31</td><td>rerun</td><td>as 5, + UUID</td><td><span class="mono">'U','I'</span></td></tr>
+<tr><td class="num">7</td><td>matches</td><td>same</td><td><b>diff</b></td><td>real date</td><td>regular</td><td><b>retire</b> + insert</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">8</td><td>matches</td><td>same</td><td><b>diff</b></td><td>real date</td><td>rerun</td><td>as 7, + UUID</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">9</td><td>matches</td><td><b>diff</b></td><td>same</td><td>9999-12-31</td><td>regular</td><td><b>dead record</b> + insert</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">10</td><td>matches</td><td><b>diff</b></td><td>same</td><td>9999-12-31</td><td>rerun</td><td>as 9, + UUID</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">11</td><td>matches</td><td><b>diff</b></td><td>same</td><td>real date</td><td>regular</td><td><b>retire</b> + insert</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">12</td><td>matches</td><td><b>diff</b></td><td>same</td><td>real date</td><td>rerun</td><td>as 11, + UUID</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">13</td><td>matches</td><td><b>diff</b></td><td><b>diff</b></td><td>9999-12-31</td><td>regular</td><td><b>dead record</b> + insert</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">14</td><td>matches</td><td><b>diff</b></td><td><b>diff</b></td><td>9999-12-31</td><td>rerun</td><td>as 13, + UUID</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">15</td><td>matches</td><td><b>diff</b></td><td><b>diff</b></td><td>real date</td><td>regular</td><td><b>retire</b> + insert</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">16</td><td>matches</td><td><b>diff</b></td><td><b>diff</b></td><td>real date</td><td>rerun</td><td>as 15, + UUID</td><td><span class="mono">'D','I'</span></td></tr>
+<tr><td class="num">17</td><td><b>no match</b></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>either</td><td><b>insert</b></td><td><span class="mono">'I'</span></td></tr>
+<tr><td class="num">18</td><td><b>gone</b></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td>either</td><td>no action, row left live</td><td><span class="mono">&mdash;</span></td></tr>
+</table>
+      <p class="note">Columns are the <span class="mono">ROW_*</span> attributes of the rebuilt interval compared with the matched target row. Rules 1&ndash;16 pair up exactly &mdash; the odd rule is the regular run, the even rule the same action on a rerun with the UUID restamped. Rule 17 has no rerun twin.</p>
     </div>
   </div>
 
   <div class="takeaway">Expiry decides the branch, hash decides within it, and execution type changes
   nothing but the UUID &mdash; which is why rules 1&ndash;16 pair up exactly.</div>
-  <div class="slide-no">3 / 8</div>
+  <div class="slide-no">3 / 7</div>
 </section>
-<section class="slide internal" id="s4" role="tabpanel">
-  <h2>The 18 rules &mdash; grouped by branch</h2>
-  <p class="sub">The same table, arranged as the four things that can actually differ &mdash; alternate to slide 3</p>
-
-  <div class="cards c2">
-    <div class="card">
-      <div class="n">BRANCH 1 &mdash; NOTHING DIFFERS</div>
-      <div class="lbl">Rules 1 &middot; 2 &middot; 3 &middot; 4</div>
-      <p>Hash same, expiry same. The rebuilt interval is already in the target exactly as derived, so
-      there is nothing to write. Rules 2 and 4 are the rerun twins and restamp the UUID only.
-      <b>These are the do-nothing rules</b> &mdash; they emit no stage row at all.</p>
-    </div>
-    <div class="card" style="border-top-color:var(--blue)">
-      <div class="lbl" style="color:var(--blue-ac)">BRANCH 2 &mdash; ONLY THE EXPIRY MOVED</div>
-      <div class="lbl">Rules 5 &middot; 6 &middot; 7 &middot; 8</div>
-      <p>Hash same, expiry differs. At <b>9999</b> &rarr; rules 5/6 <b>expire in place</b>: the surrogate key
-      survives, nothing is retired, and a new version is inserted at the new effective date if the source
-      supplies one. At a <b>real date</b> &rarr; rules 7/8 <b>retire</b> and re-insert at the same effective date.</p>
-    </div>
-    <div class="card" style="border-top-color:var(--orange)">
-      <div class="lbl" style="color:var(--orange)">BRANCH 3 &mdash; ONLY THE VALUE MOVED</div>
-      <div class="lbl">Rules 9 &middot; 10 &middot; 11 &middot; 12</div>
-      <p>Hash differs, expiry same &mdash; a source restated a row in place. Dates alone cannot see this, and a
-      date-only comparison would leave the stale value in the target and report success. At <b>9999</b> &rarr;
-      <b>dead record</b>. At a <b>real date</b> &rarr; <b>delete indicator</b>. Both re-insert at the same effective date.</p>
-    </div>
-    <div class="card" style="border-top-color:var(--red)">
-      <div class="lbl" style="color:var(--red)">BRANCH 4 &mdash; BOTH MOVED</div>
-      <div class="lbl">Rules 13 &middot; 14 &middot; 15 &middot; 16</div>
-      <p>Hash and expiry both differ. Same retirement choice as branch 3, decided the same way by the
-      expiry the row already carries: <b>9999</b> &rarr; dead record, <b>real date</b> &rarr; delete indicator.</p>
-    </div>
-  </div>
-
-  <div class="cols" style="margin-top:10px">
-    <div class="card" style="border-top-color:var(--green-ac)">
-      <div class="lbl" style="color:var(--green-ac)">RULE 17 &mdash; NO TARGET ROW AT THAT EFFECTIVE DATE</div>
-      <p><b>Insert.</b> Fires for every genuinely new interval, and also at the next boundary after a rule
-      5/6 expire-in-place. It has <b>no rerun twin</b>: "there is no row to match" is the same fact on a
-      first run and on a rerun.</p>
-    </div>
-    <div class="card" style="border-top-color:var(--g9)">
-      <div class="lbl" style="color:var(--g11)">RULE 18 &mdash; TARGET EFFECTIVE DATE GONE FROM THE TIMELINE</div>
-      <p><b>No action, deliberately.</b> The row is left live rather than retired, because a source that has
-      stopped reporting an interval is not the same statement as that interval never having been true.</p>
-    </div>
-  </div>
-
-  <p class="note">Grouping is presentational only &mdash; the authoritative form is the 18-row table on slide 3.
-  Keep whichever of the two reads better for the audience and delete the other.</p>
-  <div class="takeaway">Four things can differ, and in every branch the expiry the row already carries
-  decides how it is retired.</div>
-  <div class="intflag">ALTERNATE TO SLIDE 3</div>
-  <div class="slide-no">4 / 8</div>
-</section>
-
-<section class="slide" id="s5" role="tabpanel">
+<section class="slide" id="s4" role="tabpanel">
   <h2>Two ways a row is retired, and the expiry decides which</h2>
   <p class="sub">The single most misreadable part of the design &mdash; the two mechanisms are not interchangeable</p>
 
@@ -442,9 +415,9 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
     <text class="t" x="315" y="60" text-anchor="middle">eff 2026-08-10 &rarr; exp 9999-12-31 &nbsp;&middot;&nbsp; IS_DEL = 'N'</text>
     <path class="arw" d="M315,72 L315,96"/>
     <text class="t s" x="30" y="120">after</text>
-    <rect class="box warnb" x="100" y="102" width="120" height="30" rx="4"/>
-    <text class="t w" x="160" y="121" text-anchor="middle">zero-width</text>
-    <text class="t" x="240" y="121">eff 08-10 &rarr; exp <tspan font-weight="700">08-10</tspan></text>
+    <rect class="box warnb" x="100" y="102" width="150" height="30" rx="4"/>
+    <text class="t w" x="175" y="121" text-anchor="middle">exp_dte = eff_dte</text>
+    <text class="t" x="262" y="121">eff 08-10 &rarr; exp 08-10</text>
     <rect class="box" x="100" y="144" width="430" height="30" rx="4"/>
     <text class="t" x="315" y="164" text-anchor="middle">replacement inserted at the <tspan font-weight="700">same</tspan> effective date</text>
     <text class="t s" x="30" y="200">result</text>
@@ -491,16 +464,16 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
       <span class="mono">IS_DEL = 'N' AND row_eff_dte &lt; row_exp_dte</span> &mdash; the second condition is what
       excludes dead records.</div>
       <p class="note">Getting this backwards is silent: the row count stays right, the dates look plausible,
-      and a zero-width row simply disappears from every as-of query without anything reporting an error.</p>
+      and a row whose effective and expiry dates are equal simply disappears from every as-of query without anything reporting an error.</p>
     </div>
   </div>
 
   <div class="takeaway">Which mechanism applies is decided by the expiry the row already carries &mdash;
   never by what changed about it.</div>
-  <div class="slide-no">5 / 8</div>
+  <div class="slide-no">4 / 7</div>
 </section>
-<section class="slide" id="s6" role="tabpanel">
-  <h2>Architecture &mdash; two steps, one MERGE, no procedural code</h2>
+<section class="slide" id="s5" role="tabpanel">
+  <h2>Architecture &mdash; two steps, one MERGE</h2>
   <p class="sub">Step 1 is a view, Step 2 is a single MERGE; the stage between them is the only new object</p>
 
   <div class="figure">
@@ -561,7 +534,7 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   </svg>
   </div>
 
-  <div class="cols w60-40">
+  <div>
     <div>
       <table class="sm">
         <tr><th class="num">#</th><th>Arrow</th><th>What happens</th><th>Owner</th></tr>
@@ -577,26 +550,14 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
         <tr><td class="num">4</td><td>stage &rarr; target</td>
             <td>One <span class="mono">MERGE</span> applies every instruction atomically.</td><td>This design</td></tr>
       </table>
-    </div>
-    <div>
-      <h3>Constraints this design is built to</h3>
-      <p><span class="chip ok">Snowflake only</span> <span class="chip ok">One MERGE</span>
-         <span class="chip no">No stored procedures</span> <span class="chip warn">IDMC deferred</span></p>
-      <ul class="tight">
-        <li>Separate <span class="mono">UPDATE</span> then <span class="mono">INSERT</span> is <b>not approved</b> by the client &mdash; hence one MERGE.</li>
-        <li>Stored procedures are not allowed, so <b>Step 1 has to be a view</b>.</li>
-        <li>The stage adds exactly one column, <span class="mono">ACTION_FLAG</span>. Whether the real stage
-        already has a CDC/operation column is <b>still open</b> &mdash; if it does, no schema change at all.</li>
-      </ul>
-    </div>
-  </div>
+    </div></div>
 
   <div class="takeaway">One MERGE and a view &mdash; the only new object between Zone1 and the target is a stage
   table carrying an instruction list.</div>
-  <div class="slide-no">6 / 8</div>
+  <div class="slide-no">5 / 7</div>
 </section>
 
-<section class="slide" id="s7" role="tabpanel">
+<section class="slide" id="s6" role="tabpanel">
   <h2>How a run works &mdash; rebuild and diff, never patch in place</h2>
   <p class="sub">A run reconstructs each impacted key's whole timeline from both sources, then diffs it against the target</p>
 
@@ -640,46 +601,49 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   </svg>
   </div>
 
-  <div class="cols">
-    <div>
-      <table class="sm">
-        <tr><th class="num">#</th><th>Step</th><th>Detail that matters</th></tr>
-        <tr><td class="num">1</td><td>Impacted keys</td>
-            <td>Detected on <b>process</b> time (<span class="mono">GRS_REFINED_TIMESTAMP</span>), not business time.
-            A key is impacted if <i>either</i> source moved.</td></tr>
-        <tr><td class="num">2</td><td>Boundary union</td>
-            <td>This is the heart of it. The target can only be cut where <i>some</i> source changes, so the cut
-            set is the union of both sources' dates.</td></tr>
-        <tr><td class="num">3</td><td>Rebuild</td>
-            <td>Adjacent intervals with the same value collapse &mdash; but only if they actually touch. A
-            <b>gap</b> keeps them separate even when the value is identical.</td></tr>
-      </table>
+  <div class="cards">
+    <div class="card">
+      <div class="n">STEP 1</div><div class="lbl">Impacted keys</div>
+      <p>A key is in scope when <b>either</b> source's <span class="mono">GRS_REFINED_TIMESTAMP</span> moved
+      inside the sourcing window. Detected on <b>process</b> time only &mdash; business dates never decide which
+      keys a run touches. A key neither source moved is not read at all.</p>
     </div>
-    <div>
-      <table class="sm">
-        <tr><th class="num">#</th><th>Step</th><th>Detail that matters</th></tr>
-        <tr><td class="num">4</td><td>Classify</td>
-            <td>Each rebuilt interval is compared to the target row at the same effective date, producing one
-            rule number per interval.</td></tr>
-        <tr><td class="num">5</td><td>Stage</td>
-            <td>An instruction list, not a picture of the target. Rules 7&ndash;16 emit a <span class="mono">'D'</span>
-            and an <span class="mono">'I'</span> for one interval.</td></tr>
-        <tr><td class="num">6</td><td>MERGE</td>
-            <td>Three branches &mdash; expire in place, retire, insert &mdash; in one statement, so a run cannot half-apply.</td></tr>
-      </table>
+    <div class="card">
+      <div class="n">STEP 2</div><div class="lbl">Boundary union</div>
+      <p>Collect every <span class="mono">ROW_EFF_DTE</span> and <span class="mono">ROW_EXP_DTE</span> that
+      either source holds for that key. The target can only change where <i>some</i> source changes, so this
+      set is exactly the set of possible target boundaries &mdash; no more, no fewer.</p>
+    </div>
+    <div class="card">
+      <div class="n">STEP 3</div><div class="lbl">Rebuild the timeline</div>
+      <p>Cut at every boundary, then collapse adjacent intervals carrying the same value &mdash; but only where
+      they actually <b>touch</b>. A gap in cover keeps the periods either side separate even when the value is
+      identical on both sides.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--orange)">
+      <div class="n" style="color:var(--orange)">STEP 4</div><div class="lbl">Classify</div>
+      <p>Each rebuilt interval is matched to the target row at the <b>same effective date</b> and assigned one
+      rule number from the 18. This is the only step that reads the existing target, and the only place the
+      hash is compared.</p>
+    </div>
+    <div class="card">
+      <div class="n">STEP 5</div><div class="lbl">Stage</div>
+      <p>An <b>instruction list</b>, not a picture of the target. A retire-plus-insert emits <b>two</b> stage
+      rows for one interval, carrying <span class="mono">ACTION_FLAG</span> <span class="mono">'D'</span> and
+      <span class="mono">'I'</span>. Nothing else about the stage changes.</p>
+    </div>
+    <div class="card" style="border-top-color:var(--green-ac)">
+      <div class="n" style="color:var(--green-ac)">STEP 6</div><div class="lbl">MERGE</div>
+      <p>Three branches &mdash; expire in place, retire, insert &mdash; in one statement. A run cannot half-apply:
+      either every instruction lands or none does. A run that derives no change writes nothing at all.</p>
     </div>
   </div>
 
-  <div class="callout teal"><b>Two clocks, never mixed.</b> Process time
-  (<span class="mono">GRS_REFINED_TIMESTAMP</span>, the sourcing window, audit columns) decides <i>which keys</i>
-  a run touches. Business time (<span class="mono">ROW_EFF_DTE</span> / <span class="mono">ROW_EXP_DTE</span>)
-  decides <i>what the intervals are</i>. A run never uses one in place of the other.</div>
-
   <div class="takeaway">Every run rebuilds each impacted key's whole timeline and diffs it &mdash; so a run that
   changes nothing writes nothing, and re-running is free.</div>
-  <div class="slide-no">7 / 8</div>
+  <div class="slide-no">6 / 7</div>
 </section>
-<section class="slide" id="s8" role="tabpanel">
+<section class="slide" id="s7" role="tabpanel">
   <h2>Worked example &mdash; SRC_2 splits, SRC_1 does not move</h2>
   <p class="sub">Two consecutive runs on one broker key, showing exactly which target rows are rewritten and why</p>
 
@@ -767,7 +731,7 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 
   <div class="takeaway">One source moving rewrites the other source's rows &mdash; and a single run can retire two
   rows by two different mechanisms, because each row's own expiry decides.</div>
-  <div class="slide-no">8 / 8</div>
+  <div class="slide-no">7 / 7</div>
 </section>
 </main>
 
