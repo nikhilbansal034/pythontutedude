@@ -1,8 +1,9 @@
 # Architecture review — Iceberg historical load chunk planner
 
-**Revision 6 — 2026-10-05.** This revision is built on the **real table structure**: two reference DDLs for
+**Revision 7 — 2026-10-05.** This revision is built on the **real table structure**: two reference DDLs for
 one source table, in its CURRENT and HISTORY layers (`reference_ddl.sql`, screenshots in `sources/`).
-Revision 6 records the latest decisions (§1a) and explains how the technique is chosen for each table (§4).
+Revisions 6–7 record the latest decisions (§1a), explain how the technique is chosen for each table (§4), and
+recommend the chunk size (§4.3). The metadata is now two tables (§6).
 Scope:
 - **Planner only.** It analyses Iceberg tables and writes metadata. It never builds load SQL and never
   touches target tables.
@@ -63,6 +64,12 @@ hold (§5, §7).
 | D5 | The layer type (append-only vs updated) doesn't matter. All data is loaded either way, and the goal is only to decide chunking |
 | D6 | **If a table's chunking can't be decided, that table gets status `FAILED` with the reason, and the script moves on to the next table.** The run never stops because of one table |
 | D7 | No script yet |
+| D8 | There is no given chunk size. **Recommended starting value: 10 GB of Iceberg data per chunk**, with a 250M-row cap (§4.3) |
+| D9 | **No `HIST_PLAN_RUN` table.** The run summary is returned to the Workspace. `RUN_ID` stays as a column on `HIST_PLAN_TABLE` to group one run's rows |
+| D10 | **No `HIST_PLAN_CONFIG` table.** Its settings become variables at the top of the script (§5.1) |
+| D11 | **Status is held at table level in `HIST_PLAN_TABLE`**: `PLANNED` / `FAILED` / `SKIPPED` / `SUPERSEDED`, with the reason. The chunk table has no status column |
+| D12 | **A wrong name in the input table list → the script validates, reports and exits.** Nothing is written. A name that exists but isn't an Iceberg table also counts as wrong |
+| D13 | **With no table list, non-Iceberg objects are skipped and reported**: how many, which ones, and why. Reported in the Workspace output and recorded in `HIST_PLAN_TABLE` |
 
 ---
 
@@ -145,7 +152,7 @@ information and data:
 | **Single chunk or not** | Table size | A small reference table → one chunk, no ranges |
 
 So the approach is fixed, but the technique and the ranges are tailored to each table automatically.
-Nothing is hand-tuned per table. CONFIG can still override the size target for a specific table.
+Nothing is hand-tuned per table. The size target is one variable at the top of the script (§4.3).
 
 ### 4.2 Step 1: choose the chunk axis from the table information
 
@@ -163,11 +170,39 @@ The first row that matches wins:
 Both reference DDLs land in the first two rows. The last three rows are there so that a table which
 doesn't follow the standard structure still gets planned, or fails cleanly, instead of stopping the run.
 
-### 4.3 Step 2: set the size target for this table
+### 4.3 Step 2: set the size target, and the recommended chunk size
 
-`TARGET_ROWS = TARGET_BYTES_PER_CHUNK ÷ AVG_ROW_BYTES`, capped at `MAX_ROWS_PER_CHUNK`. The average row size
-is the table's Iceberg file bytes ÷ its rows. If the whole table is at or below `SMALL_TABLE_BYTES` → **one
-chunk**, and the procedure stops here.
+**Per table**: `TARGET_ROWS = target_chunk_bytes ÷ AVG_ROW_BYTES`, capped at `max_chunk_rows`. The average
+row size is the table's Iceberg file bytes ÷ its rows, so wide tables get fewer rows per chunk. **If the
+whole table is no bigger than `target_chunk_bytes`, it is one chunk** and the procedure stops here. No
+separate small-table setting is needed.
+
+**Recommended starting value: `target_chunk_bytes` = 10 GB** of Iceberg (compressed Parquet) data per chunk,
+assuming loads run on a **Medium** warehouse. `max_chunk_rows` = 250M. The reasoning:
+
+| Force | What it pushes towards | How 10 GB sits |
+|---|---|---|
+| **Keep every warehouse thread busy until the end of the chunk.** Each node has 8 threads (Medium = 4 nodes = 32 threads), and each thread works on one file at a time | Bigger. A chunk needs many files per thread | Snowflake-managed Iceberg files start at 16 MB (`TARGET_FILE_SIZE = AUTO`) and can grow to 128 MB. So 10 GB is about 80–640 files, roughly 2.5–20 per thread on a Medium. That's about 300 MB per thread |
+| **Fixed cost per chunk** (compile, start, commit, any orchestration) should be small next to the chunk's run time | Bigger | A few seconds of overhead against minutes of work |
+| **Cost of a failure**: a failed chunk is redone completely | Smaller | At most 10 GB is re-read |
+| **A manageable number of chunks** | Bigger | 1 TB → ~100 chunks; 100 GB → ~10 |
+| **Very narrow, highly compressible tables** do more work per compressed byte | A row cap | 250M rows caps them. For example, at 20 bytes/row, 10 GB would otherwise be 500M rows |
+
+**Scale it with the warehouse that will run the loads**, about 300 MB per thread:
+
+| Warehouse (standard) | Threads | `target_chunk_bytes` |
+|---|---|---|
+| X-Small | 8 | 2.5 GB |
+| Small | 16 | 5 GB |
+| **Medium (default)** | **32** | **10 GB** |
+| Large | 64 | 20 GB |
+| X-Large | 128 | 40 GB |
+
+**Then calibrate it once.** This is a reasoned starting point, not a measured one. When the load team
+first loads one chunk, measure its run time. **Aim for about 5–15 minutes per chunk**, and adjust
+`target_chunk_bytes` in proportion: for example, if 10 GB takes 30 minutes, use 5 GB. A re-plan with
+`p_force_replan` then applies the new size. To help with this, the planner records each table's average
+file size and file count.
 
 ### 4.4 Step 3: profile along the axis
 
@@ -224,7 +259,8 @@ into hash buckets.
 
 ### 4.7 Worked examples
 
-The numbers are illustrative only, with `TARGET_ROWS` = 50M.
+The numbers are illustrative only, with `TARGET_ROWS` = 50M, which is what 10 GB gives at about
+200 bytes/row.
 
 **A — HISTORY table, 1.2B rows, mostly one Teradata backfill**
 
@@ -245,7 +281,7 @@ dates)
 | Last 250 busy days | 200M | 62 days per chunk → 5 chunks (4 × 62 days + 1 × 2 days) |
 | **Total** | 300M | **7 chunks**, from 1,000 days down to 2 days wide, all about 50M rows |
 
-**C — small reference table, 2M rows, 300 MB** → below `SMALL_TABLE_BYTES` → **1 chunk** (`ALL`).
+**C — small reference table, 2M rows, 300 MB** → no bigger than the 10 GB target → **1 chunk** (`ALL`).
 
 **D — a table in another schema, not partitioned, with `GRS_REFINED_TIMESTAMP`** → rank 4: timestamp ranges
 across the table. The plan records that file skipping isn't guaranteed.
@@ -284,6 +320,11 @@ DECLARE
     -- ====== METADATA LOCATION: update by hand once finalised (D3) ======
     metadata_database VARCHAR DEFAULT 'test_db';
     metadata_schema   VARCHAR DEFAULT 'test_schema';
+
+    -- ====== CHUNK SIZING: starting values, see §4.3 (D8, D10) ======
+    target_chunk_bytes NUMBER  DEFAULT 10737418240;  -- 10 GB of Iceberg data per chunk (Medium warehouse)
+    max_chunk_rows     NUMBER  DEFAULT 250000000;    -- cap for very narrow tables
+    split_grain        VARCHAR DEFAULT 'MINUTE';     -- grain for splitting an oversized day
     -- =================================================================
     ...
 BEGIN
@@ -292,28 +333,42 @@ END;
 ```
 
 The variables are declared at the top of the block, in `DECLARE`. Assigning them with `LET` at the very
-start of `BEGIN` works too; either way they stay in one visible place. The four metadata tables are always
+start of `BEGIN` works too; either way they stay in one visible place. The two metadata tables are always
 read and written as `metadata_database.metadata_schema.<table>`.
 
 Inputs are not passed as session variables (`SET`), because a session variable's string value is capped
 at **256 bytes**. A list of a few table names with these long names, about 40 characters each, would
 exceed it.
 
-### 5.2 Validation: checked before anything is written; all problems reported together
+### 5.2 Validation and skipping
 
-1. `p_database` / `p_schema` blank → fail. Database missing, or schema missing in it → fail, naming which.
+**Input validation runs first. Any problem → the script reports it and exits, and nothing is written
+(D12).**
+
+1. `p_database` / `p_schema` blank → exit. Database missing, or schema missing in it → exit, naming which.
 2. **Table list given**:
    - Split on commas, trim, drop empty entries, remove duplicates.
    - Match each name against `INFORMATION_SCHEMA.TABLES`: an exact match first, then a case-insensitive
      match only if exactly one table matches. Never `LIKE`: `_` is a wildcard, and these names are full of
      underscores.
-   - Each name ends up resolved, **not found**, **ambiguous**, or **not an Iceberg table**
-     (`IS_ICEBERG = 'NO'`).
-   - Any invalid name → the run fails with every invalid name listed. Nothing is written (Q7).
-3. **No table list**: scope is every table with `IS_ICEBERG = 'YES'`. Non-Iceberg tables are reported as
-   `SKIPPED_NOT_ICEBERG` (Q8).
-4. A table with an active plan is reported `SKIPPED_ALREADY_PLANNED`, unless `p_force_replan` is set. Even
-   then, the F2 guard applies.
+   - A name that is **not found**, **ambiguous**, or **exists but is not an Iceberg table** is invalid.
+   - **Any invalid name → exit**, with one message listing every invalid name and its reason. For example:
+     `Input validation failed (2 of 5 names): PRDSCT1D_SCOUT_XYZ - not found; PRDSCT1D_SCOUT_V1 - view, not
+     an Iceberg table`.
+
+**Skipping, when no table list is given (D13).** Every object in the schema's
+`INFORMATION_SCHEMA.TABLES` is accounted for. Iceberg tables are planned; everything else is skipped, with
+a reason:
+
+| Object | Skip reason recorded |
+|---|---|
+| Standard Snowflake table (`BASE TABLE`, `IS_ICEBERG = 'NO'`) | `Not an Iceberg table (standard table)` |
+| `VIEW` / `MATERIALIZED VIEW` | `Not an Iceberg table (view)` / `(materialized view)` |
+| `EXTERNAL TABLE` | `Not an Iceberg table (external table)` |
+| `EVENT TABLE`, dynamic (`IS_DYNAMIC`), hybrid (`IS_HYBRID`), `TEMPORARY TABLE` | `Not an Iceberg table (<type>)` |
+
+**Already planned** (in either mode): an Iceberg table with an active plan is skipped, with the reason
+`Already planned (plan <PLAN_ID>); set p_force_replan = TRUE to re-plan`.
 
 ### 5.3 Running it in a Workspace
 
@@ -321,15 +376,19 @@ exceed it.
   and no `$$` are needed. Confirm with a trivial block first (§9).
 - **Context**: a role with `USAGE` on the source database and schema, `SELECT` on the tables, and write
   access to the metadata tables. Select a warehouse before running.
-- **Output**: `RETURN TABLE(…)` gives one summary row per table: layer, outcome, method, chunk count,
-  rows, any error. The same information is saved in `HIST_PLAN_RUN` / `HIST_PLAN_TABLE`.
+- **Output**: `RETURN TABLE(…)` shows a result grid in the Workspace.
+  - One row per table: table name, outcome (`PLANNED` / `FAILED` / `SKIPPED`), reason, chunk axis, chunk
+    count, total rows, total bytes. Rows are ordered skipped, then failed, then planned.
+  - **A final summary row** with the counts. For example: `In schema: 45 | Planned: 30 | Failed: 2 |
+    Skipped: 13 (non-Iceberg: 10, already planned: 3)`.
+  - The same outcomes are stored in `HIST_PLAN_TABLE` (D9, D11).
 - **Errors**:
   - Validation errors `RAISE` and nothing is written.
   - **Any problem with one table** marks that table `FAILED` in `HIST_PLAN_TABLE`, with the reason in
     `ERROR_MESSAGE`, and the run continues with the next table (D6). Examples: no usable chunk column, a
     permission error, a profiling query error, or a row-sum mismatch.
 - **Interruptions**: each table commits separately, so a cancelled run keeps the finished tables.
-  Re-running continues with the rest, and the interrupted run's log row is marked `ABORTED`.
+  Re-running with the same inputs skips them as already planned and continues with the rest.
 
 ---
 
@@ -340,17 +399,26 @@ exceed it.
 | Column | Purpose |
 |---|---|
 | `PLAN_ID`, `RUN_ID` | Plan identity; the run that produced it |
-| `DATABASE_NAME`, `SCHEMA_NAME`, `TABLE_NAME` | The Iceberg table |
+| `DATABASE_NAME`, `SCHEMA_NAME`, `TABLE_NAME` | The table |
+| `OBJECT_TYPE` | From `INFORMATION_SCHEMA.TABLES`, e.g. `ICEBERG TABLE`, `BASE TABLE`, `VIEW`. Explains skips |
 | `LAYER` | `CURRENT` / `HISTORY` / `UNKNOWN`. For information only (§3.3) |
 | `CHUNK_AXIS` | `PARTITION_DAY` / `PARTITION_PERIOD` / `REFINED_TS_RANGE` / `UNIQUE_ID_HASH` (§4.2) |
 | `PARTITION_COLUMNS` | `GRS_PROCESS_DATE`, or `GRS_PROCESS_YEAR,GRS_PROCESS_MONTH,GRS_PROCESS_DAY` |
 | `PARTITION_VERIFIED` | Whether the Iceberg partition spec confirms those columns |
 | `CHUNK_METHOD` | `SINGLE` / `PARTITION_DAYS` (all chunks whole days) / `PARTITION_DAYS_WITH_SPLITS` (some days split) |
 | `PROFILED_AT` (`TIMESTAMP_TZ`) | The point in time the plan describes. The loader reads `AT` this (F8) |
-| `TOTAL_ROWS`, `TOTAL_BYTES`, `COLUMN_COUNT`, `AVG_ROW_BYTES` | Profile |
-| `DAY_COUNT`, `SPLIT_DAY_COUNT`, `CHUNK_COUNT`, `TARGET_ROWS_PER_CHUNK` | Result, and the target used |
-| `IS_ACTIVE`, `PLAN_STATUS` | One active plan per table. Status is `PLANNED` / `FAILED` / `SUPERSEDED` (D6) |
-| `ERROR_MESSAGE`, `PLANNED_AT` | Audit |
+| `TOTAL_ROWS`, `TOTAL_BYTES`, `COLUMN_COUNT`, `AVG_ROW_BYTES`, `FILE_COUNT`, `AVG_FILE_BYTES` | Profile. The file figures help calibrate the chunk size (§4.3) |
+| `DAY_COUNT`, `SPLIT_DAY_COUNT`, `CHUNK_COUNT` | Result: **how many chunks this table has** |
+| `TARGET_CHUNK_BYTES`, `TARGET_ROWS_PER_CHUNK` | The size target the chunks were cut to |
+| **`PLAN_STATUS`** | **`PLANNED`** (chunks are in `HIST_PLAN_CHUNK`) / **`FAILED`** (chunking couldn't be decided) / **`SKIPPED`** (not an Iceberg table) / **`SUPERSEDED`** (replaced by a newer plan) (D6, D11) |
+| **`STATUS_REASON`** | Why it failed or was skipped, e.g. `No usable chunk column`, `Not an Iceberg table (view)`, or the Snowflake error text |
+| `IS_ACTIVE` | One active row per table |
+| `PLANNED_AT` | When this row was written |
+
+Rows by status:
+- **`FAILED`** rows keep the profile columns that were filled before the failure.
+- **`SKIPPED`** rows fill only the identity, `OBJECT_TYPE`, status and reason columns. Each skipped object
+  keeps **one** current row; a re-run replaces it rather than adding another.
 
 **`HIST_PLAN_CHUNK`**: one row per chunk. Key: `(PLAN_ID, CHUNK_SEQ)`.
 
@@ -363,20 +431,13 @@ exceed it.
 | `SUB_START_TS`, `SUB_END_TS` (`TIMESTAMP_TZ`) | `DAY_SUBRANGE` only. Half-open; NULL = open at the day edge |
 | `HASH_BUCKET`, `HASH_MODULUS` | `DAY_HASH` only. A row is in the chunk when `MOD(ABS(HASH(GRS_UNIQUE_ID)), HASH_MODULUS) = HASH_BUCKET` |
 | `ESTIMATED_ROWS`, `ESTIMATED_BYTES` | Chunk size. Rows are exact at `PROFILED_AT` for day and sub-range chunks, and an even share for hash chunks. Bytes = rows × `AVG_ROW_BYTES` |
-| `STATUS` | The planner writes `PENDING`; the loader owns it after that (Q6) |
+
+There is no status column here: status is held per table in `HIST_PLAN_TABLE` (D11).
 
 For HISTORY tables, `DAY_START` / `DAY_END` are logical dates made from `GRS_PROCESS_YEAR/MONTH/DAY`. The
 loader turns them back into year/month/day conditions (§9, loader note).
 
-**`HIST_PLAN_RUN`**: one row per execution. Holds:
-- the inputs as given, and the resolved table list;
-- the user and role, start and end time;
-- counts of tables planned, skipped and failed;
-- the run status.
-
-**`HIST_PLAN_CONFIG`**: `SCOPE` (`*` or `db.schema.table`), `TARGET_BYTES_PER_CHUNK`, `MAX_ROWS_PER_CHUNK`,
-`SMALL_TABLE_BYTES`, `SUBSPLIT_GRAIN` (default `MINUTE`), `MAX_HASH_BUCKETS_PER_DAY`. Per-table override of
-any of these by `SCOPE`.
+`HIST_PLAN_RUN` and `HIST_PLAN_CONFIG` from revision 6 are **removed** (D9, D10).
 
 ---
 
@@ -384,11 +445,11 @@ any of these by `SCOPE`.
 
 | # | Severity | Finding | Resolution |
 |---|---|---|---|
-| F1 | Critical | Boundaries from observed min/max, read with `BETWEEN`, leave gaps and overlaps; NULLs are dropped | Half-open ranges, open-ended first and last day ranges, a `NULL_PARTITION` chunk, and a rows-sum check (§4.1 step 6) |
-| F2 | Critical | `MERGE` keyed on `CHUNK_SEQ` can rewrite boundaries under chunks already used, and leave orphan chunks behind | A new `PLAN_ID` per plan; chunk rows are insert-only; refuse to supersede a plan whose chunks aren't all `PENDING` unless forced; one transaction per table; drop the row-growth staleness rule |
+| F1 | Critical | Boundaries from observed min/max, read with `BETWEEN`, leave gaps and overlaps; NULLs are dropped | Half-open ranges, open-ended first and last day ranges, a `NULL_PARTITION` chunk, and a rows-sum check (§4.5) |
+| F2 | Critical | `MERGE` keyed on `CHUNK_SEQ` can rewrite boundaries under chunks already used, and leave orphan chunks behind | A new `PLAN_ID` per plan; chunk rows are insert-only. Re-planning happens only with `p_force_replan`: the old plan is marked `SUPERSEDED` (kept, never edited) and the new one becomes active. One transaction per table. Drop the row-growth staleness rule. The loader should always use the active plan, and not switch plans in the middle of a table |
 | F3 | Important | Single-date-column heuristic and month→day recursion | Replaced by §4: partition days, then an in-day split |
 | F4 | Important | `SHOW … LIKE` validation (case-insensitive, `_` wildcard) | `INFORMATION_SCHEMA.TABLES` exact matching (§5.2) |
-| F5 | Important | CONFIG sized in rows only; `MIN_ROWS_TO_CHUNK = 1M` is very low; the "÷ columns" proxy | Size by bytes with a row cap; bytes threshold for small tables; column count kept for information only |
+| F5 | Important | CONFIG sized in rows only; `MIN_ROWS_TO_CHUNK = 1M` is very low; the "÷ columns" proxy | Size by bytes (10 GB starting value) with a row cap. A table no bigger than the target is one chunk. Column count kept for information only (§4.3) |
 | F6 | Minor | "No open questions left"; Task and two invocation paths | Questions in §10; one path (Workspace) |
 | **F7** | **Critical** | All timestamp columns are `TIMESTAMP_LTZ`. NTZ or `VARIANT` boundaries are read in whatever session time zone the loader uses, which can shift edges by hours | Store `SUB_*_TS` as `TIMESTAMP_TZ`; set `TIMEZONE = 'UTC'` at the top of the block, because `DATE_TRUNC` on LTZ depends on it |
 | **F8** | Important (loader) | CURRENT tables change in place, and an update moves a row to a new `GRS_PROCESS_DATE`. If the loader reads the live table, rows changed between plan and load are missed or loaded twice | Record `PROFILED_AT` in the plan. How the loader handles changes after it is the loader's concern; retention was confirmed out of scope (D2) |
@@ -484,22 +545,18 @@ FROM   TABLE(INFORMATION_SCHEMA.ICEBERG_TABLE_FILES(TABLE_NAME => :fq_table));
      `GRS_UNIQUE_ID`?
 3. **Loader note** (for the load team, not the planner): for HISTORY tables, run `EXPLAIN` on the planned
    filter form (year/month/day conditions for a day range) to confirm it skips other partitions.
-4. Then write the DDL for the four metadata tables, and the block.
+4. Then write the DDL for the two metadata tables, and the block.
 
 ---
 
 ## 10. Open questions
 
-Answered on 2026-10-05: metadata location (D3), retention (D2), CURRENT vs HISTORY scope (D1), layer
-semantics (D5), per-table failure handling (D6). Whether the process date is derived from the refined
-timestamp is unknown, but the design no longer depends on it (D4).
+Answered on 2026-10-05: D1–D13 in §1a. Remaining:
 
 | # | Question | Why it matters |
 |---|---|---|
-| Q5 | What target chunk size (bytes) should be the starting default? | CONFIG placeholder until the load team decides |
-| Q6 | Keep `STATUS` on the chunk table (the planner writes `PENDING`, the loader owns it after that), or should the loader keep its own status table? | Ownership |
-| Q7 | A **mistyped name in the input table list** (not found, or not Iceberg): fail the whole run before anything is written (recommended), or record it as `FAILED` like D6 and carry on? | §5.2. D6 covers tables that exist but can't be chunked; this is about bad input |
-| Q8 | Skip and report non-Iceberg tables when no list is given (recommended)? | §5.2 |
+| Q10 | Which **warehouse size** will run the loads? | Sets `target_chunk_bytes` from the table in §4.3. 10 GB assumes Medium |
+| Q11 | Recording **skipped** objects in `HIST_PLAN_TABLE` (recommended, so the skip list persists after the Workspace result is gone): OK, or only in the Workspace output? | D13 |
 
 ---
 
@@ -515,6 +572,10 @@ timestamp is unknown, but the design no longer depends on it (D4).
 | Snowsight runs blocks without `EXECUTE IMMEDIATE`; session variables are capped at 256 bytes | Snowflake docs (via search extract) |
 | Snowflake-managed Iceberg supports Time Travel | Snowflake Iceberg docs (via search extract). Retention is not a planner concern (D2) |
 | Iceberg file row counts don't subtract deletes or deletion vectors | Snowflake Iceberg docs and release notes (via search extract) |
+| Snowflake-managed Iceberg `TARGET_FILE_SIZE` defaults to `AUTO`, starting at 16 MB; options up to 128 MB | Snowflake `CREATE/ALTER ICEBERG TABLE` docs (via search extract) |
+| 8 threads per warehouse node (Medium = 32); one file per thread at a time | Third-party warehouse-sizing write-ups (via search extract). Not an official Snowflake page |
+| `INFORMATION_SCHEMA.TABLES` `TABLE_TYPE` values; `IS_DYNAMIC`, `IS_HYBRID` columns | Snowflake `TABLES` view docs (via search extract) |
+| 10 GB / 5–15 minutes per chunk | **Reasoned starting values, not measured.** Calibrate on the first real load (§4.3) |
 | All SQL in §8 | Written for this review, **not executed** |
 
 `docs.snowflake.com` was not directly fetchable from this environment. Snowflake and Qlik claims rely on
