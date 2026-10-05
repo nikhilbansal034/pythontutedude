@@ -13,18 +13,31 @@ unit: select the whole file, then run. Plain-SQL files can be run statement by s
 |---|---|---|
 | Metadata location | `01`, `03`, `04`, `05`, `06` | `test_db.test_schema` |
 | Test source schema | `02`, `03`, `04`, `05` | `TEST_DB.CHUNK_TEST_SRC` |
-| External volume for test Iceberg tables | `02` → `ext_volume` | A volume you are allowed to write **test** data to |
-| `BASE_LOCATION` prefix | `02` → `base_prefix` | `test/chunk_planner` (each run adds a timestamped sub-folder) |
+| Storage for test Iceberg tables | `02` → `ext_volume` | **`SNOWFLAKE_MANAGED`** (default): Snowflake stores the files, so no external volume is needed. Or the name of a volume your role may use (`SHOW EXTERNAL VOLUMES;`) |
+| `BASE_LOCATION` prefix | `02` → `base_prefix` | Only used with a real external volume: `test/chunk_planner` (each run adds a timestamped sub-folder) |
 | **Chunk size for the test** | `04` → `max_chunk_rows` | **`1000`**. The test tables are tiny, so the row cap is what forces chunking. Every expected result below assumes 1000 |
 | Role | — | Needs `CREATE SCHEMA` on `TEST_DB`, use of the external volume, and `SELECT` / `INSERT` / `UPDATE` / `DELETE` on the metadata tables |
 | Warehouse | — | Any. Its size does not change the plan |
+
+### Using your own database and schema names
+
+There are two locations, and every file must agree on both:
+
+| Location | What it is | Set in |
+|---|---|---|
+| **Plan tables** (default `test_db.test_schema`) | Where `HIST_PLAN_TABLE` / `HIST_PLAN_CHUNK` live | `01` `SET meta_location` · `03` `metadata_database` + `metadata_schema` · `04` `metadata_database` + `metadata_schema` · `05` `SET meta_location` and Part B · `06` `SET meta_location` |
+| **Test source** (default `TEST_DB.CHUNK_TEST_SRC`) | Where `02` builds the test tables, and what `04` plans | `02` `test_database` + `test_schema_src` · `03` the same · `04` `p_database` + `p_schema` · `05` `SET src_database` / `src_schema` and Part B · `06` the same |
+
+**Run `01` first, for the plan-table location you chose.** `04` stops with *"Metadata location … is not
+usable"* if the plan tables are not there. Keep the plan tables in a schema of their own, separate from the
+schema being planned.
 
 ## The run sequence
 
 | Run | File | Inputs to set | What it proves | Evidence |
 |---|---|---|---|---|
 | R0 | `01_metadata_ddl.sql` | — | The two metadata tables exist | **E01** |
-| R1 | `02_test_setup.sql` | `ext_volume`, `base_prefix` | 11 test objects with the expected row counts | **E02** |
+| R1 | `02_test_setup.sql` | `ext_volume` (default `SNOWFLAKE_MANAGED`) | 11 test objects with the expected row counts | **E02** |
 | R2 | `03_smoke_test.sql` | — | Every scripting construct the planner needs works in your account | **E03** |
 | R3 | `04_chunk_planner.sql` | `p_tables = 'T01_CUR_SPREAD, T99_DOES_NOT_EXIST, t09_standard_table'`, `max_chunk_rows = 1000` | A bad name in the input list → report all problems, exit, write nothing (D12) | **E04**, then **E05** |
 | R4 | `04_chunk_planner.sql` | `p_schema = 'NO_SUCH_SCHEMA'`, `p_tables = ''` | A bad schema → report and exit | **E06** |

@@ -72,6 +72,7 @@ DECLARE
     v_cnt_failed      NUMBER DEFAULT 0;
     v_cnt_skip_ice    NUMBER DEFAULT 0;
     v_cnt_skip_done   NUMBER DEFAULT 0;
+    v_probe           NUMBER;
 
     -- per table
     v_tbl             VARCHAR;
@@ -167,7 +168,20 @@ BEGIN
     v_run_id  := UUID_STRING();
     v_meta_fq := metadata_database || '.' || metadata_schema;
     v_sql := 'USE SCHEMA ' || v_meta_fq;
-    EXECUTE IMMEDIATE :v_sql;          -- fails here if the metadata schema does not exist: run 01 first
+    BEGIN
+        EXECUTE IMMEDIATE :v_sql;
+        SELECT COUNT(*) INTO :v_probe FROM HIST_PLAN_TABLE WHERE 1 = 0;
+        SELECT COUNT(*) INTO :v_probe FROM HIST_PLAN_CHUNK WHERE 1 = 0;
+    EXCEPTION WHEN OTHER THEN
+        v_msg := 'Metadata location ' || v_meta_fq || ' is not usable (' || LEFT(SQLERRM, 300)
+              || '). Run 01_metadata_ddl.sql for this location, or set metadata_database / metadata_schema to where you ran it. Nothing was written.';
+    END;
+    IF (v_msg IS NOT NULL) THEN
+        res := (SELECT NULL::VARCHAR AS TABLE_NAME, 'VALIDATION_FAILED' AS OUTCOME, :v_msg AS REASON,
+                       NULL::VARCHAR AS LAYER, NULL::VARCHAR AS CHUNK_AXIS, NULL::VARCHAR AS CHUNK_METHOD,
+                       NULL::NUMBER AS CHUNK_COUNT, NULL::NUMBER AS TOTAL_ROWS, NULL::NUMBER AS TOTAL_BYTES);
+        RETURN TABLE(res);
+    END IF;
 
     CREATE OR REPLACE TEMPORARY TABLE HPLAN_TMP_SUMMARY (SORT_KEY NUMBER, TABLE_NAME VARCHAR, OUTCOME VARCHAR, REASON VARCHAR,
         LAYER VARCHAR, CHUNK_AXIS VARCHAR, CHUNK_METHOD VARCHAR, CHUNK_COUNT NUMBER, TOTAL_ROWS NUMBER, TOTAL_BYTES NUMBER);
@@ -247,7 +261,9 @@ BEGIN
 
     -- 1c. everything in the schema: all objects, which of them are Iceberg, all columns
     v_sql := 'INSERT INTO HPLAN_TMP_OBJECTS (OBJ_NAME, OBJ_TYPE, IS_ICEBERG) SELECT TABLE_NAME, TABLE_TYPE, FALSE FROM '
-          || v_q_db || '.INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?';
+          || v_q_db || '.INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?'
+          || ' AND TABLE_TYPE <> ''TEMPORARY TABLE'''                                -- session temp tables, incl. the planner's own
+          || ' AND TABLE_NAME NOT IN (''HIST_PLAN_TABLE'', ''HIST_PLAN_CHUNK'')';    -- the plan tables, if they share the schema
     EXECUTE IMMEDIATE :v_sql USING (v_sch);
 
     v_sql := 'SHOW ICEBERG TABLES IN SCHEMA ' || v_fq_schema;

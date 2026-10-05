@@ -11,7 +11,12 @@
 -- stores or generates load SQL.
 -- =====================================================================================
 
-USE SCHEMA test_db.test_schema;
+-- ===== LOCATIONS: same values as in 04 =====
+SET meta_location = 'test_db.test_schema';   -- where the plan tables live (01)
+SET src_database  = 'TEST_DB';               -- the schema that was planned (02 / 04 p_database, p_schema)
+SET src_schema    = 'CHUNK_TEST_SRC';
+
+USE SCHEMA IDENTIFIER($meta_location);
 ALTER SESSION SET TIMEZONE = 'UTC';
 
 -- -------------------------------------------------------------------------------------
@@ -35,7 +40,7 @@ actual AS (
     SELECT TABLE_NAME, PLAN_STATUS, CHUNK_AXIS, CHUNK_METHOD, CHUNK_COUNT, TOTAL_ROWS,
            LAYER, PARTITION_VERIFIED, STATUS_REASON
       FROM HIST_PLAN_TABLE
-     WHERE UPPER(DATABASE_NAME) = 'TEST_DB' AND UPPER(SCHEMA_NAME) = 'CHUNK_TEST_SRC' AND IS_ACTIVE
+     WHERE UPPER(DATABASE_NAME) = UPPER($src_database) AND UPPER(SCHEMA_NAME) = UPPER($src_schema) AND IS_ACTIVE
 )
 SELECT e.TABLE_NAME,
        e.EXP_STATUS, a.PLAN_STATUS,
@@ -94,7 +99,7 @@ actual AS (
     SELECT c.*
       FROM HIST_PLAN_CHUNK c
       JOIN HIST_PLAN_TABLE t ON t.PLAN_ID = c.PLAN_ID AND t.IS_ACTIVE AND t.PLAN_STATUS = 'PLANNED'
-     WHERE UPPER(c.DATABASE_NAME) = 'TEST_DB' AND UPPER(c.SCHEMA_NAME) = 'CHUNK_TEST_SRC'
+     WHERE UPPER(c.DATABASE_NAME) = UPPER($src_database) AND UPPER(c.SCHEMA_NAME) = UPPER($src_schema)
 )
 SELECT COALESCE(e.TABLE_NAME, a.TABLE_NAME) AS TABLE_NAME,
        COALESCE(e.CHUNK_SEQ, a.CHUNK_SEQ)   AS CHUNK_SEQ,
@@ -170,7 +175,7 @@ SELECT TABLE_NAME, CHUNK_SEQ, CHUNK_TYPE, DAY_START, DAY_END, SUB_START_TS, SUB_
 -- -------------------------------------------------------------------------------------
 SELECT TABLE_NAME, PLAN_ID, RUN_ID, PLAN_STATUS, IS_ACTIVE, CHUNK_COUNT, STATUS_REASON, PLANNED_AT
   FROM HIST_PLAN_TABLE
- WHERE UPPER(SCHEMA_NAME) = 'CHUNK_TEST_SRC'
+ WHERE UPPER(DATABASE_NAME) = UPPER($src_database) AND UPPER(SCHEMA_NAME) = UPPER($src_schema)
    AND TABLE_NAME IN ('T01_CUR_SPREAD', 'T07_NO_USABLE_COLUMN', 'T09_STANDARD_TABLE', 'T10_VIEW')
  ORDER BY TABLE_NAME, PLANNED_AT;
 
@@ -184,6 +189,7 @@ SELECT TABLE_NAME, PLAN_ID, RUN_ID, PLAN_STATUS, IS_ACTIVE, CHUNK_COUNT, STATUS_
 -- tables run it on a few chosen tables only.
 -- =====================================================================================
 DECLARE
+    -- ===== same values as the SET lines at the top of this file =====
     metadata_database VARCHAR DEFAULT 'test_db';
     metadata_schema   VARCHAR DEFAULT 'test_schema';
     p_database        VARCHAR DEFAULT 'TEST_DB';
