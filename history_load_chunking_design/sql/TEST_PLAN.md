@@ -19,6 +19,19 @@ unit: select the whole file, then run. Plain-SQL files can be run statement by s
 | Role | — | Needs `CREATE SCHEMA` on `TEST_DB`, use of the external volume, and `SELECT` / `INSERT` / `UPDATE` / `DELETE` on the metadata tables |
 | Warehouse | — | Any. Its size does not change the plan |
 
+### Using your own database and schema names
+
+There are two locations, and every file must agree on both:
+
+| Location | What it is | Set in |
+|---|---|---|
+| **Plan tables** (default `test_db.test_schema`) | Where `HIST_PLAN_TABLE` / `HIST_PLAN_CHUNK` live | `01` `SET meta_location` · `03` `metadata_database` + `metadata_schema` · `04` `metadata_database` + `metadata_schema` · `05` `SET meta_location` and Part B · `06` `SET meta_location` |
+| **Test source** (default `TEST_DB.CHUNK_TEST_SRC`) | Where `02` builds the test tables, and what `04` plans | `02` `test_database` + `test_schema_src` · `03` the same · `04` `p_database` + `p_schema` · `05` `SET src_database` / `src_schema` and Part B · `06` the same |
+
+**Run `01` first, for the plan-table location you chose.** `04` stops with *"Metadata location … is not
+usable"* if the plan tables are not there. Keep the plan tables in a schema of their own, separate from the
+schema being planned.
+
 ## The run sequence
 
 | Run | File | Inputs to set | What it proves | Evidence |

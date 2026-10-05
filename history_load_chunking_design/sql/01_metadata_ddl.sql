@@ -18,9 +18,12 @@
 --   * HASH chunks:  MOD(ABS(HASH(<SUB_COLUMN>)), HASH_MODULUS) = HASH_BUCKET
 -- =====================================================================================
 
--- CREATE DATABASE IF NOT EXISTS test_db;           -- uncomment only if you may create databases
-CREATE SCHEMA IF NOT EXISTS test_db.test_schema;
-USE SCHEMA test_db.test_schema;
+-- ===== WHERE THE PLAN TABLES LIVE: set once; use the same value in 04 (metadata_database /
+-- metadata_schema), 05 and 06. Prefer a schema of its own, not the schema being planned. =====
+SET meta_location = 'test_db.test_schema';
+
+CREATE SCHEMA IF NOT EXISTS IDENTIFIER($meta_location);   -- the database must already exist
+USE SCHEMA IDENTIFIER($meta_location);
 
 CREATE TABLE IF NOT EXISTS HIST_PLAN_TABLE (
     PLAN_ID               VARCHAR       NOT NULL COMMENT 'One plan per table per planning; a re-plan gets a new PLAN_ID',
@@ -73,4 +76,4 @@ CREATE TABLE IF NOT EXISTS HIST_PLAN_CHUNK (
 COMMENT = 'History-load chunk planner: one row per chunk. Half-open ranges, NULL = unbounded.';
 
 -- Evidence E01: both tables exist
-SHOW TABLES LIKE 'HIST_PLAN%' IN SCHEMA test_db.test_schema;
+SHOW TABLES LIKE 'HIST_PLAN%';
