@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>History Load — Chunk Planner</title>
+<!-- IDMC deck standard, with the navigator moved to the left as a vertical list.
+     Fixed 1280x720 stage. fitStage() scales the slide to the window; fitContent()
+     shrinks a dense slide's content until it fits, floor 0.55. -->
+<style>
+:root{
+  --teal:#0097A9; --teal-dk:#007680; --teal-dp:#004F59; --teal-1:#DDEFE8; --teal-2:#9DD4CF;
+  --navy:#012169; --blue:#00A3E0; --blue-ac:#007CB0; --green:#86BC25; --green-ac:#26890D;
+  --orange:#ED8B00; --red:#DA291C;
+  --g1:#F2F2F2; --g2:#D0D0CE; --g6:#A7A8AA; --g9:#75787B; --g11:#53565A;
+  --white:#FFFFFF; --ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+  --navw:252px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);
+     font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* ---------- left navigator ---------- */
+.sidenav{position:fixed;left:0;top:0;bottom:0;width:var(--navw);background:var(--navy);
+  color:#CFE0E8;overflow-y:auto;z-index:60;padding-bottom:16px;}
+.sidenav::-webkit-scrollbar{width:8px}
+.sidenav::-webkit-scrollbar-thumb{background:#1c3c86;border-radius:4px}
+.sidenav .brand{padding:16px 16px 12px;border-bottom:1px solid rgba(255,255,255,.15);}
+.sidenav .brand b{display:block;color:#fff;font-size:15px;line-height:1.2;}
+.sidenav .brand span{display:block;color:#8FB3C2;font-size:10.5px;margin-top:4px;line-height:1.4;}
+.sidenav .grp{padding:11px 16px 3px;font-size:9.5px;letter-spacing:1.1px;text-transform:uppercase;
+  color:#5E93A8;}
+.navbtn2{display:flex;gap:8px;width:100%;appearance:none;border:0;background:transparent;
+  cursor:pointer;font-family:var(--font);font-size:11.6px;line-height:1.3;color:#CFE0E8;
+  text-align:left;padding:5px 14px 5px 13px;border-left:3px solid transparent;}
+.navbtn2 .n{flex:0 0 20px;color:#5E93A8;font-variant-numeric:tabular-nums;font-weight:700;}
+.navbtn2:hover{background:rgba(255,255,255,.08);color:#fff;}
+.navbtn2[aria-selected="true"]{background:rgba(0,151,169,.22);border-left-color:var(--teal);
+  color:#fff;font-weight:700;}
+.navbtn2[aria-selected="true"] .n{color:var(--teal-2);}
+.navbtn2:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navbtn2 .int{margin-left:auto;font-size:8px;letter-spacing:.6px;background:#5E93A8;color:var(--navy);
+  padding:1px 4px;border-radius:2px;font-weight:700;align-self:center;}
+.navfoot{display:flex;align-items:center;gap:7px;padding:12px 14px 4px;margin-top:8px;
+  border-top:1px solid rgba(255,255,255,.15);font-size:10.5px;color:#8FB3C2;}
+.pgbtn{appearance:none;border:1px solid #2c4d9b;background:transparent;cursor:pointer;color:#CFE0E8;
+  font-family:var(--font);font-size:13px;font-weight:700;width:24px;height:24px;line-height:1;padding:0;}
+.pgbtn:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+.pgbtn:disabled{color:#3f5a91;cursor:default;background:transparent;border-color:#2c4d9b;}
+
+/* ---------- deck shell (no-JS fallback: stacked, scrolls) ---------- */
+.deck{margin-left:var(--navw);padding:24px 20px 70px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;margin:0 0 26px;
+  padding:40px 50px 74px 58px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{padding:12px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;
+  border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:58px;top:30px;width:1170px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:650px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:9px;background:var(--teal);}
+.slide.internal::before{background:var(--g9);}
+.slide-no{position:absolute;right:24px;bottom:13px;font-size:11.5px;color:var(--g6);letter-spacing:.06em;}
+.intflag{position:absolute;left:58px;bottom:13px;font-size:9.5px;letter-spacing:.8px;font-weight:700;
+  background:var(--g9);color:#fff;padding:2px 7px;}
+
+/* ---------- type ---------- */
+h1{font-size:40px;line-height:1.14;font-weight:700;color:var(--navy);margin:0 0 12px;}
+h2{font-size:25px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.sub{font-size:14px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 18px;}
+h3{font-size:13px;font-weight:700;color:var(--g11);text-transform:uppercase;letter-spacing:.08em;
+   margin:16px 0 7px;}
+p{margin:0 0 9px;}
+
+.cover{display:flex;flex-direction:column;justify-content:center;}
+.cover .eyebrow{font-size:13.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:20px;}
+.cover h1{font-size:50px;max-width:24ch;}
+.cover .lede{font-size:18px;color:var(--g11);max-width:66ch;margin:6px 0 30px;line-height:1.5;}
+.cover .rule{width:118px;height:5px;background:var(--green);margin-bottom:26px;}
+.cover .meta{font-size:13.5px;color:var(--g9);line-height:1.85;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:13.2px;margin:3px 0;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:6px 9px;
+  font-size:12.2px;vertical-align:bottom;border:1px solid var(--navy);}
+td{padding:5px 9px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:26px;text-align:center;color:var(--g9);font-weight:700;}
+table.sm{font-size:12.2px;} table.sm td{padding:4px 8px;} table.sm th{padding:5px 8px;font-size:11.5px;}
+code,.mono{font-family:var(--mono);font-size:12px;background:var(--g1);padding:1px 4px;
+  border:1px solid var(--g2);color:var(--teal-dp);}
+tbody tr:nth-child(even) code{background:var(--white);}
+
+.chip{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;
+  border-radius:2px;white-space:nowrap;text-transform:uppercase;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.warn{background:var(--orange);color:#3d2400;}
+.chip.no{background:var(--red);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+
+.takeaway{position:absolute;left:58px;right:50px;bottom:30px;background:var(--teal);color:var(--white);
+  font-size:14.5px;font-weight:700;text-align:center;padding:11px 16px;line-height:1.3;}
+
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;padding:9px 13px;
+  font-size:13.2px;margin:11px 0;line-height:1.45;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.note{font-size:12.4px;color:var(--g9);margin:7px 0 0;line-height:1.45;}
+.quote{border-left:4px solid var(--teal-2);padding:4px 0 4px 13px;margin:10px 0;font-style:italic;
+  color:var(--g9);font-size:13.5px;}
+.quote span{display:block;font-style:normal;font-size:11px;margin-top:3px;color:var(--teal-dk);}
+
+.cols{display:flex;gap:22px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.w40-60>*:first-child{flex:0 0 38%;}
+.cols.w60-40>*:last-child{flex:0 0 38%;}
+.figure{margin:3px 0;}
+.figure svg{width:100%;height:auto;display:block;}
+.figure img{width:100%;height:auto;display:block;border:1px solid var(--g2);}
+ul.tight{margin:6px 0 0;padding-left:19px;font-size:13.2px;}
+ul.tight li{margin-bottom:4px;}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:5px;}
+.cards.c2{grid-template-columns:repeat(2,1fr);}
+.card{border:1px solid var(--g2);border-top:4px solid var(--teal);padding:9px 11px;background:var(--white);}
+.card .n{font-size:10.5px;font-weight:700;color:var(--teal);letter-spacing:.08em;}
+.card .lbl{font-size:13.2px;font-weight:700;color:var(--navy);margin:2px 0 3px;line-height:1.22;}
+.card p{margin:0;font-size:12px;color:var(--g11);line-height:1.38;}
+
+/* ---------- diagram classes ---------- */
+svg.dg .lane{fill:#F7FAFB;stroke:var(--teal-2);stroke-width:1}
+svg.dg .laneh{fill:var(--teal-1);stroke:var(--teal-2);stroke-width:1}
+svg.dg .lanet{font:700 11px var(--font);fill:var(--teal-dk);letter-spacing:.5px}
+svg.dg .box{fill:#fff;stroke:var(--teal);stroke-width:1.6}
+svg.dg .box.alt{fill:var(--teal-1)}
+svg.dg .box.grey{fill:var(--g1);stroke:var(--g2)}
+svg.dg .box.warnb{fill:#FFF8E8;stroke:var(--orange)}
+svg.dg .band{fill:none;stroke:var(--teal-dk);stroke-width:1.3;stroke-dasharray:5 3}
+svg.dg .t{font:600 12.5px var(--font);fill:var(--navy)}
+svg.dg .t.s{font:11px var(--font);fill:var(--g9)}
+svg.dg .t.w{font:600 11.5px var(--font);fill:#7A4000}
+svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
+svg.dg .arw.d{stroke-dasharray:5 3;stroke:var(--g9);marker-end:url(#ahg)}
+svg.dg .nb{fill:var(--orange)}
+svg.dg .nt{font:700 10.5px var(--font);fill:#fff}
+svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .sidenav{display:none;}
+  .deck,body.js .deck{margin-left:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;
+    zoom:0.76;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#012169"/></marker>
+  <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#75787B"/></marker>
+</defs></svg>
+
+<nav class="sidenav" aria-label="Slide navigation">
+  <div class="brand"><b>History Load — Chunk Planner</b><span>Zone1 Iceberg → native tables<br>Design · 13 slides</span></div>
+
+  <div class="grp">Why</div>
+  <button class="navbtn2" role="tab" aria-selected="true"><span class="n">01</span>Cover</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">02</span>The problem</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">03</span>Scope</button>
+
+  <div class="grp">Source</div>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">04</span>What the tables look like</button>
+
+  <div class="grp">Architecture</div>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">05</span>The planner, end to end</button>
+
+  <div class="grp">Solution steps</div>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">06</span>Step 1 — choose the axis</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">07</span>Step 2 — cut the days</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">08</span>Size target &amp; ranking</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">09</span>What gets written</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">10</span>Validation &amp; failures</button>
+
+  <div class="grp">Proof</div>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">11</span>Test &amp; evidence kit</button>
+
+  <div class="grp">Status</div>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">12</span>What is settled</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">13</span>What is still open</button>
+
+  <div class="navfoot">
+    <button class="pgbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="pgbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>arrow keys</span>
+  </div>
+</nav>
+
+<div class="deck">
+
+<!-- ============ 1 — COVER ============ -->
+<section class="slide cover active" id="s1" role="tabpanel">
+  <div class="eyebrow">Design</div>
+  <h1>History Load — Chunk Planner</h1>
+  <div class="rule"></div>
+  <p class="lede">A script that looks at every Iceberg table in a schema and decides, for each one, how
+  many chunks to load it in, which column divides them, how big each chunk is, and where each chunk
+  starts and ends. It writes that plan to two metadata tables. It does not load any data.</p>
+  <div class="meta">
+    <b>Design of record</b> &nbsp;<code>solution_design.md</code> version 2 · reasoning trail in <code>design_review.md</code> revision 9<br>
+    <b>Built from</b> &nbsp;Original design document · reference CURRENT / HISTORY DDL (shared 2026-10-05) · decisions D1–D15<br>
+    <b>Deliverables</b> &nbsp;<code>sql/04_chunk_planner.sql</code> (anonymous Snowflake Scripting block) · metadata DDL · test kit with 17 evidence points<br>
+    <b>Status</b> &nbsp;Script written, not yet run on Snowflake — the test kit is the verification
+  </div>
+  <div class="slide-no">1 / 13</div>
+</section>
+
+<!-- ============ 2 — PROBLEM ============ -->
+<section class="slide" id="s2" role="tabpanel">
+  <h2>One statement per table is too blunt for years of history</h2>
+  <p class="sub">Why each Iceberg table needs its own load plan before anything is moved</p>
+
+  <div class="cards">
+    <div class="card"><div class="n">01</div><div class="lbl">Some tables are very large</div>
+      <p>Years of history per table. Loaded in one statement, a failure near the end redoes all of it.</p></div>
+    <div class="card"><div class="n">02</div><div class="lbl">Volume is not spread evenly</div>
+      <p>A bulk backfill can land most of a table's history on a handful of days. Calendar-sized chunks would be wildly uneven. <i>Expected; confirmed by reconnaissance.</i></p></div>
+    <div class="card"><div class="n">03</div><div class="lbl">Tables are not all alike</div>
+      <p>CURRENT tables change in place and partition by date; HISTORY tables are append-only and partition by year / month / day.</p></div>
+  </div>
+  <div class="cards" style="margin-top:10px">
+    <div class="card"><div class="n">04</div><div class="lbl">Too many tables to tune by hand</div>
+      <p>The history load spans hundreds of databases with many tables each. The decision has to be made by rule, per table, automatically.</p></div>
+    <div class="card"><div class="n">05</div><div class="lbl">No stored procedures</div>
+      <p>A client constraint. Logic must run as an anonymous Snowflake Scripting block, from a Snowflake Workspace.</p></div>
+    <div class="card"><div class="n">06</div><div class="lbl">Loading is someone else's job</div>
+      <p>The plan has to stand on its own: what to load, in which pieces, with exact ranges — and nothing about how to load it.</p></div>
+  </div>
+  <div class="cards c2" style="margin-top:10px">
+    <div class="card"><div class="n">07</div><div class="lbl">Bad plans fail silently</div>
+      <p>A range that misses a row, or counts one twice, would not show up until reconciliation after the load. The plan must be provably exact.</p></div>
+    <div class="card" style="border-top-color:var(--green)"><div class="n" style="color:var(--green-ac)">THE ANSWER</div>
+      <div class="lbl">A planner that writes an exact chunk plan per table</div>
+      <p>Read each table's structure, choose the column that splits it best, cut whole days into ~10 GB chunks, split only the days that are too big — and record every chunk's range so that each row lands in exactly one chunk.</p></div>
+  </div>
+  <p class="note">Card 04: scale from the History Load design deck (~250 databases × ~100 tables). Card 02 is an expectation, to be confirmed by the reconnaissance in the open items.</p>
+
+  <div class="takeaway">The planner turns "load this table" into an exact, auditable list of bounded pieces</div>
+  <div class="slide-no">2 / 13</div>
+</section>
+
+<!-- ============ 3 — SCOPE ============ -->
+<section class="slide" id="s3" role="tabpanel">
+  <h2>The planner decides the pieces — it never moves data</h2>
+  <p class="sub">What is in, and what was deliberately left out</p>
+
+  <div class="cols w60-40">
+    <div>
+      <h3>In scope</h3>
+      <table class="sm">
+        <thead><tr><th class="num">#</th><th>Capability</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Any database &amp; schema</td><td>CURRENT or HISTORY; decided from each table's own partition spec and columns, never from names <span class="chip ok">D1</span></td></tr>
+          <tr><td class="num">2</td><td>Flexible input</td><td>Database + schema required; one or many table names optional. No list = every object in the schema</td></tr>
+          <tr><td class="num">3</td><td>Per-table plan</td><td>How many chunks, the dividing column, each chunk's range, estimated rows and bytes</td></tr>
+          <tr><td class="num">4</td><td>Strict validation</td><td>Any wrong input → report every problem and exit; nothing written <span class="chip ok">D12</span></td></tr>
+          <tr><td class="num">5</td><td>Failure isolation</td><td>A table that cannot be planned is marked <code>FAILED</code>; the run carries on <span class="chip ok">D6</span></td></tr>
+          <tr><td class="num">6</td><td>Runs from a Workspace</td><td>Anonymous Snowflake Scripting block; inputs are variables at the top of the script</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Deliberately not built</h3>
+      <table class="sm">
+        <tbody>
+          <tr><td><b>Load SQL</b><br><span class="note">The plan stores ranges, not queries. The loader writes its own SQL</span></td></tr>
+          <tr><td><b>Loading data / target tables</b><br><span class="note">Out of scope by decision</span></td></tr>
+          <tr><td><b>Warehouse choice</b><br><span class="note">Chunk size is fixed on a Medium assumption <span class="chip ok">D14</span></span></td></tr>
+          <tr><td><b>Stored procedures, Tasks</b><br><span class="note">Not allowed / not needed for a one-time plan</span></td></tr>
+          <tr><td><b>IDMC execution</b><br><span class="note">Deferred — the block is ready to be called later</span></td></tr>
+          <tr><td><b>Run-log and config tables</b><br><span class="note">Replaced by the Workspace result grid and script variables <span class="chip ok">D9 · D10</span></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="note">Decisions D1–D15 are recorded in <code>design_review.md</code> §1a; this deck refers to them by ID.</p>
+
+  <div class="takeaway">Narrow on purpose: one job — an exact chunk plan — done for any table</div>
+  <div class="slide-no">3 / 13</div>
+</section>
+
+<!-- ============ 4 — SOURCE TABLES ============ -->
+<section class="slide" id="s4" role="tabpanel">
+  <h2>Every table carries the same GRS columns — the plan uses only those</h2>
+  <p class="sub">Reference DDL: one source table in its CURRENT and HISTORY layers</p>
+
+  <div class="cols w60-40">
+    <div>
+      <h3>Column roles</h3>
+      <table class="sm">
+        <thead><tr><th>Group</th><th>Columns</th><th>Use in the plan</th></tr></thead>
+        <tbody>
+          <tr><td>Partition · CURRENT</td><td><code>GRS_PROCESS_DATE</code> DATE</td><td><span class="chip ok">Primary axis</span></td></tr>
+          <tr><td>Partition · HISTORY</td><td><code>GRS_PROCESS_YEAR</code> / <code>_MONTH</code> / <code>_DAY</code> INT</td><td><span class="chip ok">Primary axis</span> combined into one date</td></tr>
+          <tr><td>Watermark</td><td><code>GRS_REFINED_TIMESTAMP</code> TIMESTAMP_LTZ(6)</td><td><span class="chip part">Splits big days</span> · fallback axis</td></tr>
+          <tr><td>Record id</td><td><code>GRS_UNIQUE_ID</code> STRING (UUID)</td><td><span class="chip part">Hash fallback</span></td></tr>
+          <tr><td>CDC headers</td><td><code>OP</code>, <code>AR_H_TIMESTAMP</code>, <code>CHANGE_SEQ_NUM</code></td><td><span class="chip no">Never</span> stored as strings</td></tr>
+          <tr><td>Other GRS audit</td><td><code>GRS_LANDING_DATE</code>, paths, <code>GRS_EXECUTION_UUID</code>, hashes</td><td><span class="chip no">Never</span> strings / per-run values</td></tr>
+          <tr><td>Business</td><td><code>*_ID</code>, <code>EFFCTV_TS</code>, <code>EXPRTN_TS</code>, <code>LAST_UPDT_TS</code>, …</td><td><span class="chip no">Never</span> names vary by table; some change in place</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>The two layers</h3>
+      <table class="sm">
+        <thead><tr><th></th><th>CURRENT</th><th>HISTORY</th></tr></thead>
+        <tbody>
+          <tr><td>Behaviour</td><td>Mirrors the source; updated in place</td><td>Append-only</td></tr>
+          <tr><td>Partition</td><td>date</td><td>year · month · day</td></tr>
+          <tr><td>Hash cols</td><td><code>ROW_HASH</code></td><td><code>NEW_</code> / <code>LAST_ROW_HASH</code></td></tr>
+          <tr><td>Catalog</td><td colspan="2">Snowflake-managed Iceberg v3</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><b>Not an SCD signal.</b> <code>EFFCTV_TS</code> / <code>EXPRTN_TS</code> appear in
+      <i>both</i> layers — they are the source system's own validity dates. The layer is recorded for
+      information only and never drives a decision.</div>
+    </div>
+  </div>
+  <p class="note">Source: <code>reference_ddl.sql</code>, transcribed from the two DDL screenshots shared 2026-10-05 (<code>sources/</code>). CDC header identification is an inference from Qlik Replicate's documented header names.</p>
+
+  <div class="takeaway">Business columns differ table to table — the standard GRS columns are what make one script work everywhere</div>
+  <div class="slide-no">4 / 13</div>
+</section>
+
+<!-- ============ 5 — ARCHITECTURE ============ -->
+<section class="slide" id="s5" role="tabpanel">
+  <h2>One block, three lanes — read in, plan per table, write two tables</h2>
+  <p class="sub">The planner runs as an anonymous block in a Snowflake Workspace; it only ever reads the source tables</p>
+
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1500 352" role="img" aria-label="Planner architecture: inputs lane, planner lane with per-table loop, outputs lane">
+    <rect class="lane"  x="8"    y="34" width="168" height="310" rx="4"/>
+    <rect class="laneh" x="8"    y="8"  width="168" height="26"  rx="4"/>
+    <text class="lanet" x="92"   y="26" text-anchor="middle">INPUTS (TOP OF SCRIPT)</text>
+    <rect class="lane"  x="186"  y="34" width="996" height="310" rx="4"/>
+    <rect class="laneh" x="186"  y="8"  width="996" height="26"  rx="4"/>
+    <text class="lanet" x="684"  y="26" text-anchor="middle">PLANNER · ANONYMOUS SNOWFLAKE SCRIPTING BLOCK</text>
+    <rect class="lane"  x="1192" y="34" width="300" height="310" rx="4"/>
+    <rect class="laneh" x="1192" y="8"  width="300" height="26"  rx="4"/>
+    <text class="lanet" x="1342" y="26" text-anchor="middle">OUTPUTS</text>
+
+    <!-- inputs -->
+    <rect class="box" x="20" y="50" width="144" height="46" rx="5"/>
+    <text class="t" x="92" y="70" text-anchor="middle">p_database</text>
+    <text class="t" x="92" y="86" text-anchor="middle">p_schema</text>
+    <rect class="box" x="20" y="108" width="144" height="46" rx="5"/>
+    <text class="t" x="92" y="128" text-anchor="middle">p_tables</text>
+    <text class="t s" x="92" y="144" text-anchor="middle">optional, one or many</text>
+    <rect class="box" x="20" y="166" width="144" height="46" rx="5"/>
+    <text class="t" x="92" y="186" text-anchor="middle">p_force_replan</text>
+    <text class="t s" x="92" y="202" text-anchor="middle">default FALSE</text>
+    <rect class="box grey" x="20" y="224" width="144" height="46" rx="5"/>
+    <text class="t" x="92" y="244" text-anchor="middle">10 GB · 250M rows</text>
+    <text class="t s" x="92" y="260" text-anchor="middle">chunk size (fixed)</text>
+    <rect class="box grey" x="20" y="282" width="144" height="46" rx="5"/>
+    <text class="t" x="92" y="302" text-anchor="middle">test_db.test_schema</text>
+    <text class="t s" x="92" y="318" text-anchor="middle">metadata location</text>
+
+    <!-- row A -->
+    <rect class="box" x="206" y="50" width="214" height="52" rx="5"/>
+    <text class="t" x="313" y="71" text-anchor="middle">Validate inputs</text>
+    <text class="t w" x="313" y="89" text-anchor="middle">any problem → exit, write nothing</text>
+    <rect class="box" x="450" y="50" width="214" height="52" rx="5"/>
+    <text class="t" x="557" y="71" text-anchor="middle">Discover the schema</text>
+    <text class="t s" x="557" y="89" text-anchor="middle">objects · Iceberg list · columns</text>
+    <rect class="box" x="694" y="50" width="214" height="52" rx="5"/>
+    <text class="t" x="801" y="71" text-anchor="middle">Build the scope</text>
+    <text class="t s" x="801" y="89" text-anchor="middle">listed tables, or every object</text>
+
+    <!-- per-table band -->
+    <rect class="band" x="206" y="126" width="962" height="146" rx="6"/>
+    <text class="lanet" x="266" y="146">PER TABLE · ANY ERROR → FAILED, RUN CONTINUES</text>
+    <rect class="box" x="222" y="160" width="140" height="58" rx="5"/>
+    <text class="t" x="292" y="184" text-anchor="middle">Read structure</text>
+    <text class="t s" x="292" y="202" text-anchor="middle">spec · GRS cols · size</text>
+    <rect class="box" x="380" y="160" width="140" height="58" rx="5"/>
+    <text class="t" x="450" y="184" text-anchor="middle">Choose axis</text>
+    <text class="t s" x="450" y="202" text-anchor="middle">first rule that matches</text>
+    <rect class="box" x="538" y="160" width="140" height="58" rx="5"/>
+    <text class="t" x="608" y="184" text-anchor="middle">Profile days</text>
+    <text class="t s" x="608" y="202" text-anchor="middle">rows per axis day</text>
+    <rect class="box alt" x="696" y="160" width="140" height="58" rx="5"/>
+    <text class="t" x="766" y="184" text-anchor="middle">Cut &amp; split</text>
+    <text class="t s" x="766" y="202" text-anchor="middle">whole days; split big</text>
+    <rect class="box" x="854" y="160" width="140" height="58" rx="5"/>
+    <text class="t" x="924" y="184" text-anchor="middle">Check Σ rows</text>
+    <text class="t s" x="924" y="202" text-anchor="middle">chunks = table rows</text>
+    <rect class="box" x="1012" y="160" width="140" height="58" rx="5"/>
+    <text class="t" x="1082" y="184" text-anchor="middle">Write plan</text>
+    <text class="t s" x="1082" y="202" text-anchor="middle">one transaction</text>
+    <text class="t s" x="1156" y="146" text-anchor="end">non-Iceberg → SKIPPED row · already planned → reported (unless forced)</text>
+
+    <!-- read-only sources -->
+    <rect class="box grey" x="222" y="286" width="298" height="44" rx="5"/>
+    <text class="t s" x="371" y="304" text-anchor="middle">SHOW ICEBERG TABLES (partition spec) ·</text>
+    <text class="t s" x="371" y="320" text-anchor="middle">INFORMATION_SCHEMA · ICEBERG_TABLE_FILES</text>
+    <rect class="box grey" x="538" y="286" width="298" height="44" rx="5"/>
+    <text class="t s" x="687" y="304" text-anchor="middle">the Iceberg table itself — read-only scans</text>
+    <text class="t s" x="687" y="320" text-anchor="middle">axis column per day · refined ts in a big day</text>
+    <path class="arw d" d="M292,286 L292,222"/>
+    <path class="arw d" d="M450,286 L450,222"/>
+    <path class="arw d" d="M608,286 L608,222"/>
+    <path class="arw d" d="M766,286 L766,222"/>
+
+    <!-- outputs -->
+    <rect class="box alt" x="1206" y="50" width="272" height="52" rx="5"/>
+    <text class="t" x="1342" y="71" text-anchor="middle">Workspace result grid</text>
+    <text class="t s" x="1342" y="89" text-anchor="middle">one row per table + summary counts</text>
+    <rect class="box" x="1206" y="138" width="272" height="56" rx="5"/>
+    <text class="t" x="1342" y="160" text-anchor="middle">HIST_PLAN_TABLE</text>
+    <text class="t s" x="1342" y="178" text-anchor="middle">one row per table · status lives here</text>
+    <rect class="box" x="1206" y="214" width="272" height="56" rx="5"/>
+    <text class="t" x="1342" y="236" text-anchor="middle">HIST_PLAN_CHUNK</text>
+    <text class="t s" x="1342" y="254" text-anchor="middle">one row per chunk · exact ranges</text>
+
+    <!-- arrows -->
+    <path class="arw" d="M164,76 L200,76"/>
+    <path class="arw" d="M420,76 L444,76"/>
+    <path class="arw" d="M664,76 L688,76"/>
+    <path class="arw" d="M801,102 L801,114 L250,114 L250,154"/>
+    <path class="arw" d="M362,189 L374,189"/>
+    <path class="arw" d="M520,189 L532,189"/>
+    <path class="arw" d="M678,189 L690,189"/>
+    <path class="arw" d="M836,189 L848,189"/>
+    <path class="arw" d="M994,189 L1006,189"/>
+    <path class="arw" d="M1152,189 L1180,189 L1180,166 L1200,166"/>
+    <path class="arw" d="M1180,189 L1180,242 L1200,242"/>
+    <path class="arw" d="M1180,189 L1180,76 L1200,76"/>
+
+    <circle class="nb" cx="206" cy="50"  r="9"/><text class="nt" x="206" y="54"  text-anchor="middle">1</text>
+    <circle class="nb" cx="450" cy="50"  r="9"/><text class="nt" x="450" y="54"  text-anchor="middle">2</text>
+    <circle class="nb" cx="694" cy="50"  r="9"/><text class="nt" x="694" y="54"  text-anchor="middle">3</text>
+    <circle class="nb" cx="222" cy="160" r="9"/><text class="nt" x="222" y="164" text-anchor="middle">4</text>
+    <circle class="nb" cx="380" cy="160" r="9"/><text class="nt" x="380" y="164" text-anchor="middle">5</text>
+    <circle class="nb" cx="538" cy="160" r="9"/><text class="nt" x="538" y="164" text-anchor="middle">6</text>
+    <circle class="nb" cx="696" cy="160" r="9"/><text class="nt" x="696" y="164" text-anchor="middle">7</text>
+    <circle class="nb" cx="854" cy="160" r="9"/><text class="nt" x="854" y="164" text-anchor="middle">8</text>
+    <circle class="nb" cx="1012" cy="160" r="9"/><text class="nt" x="1012" y="164" text-anchor="middle">9</text>
+    <circle class="nb" cx="1206" cy="50" r="9"/><text class="nt" x="1206" y="54" text-anchor="middle">10</text>
+  </svg>
+  </div>
+
+  <table class="sm">
+    <thead><tr><th class="num">#</th><th>Step</th><th>What happens</th><th>Reads / writes</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Validate</td><td>Database, schema and every listed table name resolved (exact, then unique case-insensitive). Any problem → all listed, exit</td><td><code>SHOW DATABASES</code>, <code>SCHEMATA</code></td></tr>
+      <tr><td class="num">2–3</td><td>Discover, scope</td><td>All objects in the schema; which are Iceberg; their columns. Scope = the list, or everything</td><td><code>INFORMATION_SCHEMA</code>, <code>SHOW ICEBERG TABLES</code></td></tr>
+      <tr><td class="num">4–5</td><td>Structure, axis</td><td>Partition spec + GRS columns + size decide the dividing column — slide 6</td><td>metadata only</td></tr>
+      <tr><td class="num">6–7</td><td>Profile, cut</td><td>Rows per day; whole days grouped to ~10 GB; oversized days split — slide 7</td><td>scans the axis column only</td></tr>
+      <tr><td class="num">8–9</td><td>Check, write</td><td>Σ chunk rows must equal table rows; then supersede the old plan and insert the new one atomically</td><td><code>HIST_PLAN_TABLE</code>, <code>HIST_PLAN_CHUNK</code></td></tr>
+      <tr><td class="num">10</td><td>Result</td><td>Per-table outcome and a summary row, e.g. <i>Planned 30 · Failed 2 · Skipped 13</i></td><td>Workspace grid</td></tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway">Source tables are only ever read — every write goes to the two plan tables, one table at a time</div>
+  <div class="slide-no">5 / 13</div>
+</section>
+
+<!-- ============ 6 — CHOOSE THE AXIS ============ -->
+<section class="slide" id="s6" role="tabpanel">
+  <h2>Step 1 — the table's own structure picks the dividing column</h2>
+  <p class="sub">Same rules for every table; the first one that matches wins</p>
+
+  <div class="cols">
+    <div class="figure" style="flex:0 0 52%">
+    <svg class="dg" viewBox="0 0 640 452" role="img" aria-label="Decision ladder for choosing the chunk axis">
+      <rect class="box" x="10" y="8" width="320" height="44" rx="5"/>
+      <text class="t" x="170" y="35" text-anchor="middle">Whole table ≤ one chunk (10 GB / 250M rows)?</text>
+      <rect class="box alt" x="384" y="8" width="246" height="44" rx="5"/>
+      <text class="t" x="507" y="35" text-anchor="middle">SINGLE — 1 chunk, no range</text>
+
+      <rect class="box" x="10" y="72" width="320" height="44" rx="5"/>
+      <text class="t" x="170" y="99" text-anchor="middle">Spec: identity partition on a DATE?</text>
+      <rect class="box alt" x="384" y="72" width="246" height="44" rx="5"/>
+      <text class="t" x="507" y="92" text-anchor="middle">PARTITION_DAY</text>
+      <text class="t s" x="507" y="108" text-anchor="middle">verified · file skipping guaranteed</text>
+
+      <rect class="box" x="10" y="136" width="320" height="44" rx="5"/>
+      <text class="t" x="170" y="163" text-anchor="middle">Spec: identity year / month / day?</text>
+      <rect class="box alt" x="384" y="136" width="246" height="44" rx="5"/>
+      <text class="t" x="507" y="156" text-anchor="middle">PARTITION_YMD</text>
+      <text class="t s" x="507" y="172" text-anchor="middle">verified · file skipping guaranteed</text>
+
+      <rect class="box" x="10" y="200" width="320" height="44" rx="5"/>
+      <text class="t" x="170" y="227" text-anchor="middle">GRS_PROCESS_DATE or _YEAR/_MONTH/_DAY?</text>
+      <rect class="box" x="384" y="200" width="246" height="44" rx="5"/>
+      <text class="t" x="507" y="220" text-anchor="middle">same axis, not verified</text>
+      <text class="t s" x="507" y="236" text-anchor="middle">spec unreadable · skipping likely</text>
+
+      <rect class="box" x="10" y="264" width="320" height="44" rx="5"/>
+      <text class="t" x="170" y="291" text-anchor="middle">Has GRS_REFINED_TIMESTAMP?</text>
+      <rect class="box" x="384" y="264" width="246" height="44" rx="5"/>
+      <text class="t" x="507" y="284" text-anchor="middle">REFINED_TS_DAY</text>
+      <text class="t s" x="507" y="300" text-anchor="middle">UTC date of the watermark</text>
+
+      <rect class="box" x="10" y="328" width="320" height="44" rx="5"/>
+      <text class="t" x="170" y="355" text-anchor="middle">Has GRS_UNIQUE_ID?</text>
+      <rect class="box grey" x="384" y="328" width="246" height="44" rx="5"/>
+      <text class="t" x="507" y="348" text-anchor="middle">UNIQUE_ID_HASH</text>
+      <text class="t s" x="507" y="364" text-anchor="middle">even buckets · no file skipping</text>
+
+      <rect class="box warnb" x="10" y="396" width="320" height="48" rx="5"/>
+      <text class="t w" x="170" y="416" text-anchor="middle">FAILED — no usable chunk column</text>
+      <text class="t w" x="170" y="433" text-anchor="middle">recorded with the reason · run continues</text>
+
+      <path class="arw" d="M330,30 L378,30"/>   <text class="t s" x="354" y="24" text-anchor="middle">yes</text>
+      <path class="arw" d="M330,94 L378,94"/>   <text class="t s" x="354" y="88" text-anchor="middle">yes</text>
+      <path class="arw" d="M330,158 L378,158"/> <text class="t s" x="354" y="152" text-anchor="middle">yes</text>
+      <path class="arw" d="M330,222 L378,222"/> <text class="t s" x="354" y="216" text-anchor="middle">yes</text>
+      <path class="arw" d="M330,286 L378,286"/> <text class="t s" x="354" y="280" text-anchor="middle">yes</text>
+      <path class="arw" d="M330,350 L378,350"/> <text class="t s" x="354" y="344" text-anchor="middle">yes</text>
+      <path class="arw" d="M170,52 L170,66"/>   <text class="t s" x="184" y="64">no</text>
+      <path class="arw" d="M170,116 L170,130"/> <text class="t s" x="184" y="128">no</text>
+      <path class="arw" d="M170,180 L170,194"/> <text class="t s" x="184" y="192">no</text>
+      <path class="arw" d="M170,244 L170,258"/> <text class="t s" x="184" y="256">no</text>
+      <path class="arw" d="M170,308 L170,322"/> <text class="t s" x="184" y="320">no</text>
+      <path class="arw" d="M170,372 L170,390"/> <text class="t s" x="184" y="386">no</text>
+
+      <circle class="nb" cx="10" cy="8"   r="9"/><text class="nt" x="10" y="12"  text-anchor="middle">0</text>
+      <circle class="nb" cx="10" cy="72"  r="9"/><text class="nt" x="10" y="76"  text-anchor="middle">1</text>
+      <circle class="nb" cx="10" cy="136" r="9"/><text class="nt" x="10" y="140" text-anchor="middle">2</text>
+      <circle class="nb" cx="10" cy="200" r="9"/><text class="nt" x="10" y="204" text-anchor="middle">3</text>
+      <circle class="nb" cx="10" cy="264" r="9"/><text class="nt" x="10" y="268" text-anchor="middle">4</text>
+      <circle class="nb" cx="10" cy="328" r="9"/><text class="nt" x="10" y="332" text-anchor="middle">5</text>
+      <circle class="nb" cx="10" cy="396" r="9"/><text class="nt" x="10" y="400" text-anchor="middle">6</text>
+    </svg>
+    </div>
+    <div>
+      <table class="sm">
+        <thead><tr><th class="num">#</th><th>Rule</th><th>Why it sits here</th></tr></thead>
+        <tbody>
+          <tr><td class="num">0</td><td>Small table</td><td>Splitting a table that fits in one chunk only adds overhead</td></tr>
+          <tr><td class="num">1–2</td><td>Partition spec</td><td>Read from <code>SHOW ICEBERG TABLES</code>. Whole partition days map exactly to files — guaranteed skipping. Both reference DDLs land here</td></tr>
+          <tr><td class="num">3</td><td>Naming fallback</td><td>If the spec column is not readable in the account, the standard <code>GRS_PROCESS_*</code> names still identify the axis; recorded as <code>PARTITION_VERIFIED = FALSE</code></td></tr>
+          <tr><td class="num">4</td><td>Watermark</td><td>For a table in another schema that is not date-partitioned</td></tr>
+          <tr><td class="num">5</td><td>Record id</td><td>Always splits evenly, but every chunk reads the whole table</td></tr>
+          <tr><td class="num">6</td><td>Nothing usable</td><td>Fails <i>cleanly</i>: the reason is written, the next table is planned <span class="chip ok">D6</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal"><b>Never used:</b> business dates and keys (names vary, some change in
+      place) and anything stored as a string (<code>CHANGE_SEQ_NUM</code>, <code>AR_H_TIMESTAMP</code>,
+      <code>GRS_LANDING_DATE</code>).</div>
+    </div>
+  </div>
+
+  <div class="takeaway">No table is hand-tuned — the partition spec decides, with a fallback for anything non-standard</div>
+  <div class="slide-no">6 / 13</div>
+</section>
+
+<!-- ============ 7 — CUT THE DAYS ============ -->
+<section class="slide" id="s7" role="tabpanel">
+  <h2>Step 2 — group whole days, split only the days that are too big</h2>
+  <p class="sub">Two tables from the test kit, cut with a 1,000-row target (production: 10 GB)</p>
+
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1500 300" role="img" aria-label="Day bars grouped into chunks, with an oversized day split by timestamp or by hash">
+    <rect class="lane"  x="8"   y="34" width="900" height="258" rx="4"/>
+    <rect class="laneh" x="8"   y="8"  width="900" height="26"  rx="4"/>
+    <text class="lanet" x="458" y="26" text-anchor="middle">T02 · BACKFILL DAY WITH TIMESTAMPS SPREAD → SUB-RANGES</text>
+    <rect class="lane"  x="918" y="34" width="574" height="258" rx="4"/>
+    <rect class="laneh" x="918" y="8"  width="574" height="26"  rx="4"/>
+    <text class="lanet" x="1205" y="26" text-anchor="middle">T03 · BACKFILL DAY WITH ONE TIMESTAMP → HASH BUCKETS</text>
+
+    <!-- target line -->
+    <path d="M24,174 L892,174" stroke="#ED8B00" stroke-width="1.4" stroke-dasharray="6 4" fill="none"/>
+    <text class="t w" x="30" y="168">target per chunk</text>
+    <path d="M934,174 L1478,174" stroke="#ED8B00" stroke-width="1.4" stroke-dasharray="6 4" fill="none"/>
+
+    <!-- T02 small days -->
+    <rect class="box" x="40"  y="206" width="26" height="14" rx="2"/>
+    <rect class="box" x="72"  y="206" width="26" height="14" rx="2"/>
+    <rect class="box" x="104" y="206" width="26" height="14" rx="2"/>
+    <!-- T02 big day split in 4 -->
+    <rect class="box alt" x="196" y="174" width="70" height="46" rx="2"/>
+    <rect class="box alt" x="196" y="128" width="70" height="46" rx="2"/>
+    <rect class="box alt" x="196" y="82"  width="70" height="46" rx="2"/>
+    <rect class="box alt" x="196" y="58"  width="70" height="24" rx="2"/>
+    <text class="t s" x="276" y="202">00:00–00:20</text>
+    <text class="t s" x="276" y="156">00:20–00:40</text>
+    <text class="t s" x="276" y="110">00:40–01:00</text>
+    <text class="t s" x="276" y="74">01:00 → end</text>
+    <!-- T02 ten days -->
+    <rect class="box" x="400" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="432" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="464" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="496" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="528" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="590" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="622" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="654" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="686" y="196" width="26" height="24" rx="2"/>
+    <rect class="box" x="718" y="196" width="26" height="24" rx="2"/>
+    <path d="M24,220 L892,220" stroke="#75787B" stroke-width="1" fill="none"/>
+    <!-- brackets -->
+    <path class="brk" d="M40,230 L40,240 L130,240 L130,230"/>
+    <text class="t s" x="85" y="256" text-anchor="middle">chunk 1 · 3 days</text>
+    <text class="t s" x="85" y="270" text-anchor="middle">300 rows</text>
+    <path class="brk" d="M196,230 L196,240 L266,240 L266,230"/>
+    <text class="t s" x="231" y="256" text-anchor="middle">chunks 2–5 · 1 day</text>
+    <text class="t s" x="231" y="270" text-anchor="middle">3,500 rows</text>
+    <path class="brk" d="M400,230 L400,240 L554,240 L554,230"/>
+    <text class="t s" x="477" y="256" text-anchor="middle">chunk 6 · 5 days · 1,000</text>
+    <path class="brk" d="M590,230 L590,240 L744,240 L744,230"/>
+    <text class="t s" x="667" y="256" text-anchor="middle">chunk 7 · 5 days · 1,000</text>
+    <text class="t s" x="790" y="200">open end →</text>
+    <text class="t s" x="24" y="200">← open</text>
+
+    <!-- T03 -->
+    <rect class="box warnb" x="980" y="180" width="80" height="40" rx="2"/>
+    <rect class="box warnb" x="980" y="140" width="80" height="40" rx="2"/>
+    <rect class="box warnb" x="980" y="100" width="80" height="40" rx="2"/>
+    <text class="t s" x="1070" y="204">bucket 0 of 3</text>
+    <text class="t s" x="1070" y="164">bucket 1 of 3</text>
+    <text class="t s" x="1070" y="124">bucket 2 of 3</text>
+    <rect class="box" x="1220" y="208" width="26" height="12" rx="2"/>
+    <rect class="box" x="1252" y="208" width="26" height="12" rx="2"/>
+    <rect class="box" x="1284" y="208" width="26" height="12" rx="2"/>
+    <rect class="box" x="1316" y="208" width="26" height="12" rx="2"/>
+    <path d="M934,220 L1478,220" stroke="#75787B" stroke-width="1" fill="none"/>
+    <path class="brk" d="M980,230 L980,240 L1060,240 L1060,230"/>
+    <text class="t s" x="1020" y="256" text-anchor="middle">chunks 1–3 · 2,500 rows</text>
+    <text class="t s" x="1020" y="270" text-anchor="middle">MOD(HASH(GRS_UNIQUE_ID), 3)</text>
+    <path class="brk" d="M1220,230 L1220,240 L1342,240 L1342,230"/>
+    <text class="t s" x="1281" y="256" text-anchor="middle">chunk 4 · 4 days · 400</text>
+
+    <circle class="nb" cx="40"  cy="206" r="9"/><text class="nt" x="40"  y="210" text-anchor="middle">1</text>
+    <circle class="nb" cx="196" cy="58"  r="9"/><text class="nt" x="196" y="62"  text-anchor="middle">2</text>
+    <circle class="nb" cx="400" cy="196" r="9"/><text class="nt" x="400" y="200" text-anchor="middle">3</text>
+    <circle class="nb" cx="980" cy="100" r="9"/><text class="nt" x="980" y="104" text-anchor="middle">4</text>
+  </svg>
+  </div>
+  <p class="note">Illustrative, not to scale — bar heights only show which days are under or over the target. Exact boundaries for both tables are in <code>sql/TEST_PLAN.md</code>, computed by hand and confirmed by an independent simulation.</p>
+
+  <table class="sm">
+    <thead><tr><th class="num">#</th><th>Rule</th><th>What the planner does</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Group whole days</td><td>Walk the days in order; add a day to the open chunk unless it would push it over the target. The very first chunk starts open (<code>NULL</code>)</td></tr>
+      <tr><td class="num">2</td><td>Split by timestamp</td><td>A day bigger than the target is cut by minute ranges of <code>GRS_REFINED_TIMESTAMP</code> — still reading only that day's files</td></tr>
+      <tr><td class="num">3</td><td>Continue seamlessly</td><td>The next range starts the day after the split day, so empty days in between are covered too. The very last chunk ends open</td></tr>
+      <tr><td class="num">4</td><td>Split by hash</td><td>If NULLs or one oversized minute block the timestamp split, the day is cut into even buckets of <code>GRS_UNIQUE_ID</code> — always works</td></tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway">Ranges are half-open and continuous — every row lands in exactly one chunk, by construction and by check</div>
+  <div class="slide-no">7 / 13</div>
+</section>
+
+<!-- ============ 8 — SIZE TARGET & RANKING ============ -->
+<section class="slide" id="s8" role="tabpanel">
+  <h2>10 GB per chunk, and the technique that reads the least</h2>
+  <p class="sub">One size target for every table; the technique is chosen day by day, best first</p>
+
+  <div class="cols">
+    <div>
+      <h3>Why 10 GB (Medium-warehouse assumption) <span class="chip ok">D14</span></h3>
+      <table class="sm">
+        <thead><tr><th>Force</th><th>Pushes towards</th><th>How 10 GB sits</th></tr></thead>
+        <tbody>
+          <tr><td>Keep every thread busy (Medium = 32 threads, one file each at a time)</td><td>Bigger</td><td>Iceberg files are 16–128 MB → 80–640 files ≈ 300 MB per thread</td></tr>
+          <tr><td>Fixed cost per chunk</td><td>Bigger</td><td>Seconds of overhead against minutes of work</td></tr>
+          <tr><td>Cost of a failure</td><td>Smaller</td><td>At most 10 GB re-read</td></tr>
+          <tr><td>Very narrow, compressible tables</td><td>A row cap</td><td>250M rows caps them</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Per table: <code>target rows = 10 GB ÷ average row size</code>, capped at 250M — wide tables get fewer rows per chunk, so chunks come out similar in size. Reasoned, not measured; both values are script variables.</p>
+    </div>
+    <div>
+      <h3>Technique ranking</h3>
+      <table class="sm">
+        <thead><tr><th class="num">#</th><th>Technique</th><th>Each chunk reads</th></tr></thead>
+        <tbody>
+          <tr style="outline:2px solid var(--green-ac);outline-offset:-2px"><td class="num">1</td><td><b>Whole partition days</b> <span class="chip ok">Default</span></td><td>Only its own days' files</td></tr>
+          <tr><td class="num">2</td><td>Day + refined-timestamp range</td><td>Only that day's files</td></tr>
+          <tr><td class="num">3</td><td>Day + hash bucket</td><td>That day's files, once per bucket</td></tr>
+          <tr><td class="num">4</td><td>Refined-timestamp days, unpartitioned table</td><td>Depends on file layout</td></tr>
+          <tr><td class="num">5</td><td>Whole-table hash <span class="chip warn">Last resort</span></td><td>The whole table, every chunk</td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal"><b>One table can mix ranks 1–3.</b> Most days grouped whole; one backfill day split.
+      The planner always uses the best technique the table's structure and data allow.</div>
+    </div>
+  </div>
+
+  <div class="takeaway">Same target everywhere, different cut per table — driven by each table's own data, never by hand</div>
+  <div class="slide-no">8 / 13</div>
+</section>
+
+<!-- ============ 9 — METADATA TABLES ============ -->
+<section class="slide" id="s9" role="tabpanel">
+  <h2>Two tables: how many chunks per table, and every chunk's range</h2>
+  <p class="sub">Status lives at table level; plans are never edited, only superseded</p>
+
+  <div class="cols">
+    <div>
+      <h3><code>HIST_PLAN_TABLE</code> — one row per table per plan</h3>
+      <table class="sm">
+        <thead><tr><th>Column(s)</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>DATABASE / SCHEMA / TABLE_NAME</code>, <code>OBJECT_TYPE</code></td><td>Which object; type explains skips</td></tr>
+          <tr><td><code>CHUNK_AXIS</code>, <code>AXIS_COLUMNS</code>, <code>PARTITION_VERIFIED</code></td><td>Which column divides the chunks, and whether the spec confirmed it</td></tr>
+          <tr><td><code>CHUNK_METHOD</code>, <b><code>CHUNK_COUNT</code></b></td><td><b>How many chunks</b>, and how they were cut</td></tr>
+          <tr><td><code>TOTAL_ROWS / BYTES</code>, <code>AVG_ROW_BYTES</code>, <code>FILE_COUNT</code></td><td>The profile behind the plan</td></tr>
+          <tr><td><code>TARGET_CHUNK_BYTES / ROWS_PER_CHUNK</code></td><td>The size target used</td></tr>
+          <tr style="outline:2px solid var(--orange);outline-offset:-2px"><td><b><code>PLAN_STATUS</code></b>, <code>STATUS_REASON</code>, <code>IS_ACTIVE</code></td><td><code>PLANNED</code> · <code>FAILED</code> · <code>SKIPPED</code> · <code>SUPERSEDED</code> — and why <span class="chip ok">D11</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3><code>HIST_PLAN_CHUNK</code> — one row per chunk</h3>
+      <table class="sm">
+        <thead><tr><th>Column(s)</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>PLAN_ID</code>, <code>CHUNK_SEQ</code></td><td>Which plan; order within the table</td></tr>
+          <tr><td><code>CHUNK_TYPE</code></td><td><code>ALL</code> · <code>DAY_RANGE</code> · <code>DAY_SUBRANGE</code> · <code>DAY_HASH</code> · <code>HASH</code> · <code>NULL_VALUES</code></td></tr>
+          <tr><td><code>DAY_START</code>, <code>DAY_END</code></td><td>Day range on the axis, <code>[start, end)</code>; <code>NULL</code> = open</td></tr>
+          <tr><td><code>SUB_COLUMN</code>, <code>SUB_START_TS</code>, <code>SUB_END_TS</code></td><td>Timestamp range inside a split day — <code>TIMESTAMP_TZ</code>, UTC</td></tr>
+          <tr><td><code>HASH_BUCKET</code>, <code>HASH_MODULUS</code></td><td>Bucket of a hash-split day or table</td></tr>
+          <tr><td><code>ESTIMATED_ROWS / BYTES</code></td><td>Size of each chunk</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><b>Why <code>TIMESTAMP_TZ</code>.</b> Every source timestamp is <code>TIMESTAMP_LTZ</code>.
+      Boundaries stored without a zone would be read in the loader's session time zone and could shift by hours.</div>
+    </div>
+  </div>
+  <p class="note">DDL: <code>sql/01_metadata_ddl.sql</code> · location <code>test_db.test_schema</code> until finalised <span class="chip part">D3</span> · run-log and config tables dropped <span class="chip ok">D9 · D10</span></p>
+
+  <div class="takeaway">Read HIST_PLAN_TABLE for "how many chunks", HIST_PLAN_CHUNK for "which rows" — nothing else needed</div>
+  <div class="slide-no">9 / 13</div>
+</section>
+
+<!-- ============ 10 — VALIDATION & FAILURES ============ -->
+<section class="slide" id="s10" role="tabpanel">
+  <h2>Bad input stops the run; a bad table never does</h2>
+  <p class="sub">What the script does in each situation</p>
+
+  <table class="sm">
+    <thead><tr><th class="num">#</th><th>Situation</th><th>Outcome</th><th>Written?</th><th>Decision</th></tr></thead>
+    <tbody>
+      <tr style="outline:2px solid var(--orange);outline-offset:-2px"><td class="num">1</td><td>Database or schema missing, or <b>any</b> listed table not found / ambiguous / not Iceberg</td><td>Every problem listed in the result grid; run exits</td><td><span class="chip no">Nothing</span></td><td>D12</td></tr>
+      <tr><td class="num">2</td><td>No table list given</td><td>Every object in the schema is accounted for</td><td><span class="chip ok">Yes</span></td><td>D1</td></tr>
+      <tr><td class="num">3</td><td>Standard table, view, external table, …</td><td><code>SKIPPED</code> with the reason; counted in the summary</td><td><span class="chip ok">1 row each</span></td><td>D13 · D15</td></tr>
+      <tr><td class="num">4</td><td>Table already has an active plan</td><td><code>SKIPPED</code> in the grid, unless <code>p_force_replan = TRUE</code></td><td><span class="chip part">No</span></td><td>—</td></tr>
+      <tr><td class="num">5</td><td>Forced re-plan</td><td>Old plan <code>SUPERSEDED</code>, new plan inserted — in one transaction</td><td><span class="chip ok">Yes</span></td><td>—</td></tr>
+      <tr><td class="num">6</td><td>No usable chunk column, a query error, or a row-sum mismatch</td><td><code>FAILED</code> with the reason; next table planned</td><td><span class="chip ok">1 row</span></td><td>D6</td></tr>
+      <tr><td class="num">7</td><td>Run cancelled half-way</td><td>Finished tables keep their plans; re-run continues with the rest</td><td><span class="chip ok">Kept</span></td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols" style="margin-top:12px">
+    <div>
+      <div class="callout"><b>Example of row 1.</b> Input <code>'T01_CUR_SPREAD, T99_DOES_NOT_EXIST, t09_standard_table'</code>
+      → two <code>VALIDATION_FAILED</code> rows and <i>"2 of 3 table names are invalid. Nothing was written."</i>
+      T01 is valid but is not planned either — a typo cannot silently drop a table.</div>
+    </div>
+    <div>
+      <div class="callout teal"><b>Name matching.</b> Exact name first, then a case-insensitive match only if it is
+      unique. Never <code>LIKE</code> — <code>_</code> is a wildcard and these names are full of underscores.
+      Quote a name for an exact-case match.</div>
+    </div>
+  </div>
+
+  <div class="takeaway">Validation protects the whole run; isolation protects every other table</div>
+  <div class="slide-no">10 / 13</div>
+</section>
+
+<!-- ============ 11 — TEST KIT ============ -->
+<section class="slide" id="s11" role="tabpanel">
+  <h2>Eleven test objects, one per branch, and a coverage proof</h2>
+  <p class="sub">The script has not run on Snowflake yet — this kit is how it gets verified, with 17 evidence screenshots</p>
+
+  <div class="cols w40-60">
+    <div>
+      <h3>Run sequence</h3>
+      <table class="sm">
+        <thead><tr><th class="num">#</th><th>File / run</th><th>Proves</th></tr></thead>
+        <tbody>
+          <tr><td class="num">R0</td><td><code>01</code> DDL</td><td>Plan tables exist</td></tr>
+          <tr><td class="num">R1</td><td><code>02</code> setup</td><td>11 synthetic objects</td></tr>
+          <tr style="outline:2px solid var(--orange);outline-offset:-2px"><td class="num">R2</td><td><code>03</code> smoke test</td><td>12 scripting constructs work in the account — <b>run first</b></td></tr>
+          <tr><td class="num">R3–R4</td><td><code>04</code> bad inputs</td><td>Exit, nothing written</td></tr>
+          <tr><td class="num">R5</td><td><code>04</code> full schema</td><td>Every decision branch</td></tr>
+          <tr><td class="num">R6</td><td><code>05</code> validate</td><td>Outcomes, 32 chunk boundaries, tiling, exactly-once coverage</td></tr>
+          <tr><td class="num">R7–R9</td><td>re-runs</td><td>Skip, re-fail, forced re-plan, still exact</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>What each test object exercises</h3>
+      <table class="sm">
+        <thead><tr><th>Object</th><th>Branch</th><th>Expected</th></tr></thead>
+        <tbody>
+          <tr><td>T01 CURRENT, 30 days</td><td>Whole partition days</td><td>10 × <code>DAY_RANGE</code></td></tr>
+          <tr><td>T02 HISTORY, spread backfill day</td><td>Timestamp split</td><td>7 (4 sub-ranges)</td></tr>
+          <tr><td>T03 HISTORY, one-timestamp day</td><td>Hash split</td><td>4 (3 hash buckets)</td></tr>
+          <tr><td>T04 small · T11 empty</td><td>Single chunk</td><td>1 each</td></tr>
+          <tr><td>T05 NULL partition values</td><td>NULL chunk</td><td>3</td></tr>
+          <tr><td>T06 unpartitioned</td><td>Watermark axis</td><td>3</td></tr>
+          <tr><td>T08 unique id only</td><td>Whole-table hash</td><td>3</td></tr>
+          <tr style="outline:2px solid var(--orange);outline-offset:-2px"><td>T07 no usable column</td><td>Failure isolation</td><td><code>FAILED</code>, run continues</td></tr>
+          <tr><td>T09 table · T10 view</td><td>Skip reporting</td><td><code>SKIPPED</code> with reason</td></tr>
+        </tbody>
+      </table>
+      <p class="note">The coverage proof (<code>05</code> Part B) evaluates every chunk's range on every source row:
+      rows in no chunk = 0 and rows in two or more = 0, for every table. Expected results in <code>sql/TEST_PLAN.md</code>.</p>
+    </div>
+  </div>
+
+  <div class="takeaway">Exactly-once is proven against the data itself, not just asserted by the planner</div>
+  <div class="slide-no">11 / 13</div>
+</section>
+
+<!-- ============ 12 — WHAT IS SETTLED ============ -->
+<section class="slide" id="s12" role="tabpanel">
+  <h2>What is settled</h2>
+  <p class="sub">Eight design choices, and what each was chosen over</p>
+
+  <table class="sm">
+    <thead><tr><th class="num">#</th><th>Area</th><th>Chosen</th><th>Over</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Chunk column</td><td><b>The table's partition spec, with a GRS fallback ladder</b></td><td>"The single date column" heuristic of the original design — most tables have several</td></tr>
+      <tr><td class="num">2</td><td>Chunk shape</td><td><b>Whole days, splitting only oversized days</b></td><td>Calendar months with month→day recursion</td></tr>
+      <tr><td class="num">3</td><td>Boundaries</td><td><b>Half-open, open-ended, typed (<code>DATE</code> / <code>TIMESTAMP_TZ</code>)</b></td><td><code>BETWEEN</code> on observed min/max in a <code>VARIANT</code> column — gaps, overlaps, time-zone drift</td></tr>
+      <tr><td class="num">4</td><td>Re-planning</td><td><b>New plan ID; old plan superseded, never edited</b></td><td><code>MERGE</code> on chunk sequence — could rewrite chunks already used</td></tr>
+      <tr><td class="num">5</td><td>Chunk size</td><td><b>Fixed 10 GB / 250M rows</b></td><td>10M rows (original) · detecting the warehouse (out of scope)</td></tr>
+      <tr><td class="num">6</td><td>Metadata</td><td><b>Two tables, status per table</b></td><td>Four tables with run log and config</td></tr>
+      <tr><td class="num">7</td><td>Input errors</td><td><b>Validate everything, exit, write nothing</b></td><td>Plan the valid names and report the rest</td></tr>
+      <tr><td class="num">8</td><td>Execution</td><td><b>Anonymous block from a Workspace</b></td><td>Stored procedure (not allowed) · Task · IDMC (deferred)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols" style="margin-top:14px">
+    <div>
+      <div class="callout teal"><b>What these rest on.</b> All tables follow the reference DDL structure ·
+      identity partitions · the loader reads the plan and writes its own SQL · the size target is a reasoned
+      starting value.</div>
+    </div>
+    <div>
+      <div class="callout"><b>Not settled.</b> The final metadata location (<code>test_db.test_schema</code>
+      for now, D3) and the real-data shape of history tables — both on the next slide.</div>
+    </div>
+  </div>
+
+  <div class="takeaway">Every choice that could silently lose or duplicate a row was replaced by one that cannot</div>
+  <div class="slide-no">12 / 13</div>
+</section>
+
+<!-- ============ 13 — WHAT IS STILL OPEN ============ -->
+<section class="slide" id="s13" role="tabpanel">
+  <h2>What is still open</h2>
+  <p class="sub">Three items remain — the first is simply running the test kit</p>
+
+  <div class="cols">
+    <div>
+      <h3>Open</h3>
+      <table class="sm">
+        <tbody>
+          <tr><td class="num">1</td><td><b>Run the test kit on Snowflake</b> <span class="chip warn">Next</span><br>R0–R9 in <code>sql/TEST_PLAN.md</code>; share evidence E01–E17. Start with the smoke test — any <code>FAIL</code> there is fixed before the planner runs</td></tr>
+          <tr><td class="num">2</td><td><b>Reconnaissance on real tables</b><br>Run the planner on 3–5 CURRENT / HISTORY pairs at production sizing; check day concentration and chunk counts</td></tr>
+          <tr><td class="num">3</td><td><b>Final metadata location</b> <span class="chip part">D3</span><br>Replace <code>test_db.test_schema</code> in the DDL and the script variables</td></tr>
+        </tbody>
+      </table>
+      <h3>Limitations, stated</h3>
+      <ul class="tight">
+        <li>Identity partitions only; other transforms fall back to the watermark or hash (correct, but no guaranteed skipping)</li>
+        <li>Counts are exact at <code>PROFILED_AT</code>; later changes to a CURRENT table are the loader's concern</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Closed during design</h3>
+      <table class="sm">
+        <tbody>
+          <tr><td class="num">4</td><td>Inside or outside ABC — outside <span class="chip ok">Done</span></td></tr>
+          <tr><td class="num">5</td><td>Load SQL and loading — out of scope <span class="chip ok">Done</span></td></tr>
+          <tr><td class="num">6</td><td>How SCD1 / SCD2 tables are told apart — by structure, information only <span class="chip ok">Done</span></td></tr>
+          <tr><td class="num">7</td><td>Chunk size — 10 GB / 250M rows, Medium assumption <span class="chip ok">Done</span></td></tr>
+          <tr><td class="num">8</td><td>Metadata shape — two tables, status per table <span class="chip ok">Done</span></td></tr>
+          <tr><td class="num">9</td><td>Input validation and skip reporting <span class="chip ok">Done</span></td></tr>
+          <tr><td class="num">10</td><td>Runs from a Workspace, no stored procedure <span class="chip ok">Done</span></td></tr>
+        </tbody>
+      </table>
+      <p class="note"><b>Design of record:</b> <code>solution_design.md</code> v2. <b>Reasoning trail:</b>
+      <code>design_review.md</code> rev 9. <b>Script &amp; tests:</b> <code>sql/</code>.</p>
+    </div>
+  </div>
+
+  <div class="takeaway">The design is closed — what is left is proving the script on Snowflake, then on real tables</div>
+  <div class="slide-no">13 / 13</div>
+</section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+
+  var SLIDE_W = 1280, SLIDE_H = 720, INNER_W = 1170, INNER_TOP = 30,
+      BOTTOM_RESERVE = 82, MIN_FIT = 0.55;
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".navbtn2"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var nav    = document.querySelector(".sidenav");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+
+  /* wrap each slide's content so it can shrink independently of the stage */
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 &&
+          (node.classList.contains("takeaway") ||
+           node.classList.contains("slide-no") ||
+           node.classList.contains("intflag"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+  }
+
+  /* stage is scaled into the space to the right of the left navigator */
+  function fitStage() {
+    var navW = nav ? nav.offsetWidth : 0;
+    var z = Math.min((window.innerWidth - navW - 26) / SLIDE_W,
+                     (window.innerHeight - 26) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 14) + "px";
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "ArrowDown" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "ArrowUp" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+  });
+
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>

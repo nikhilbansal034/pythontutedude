@@ -9,7 +9,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── w1-aurora-db-connection/      Dev Aurora connection saturation      — open
 ├── w2-abc-framework/             ABC framework reference               — background
 ├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
-├── history_load_chunking_design/ Iceberg → native history-load chunks  — in review
+├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
 └── datacamp project/             DataCamp DS practical exam            — ACTIVE
 ```
 
@@ -137,18 +137,30 @@ The full list of affected assets is owned by Abhi and not yet available.
 
 ---
 
-## History load chunking — Iceberg → native *(in review)*
+## History load chunking — Iceberg → native *(script written, awaiting test run)*
 
 Planner for the one-time historical load from Zone1 Iceberg tables to native tables: an anonymous Snowflake
-Scripting block, run from a Snowflake Workspace, that profiles each Iceberg table and writes chunk metadata (chunk count, size,
-chunk column, ranges). Loading data and building load SQL are out of scope.
+Scripting block, run from a Snowflake Workspace, that reads each Iceberg table's structure and writes a chunk
+plan (how many chunks, the dividing column, each chunk's range and size) to two metadata tables. Loading data
+and building load SQL are out of scope.
 
 | File | What it is |
 |------|-----------|
-| `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
-| `design_review.md` | Architecture review of that design (revision 9, built on the real CURRENT/HISTORY DDL) — how the chunking technique is chosen per table, fixed chunk size (10 GB / 250M rows, Medium-warehouse assumption), validation and skip reporting, two metadata tables, metadata table shapes, open questions |
-| `reference_ddl.sql` | The CURRENT and HISTORY reference DDL for one table, transcribed from the screenshots, with each column's role annotated |
+| `solution_design.md` | **Design of record (v2)**: problem, scope, decisions D1–D15, architecture, how the chunking technique is chosen, metadata tables, behaviour |
+| `chunk_planner_design_deck.html` | Design deck, 13 slides, self-contained (built with the `lm-html-deck` skill, deck-2 shell). Problem statement, architecture diagram, solution steps, test kit, status |
+| `design_review.md` | The review trail, revisions 1–9: how the design got to v2 and why each change was made |
+| `reference_ddl.sql` | CURRENT and HISTORY reference DDL for one table, transcribed, with each column's role annotated |
+| `sql/01_metadata_ddl.sql` | `HIST_PLAN_TABLE` and `HIST_PLAN_CHUNK` |
+| `sql/02_test_setup.sql` | 11 synthetic test objects, one per decision branch |
+| `sql/03_smoke_test.sql` | Proves the scripting constructs the planner relies on work in the account |
+| `sql/04_chunk_planner.sql` | **The planner** |
+| `sql/05_validate.sql` | Expected-vs-actual checks and an exactly-once coverage proof against the source data |
+| `sql/06_reset_test_metadata.sql` | Clears the test schema's plan rows |
+| `sql/TEST_PLAN.md` | Run sequence R0–R9, expected results, evidence checklist E01–E17 |
 | `sources/ddl_current_raw.png`, `sources/ddl_history_raw.png` | The DDL screenshots as shared (2026-10-05). Renamed from the chat upload names `1.png` / `2.png`, which carried no meaning |
+
+**Current stage**: the design is closed and the script is written but **not yet run on Snowflake**. Next is to
+run `sql/TEST_PLAN.md` and share the evidence screenshots, then do a reconnaissance run on 3–5 real table pairs.
 
 **Folder name**: does not follow the `w<n>-` convention; named as requested.
 
