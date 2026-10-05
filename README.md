@@ -9,6 +9,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── w1-aurora-db-connection/      Dev Aurora connection saturation      — open
 ├── w2-abc-framework/             ABC framework reference               — background
 ├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
+├── history_load_chunking_design/ Iceberg → native history-load chunks  — in review
 └── datacamp project/             DataCamp DS practical exam            — ACTIVE
 ```
 
@@ -133,6 +134,23 @@ drive target dates — the team has confirmed such tables exist in Zone1, so tha
 rather than a fact to establish.
 
 The full list of affected assets is owned by Abhi and not yet available.
+
+---
+
+## History load chunking — Iceberg → native *(in review)*
+
+Planner for the one-time historical load from Zone1 Iceberg tables to native tables: an anonymous Snowflake
+Scripting block, run from a Snowflake Workspace, that profiles each Iceberg table and writes chunk metadata (chunk count, size,
+chunk column, ranges). Loading data and building load SQL are out of scope.
+
+| File | What it is |
+|------|-----------|
+| `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
+| `design_review.md` | Architecture review of that design (revision 9, built on the real CURRENT/HISTORY DDL) — how the chunking technique is chosen per table, fixed chunk size (10 GB / 250M rows, Medium-warehouse assumption), validation and skip reporting, two metadata tables, metadata table shapes, open questions |
+| `reference_ddl.sql` | The CURRENT and HISTORY reference DDL for one table, transcribed from the screenshots, with each column's role annotated |
+| `sources/ddl_current_raw.png`, `sources/ddl_history_raw.png` | The DDL screenshots as shared (2026-10-05). Renamed from the chat upload names `1.png` / `2.png`, which carried no meaning |
+
+**Folder name**: does not follow the `w<n>-` convention; named as requested.
 
 ---
 
