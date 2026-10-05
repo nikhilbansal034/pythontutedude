@@ -1,10 +1,10 @@
 # Architecture review — Iceberg historical load chunk planner
 
-**Revision 8 — 2026-10-05.** This revision is built on the **real table structure**: two reference DDLs for
+**Revision 9 — 2026-10-05.** This revision is built on the **real table structure**: two reference DDLs for
 one source table, in its CURRENT and HISTORY layers (`reference_ddl.sql`, screenshots in `sources/`).
 Revisions 6–7 record the latest decisions (§1a), explain how the technique is chosen for each table (§4), and
-recommend the chunk size (§4.3). The metadata is now two tables (§6). Revision 8 sizes chunks from the
-warehouse the script runs on (§4.3).
+recommend the chunk size (§4.3). The metadata is now two tables (§6). Revision 9 removes the warehouse
+detection from revision 8: chunk size is a **fixed value based on a Medium warehouse** (D14).
 Scope:
 - **Planner only.** It analyses Iceberg tables and writes metadata. It never builds load SQL and never
   touches target tables.
@@ -71,7 +71,7 @@ hold (§5, §7).
 | D11 | **Status is held at table level in `HIST_PLAN_TABLE`**: `PLANNED` / `FAILED` / `SKIPPED` / `SUPERSEDED`, with the reason. The chunk table has no status column |
 | D12 | **A wrong name in the input table list → the script validates, reports and exits.** Nothing is written. A name that exists but isn't an Iceberg table also counts as wrong |
 | D13 | **With no table list, non-Iceberg objects are skipped and reported**: how many, which ones, and why. Reported in the Workspace output and recorded in `HIST_PLAN_TABLE` |
-| D14 | **Chunk size follows the warehouse.** The script detects the size of the warehouse it is running on and derives the chunk size from it. Medium (10 GB) is the fallback if detection fails. Two optional overrides exist (§4.3) |
+| D14 | **Chunk size is fixed, based on a Medium-warehouse assumption: 10 GB / 250M rows per chunk.** Which warehouse runs the loads is out of scope, so the script doesn't detect or depend on warehouses. (Revision 8's detection is withdrawn) |
 | D15 | **Skipped objects are kept in `HIST_PLAN_TABLE` with status `SKIPPED`** and the reason (one current row per object) |
 
 ---
@@ -191,59 +191,14 @@ assuming loads run on a **Medium** warehouse. `max_chunk_rows` = 250M. The reaso
 | **A manageable number of chunks** | Bigger | 1 TB → ~100 chunks; 100 GB → ~10 |
 | **Very narrow, highly compressible tables** do more work per compressed byte | A row cap | 250M rows caps them. For example, at 20 bytes/row, 10 GB would otherwise be 500M rows |
 
-**Scale it with the warehouse, automatically (D14).** At about 300 MB per thread, the chunk size is
-**2.5 GB per warehouse node**. The row cap scales the same way, at 62.5M rows per node:
+**These are fixed values (D14).** The planner's job is to decide how many chunks each table has and each
+chunk's range, so it only needs **one size target**. A Medium warehouse is simply the assumption used to
+arrive at 10 GB, as reasoned above. The script never looks at warehouses. The values are two variables at
+the top of the script (§5.1), applied the same way to every table.
 
-| Warehouse size | Nodes | Threads | `target_chunk_bytes` | `max_chunk_rows` |
-|---|---|---|---|---|
-| X-Small | 1 | 8 | 2.5 GB | 62.5M |
-| Small | 2 | 16 | 5 GB | 125M |
-| **Medium (fallback)** | **4** | **32** | **10 GB** | **250M** |
-| Large | 8 | 64 | 20 GB | 500M |
-| X-Large | 16 | 128 | 40 GB | 1B |
-| 2X-Large and above | 32+ | 256+ | **capped at 40 GB** | **capped at 1B** |
-
-**How the script detects it.** Inside the block, this reads the current warehouse's row:
-
-```sql
-SHOW WAREHOUSES ->> SELECT "name", "size", "type" FROM $1 WHERE "is_current" = 'Y';
-```
-
-It then looks the size up in the table above.
-
-**Order of precedence.** The first one that applies wins, and the result is recorded per table:
-
-| # | Source | When | `SIZING_SOURCE` recorded |
-|---|---|---|---|
-| 1 | `p_target_chunk_bytes` variable | Set (not NULL). An explicit size for special cases | `OVERRIDE_BYTES` |
-| 2 | `p_load_warehouse_size` variable, e.g. `'LARGE'` | Set. Use when the **loads will run on a different warehouse** than this script | `OVERRIDE_WAREHOUSE_SIZE` |
-| 3 | **The current warehouse, detected** | Default | `DETECTED_CURRENT_WAREHOUSE` |
-| 4 | Medium | Detection failed, or the size isn't recognised | `FALLBACK_MEDIUM` |
-
-**One caution: the planning warehouse is not necessarily the loading warehouse.** Detection sizes chunks
-for the warehouse the *script* runs on. If you plan on an X-Small to save credits but the loads run on a
-Large, detection would give 2.5 GB chunks instead of 20 GB. So either run the script on the warehouse the
-loads will use, or set `p_load_warehouse_size`. **A mismatch only affects efficiency, never correctness.**
-Chunks still cover every row exactly once; they just run shorter or longer than intended. The Workspace
-summary prints the warehouse and size it used, so a mismatch is visible straight away.
-
-**Why cap at 40 GB?** Beyond X-Large, chunks would be 80 GB or more, so one failure would mean re-reading
-a lot of data. Very large warehouses are usually better used running several chunks at once than running
-huge chunks one at a time. The cap is a variable (`max_target_chunk_bytes`) if you disagree.
-
-**Warehouse types:**
-- **Standard warehouses**, Gen1 and Gen2, use the table above. Gen2 has faster nodes, so chunks simply
-  finish sooner; calibration absorbs that.
-- **Snowpark-optimized warehouses** have the same node counts and more memory per node, so the same
-  mapping applies. The type is recorded.
-- **Multi-cluster settings don't matter.** One chunk is one query, and one query runs on one cluster.
-
-**Then calibrate it once.** This is a reasoned starting point, not a measured one. When the load team
-first loads one chunk, measure its run time. **Aim for about 5–15 minutes per chunk**, and adjust
-`bytes_per_node` in proportion: for example, if a 10 GB chunk on a Medium takes 30 minutes, halve it to
-1.25 GB per node. Every warehouse size then scales correctly from the one measurement. A re-plan with
-`p_force_replan` applies the new size. To help with this, the planner records each table's average
-file size and file count.
+**If the load team later wants different sizes**, that's their call. They change `target_chunk_bytes`
+and re-plan with `p_force_replan`. The planner records each table's file count and average file size in
+case that helps them.
 
 ### 4.4 Step 3: profile along the axis
 
@@ -362,13 +317,10 @@ DECLARE
     metadata_database VARCHAR DEFAULT 'test_db';
     metadata_schema   VARCHAR DEFAULT 'test_schema';
 
-    -- ====== CHUNK SIZING: see §4.3 (D8, D10, D14) ======
-    p_target_chunk_bytes   NUMBER  DEFAULT NULL;         -- NULL = derive from warehouse size
-    p_load_warehouse_size  VARCHAR DEFAULT NULL;         -- NULL = detect current warehouse; or 'MEDIUM', 'LARGE', ...
-    bytes_per_node         NUMBER  DEFAULT 2684354560;   -- 2.5 GB per warehouse node (~300 MB per thread)
-    rows_per_node          NUMBER  DEFAULT 62500000;     -- row cap per node, for very narrow tables
-    max_target_chunk_bytes NUMBER  DEFAULT 42949672960;  -- 40 GB ceiling (X-Large)
-    split_grain            VARCHAR DEFAULT 'MINUTE';     -- grain for splitting an oversized day
+    -- ====== CHUNK SIZING: fixed, Medium-warehouse assumption, see §4.3 (D8, D14) ======
+    target_chunk_bytes NUMBER  DEFAULT 10737418240;  -- 10 GB of Iceberg data per chunk
+    max_chunk_rows     NUMBER  DEFAULT 250000000;    -- 250M-row cap, for very narrow tables
+    split_grain        VARCHAR DEFAULT 'MINUTE';     -- grain for splitting an oversized day
     -- =================================================================
     ...
 BEGIN
@@ -419,13 +371,12 @@ a reason:
 - **The block runs as-is.** Snowsight runs `DECLARE … BEGIN … END;` directly, so no `EXECUTE IMMEDIATE`
   and no `$$` are needed. Confirm with a trivial block first (§9).
 - **Context**: a role with `USAGE` on the source database and schema, `SELECT` on the tables, and write
-  access to the metadata tables. Select a warehouse before running.
+  access to the metadata tables. Select any warehouse to run the script; its size does not affect the plan.
 - **Output**: `RETURN TABLE(…)` shows a result grid in the Workspace.
   - One row per table: table name, outcome (`PLANNED` / `FAILED` / `SKIPPED`), reason, chunk axis, chunk
     count, total rows, total bytes. Rows are ordered skipped, then failed, then planned.
-  - **A final summary row** with the counts and the sizing used. For example: `In schema: 45 | Planned: 30 |
-    Failed: 2 | Skipped: 13 (non-Iceberg: 10, already planned: 3) | Sizing: WH_LOAD_M (Medium, detected) →
-    10 GB / 250M rows per chunk`.
+  - **A final summary row** with the counts. For example: `In schema: 45 | Planned: 30 | Failed: 2 |
+    Skipped: 13 (non-Iceberg: 10, already planned: 3) | Target: 10 GB / 250M rows per chunk`.
   - The same outcomes are stored in `HIST_PLAN_TABLE` (D9, D11).
 - **Errors**:
   - Validation errors `RAISE` and nothing is written.
@@ -452,10 +403,9 @@ a reason:
 | `PARTITION_VERIFIED` | Whether the Iceberg partition spec confirms those columns |
 | `CHUNK_METHOD` | `SINGLE` / `PARTITION_DAYS` (all chunks whole days) / `PARTITION_DAYS_WITH_SPLITS` (some days split) |
 | `PROFILED_AT` (`TIMESTAMP_TZ`) | The point in time the plan describes. The loader reads `AT` this (F8) |
-| `TOTAL_ROWS`, `TOTAL_BYTES`, `COLUMN_COUNT`, `AVG_ROW_BYTES`, `FILE_COUNT`, `AVG_FILE_BYTES` | Profile. The file figures help calibrate the chunk size (§4.3) |
+| `TOTAL_ROWS`, `TOTAL_BYTES`, `COLUMN_COUNT`, `AVG_ROW_BYTES`, `FILE_COUNT`, `AVG_FILE_BYTES` | Profile. The file figures are for information (§4.3) |
 | `DAY_COUNT`, `SPLIT_DAY_COUNT`, `CHUNK_COUNT` | Result: **how many chunks this table has** |
 | `TARGET_CHUNK_BYTES`, `TARGET_ROWS_PER_CHUNK` | The size target the chunks were cut to |
-| `SIZING_WAREHOUSE`, `SIZING_WAREHOUSE_SIZE`, `SIZING_WAREHOUSE_TYPE`, `SIZING_SOURCE` | Which warehouse and size the target came from, and how (§4.3 precedence) |
 | **`PLAN_STATUS`** | **`PLANNED`** (chunks are in `HIST_PLAN_CHUNK`) / **`FAILED`** (chunking couldn't be decided) / **`SKIPPED`** (not an Iceberg table) / **`SUPERSEDED`** (replaced by a newer plan) (D6, D11) |
 | **`STATUS_REASON`** | Why it failed or was skipped, e.g. `No usable chunk column`, `Not an Iceberg table (view)`, or the Snowflake error text |
 | `IS_ACTIVE` | One active row per table |
@@ -597,10 +547,7 @@ FROM   TABLE(INFORMATION_SCHEMA.ICEBERG_TABLE_FILES(TABLE_NAME => :fq_table));
 
 ## 10. Open questions
 
-Answered on 2026-10-05: D1–D15 in §1a. **No open questions block writing the DDL and the script.** Two
-judgement calls are flagged for your review:
-- the 40 GB ceiling for warehouses larger than X-Large (§4.3);
-- the 2.5 GB-per-node starting value. It must be calibrated on the first real load either way.
+Answered on 2026-10-05: D1–D15 in §1a. **No open questions block writing the DDL and the script.**
 
 ---
 
@@ -618,10 +565,8 @@ judgement calls are flagged for your review:
 | Iceberg file row counts don't subtract deletes or deletion vectors | Snowflake Iceberg docs and release notes (via search extract) |
 | Snowflake-managed Iceberg `TARGET_FILE_SIZE` defaults to `AUTO`, starting at 16 MB; options up to 128 MB | Snowflake `CREATE/ALTER ICEBERG TABLE` docs (via search extract) |
 | 8 threads per warehouse node (Medium = 32); one file per thread at a time | Third-party warehouse-sizing write-ups (via search extract). Not an official Snowflake page |
-| Nodes double per size, from X-Small = 1 to 6X-Large = 512; Snowpark-optimized has the same sizes with 16× memory per node and isn't offered in X-Small or Small | Snowflake warehouse docs and third-party summaries (via search extract) |
-| `SHOW WAREHOUSES` has `name`, `size`, `type`, `is_current`; `CURRENT_WAREHOUSE()` returns the name; `SHOW … ->> SELECT … FROM $1` works in a scripting block, with double-quoted column names | Snowflake `SHOW WAREHOUSES`, `CURRENT_WAREHOUSE`, and flow-operator docs (via search extract) |
 | `INFORMATION_SCHEMA.TABLES` `TABLE_TYPE` values; `IS_DYNAMIC`, `IS_HYBRID` columns | Snowflake `TABLES` view docs (via search extract) |
-| 10 GB / 5–15 minutes per chunk | **Reasoned starting values, not measured.** Calibrate on the first real load (§4.3) |
+| 10 GB / 250M rows per chunk | **Reasoned values (Medium-warehouse assumption), not measured** (§4.3) |
 | All SQL in §8 | Written for this review, **not executed** |
 
 `docs.snowflake.com` was not directly fetchable from this environment. Snowflake and Qlik claims rely on
