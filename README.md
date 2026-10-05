@@ -145,7 +145,7 @@ each table and write chunk descriptors to a control table that IDMC/PDO executes
 | File | What it is |
 |------|-----------|
 | `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
-| `design_review.md` | Architecture review of that design against the ABC framework (W2) and Snowflake docs — findings by severity, revised flow, open questions |
+| `design_review.md` | Architecture review of that design (revision 2: load runs outside ABC) — findings by severity, structure-driven chunk decision for SCD1/SCD2 tables, control table shapes, open questions |
 
 **Folder name**: does not follow the `w<n>-` convention; named as requested.
 
