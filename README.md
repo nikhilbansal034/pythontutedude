@@ -9,6 +9,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── w1-aurora-db-connection/      Dev Aurora connection saturation      — open
 ├── w2-abc-framework/             ABC framework reference               — background
 ├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
+├── history_load_chunking_design/ Iceberg → native history-load chunks  — in review
 └── datacamp project/             DataCamp DS practical exam            — ACTIVE
 ```
 
@@ -133,6 +134,20 @@ drive target dates — the team has confirmed such tables exist in Zone1, so tha
 rather than a fact to establish.
 
 The full list of affected assets is owned by Abhi and not yet available.
+
+---
+
+## History load chunking — Iceberg → native *(in review)*
+
+Planning layer for the one-time historical load from Zone1 Iceberg tables to Zone2 native tables: profile
+each table and write chunk descriptors to a control table that IDMC/PDO executes.
+
+| File | What it is |
+|------|-----------|
+| `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
+| `design_review.md` | Architecture review of that design against the ABC framework (W2) and Snowflake docs — findings by severity, revised flow, open questions |
+
+**Folder name**: does not follow the `w<n>-` convention; named as requested.
 
 ---
 
