@@ -141,6 +141,8 @@ SELECT t.DATABASE_NAME, t.SCHEMA_NAME, t.TABLE_NAME, t.CHUNK_METHOD, t.CHUNK_COU
 --   * the first day chunk of a table starts open (NULL) unless it is a split day
 --   * every other chunk starts where the previous one ended
 --   * pieces of one split day share the day; sub-ranges continue end-to-start
+-- Returns one row per range chunk. NO ROWS means the plans have no range chunks to check
+-- (e.g. every table came out SINGLE); it is not a pass.
 -- -------------------------------------------------------------------------------------
 WITH c AS (
     SELECT k.TABLE_NAME, k.CHUNK_SEQ, k.CHUNK_TYPE, k.DAY_START, k.DAY_END, k.SUB_START_TS, k.SUB_END_TS,
@@ -284,14 +286,15 @@ BEGIN
              WHERE PLAN_ID = :v_pid;
 
             SELECT LISTAGG('IFF(' || PRED || ', 1, 0)', ' + ') WITHIN GROUP (ORDER BY CHUNK_SEQ),
-                   LISTAGG('SELECT ' || CHUNK_SEQ || ' AS CHUNK_SEQ, COUNT_IF(' || PRED || ') AS ACTUAL_ROWS FROM ' || :v_fq, ' UNION ALL ')
+                   LISTAGG('SELECT ' || CHUNK_SEQ || ' AS CHUNK_SEQ, COALESCE(COUNT_IF(' || PRED || '), 0) AS ACTUAL_ROWS FROM ' || :v_fq, ' UNION ALL ')
                        WITHIN GROUP (ORDER BY CHUNK_SEQ),
                    COUNT(*)
               INTO :v_sum_expr, :v_union, :v_chunks
               FROM HVAL_TMP_PRED;
 
             -- every source row: in how many chunks does it fall?
-            v_sql := 'SELECT COUNT(*), COUNT_IF(N = 0), COUNT_IF(N > 1) FROM (SELECT ' || v_sum_expr || ' AS N FROM ' || v_fq || ')';
+            -- COALESCE: COUNT_IF returns NULL, not 0, over an empty table
+            v_sql := 'SELECT COUNT(*), COALESCE(COUNT_IF(N = 0), 0), COALESCE(COUNT_IF(N > 1), 0) FROM (SELECT ' || v_sum_expr || ' AS N FROM ' || v_fq || ')';
             EXECUTE IMMEDIATE :v_sql;
             SELECT $1, $2, $3 INTO :v_total, :v_missed, :v_multi FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 

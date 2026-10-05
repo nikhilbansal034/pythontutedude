@@ -49,6 +49,14 @@ schema being planned.
 
 To repeat from a clean state, run `06_reset_test_metadata.sql` and start again at R3.
 
+**If a run used the wrong settings** (for example `max_chunk_rows` left at its default of 250 million, which plans
+every test table as one `SINGLE` chunk), run `06` before re-testing. Otherwise the next run skips every table
+as *already planned*. Check the `*** SUMMARY ***` row of each run: it must say `1000 rows max per chunk`.
+
+**If the source schema holds other objects** besides T01–T11, they are counted in the summary (normally as
+non-Iceberg SKIPPED). The summary counts change; A1, A2 and A5 list only the test tables, while A3, A4 and Part B would also list any other
+Iceberg table that got planned.
+
 ## Expected results
 
 ### E02 — `02_test_setup.sql`
