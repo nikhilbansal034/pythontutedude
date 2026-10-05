@@ -140,13 +140,13 @@ The full list of affected assets is owned by Abhi and not yet available.
 ## History load chunking — Iceberg → native *(in review)*
 
 Planner for the one-time historical load from Zone1 Iceberg tables to native tables: an anonymous Snowflake
-Scripting block, run by IDMC, that profiles each Iceberg table and writes chunk metadata (chunk count, size,
+Scripting block, run from a Snowflake Workspace, that profiles each Iceberg table and writes chunk metadata (chunk count, size,
 chunk column, ranges). Loading data and building load SQL are out of scope.
 
 | File | What it is |
 |------|-----------|
 | `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
-| `design_review.md` | Architecture review of that design (revision 3: planner only, run by IDMC as an anonymous block) — DDL-driven chunk decision for SCD1/SCD2 tables, IDMC execution tests, metadata table shapes, open questions |
+| `design_review.md` | Architecture review of that design (revision 4: planner only, anonymous block run from a Snowflake Workspace) — input contract (database + schema, optional table list), DDL-driven chunk decision for SCD1/SCD2 tables, metadata table shapes, open questions |
 
 **Folder name**: does not follow the `w<n>-` convention; named as requested.
 

@@ -1,9 +1,10 @@
 # Architecture review — Iceberg historical load chunk planner
 
-**Revision 3 — 2026-10-05.** This revision is limited to the **planner only**. The planner analyses Iceberg
-tables and writes metadata entries. It never builds load SQL and never touches target tables. **The
-planner is an anonymous Snowflake Scripting block, run by IDMC.** §2 lists what changed from earlier
-revisions.
+**Revision 4 — 2026-10-05.** This revision covers the **planner only**. The planner analyses Iceberg tables
+and writes metadata entries. It never builds load SQL and never touches target tables. **The planner is an
+anonymous Snowflake Scripting block, run by hand from a Snowflake Workspace.** IDMC is deferred. Inputs are
+one database and one schema (both required), plus an optional list of one or more table names. §2 lists
+what changed from earlier revisions.
 
 Reviewed: `solution_design.md` (this folder), cross-checked against current Snowflake docs.
 
@@ -23,9 +24,9 @@ and the block are written:
 3. **Make plans versioned and immutable**, so a re-run can't silently change chunks a downstream loader has
    already used (F2).
 4. **Type the boundary columns** and split the metadata into a plan-level table and a chunk-level table (§6).
-5. **Prove the IDMC execution path early.** Running an anonymous block from IDMC raises three specific
-   problems: the `$$` conflict, getting parameters in, and getting failure status out. None of them is
-   documented, and each needs a short test on your IDMC tenant (§5).
+5. **Declare the inputs at the top of the script, not as session variables.** A session variable holds at
+   most 256 bytes, and a list of table names will exceed that. Validate the whole table list before
+   anything is written (§5).
 
 ---
 
@@ -33,19 +34,19 @@ and the block are written:
 
 | In scope | Out of scope |
 |---|---|
-| Input: database + schema (required), table (optional) | Building per-chunk extraction or load SQL |
+| Input: database + schema (required); **one or many table names (optional)**. With no names given, all Iceberg tables in the schema | Building per-chunk extraction or load SQL |
 | Discover Iceberg tables; read their DDL | Loading data; creating or changing target tables |
 | Profile: rows, bytes, columns, candidate chunk columns | Load-side reconciliation, retries, delete-and-reload |
 | Decide per table: how many chunks, on which column, which ranges, what size | Orchestrating the downstream load |
 | Write metadata entries; validate inputs; isolate per-table failures | |
-| Run as an **anonymous block, executed by IDMC** | Stored procedures (not allowed); Tasks (not needed) |
+| Run as an **anonymous block from a Snowflake Workspace** | Stored procedures (not allowed); Tasks (not needed); IDMC (deferred) |
 
 The metadata answers four questions per Iceberg table: **how many chunks; the size of each (rows and
 bytes); which column divides them; and each chunk's range on that column.**
 
 ---
 
-## 2. What changed from revisions 1 and 2
+## 2. What changed from earlier revisions
 
 | Earlier finding | Now |
 |---|---|
@@ -53,7 +54,9 @@ bytes); which column divides them; and each chunk's range on that column.**
 | `MERGE` / chunk ordering / SCD2 parallel-load hazard (rev 1) | **Withdrawn**: loading is out of scope |
 | Load reconciliation (`COUNT`/`HASH_AGG`), delete-then-insert retries (rev 2) | **Removed**: they belong to the loader |
 | Calibrating chunk size on a real load (rev 1–2) | **Reduced to an input**: the target chunk size is a CONFIG value the loader team supplies (§3, F5) |
-| Task + session variables (rev 1–2) | **Replaced** by §5: how IDMC runs the block |
+| Task + session variables (rev 1–2) | **Replaced**: inputs are declared at the top of the script (§5) |
+| IDMC execution tests (rev 3) | **Deferred**: the script runs from a Snowflake Workspace. The IDMC points are kept as a short note at the end of §5 |
+| Single optional table name (design, rev 1–3) | **Widened** to an optional list of one or more names (§5) |
 | Boundaries, re-planning, DDL-driven column choice, typed metadata | **Kept**, reworded for planner scope |
 
 ---
@@ -143,32 +146,101 @@ wrong for those tables, and `KEY_HASH` becomes the method for them.
 
 ---
 
-## 5. Running the block from IDMC — prove this early
+## 5. Inputs, validation and running from a Snowflake Workspace
 
-Anonymous blocks are a Snowflake feature, and IDMC's handling of them isn't documented anywhere I could
-reach. These five points decide whether the planner can be built as designed.
+### 5.1 Input contract
 
-| # | Issue | Why it bites | What to test on your tenant |
+| Input | Required | Form | Behaviour |
 |---|---|---|---|
-| X1 | **`$$` conflict** | Snowflake's examples wrap blocks as `EXECUTE IMMEDIATE $$ … $$`. IDMC treats `$$name` as **its own parameter syntax**, so it may try to resolve or strip the delimiters | Submit a trivial block with `$$` delimiters from the IDMC component you intend to use |
-| X2 | **How the block is submitted** | Snowflake documents that clients which split scripts on `;` (SnowSQL, Snowflake CLI, some Python Connector methods) break blocks unless they're wrapped in `EXECUTE IMMEDIATE`. If IDMC's SQL component also splits on `;`, an unwrapped `BEGIN…END` breaks | Submit the same trivial block **unwrapped** (`BEGIN … END;`) |
-| X3 | **Getting parameters in** | Session variables (`SET v_db = …`) only work if IDMC runs the `SET`s and the block **in the same session** | Test `SET` followed by the block in one IDMC step, and check the block sees the value |
-| X4 | **Getting status out** | A block that catches per-table errors *succeeds* from IDMC's point of view, even if tables failed | Check that `RAISE` inside the block **fails the IDMC task**. Check what IDMC does with the block's `RETURN` value |
-| X5 | **Long runtime** | A schema-wide run scans many tables in one call, and IDMC or the connection may time out | Check the timeout settings on the IDMC connection and task. Snowflake's own default statement timeout is 2 days |
+| `P_DATABASE` | Yes | Database name | Must exist |
+| `P_SCHEMA` | Yes | Schema name | Must exist in `P_DATABASE` |
+| `P_TABLES` | No | Comma-separated list, e.g. `'POLICY_TXN, CLAIM_HDR, "claim_line"'`. Empty or NULL means none were given | **Empty → every Iceberg table in the schema. One or more names → exactly those tables** |
+| `P_FORCE_REPLAN` | No (default `FALSE`) | Boolean | Re-plan tables that already have an active plan, still subject to the F2 guard |
 
-**Recommended shape, adjusted to whichever results hold:**
+### 5.2 How inputs are supplied: declared at the top of the script
 
-- **Parameters.** If X2 shows IDMC can submit an unwrapped block, **substitute IDMC parameters straight into
-  the block text**: `v_db STRING DEFAULT '$$DB_NAME';`. This needs no session variables and no `$$`
-  delimiters. If the block must be wrapped, wrap it in single quotes. That means every single quote
-  inside the block has to be doubled, which is ugly but works. In both cases the IDMC parameter is just
-  text inserted before Snowflake sees it.
-- **Status.** The block writes a **run log row** (§6, `HIST_PLAN_RUN`) and ends with a final check. If any
-  table is `PLAN_FAILED` and CONFIG `FAIL_RUN_ON_TABLE_ERROR = TRUE`, it `RAISE`s so that IDMC marks the task
-  failed. Validation failures (bad database, schema or table) always `RAISE`.
-- **Runtime.** For large schemas, prefer one IDMC call **per table** (an IDMC taskflow looping over the
-  table list, which can run in parallel) rather than one call that plans the whole schema. The block
-  already supports single-table mode.
+```sql
+DECLARE
+    -- ================= INPUTS: edit before each run =================
+    p_database      VARCHAR DEFAULT 'ZONE1_DB';
+    p_schema        VARCHAR DEFAULT 'POLICY';
+    p_tables        VARCHAR DEFAULT '';      -- '' = all Iceberg tables in the schema
+                                             -- or e.g. 'POLICY_TXN, CLAIM_HDR'
+    p_force_replan  BOOLEAN DEFAULT FALSE;
+    -- =================================================================
+    ...
+BEGIN
+    ...
+END;
+```
+
+**Why not session variables (`SET p_tables = …`)?** A session variable's string value is limited to
+**256 bytes**. Twenty-odd table names would exceed it, and the run would fail before it starts. Variables
+declared inside the block have no such limit, and keeping all inputs in one visible place at the top of
+the file is clearer for a script run by hand.
+
+**Why a comma-separated string rather than an `ARRAY`?** It's easier to type and edit. The block splits it
+(`SPLIT_TO_TABLE`), trims spaces, drops empty entries, and removes duplicates before validating.
+
+### 5.3 Validation: everything is checked before anything is written, and all problems are reported together
+
+1. `P_DATABASE` or `P_SCHEMA` blank → fail.
+2. Database doesn't exist → fail, naming it. Schema doesn't exist in it → fail, naming it.
+3. **Table list given**: resolve each name against `INFORMATION_SCHEMA.TABLES` for that schema.
+   - **Exact match** first. That covers quoted, lower-case Iceberg names such as `"claim_line"`.
+   - Otherwise a **case-insensitive match**, but only if exactly one table matches.
+   - The outcomes:
+
+     | Result | Name status |
+     |---|---|
+     | No match | **not found** |
+     | More than one case-variant matches | **ambiguous** |
+     | Found, but `IS_ICEBERG = 'NO'` | **not an Iceberg table** |
+
+   - **Recommended behaviour**: if *any* listed name is invalid, fail the run with one message listing
+     every invalid name and its reason. Nothing is written. A typo then can't silently drop a table from
+     the plan (Q7).
+   - Never treat names as `LIKE` patterns. `SHOW … LIKE` is case-insensitive and treats `_` as a wildcard,
+     so `POL_TXN` would also match `POLXTXN`.
+4. **No table list**: scope is every table in the schema with `IS_ICEBERG = 'YES'`.
+   - Non-Iceberg tables are **not planned**. They are listed as `SKIPPED_NOT_ICEBERG` in the run summary,
+     so it's visible that they exist (Q8).
+   - A schema with no Iceberg tables finishes with a clear "0 tables in scope" summary, not an error.
+5. **Already planned**: a table with an active plan is reported `SKIPPED_ALREADY_PLANNED`, unless
+   `P_FORCE_REPLAN = TRUE`. In that case the F2 guard still applies.
+
+### 5.4 Running it in a Snowflake Workspace
+
+- **No `EXECUTE IMMEDIATE` and no `$$` wrapper is needed.** Snowsight runs a `DECLARE … BEGIN … END;`
+  block directly. Workspaces is Snowsight's file editor, so it should behave the same. Confirm with a
+  one-line block before the real run (§9).
+- **Context**: run under a role with `USAGE` on the source database and schema, `SELECT` on its Iceberg
+  tables, and `INSERT`/`UPDATE` on the metadata tables. Select a warehouse in the workspace before running.
+  Profiling scans can be heavy, so a dedicated warehouse is better.
+- **Output**: the block ends with `RETURN TABLE(…)`, a summary row per table that shows in the results
+  grid. It has: table, outcome (`PLANNED` / `SKIPPED_ALREADY_PLANNED` / `SKIPPED_NOT_ICEBERG` /
+  `PLAN_FAILED`), SCD type, method, chunk column, chunk count, total rows, error. The same information is
+  saved in `HIST_PLAN_RUN` and `HIST_PLAN_TABLE`.
+- **Errors**:
+  - Input validation problems `RAISE`, which shows as a red error in the workspace with nothing written.
+  - A problem with one table is recorded against that table, and the run carries on to the next table.
+- **Long runs and interruptions**:
+  - Tables are planned one after another, and **each table's writes commit separately**.
+  - If the run is cancelled half-way, finished tables keep their plans. Re-running the same inputs skips
+    them and continues with the rest.
+  - The interrupted run's `HIST_PLAN_RUN` row would stay `RUNNING`. The next run marks it `ABORTED`.
+- **Very large schemas**: everything runs as one statement. Snowflake's default statement timeout is
+  2 days, but it may be set lower for your account or warehouse. For very large schemas, run in batches
+  by passing table lists.
+
+**Later, if this moves to IDMC**, re-check five things:
+- whether IDMC tries to resolve the `$$` delimiters as its own parameters;
+- whether it splits scripts on `;` (which breaks blocks);
+- how parameters are passed;
+- whether a `RAISE` fails the IDMC task;
+- connection timeouts.
+
+The block's design doesn't need to change for any of them.
 
 ---
 
@@ -211,12 +283,15 @@ Key: `(PLAN_ID, CHUNK_SEQ)`.
 - `start` is NULL on the first chunk and `end` is NULL on the last, meaning unbounded.
 - If the column has NULLs, they get their own `NULL_VALUES` chunk.
 
-**`HIST_PLAN_RUN`**: one row per planner execution. Holds the input parameters, start and end time, tables
-in scope, planned, skipped and failed, and the overall status. This is what IDMC (or a person) checks after
-a run.
+**`HIST_PLAN_RUN`**: one row per planner execution. Holds:
+- the inputs as given (`P_DATABASE`, `P_SCHEMA`, `P_TABLES` raw string, `P_FORCE_REPLAN`) and the resolved
+  table list (`VARIANT`);
+- the user and role, and start and end time;
+- counts of tables in scope, planned, skipped and failed;
+- run status: `RUNNING` / `COMPLETED` / `COMPLETED_WITH_ERRORS` / `FAILED_VALIDATION` / `ABORTED`.
 
 **`HIST_PLAN_CONFIG`**: `SCOPE` (`*` or `db.schema.table`), `TARGET_BYTES_PER_CHUNK`, `MAX_ROWS_PER_CHUNK`,
-`SMALL_TABLE_BYTES`, `PROFILE_GRAIN`, `MIN_PRUNING_RATIO`, `MAX_HASH_BUCKETS`, `FAIL_RUN_ON_TABLE_ERROR`.
+`SMALL_TABLE_BYTES`, `PROFILE_GRAIN`, `MIN_PRUNING_RATIO`, `MAX_HASH_BUCKETS`.
 Per-table overrides: `FORCE_METHOD`, `FORCE_CHUNK_COLUMN`, `FORCE_SCD_TYPE`.
 
 ---
@@ -262,10 +337,10 @@ The design's `MERGE` keyed on `(table, CHUNK_SEQ)` has two failure modes:
 
 ### F4 — Important: input validation details
 
-- `SHOW … LIKE` is case-insensitive and treats `_` as a wildcard. Filter the result to an exact match, or
-  use `INFORMATION_SCHEMA.TABLES`, which also has an `IS_ICEBERG` column.
+- The full rules are in §5.3. Resolve names exactly through `INFORMATION_SCHEMA.TABLES`, which also has
+  an `IS_ICEBERG` column. Never use `SHOW … LIKE`, which is case-insensitive and treats `_` as a wildcard.
 - Iceberg tables written by Spark or Glue often have **lower-case, quoted** names. Use
-  `IDENTIFIER(:var)` or quote names exactly.
+  `IDENTIFIER(:var)` or quote names exactly in every dynamic statement.
 - Set `TIMEZONE = 'UTC'` at the top of the block. `DATE_TRUNC` on `TIMESTAMP_LTZ` depends on it.
 
 ### F5 — Important: chunk size is an input, so fix the design's sizing details
@@ -279,7 +354,9 @@ The design's `MERGE` keyed on `(table, CHUNK_SEQ)` has two failure modes:
 
 ### F6 — Minor
 
-- The design's "Status: no open questions left" no longer holds. The IDMC tests in §5 are open.
+- The design's "Status: no open questions left" no longer holds. The questions in §10 are open.
+- The design's "two invocation paths (Task + `EXECUTE IMMEDIATE`)" tradeoff no longer applies. There is
+  one path: the script, run from a Workspace.
 
 ---
 
@@ -349,8 +426,8 @@ WHERE  <chunk_col> >= :slice_start AND <chunk_col> < :slice_end;   -- ~1/N slice
 
 ## 9. Next steps, in order
 
-1. **IDMC spike (§5, X1–X5)**: about half a day. Trivial blocks only. This decides how parameters and
-   status work.
+1. **Workspace smoke test** (5 minutes): run a trivial `DECLARE … BEGIN … RETURN TABLE(…) END;` block in
+   a Workspace. This confirms blocks and table results work there without `EXECUTE IMMEDIATE`.
 2. **Reconnaissance (read-only)** on 5–10 tables, mixing SCD1/SCD2 and small/large:
    - `SHOW ICEBERG TABLES` (partitioned or not);
    - the §8.1 profile;
@@ -358,7 +435,7 @@ WHERE  <chunk_col> >= :slice_start AND <chunk_col> < :slice_end;   -- ~1/N slice
    - the §8.3 probe, to confirm `EXPLAIN` reports pruning on Iceberg tables.
 
    This checks the §4.4 order against real data.
-3. Then write the DDL for the four metadata tables, and the block.
+3. Then write the DDL for the four metadata tables, and the block with the §5 input contract.
 
 ---
 
@@ -367,11 +444,13 @@ WHERE  <chunk_col> >= :slice_start AND <chunk_col> < :slice_end;   -- ~1/N slice
 | # | Question | Why it matters |
 |---|---|---|
 | Q1 | Does the downstream loader need **all rows of a business key in one chunk** (e.g. it recomputes SCD2 dates or deduplicates)? | If yes, those tables need `KEY_HASH`, not ranges (§4.5) |
-| Q2 | Which IDMC component will run the block (SQL transformation, Pre/Post-SQL, other)? Can you run the §5 tests? | Decides how parameters get in and how failures surface |
+| Q2 | Which database and schema should hold the four metadata tables? A separate control schema, or the source schema? | Fixed location the block writes to; permissions |
 | Q3 | What target chunk size will the loader team give, or should the planner start from a placeholder? | CONFIG default (F5) |
 | Q4 | Do Zone1 SCD2 tables reliably use `row_effective_date` / `row_expiration_date` (and `is_del`)? Are key columns identifiable from DDL or a metadata list? | SCD detection (§4.3), and the key list for `KEY_HASH` |
 | Q5 | Are Zone1 Iceberg tables partitioned? On what? | Whether candidate 1 in §4.4 ever applies |
 | Q6 | Is "status" on the chunk table wanted at all, given the loader is out of scope? Or should the loader keep its own status table keyed on `(PLAN_ID, CHUNK_SEQ)`? | Ownership. The planner only needs status to protect against re-planning (F2) |
+| Q7 | If one listed table name is wrong, should the run **fail as a whole** (recommended) or **plan the valid ones** and report the invalid ones? | §5.3 step 3 |
+| Q8 | With no table list, should non-Iceberg tables in the schema be skipped and reported (recommended), or is the schema guaranteed to be Iceberg-only? | §5.3 step 4 |
 
 ---
 
@@ -379,8 +458,10 @@ WHERE  <chunk_col> >= :slice_start AND <chunk_col> < :slice_end;   -- ~1/N slice
 
 | Claim | Basis |
 |---|---|
-| Clients that split scripts on `;` (SnowSQL, Snowflake CLI, some Python Connector methods) need blocks wrapped in `EXECUTE IMMEDIATE` | Snowflake "Using Snowflake Scripting in Snowflake CLI, SnowSQL, and Python Connector" (via search extract) |
-| IDMC uses `$$name` for its own parameters | Informatica/Snowflake migration docs (via search extract). **How IDMC treats `$$` inside SQL is not verified**, hence X1 |
+| Snowsight runs `DECLARE … BEGIN … END` blocks directly; SnowSQL/CLI need `EXECUTE IMMEDIATE` | Snowflake "Understanding blocks in Snowflake Scripting" (via search extract). **Workspaces assumed to behave like Snowsight worksheets**; smoke test in §9 |
+| Session variable string values are limited to 256 bytes | Snowflake "SQL variables" / `SET` docs (via search extract) |
+| Snowflake Scripting supports `ARRAY` / `VARIANT` variables; `RETURN TABLE(…)` from a block | Snowflake Scripting docs (via search extract); the second is covered by the smoke test |
+| IDMC uses `$$name` for its own parameters (relevant only if IDMC comes back) | Informatica/Snowflake migration docs (via search extract) |
 | `EXPLAIN` returns `partitionsTotal` / `partitionsAssigned` without executing | Snowflake `EXPLAIN` docs (via search extract). **Not verified on Iceberg tables** |
 | `STATEMENT_TIMEOUT_IN_SECONDS` default is 2 days, lowest level wins | Search extract citing Snowflake docs |
 | `SHOW … LIKE` is case-insensitive with wildcards; `IS_ICEBERG` exists | Snowflake docs / BCR 2023_08 (via search extract) |
