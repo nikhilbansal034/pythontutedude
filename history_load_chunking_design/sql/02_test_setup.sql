@@ -6,24 +6,30 @@
 -- Each object is built to drive exactly one branch of the planner; expected results are
 -- in TEST_PLAN.md (computed for max_chunk_rows = 1000).
 --
--- Needs: CREATE SCHEMA on TEST_DB, and an external volume you may write test data to.
+-- Needs: CREATE SCHEMA on TEST_DB. Storage for the test Iceberg tables, one of:
+--   * ext_volume = 'SNOWFLAKE_MANAGED' (default): Snowflake stores the files itself. No external
+--     volume, no S3 access, nothing to grant.
+--   * the name of an external volume your role may use. Find one with:  SHOW EXTERNAL VOLUMES;
+--     (the production volume EV_GRSDIAI_REFINED_FULL_BUCKET_ICEBERG is usually not available here).
 -- The Iceberg tables mirror the reference DDL (reference_ddl.sql): Snowflake catalog,
 -- TIMESTAMP_LTZ(6) audit columns, GRS_PROCESS_DATE or GRS_PROCESS_YEAR/MONTH/DAY partitions.
 --
--- Re-runnable: every object is CREATE OR REPLACE, and each run writes to a fresh
--- BASE_LOCATION sub-folder (timestamped) so locations never collide.
+-- Re-runnable: every object is CREATE OR REPLACE. With an external volume, each run writes to a
+-- fresh BASE_LOCATION sub-folder (timestamped) so locations never collide.
 -- =====================================================================================
 DECLARE
     -- ================= SETTINGS: check before running =================
     test_database   VARCHAR DEFAULT 'TEST_DB';
     test_schema_src VARCHAR DEFAULT 'CHUNK_TEST_SRC';
-    ext_volume      VARCHAR DEFAULT 'EV_GRSDIAI_REFINED_FULL_BUCKET_ICEBERG';  -- a volume you may write TEST data to
-    base_prefix     VARCHAR DEFAULT 'test/chunk_planner';                      -- BASE_LOCATION prefix inside that volume
-    iceberg_options VARCHAR DEFAULT 'ICEBERG_VERSION = 3';                     -- '' to use the account default
+    ext_volume      VARCHAR DEFAULT 'SNOWFLAKE_MANAGED';   -- or an external volume your role may use (SHOW EXTERNAL VOLUMES)
+    base_prefix     VARCHAR DEFAULT 'test/chunk_planner';  -- BASE_LOCATION prefix; used only with an external volume
+    iceberg_options VARCHAR DEFAULT '';                    -- e.g. 'ICEBERG_VERSION = 3'; '' = account default
     -- ==================================================================
     v_sql     VARCHAR;
     v_tail    VARCHAR;
     v_run_tag VARCHAR;
+    v_managed BOOLEAN;
+    v_loc     VARCHAR;
     res       RESULTSET;
 BEGIN
     ALTER SESSION SET TIMEZONE = 'UTC';   -- all synthetic timestamps are built in UTC
@@ -34,8 +40,11 @@ BEGIN
     EXECUTE IMMEDIATE :v_sql;
 
     v_run_tag := TO_CHAR(CURRENT_TIMESTAMP(), 'YYYYMMDD_HH24MISS');
-    v_tail := ' EXTERNAL_VOLUME = ''' || ext_volume || ''' ' || iceberg_options
-           || ' CATALOG = ''SNOWFLAKE'' BASE_LOCATION = ''' || base_prefix || '/' || v_run_tag || '/';
+    v_managed := (UPPER(TRIM(ext_volume)) = 'SNOWFLAKE_MANAGED');
+    -- Snowflake-managed storage takes the reserved, unquoted value and no BASE_LOCATION
+    v_tail := IFF(v_managed, ' EXTERNAL_VOLUME = SNOWFLAKE_MANAGED', ' EXTERNAL_VOLUME = ''' || ext_volume || '''')
+           || ' ' || COALESCE(iceberg_options, '') || ' CATALOG = ''SNOWFLAKE''';
+    v_loc  := base_prefix || '/' || v_run_tag || '/';
 
     -- ---------------------------------------------------------------------------------
     -- T01  CURRENT-style, PARTITION BY GRS_PROCESS_DATE. 30 days x 300 rows, every other day.
@@ -43,7 +52,7 @@ BEGIN
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T01_CUR_SPREAD (BUS_ID INT, GRS_UNIQUE_ID STRING, ROW_HASH STRING, '
           || 'GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6), GRS_PROCESS_DATE DATE) PARTITION BY (GRS_PROCESS_DATE)'
-          || v_tail || 't01_cur_spread/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't01_cur_spread/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T01_CUR_SPREAD (BUS_ID, GRS_UNIQUE_ID, ROW_HASH, GRS_REFINED_TIMESTAMP, GRS_PROCESS_DATE)
     SELECT x.rn, UUID_STRING(), MD5(TO_VARCHAR(x.rn)),
@@ -62,7 +71,7 @@ BEGIN
           || 'NEW_ROW_HASH STRING, LAST_ROW_HASH STRING, GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6), '
           || 'GRS_PROCESS_YEAR INT, GRS_PROCESS_MONTH INT, GRS_PROCESS_DAY INT) '
           || 'PARTITION BY (GRS_PROCESS_YEAR, GRS_PROCESS_MONTH, GRS_PROCESS_DAY)'
-          || v_tail || 't02_hist_backfill_spread/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't02_hist_backfill_spread/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T02_HIST_BACKFILL_SPREAD (BUS_ID, GRS_UNIQUE_ID, NEW_ROW_HASH, LAST_ROW_HASH,
                                           GRS_REFINED_TIMESTAMP, GRS_PROCESS_YEAR, GRS_PROCESS_MONTH, GRS_PROCESS_DAY)
@@ -87,7 +96,7 @@ BEGIN
           || 'NEW_ROW_HASH STRING, LAST_ROW_HASH STRING, GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6), '
           || 'GRS_PROCESS_YEAR INT, GRS_PROCESS_MONTH INT, GRS_PROCESS_DAY INT) '
           || 'PARTITION BY (GRS_PROCESS_YEAR, GRS_PROCESS_MONTH, GRS_PROCESS_DAY)'
-          || v_tail || 't03_hist_backfill_same_ts/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't03_hist_backfill_same_ts/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T03_HIST_BACKFILL_SAME_TS (BUS_ID, GRS_UNIQUE_ID, NEW_ROW_HASH, LAST_ROW_HASH,
                                            GRS_REFINED_TIMESTAMP, GRS_PROCESS_YEAR, GRS_PROCESS_MONTH, GRS_PROCESS_DAY)
@@ -105,7 +114,7 @@ BEGIN
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T04_SMALL (BUS_ID INT, GRS_UNIQUE_ID STRING, ROW_HASH STRING, '
           || 'GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6), GRS_PROCESS_DATE DATE) PARTITION BY (GRS_PROCESS_DATE)'
-          || v_tail || 't04_small/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't04_small/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T04_SMALL (BUS_ID, GRS_UNIQUE_ID, ROW_HASH, GRS_REFINED_TIMESTAMP, GRS_PROCESS_DATE)
     SELECT g.rn, UUID_STRING(), MD5(TO_VARCHAR(g.rn)),
@@ -118,7 +127,7 @@ BEGIN
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T05_NULL_PARTITION (BUS_ID INT, GRS_UNIQUE_ID STRING, ROW_HASH STRING, '
           || 'GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6), GRS_PROCESS_DATE DATE) PARTITION BY (GRS_PROCESS_DATE)'
-          || v_tail || 't05_null_partition/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't05_null_partition/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T05_NULL_PARTITION (BUS_ID, GRS_UNIQUE_ID, ROW_HASH, GRS_REFINED_TIMESTAMP, GRS_PROCESS_DATE)
     SELECT x.rn, UUID_STRING(), MD5(TO_VARCHAR(x.rn)),
@@ -134,7 +143,7 @@ BEGIN
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T06_UNPARTITIONED_TS (BUS_ID INT, GRS_UNIQUE_ID STRING, ROW_HASH STRING, '
           || 'GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6))'
-          || v_tail || 't06_unpartitioned_ts/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't06_unpartitioned_ts/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T06_UNPARTITIONED_TS (BUS_ID, GRS_UNIQUE_ID, ROW_HASH, GRS_REFINED_TIMESTAMP)
     SELECT x.rn, UUID_STRING(), MD5(TO_VARCHAR(x.rn)),
@@ -148,7 +157,7 @@ BEGIN
     --      Expect: FAILED "No usable chunk column", and the run carries on (D6).
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T07_NO_USABLE_COLUMN (ID INT, NAME STRING)'
-          || v_tail || 't07_no_usable_column/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't07_no_usable_column/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T07_NO_USABLE_COLUMN (ID, NAME)
     SELECT g.rn, 'name_' || g.rn
@@ -159,7 +168,7 @@ BEGIN
     --      Expect: axis UNIQUE_ID_HASH, 3 x HASH (833/833/834).
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T08_UNIQUE_ID_ONLY (ID INT, GRS_UNIQUE_ID STRING)'
-          || v_tail || 't08_unique_id_only/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't08_unique_id_only/''');
     EXECUTE IMMEDIATE :v_sql;
     INSERT INTO T08_UNIQUE_ID_ONLY (ID, GRS_UNIQUE_ID)
     SELECT g.rn, UUID_STRING()
@@ -179,7 +188,7 @@ BEGIN
     -- ---------------------------------------------------------------------------------
     v_sql := 'CREATE OR REPLACE ICEBERG TABLE T11_EMPTY (BUS_ID INT, GRS_UNIQUE_ID STRING, ROW_HASH STRING, '
           || 'GRS_REFINED_TIMESTAMP TIMESTAMP_LTZ(6), GRS_PROCESS_DATE DATE) PARTITION BY (GRS_PROCESS_DATE)'
-          || v_tail || 't11_empty/''';
+          || v_tail || IFF(v_managed, '', ' BASE_LOCATION = ''' || v_loc || 't11_empty/''');
     EXECUTE IMMEDIATE :v_sql;
 
     -- Evidence E02: what was built
