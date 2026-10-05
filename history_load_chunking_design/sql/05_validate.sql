@@ -187,8 +187,8 @@ SELECT TABLE_NAME, PLAN_ID, RUN_ID, PLAN_STATUS, IS_ACTIVE, CHUNK_COUNT, STATUS_
 -- For every active plan in the chosen schema: evaluates each chunk's range on every
 -- source row and counts rows that fall in NO chunk and rows that fall in TWO OR MORE.
 -- Both must be 0. Also compares each range chunk's actual row count with its estimate.
--- Reads the source tables once per chunk: fine for the test schema; on large production
--- tables run it on a few chosen tables only.
+-- Reads the axis column(s) of each source table once per chunk: fine for the test schema.
+-- On large client tables list a few chosen tables in p_tables.
 -- =====================================================================================
 DECLARE
     -- ===== same values as the SET lines at the top of this file =====
@@ -196,6 +196,7 @@ DECLARE
     metadata_schema   VARCHAR DEFAULT 'test_schema';
     p_database        VARCHAR DEFAULT 'TEST_DB';
     p_schema          VARCHAR DEFAULT 'CHUNK_TEST_SRC';
+    p_tables          VARCHAR DEFAULT '';   -- '' = every planned table in the schema, or a list: 'TABLE_A, TABLE_B'
 
     v_sql       VARCHAR;
     v_pid       VARCHAR;
@@ -240,7 +241,10 @@ BEGIN
         SELECT PLAN_ID, DATABASE_NAME, SCHEMA_NAME, TABLE_NAME, CHUNK_AXIS, AXIS_COLUMNS, TOTAL_ROWS
           FROM HIST_PLAN_TABLE
          WHERE IS_ACTIVE AND PLAN_STATUS = 'PLANNED'
-           AND UPPER(DATABASE_NAME) = UPPER(:p_database) AND UPPER(SCHEMA_NAME) = UPPER(:p_schema);
+           AND UPPER(DATABASE_NAME) = UPPER(:p_database) AND UPPER(SCHEMA_NAME) = UPPER(:p_schema)
+           AND (TRIM(COALESCE(:p_tables, '')) = ''
+                OR UPPER(TABLE_NAME) IN (SELECT UPPER(TRIM(REPLACE(s.VALUE, '"', '')))
+                                           FROM TABLE(SPLIT_TO_TABLE(COALESCE(:p_tables, ''), ',')) s));
 
     FOR p IN c_plans DO
         v_pid := p.PLAN_ID;  v_db := p.DATABASE_NAME;  v_sch := p.SCHEMA_NAME;  v_tbl := p.TABLE_NAME;

@@ -187,6 +187,7 @@ DDL: `sql/01_metadata_ddl.sql`.
 | `05_validate.sql` | Expected-vs-actual checks, tiling and sum checks, and an exactly-once coverage proof against the source data |
 | `06_reset_test_metadata.sql` | Clears the test schema's metadata rows |
 | `TEST_PLAN.md` | Run sequence R0–R9, expected results, evidence checklist E01–E17 |
+| `CLIENT_RUNBOOK.md` | Running against real tables in a client environment: `01` once, then `04`; privileges, checks, re-runs |
 
 ## 10. Assumptions and limitations
 

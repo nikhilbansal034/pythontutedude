@@ -4,6 +4,9 @@ How to run the SQL in this folder, what each run should show, and which screensh
 screenshots under their evidence IDs (E01, E02, …) so each can be checked against the expected result
 here.
 
+> This plan is for the synthetic test data. To run the planner on real tables in a client environment,
+> follow `CLIENT_RUNBOOK.md` instead.
+
 Everything runs in a **Snowflake Workspace**. Files with a `DECLARE … BEGIN … END;` block are run as one
 unit: select the whole file, then run. Plain-SQL files can be run statement by statement.
 
