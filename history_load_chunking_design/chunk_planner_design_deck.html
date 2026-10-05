@@ -171,7 +171,7 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 </defs></svg>
 
 <nav class="sidenav" aria-label="Slide navigation">
-  <div class="brand"><b>History Load — Chunk Planner</b><span>Zone1 Iceberg → native tables<br>Design · 8 slides</span></div>
+  <div class="brand"><b>History Load — Chunk Planner</b><span>Zone1 Iceberg → native tables<br>Design · 9 slides</span></div>
 
   <div class="grp">Why</div>
   <button class="navbtn2" role="tab" aria-selected="true"><span class="n">01</span>Cover</button>
@@ -182,10 +182,11 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 
   <div class="grp">Solution steps</div>
   <button class="navbtn2" role="tab" aria-selected="false"><span class="n">04</span>Step 1 — choose the axis</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">05</span>Step 2 — cut the days</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">06</span>Size target &amp; ranking</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">07</span>What gets written</button>
-  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">08</span>Validation &amp; failures</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">05</span>Step 2 — example: Table 02</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">06</span>Step 2 — example: Table 03</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">07</span>Size target &amp; ranking</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">08</span>What gets written</button>
+  <button class="navbtn2" role="tab" aria-selected="false"><span class="n">09</span>Validation &amp; failures</button>
 
   <div class="navfoot">
     <button class="pgbtn" id="prev" aria-label="Previous slide">&#8592;</button>
@@ -204,7 +205,7 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   <p class="lede">A script that looks at every Iceberg table in a schema and decides, for each one, how
   many chunks to load it in, which column divides them, how big each chunk is, and where each chunk
   starts and ends. It writes that plan to two metadata tables. It does not load any data.</p>
-  <div class="slide-no">1 / 8</div>
+  <div class="slide-no">1 / 9</div>
 </section>
 
 <!-- ============ 2 — PROBLEM ============ -->
@@ -230,7 +231,7 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
       <p>Read each table's structure, choose the column that splits it best, cut whole days into ~10 GB chunks, split only the days that are too big — and record every chunk's range so that each row lands in exactly one chunk.</p></div>
   </div>
 
-  <div class="slide-no">2 / 8</div>
+  <div class="slide-no">2 / 9</div>
 </section>
 
 <!-- ============ 3 — ARCHITECTURE ============ -->
@@ -364,7 +365,7 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   </table>
 
   <div class="takeaway">Source tables are only ever read — every write goes to the two plan tables, one table at a time</div>
-  <div class="slide-no">3 / 8</div>
+  <div class="slide-no">3 / 9</div>
 </section>
 
 <!-- ============ 4 — CHOOSE THE AXIS ============ -->
@@ -455,112 +456,168 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   </div>
 
   <div class="takeaway">No table is hand-tuned — the partition spec decides, with a fallback for anything non-standard</div>
-  <div class="slide-no">4 / 8</div>
+  <div class="slide-no">4 / 9</div>
 </section>
 
-<!-- ============ 5 — CUT THE DAYS ============ -->
+<!-- ============ 5 — TABLE 02 WORKED EXAMPLE ============ -->
 <section class="slide" id="s5" role="tabpanel">
-  <h2>Step 2 — group whole days, split only the days that are too big</h2>
-  <p class="sub">Two example tables, cut with a 1,000-row target per chunk (production: 10 GB)</p>
+  <h2>Step 2, example 1 — Table 02: one day is too big, so it is cut by time of day</h2>
+  <p class="sub">Every other day stays whole; only the oversized day is split. Example chunk size: 1,000 rows (production: 10 GB)</p>
 
   <div class="figure">
-  <svg class="dg" viewBox="0 0 1500 300" role="img" aria-label="Day bars grouped into chunks, with an oversized day split by timestamp or by hash">
-    <rect class="lane"  x="8"   y="34" width="900" height="258" rx="4"/>
-    <rect class="laneh" x="8"   y="8"  width="900" height="26"  rx="4"/>
-    <text class="lanet" x="458" y="26" text-anchor="middle">T02 · BACKFILL DAY WITH TIMESTAMPS SPREAD → SUB-RANGES</text>
-    <rect class="lane"  x="918" y="34" width="574" height="258" rx="4"/>
-    <rect class="laneh" x="918" y="8"  width="574" height="26"  rx="4"/>
-    <text class="lanet" x="1205" y="26" text-anchor="middle">T03 · BACKFILL DAY WITH ONE TIMESTAMP → HASH BUCKETS</text>
+  <svg class="dg" viewBox="0 0 1500 196" role="img" aria-label="Table 02 chunks laid out along the calendar">
+    <rect class="laneh" x="8" y="8" width="1484" height="26" rx="4"/>
+    <text class="lanet" x="750" y="26" text-anchor="middle">THE RESULT · TABLE 02'S SEVEN CHUNKS, LAID OUT ALONG THE CALENDAR (LEFT = EARLIEST DAY)</text>
 
-    <!-- target line -->
-    <path d="M24,174 L892,174" stroke="#ED8B00" stroke-width="1.4" stroke-dasharray="6 4" fill="none"/>
-    <text class="t w" x="30" y="168">target per chunk</text>
-    <path d="M934,174 L1478,174" stroke="#ED8B00" stroke-width="1.4" stroke-dasharray="6 4" fill="none"/>
+    <rect class="box" x="16" y="48" width="236" height="74" rx="5"/>
+    <text class="t" x="134" y="72" text-anchor="middle">Chunk 1</text>
+    <text class="t" x="134" y="90" text-anchor="middle">Mar 1 – Mar 3 · 300 rows</text>
+    <text class="t s" x="134" y="108" text-anchor="middle">3 whole days</text>
 
-    <!-- T02 small days -->
-    <rect class="box" x="40"  y="206" width="26" height="14" rx="2"/>
-    <rect class="box" x="72"  y="206" width="26" height="14" rx="2"/>
-    <rect class="box" x="104" y="206" width="26" height="14" rx="2"/>
-    <!-- T02 big day split in 4 -->
-    <rect class="box alt" x="196" y="174" width="70" height="46" rx="2"/>
-    <rect class="box alt" x="196" y="128" width="70" height="46" rx="2"/>
-    <rect class="box alt" x="196" y="82"  width="70" height="46" rx="2"/>
-    <rect class="box alt" x="196" y="58"  width="70" height="24" rx="2"/>
-    <text class="t s" x="276" y="202">00:00–00:20</text>
-    <text class="t s" x="276" y="156">00:20–00:40</text>
-    <text class="t s" x="276" y="110">00:40–01:00</text>
-    <text class="t s" x="276" y="74">01:00 → end</text>
-    <!-- T02 ten days -->
-    <rect class="box" x="400" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="432" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="464" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="496" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="528" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="590" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="622" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="654" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="686" y="196" width="26" height="24" rx="2"/>
-    <rect class="box" x="718" y="196" width="26" height="24" rx="2"/>
-    <path d="M24,220 L892,220" stroke="#75787B" stroke-width="1" fill="none"/>
-    <!-- brackets -->
-    <path class="brk" d="M40,230 L40,240 L130,240 L130,230"/>
-    <text class="t s" x="85" y="256" text-anchor="middle">chunk 1 · 3 days</text>
-    <text class="t s" x="85" y="270" text-anchor="middle">300 rows</text>
-    <path class="brk" d="M196,230 L196,240 L266,240 L266,230"/>
-    <text class="t s" x="231" y="256" text-anchor="middle">chunks 2–5 · 1 day</text>
-    <text class="t s" x="231" y="270" text-anchor="middle">3,500 rows</text>
-    <path class="brk" d="M400,230 L400,240 L554,240 L554,230"/>
-    <text class="t s" x="477" y="256" text-anchor="middle">chunk 6 · 5 days · 1,000</text>
-    <path class="brk" d="M590,230 L590,240 L744,240 L744,230"/>
-    <text class="t s" x="667" y="256" text-anchor="middle">chunk 7 · 5 days · 1,000</text>
-    <text class="t s" x="790" y="200">open end →</text>
-    <text class="t s" x="24" y="56">rows in the day ↑</text>
-    <text class="t s" x="892" y="234" text-anchor="end">days →</text>
-    <text class="t s" x="1478" y="234" text-anchor="end">days →</text>
-    <text class="t s" x="24" y="200">← open</text>
+    <text class="t s" x="282" y="82" text-anchor="middle">Mar 4–9</text>
+    <text class="t s" x="282" y="96" text-anchor="middle">no data</text>
 
-    <!-- T03 -->
-    <rect class="box warnb" x="980" y="180" width="80" height="40" rx="2"/>
-    <rect class="box warnb" x="980" y="140" width="80" height="40" rx="2"/>
-    <rect class="box warnb" x="980" y="100" width="80" height="40" rx="2"/>
-    <text class="t s" x="1070" y="204">bucket 0 of 3</text>
-    <text class="t s" x="1070" y="164">bucket 1 of 3</text>
-    <text class="t s" x="1070" y="124">bucket 2 of 3</text>
-    <rect class="box" x="1220" y="208" width="26" height="12" rx="2"/>
-    <rect class="box" x="1252" y="208" width="26" height="12" rx="2"/>
-    <rect class="box" x="1284" y="208" width="26" height="12" rx="2"/>
-    <rect class="box" x="1316" y="208" width="26" height="12" rx="2"/>
-    <path d="M934,220 L1478,220" stroke="#75787B" stroke-width="1" fill="none"/>
-    <path class="brk" d="M980,230 L980,240 L1060,240 L1060,230"/>
-    <text class="t s" x="1020" y="256" text-anchor="middle">chunks 1–3 · 2,500 rows</text>
-    <text class="t s" x="1020" y="270" text-anchor="middle">MOD(HASH(GRS_UNIQUE_ID), 3)</text>
-    <path class="brk" d="M1220,230 L1220,240 L1342,240 L1342,230"/>
-    <text class="t s" x="1281" y="256" text-anchor="middle">chunk 4 · 4 days · 400</text>
+    <rect class="box alt" x="312" y="48" width="140" height="74" rx="5"/>
+    <text class="t" x="382" y="72" text-anchor="middle">Chunk 2</text>
+    <text class="t" x="382" y="90" text-anchor="middle">00:00 – 00:20</text>
+    <text class="t s" x="382" y="108" text-anchor="middle">1,000 rows</text>
+    <rect class="box alt" x="456" y="48" width="140" height="74" rx="5"/>
+    <text class="t" x="526" y="72" text-anchor="middle">Chunk 3</text>
+    <text class="t" x="526" y="90" text-anchor="middle">00:20 – 00:40</text>
+    <text class="t s" x="526" y="108" text-anchor="middle">1,000 rows</text>
+    <rect class="box alt" x="600" y="48" width="140" height="74" rx="5"/>
+    <text class="t" x="670" y="72" text-anchor="middle">Chunk 4</text>
+    <text class="t" x="670" y="90" text-anchor="middle">00:40 – 01:00</text>
+    <text class="t s" x="670" y="108" text-anchor="middle">1,000 rows</text>
+    <rect class="box alt" x="744" y="48" width="140" height="74" rx="5"/>
+    <text class="t" x="814" y="72" text-anchor="middle">Chunk 5</text>
+    <text class="t" x="814" y="90" text-anchor="middle">01:00 – end of day</text>
+    <text class="t s" x="814" y="108" text-anchor="middle">500 rows</text>
 
-    <circle class="nb" cx="40"  cy="206" r="9"/><text class="nt" x="40"  y="210" text-anchor="middle">1</text>
-    <circle class="nb" cx="196" cy="58"  r="9"/><text class="nt" x="196" y="62"  text-anchor="middle">2</text>
-    <circle class="nb" cx="400" cy="196" r="9"/><text class="nt" x="400" y="200" text-anchor="middle">3</text>
-    <circle class="nb" cx="980" cy="100" r="9"/><text class="nt" x="980" y="104" text-anchor="middle">4</text>
+    <rect class="box" x="900" y="48" width="286" height="74" rx="5"/>
+    <text class="t" x="1043" y="72" text-anchor="middle">Chunk 6</text>
+    <text class="t" x="1043" y="90" text-anchor="middle">Mar 11 – Mar 15 · 1,000 rows</text>
+    <text class="t s" x="1043" y="108" text-anchor="middle">5 whole days</text>
+    <rect class="box" x="1194" y="48" width="290" height="74" rx="5"/>
+    <text class="t" x="1339" y="72" text-anchor="middle">Chunk 7</text>
+    <text class="t" x="1339" y="90" text-anchor="middle">Mar 16 – Mar 20 · 1,000 rows</text>
+    <text class="t s" x="1339" y="108" text-anchor="middle">5 whole days</text>
+
+    <path class="brk" d="M16,132 L16,142 L252,142 L252,132"/>
+    <text class="t s" x="134" y="160" text-anchor="middle">small days, grouped together</text>
+    <path class="brk" d="M312,132 L312,142 L884,142 L884,132"/>
+    <text class="t w" x="598" y="160" text-anchor="middle">ONE day, Mar 10 — 3,500 rows: too big for one chunk,</text>
+    <text class="t w" x="598" y="177" text-anchor="middle">so it is cut by the time in GRS_REFINED_TIMESTAMP</text>
+    <path class="brk" d="M900,132 L900,142 L1484,142 L1484,132"/>
+    <text class="t s" x="1192" y="160" text-anchor="middle">normal days again, grouped 5 at a time (5 × 200 = 1,000)</text>
   </svg>
   </div>
-  <p class="note">How to read it: each bar is one day of data, and its height is the number of rows that day holds. The dashed orange line is the size of one chunk. Brackets under the bars show which days end up in which chunk. Illustrative, not to scale.</p>
 
-  <table class="sm">
-    <thead><tr><th class="num">#</th><th>Rule</th><th>What the planner does</th></tr></thead>
-    <tbody>
-      <tr><td class="num">1</td><td>Group whole days</td><td>Walk the days in order; add a day to the open chunk unless it would push it over the target. The very first chunk starts open (<code>NULL</code>)</td></tr>
-      <tr><td class="num">2</td><td>Split by timestamp</td><td>A day bigger than the target is cut by minute ranges of <code>GRS_REFINED_TIMESTAMP</code> — still reading only that day's files</td></tr>
-      <tr><td class="num">3</td><td>Continue seamlessly</td><td>The next range starts the day after the split day, so empty days in between are covered too. The very last chunk ends open</td></tr>
-      <tr><td class="num">4</td><td>Split by hash</td><td>If NULLs or one oversized minute block the timestamp split, the day is cut into even buckets of <code>GRS_UNIQUE_ID</code> — always works</td></tr>
-    </tbody>
-  </table>
+  <div class="cols w40-60" style="margin-top:6px">
+    <div>
+      <h3>What Table 02 holds</h3>
+      <table class="sm">
+        <thead><tr><th>Days</th><th>Rows</th></tr></thead>
+        <tbody>
+          <tr><td>Mar 1, 2, 3</td><td>100 a day → 300</td></tr>
+          <tr style="outline:2px solid var(--orange);outline-offset:-2px"><td><b>Mar 10</b> (the backfill day)</td><td><b>3,500</b> — timestamps spread from 00:00 to 01:10, about 50 rows per minute</td></tr>
+          <tr><td>Mar 11 to Mar 20</td><td>200 a day → 2,000</td></tr>
+          <tr><td><b>Total</b></td><td><b>5,800</b></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal"><b>Check at the end:</b> 300 + 1,000 + 1,000 + 1,000 + 500 + 1,000 + 1,000
+      = 5,800 = the table's rows. Every row is in exactly one chunk.</div>
+    </div>
+    <div>
+      <h3>What the planner does, step by step</h3>
+      <table class="sm">
+        <thead><tr><th class="num">#</th><th>The planner…</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Counts the rows on each day (one quick read of the partition column)</td><td>The list on the left</td></tr>
+          <tr><td class="num">2</td><td>Starts a chunk with Mar 1, adds Mar 2 and Mar 3 — still under 1,000</td><td>Chunk 1 is filling: 300</td></tr>
+          <tr><td class="num">3</td><td>Reaches Mar 10: 3,500 rows on its own is more than a chunk. Closes chunk 1 before it</td><td><b>Chunk 1</b> = Mar 1–3</td></tr>
+          <tr><td class="num">4</td><td>Looks inside Mar 10: counts its rows per minute of <code>GRS_REFINED_TIMESTAMP</code>. No minute has more than 1,000, so the day <i>can</i> be cut by time</td><td>70 minutes × 50 rows</td></tr>
+          <tr><td class="num">5</td><td>Walks the minutes, closing a chunk every time 1,000 rows are reached (every 20 minutes)</td><td><b>Chunks 2–5</b> = 00:00–00:20, –00:40, –01:00, rest of day</td></tr>
+          <tr><td class="num">6</td><td>Back to whole days: Mar 11–15 add up to exactly 1,000. Mar 16 would overflow, so it starts the next chunk</td><td><b>Chunk 6</b> = Mar 11–15</td></tr>
+          <tr><td class="num">7</td><td>Mar 16–20 fill the last chunk; its end is left open so nothing after it can be missed</td><td><b>Chunk 7</b> = Mar 16–20</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-  <div class="takeaway">Ranges are half-open and continuous — every row lands in exactly one chunk, by construction and by check</div>
-  <div class="slide-no">5 / 8</div>
+  <div class="takeaway">Only the day that is too big gets split — by time of day; every other day stays whole</div>
+  <div class="slide-no">5 / 9</div>
 </section>
 
-<!-- ============ 6 — SIZE TARGET & RANKING ============ -->
+<!-- ============ 6 — TABLE 03 WORKED EXAMPLE ============ -->
 <section class="slide" id="s6" role="tabpanel">
+  <h2>Step 2, example 2 — Table 03: time cannot split the day, so row IDs do</h2>
+  <p class="sub">All 2,500 rows of the big day carry the same timestamp. Example chunk size: 1,000 rows (production: 10 GB)</p>
+
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1500 196" role="img" aria-label="Table 03 chunks laid out along the calendar">
+    <rect class="laneh" x="8" y="8" width="1484" height="26" rx="4"/>
+    <text class="lanet" x="750" y="26" text-anchor="middle">THE RESULT · TABLE 03'S FOUR CHUNKS, LAID OUT ALONG THE CALENDAR (LEFT = EARLIEST DAY)</text>
+
+    <rect class="box warnb" x="16" y="46" width="760" height="24" rx="4"/>
+    <text class="t" x="396" y="63" text-anchor="middle">Chunk 1 · Apr 5 · rows whose ID falls in pile 0 of 3 · about 833 rows</text>
+    <rect class="box warnb" x="16" y="74" width="760" height="24" rx="4"/>
+    <text class="t" x="396" y="91" text-anchor="middle">Chunk 2 · Apr 5 · rows whose ID falls in pile 1 of 3 · about 833 rows</text>
+    <rect class="box warnb" x="16" y="102" width="760" height="24" rx="4"/>
+    <text class="t" x="396" y="119" text-anchor="middle">Chunk 3 · Apr 5 · rows whose ID falls in pile 2 of 3 · about 834 rows</text>
+
+    <rect class="box" x="796" y="46" width="688" height="80" rx="5"/>
+    <text class="t" x="1140" y="74" text-anchor="middle">Chunk 4</text>
+    <text class="t" x="1140" y="92" text-anchor="middle">Apr 6 – Apr 9 · 400 rows</text>
+    <text class="t s" x="1140" y="110" text-anchor="middle">4 whole days</text>
+
+    <path class="brk" d="M16,136 L16,146 L776,146 L776,136"/>
+    <text class="t w" x="396" y="164" text-anchor="middle">ONE day, Apr 5 — 2,500 rows, all stamped 10:00: time cannot split it,</text>
+    <text class="t w" x="396" y="181" text-anchor="middle">so the rows are dealt into 3 piles by GRS_UNIQUE_ID</text>
+    <path class="brk" d="M796,136 L796,146 L1484,146 L1484,136"/>
+    <text class="t s" x="1140" y="164" text-anchor="middle">normal days, grouped together (4 × 100 = 400)</text>
+  </svg>
+  </div>
+
+  <div class="cols w40-60" style="margin-top:6px">
+    <div>
+      <h3>What Table 03 holds</h3>
+      <table class="sm">
+        <thead><tr><th>Days</th><th>Rows</th></tr></thead>
+        <tbody>
+          <tr style="outline:2px solid var(--orange);outline-offset:-2px"><td><b>Apr 5</b> (the backfill day)</td><td><b>2,500</b> — every row has <code>GRS_REFINED_TIMESTAMP</code> = 10:00 exactly</td></tr>
+          <tr><td>Apr 6 to Apr 9</td><td>100 a day → 400</td></tr>
+          <tr><td><b>Total</b></td><td><b>2,900</b></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal"><b>How the 3 piles work.</b> Every row has a unique <code>GRS_UNIQUE_ID</code>.
+      The planner turns each ID into a number and takes the remainder after dividing by 3 — so every row lands
+      in pile 0, 1 or 2, never two piles, and the piles come out roughly equal. Like dealing a deck of cards
+      into 3 hands.</div>
+    </div>
+    <div>
+      <h3>What the planner does, step by step</h3>
+      <table class="sm">
+        <thead><tr><th class="num">#</th><th>The planner…</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Counts the rows on each day</td><td>The list on the left</td></tr>
+          <tr><td class="num">2</td><td>Reaches Apr 5: 2,500 rows on its own is more than a chunk</td><td>Apr 5 must be split</td></tr>
+          <tr><td class="num">3</td><td>Tries time first: counts Apr 5's rows per minute of <code>GRS_REFINED_TIMESTAMP</code>. All 2,500 sit in one minute (10:00) — more than a chunk, so time cannot cut it</td><td>Time split not possible</td></tr>
+          <tr><td class="num">4</td><td>Falls back to row IDs. Number of piles = 2,500 ÷ 1,000, rounded up = <b>3</b></td><td>3 piles</td></tr>
+          <tr><td class="num">5</td><td>Records one chunk per pile: "Apr 5, and ID in pile 0 / 1 / 2". The row counts are estimates (~833 each); the real counts vary slightly</td><td><b>Chunks 1–3</b></td></tr>
+          <tr><td class="num">6</td><td>Back to whole days: Apr 6–9 hold 400 rows — one chunk, end left open</td><td><b>Chunk 4</b> = Apr 6–9</td></tr>
+          <tr><td class="num">7</td><td>Checks: 2,500 + 400 = 2,900 = the table's rows</td><td>Every row counted once</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="takeaway">When time cannot split a day, row IDs always can — every row still lands in exactly one chunk</div>
+  <div class="slide-no">6 / 9</div>
+</section>
+
+<!-- ============ 7 — SIZE TARGET & RANKING ============ -->
+<section class="slide" id="s7" role="tabpanel">
   <h2>10 GB per chunk, and the technique that reads the least</h2>
   <p class="sub">One size target for every table; the technique is chosen day by day, best first</p>
 
@@ -596,11 +653,11 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   </div>
 
   <div class="takeaway">Same target everywhere, different cut per table — driven by each table's own data, never by hand</div>
-  <div class="slide-no">6 / 8</div>
+  <div class="slide-no">7 / 9</div>
 </section>
 
-<!-- ============ 7 — METADATA TABLES ============ -->
-<section class="slide" id="s7" role="tabpanel">
+<!-- ============ 8 — METADATA TABLES ============ -->
+<section class="slide" id="s8" role="tabpanel">
   <h2>Two tables: how many chunks per table, and every chunk's range</h2>
   <p class="sub">Status lives at table level; plans are never edited, only superseded</p>
 
@@ -636,11 +693,11 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
   </div>
 
   <div class="takeaway">Read HIST_PLAN_TABLE for "how many chunks", HIST_PLAN_CHUNK for "which rows" — nothing else needed</div>
-  <div class="slide-no">7 / 8</div>
+  <div class="slide-no">8 / 9</div>
 </section>
 
-<!-- ============ 8 — VALIDATION & FAILURES ============ -->
-<section class="slide" id="s8" role="tabpanel">
+<!-- ============ 9 — VALIDATION & FAILURES ============ -->
+<section class="slide" id="s9" role="tabpanel">
   <h2>Bad input stops the run; a bad table never does</h2>
   <p class="sub">What the script does in each situation</p>
 
@@ -659,10 +716,10 @@ svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
 
   <div class="callout" style="margin-top:12px"><b>Example of row 1.</b> Input <code>'T01_CUR_SPREAD, T99_DOES_NOT_EXIST, t09_standard_table'</code>
   → two <code>VALIDATION_FAILED</code> rows and <i>"2 of 3 table names are invalid. Nothing was written."</i>
-  T01 is valid but is not planned either — a typo cannot silently drop a table.</div>
+  Table 01 (T01_CUR_SPREAD) is valid but is not planned either — a typo cannot silently drop a table.</div>
 
   <div class="takeaway">Validation protects the whole run; isolation protects every other table</div>
-  <div class="slide-no">8 / 8</div>
+  <div class="slide-no">9 / 9</div>
 </section>
 
 </div>
