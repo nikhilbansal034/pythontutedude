@@ -147,7 +147,7 @@ and building load SQL are out of scope.
 | File | What it is |
 |------|-----------|
 | `solution_design.md` | **Design of record (v2)**: problem, scope, decisions D1–D15, architecture, how the chunking technique is chosen, metadata tables, behaviour |
-| `chunk_planner_design_deck.html` | Design deck, 13 slides, self-contained (built with the `lm-html-deck` skill, deck-2 shell). Problem statement, architecture diagram, solution steps, test kit, status |
+| `chunk_planner_design_deck.html` | Design deck, 8 slides, self-contained (built with the `lm-html-deck` skill, deck-2 shell). Problem statement, architecture diagram, solution steps |
 | `design_review.md` | The review trail, revisions 1–9: how the design got to v2 and why each change was made |
 | `reference_ddl.sql` | CURRENT and HISTORY reference DDL for one table, transcribed, with each column's role annotated |
 | `sql/01_metadata_ddl.sql` | `HIST_PLAN_TABLE` and `HIST_PLAN_CHUNK` |
