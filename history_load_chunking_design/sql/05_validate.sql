@@ -141,6 +141,8 @@ SELECT t.DATABASE_NAME, t.SCHEMA_NAME, t.TABLE_NAME, t.CHUNK_METHOD, t.CHUNK_COU
 --   * the first day chunk of a table starts open (NULL) unless it is a split day
 --   * every other chunk starts where the previous one ended
 --   * pieces of one split day share the day; sub-ranges continue end-to-start
+-- Returns one row per range chunk. NO ROWS means the plans have no range chunks to check
+-- (e.g. every table came out SINGLE); it is not a pass.
 -- -------------------------------------------------------------------------------------
 WITH c AS (
     SELECT k.TABLE_NAME, k.CHUNK_SEQ, k.CHUNK_TYPE, k.DAY_START, k.DAY_END, k.SUB_START_TS, k.SUB_END_TS,
@@ -185,8 +187,8 @@ SELECT TABLE_NAME, PLAN_ID, RUN_ID, PLAN_STATUS, IS_ACTIVE, CHUNK_COUNT, STATUS_
 -- For every active plan in the chosen schema: evaluates each chunk's range on every
 -- source row and counts rows that fall in NO chunk and rows that fall in TWO OR MORE.
 -- Both must be 0. Also compares each range chunk's actual row count with its estimate.
--- Reads the source tables once per chunk: fine for the test schema; on large production
--- tables run it on a few chosen tables only.
+-- Reads the axis column(s) of each source table once per chunk: fine for the test schema.
+-- On large client tables list a few chosen tables in p_tables.
 -- =====================================================================================
 DECLARE
     -- ===== same values as the SET lines at the top of this file =====
@@ -194,6 +196,7 @@ DECLARE
     metadata_schema   VARCHAR DEFAULT 'test_schema';
     p_database        VARCHAR DEFAULT 'TEST_DB';
     p_schema          VARCHAR DEFAULT 'CHUNK_TEST_SRC';
+    p_tables          VARCHAR DEFAULT '';   -- '' = every planned table in the schema, or a list: 'TABLE_A, TABLE_B'
 
     v_sql       VARCHAR;
     v_pid       VARCHAR;
@@ -238,7 +241,10 @@ BEGIN
         SELECT PLAN_ID, DATABASE_NAME, SCHEMA_NAME, TABLE_NAME, CHUNK_AXIS, AXIS_COLUMNS, TOTAL_ROWS
           FROM HIST_PLAN_TABLE
          WHERE IS_ACTIVE AND PLAN_STATUS = 'PLANNED'
-           AND UPPER(DATABASE_NAME) = UPPER(:p_database) AND UPPER(SCHEMA_NAME) = UPPER(:p_schema);
+           AND UPPER(DATABASE_NAME) = UPPER(:p_database) AND UPPER(SCHEMA_NAME) = UPPER(:p_schema)
+           AND (TRIM(COALESCE(:p_tables, '')) = ''
+                OR UPPER(TABLE_NAME) IN (SELECT UPPER(TRIM(REPLACE(s.VALUE, '"', '')))
+                                           FROM TABLE(SPLIT_TO_TABLE(COALESCE(:p_tables, ''), ',')) s));
 
     FOR p IN c_plans DO
         v_pid := p.PLAN_ID;  v_db := p.DATABASE_NAME;  v_sch := p.SCHEMA_NAME;  v_tbl := p.TABLE_NAME;
@@ -284,14 +290,15 @@ BEGIN
              WHERE PLAN_ID = :v_pid;
 
             SELECT LISTAGG('IFF(' || PRED || ', 1, 0)', ' + ') WITHIN GROUP (ORDER BY CHUNK_SEQ),
-                   LISTAGG('SELECT ' || CHUNK_SEQ || ' AS CHUNK_SEQ, COUNT_IF(' || PRED || ') AS ACTUAL_ROWS FROM ' || :v_fq, ' UNION ALL ')
+                   LISTAGG('SELECT ' || CHUNK_SEQ || ' AS CHUNK_SEQ, COALESCE(COUNT_IF(' || PRED || '), 0) AS ACTUAL_ROWS FROM ' || :v_fq, ' UNION ALL ')
                        WITHIN GROUP (ORDER BY CHUNK_SEQ),
                    COUNT(*)
               INTO :v_sum_expr, :v_union, :v_chunks
               FROM HVAL_TMP_PRED;
 
             -- every source row: in how many chunks does it fall?
-            v_sql := 'SELECT COUNT(*), COUNT_IF(N = 0), COUNT_IF(N > 1) FROM (SELECT ' || v_sum_expr || ' AS N FROM ' || v_fq || ')';
+            -- COALESCE: COUNT_IF returns NULL, not 0, over an empty table
+            v_sql := 'SELECT COUNT(*), COALESCE(COUNT_IF(N = 0), 0), COALESCE(COUNT_IF(N > 1), 0) FROM (SELECT ' || v_sum_expr || ' AS N FROM ' || v_fq || ')';
             EXECUTE IMMEDIATE :v_sql;
             SELECT $1, $2, $3 INTO :v_total, :v_missed, :v_multi FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 
