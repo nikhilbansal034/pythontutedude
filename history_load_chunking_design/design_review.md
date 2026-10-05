@@ -12,6 +12,10 @@ Scope:
 - **Inputs:** one database and one schema (both required; **any** database or schema), plus an optional
   list of one or more tables.
 
+**Since revision 9:** the final design is consolidated in `solution_design.md` (version 2, design of record),
+and the planner script and its test kit are in `sql/` (see `sql/TEST_PLAN.md`). This review keeps the reasoning
+trail. For the current design, read `solution_design.md`.
+
 Reviewed: `solution_design.md` (this folder). Cross-checked against current Snowflake and Qlik Replicate
 docs.
 
@@ -541,7 +545,7 @@ FROM   TABLE(INFORMATION_SCHEMA.ICEBERG_TABLE_FILES(TABLE_NAME => :fq_table));
      `GRS_UNIQUE_ID`?
 3. **Loader note** (for the load team, not the planner): for HISTORY tables, run `EXPLAIN` on the planned
    filter form (year/month/day conditions for a day range) to confirm it skips other partitions.
-4. Then write the DDL for the two metadata tables, and the block.
+4. ~~Then write the DDL for the two metadata tables, and the block.~~ **Done:** `sql/01_metadata_ddl.sql`, `sql/04_chunk_planner.sql`, with a test kit (`sql/TEST_PLAN.md`).
 
 ---
 
