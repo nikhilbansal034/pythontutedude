@@ -146,7 +146,7 @@ chunk column, ranges). Loading data and building load SQL are out of scope.
 | File | What it is |
 |------|-----------|
 | `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
-| `design_review.md` | Architecture review of that design (revision 7, built on the real CURRENT/HISTORY DDL) — how the chunking technique is chosen per table, recommended chunk size (10 GB starting value), validation and skip reporting, two metadata tables, metadata table shapes, open questions |
+| `design_review.md` | Architecture review of that design (revision 8, built on the real CURRENT/HISTORY DDL) — how the chunking technique is chosen per table, chunk size derived from the warehouse size (2.5 GB per node; Medium = 10 GB), validation and skip reporting, two metadata tables, metadata table shapes, open questions |
 | `reference_ddl.sql` | The CURRENT and HISTORY reference DDL for one table, transcribed from the screenshots, with each column's role annotated |
 | `sources/ddl_current_raw.png`, `sources/ddl_history_raw.png` | The DDL screenshots as shared (2026-10-05). Renamed from the chat upload names `1.png` / `2.png`, which carried no meaning |
 
