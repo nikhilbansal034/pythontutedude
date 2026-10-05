@@ -146,7 +146,7 @@ chunk column, ranges). Loading data and building load SQL are out of scope.
 | File | What it is |
 |------|-----------|
 | `solution_design.md` | The design as discussed: chunking options, IDMC/PDO research, architecture, CONTROL/CONFIG shapes, no-stored-procedure constraint |
-| `design_review.md` | Architecture review of that design (revision 5, built on the real CURRENT/HISTORY DDL) — chunk on partition days and split oversized days in-day, layer detection, input contract, metadata table shapes, open questions |
+| `design_review.md` | Architecture review of that design (revision 6, built on the real CURRENT/HISTORY DDL) — how the chunking technique is chosen per table (partition days, in-day splits, fallbacks, worked examples), recorded decisions, input contract, metadata table shapes, open questions |
 | `reference_ddl.sql` | The CURRENT and HISTORY reference DDL for one table, transcribed from the screenshots, with each column's role annotated |
 | `sources/ddl_current_raw.png`, `sources/ddl_history_raw.png` | The DDL screenshots as shared (2026-10-05). Renamed from the chat upload names `1.png` / `2.png`, which carried no meaning |
 

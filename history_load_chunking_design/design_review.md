@@ -1,14 +1,14 @@
 # Architecture review — Iceberg historical load chunk planner
 
-**Revision 5 — 2026-10-05.** This revision is built on the **real table structure**: two reference DDLs for
+**Revision 6 — 2026-10-05.** This revision is built on the **real table structure**: two reference DDLs for
 one source table, in its CURRENT and HISTORY layers (`reference_ddl.sql`, screenshots in `sources/`).
-Scope is unchanged from revision 4:
+Revision 6 records the latest decisions (§1a) and explains how the technique is chosen for each table (§4).
+Scope:
 - **Planner only.** It analyses Iceberg tables and writes metadata. It never builds load SQL and never
   touches target tables.
 - **How it runs:** an anonymous Snowflake Scripting block, run by hand from a Snowflake Workspace.
-- **Inputs:** one database and one schema (both required), plus an optional list of one or more tables.
-
-§2 lists what changed.
+- **Inputs:** one database and one schema (both required; **any** database or schema), plus an optional
+  list of one or more tables.
 
 Reviewed: `solution_design.md` (this folder). Cross-checked against current Snowflake and Qlik Replicate
 docs.
@@ -26,13 +26,13 @@ The real DDL makes the planner **simpler and safer** than the generic design. Ev
 2. **Split a day only when it is too big for one chunk.** First try `GRS_REFINED_TIMESTAMP` ranges within
    that day. If that can't split it, use hash buckets on `GRS_UNIQUE_ID`, which always produces even
    pieces.
-3. **Detect the layer from the DDL, not from SCD date columns.** `EFFCTV_TS` / `EXPRTN_TS` appear in
-   **both** tables. They are the source system's own validity dates, so the SCD rule from revision 4
-   (look for `row_effective_date` / `row_expiration_date`) would get every table wrong. The partition
-   columns and hash columns identify the layer reliably.
-4. **CURRENT tables change in place, so a plan is only valid at one point in time.** The planner records
-   that point (`PROFILED_AT`), and the loader must read `AT` it. Time Travel retention has to cover the gap
-   between planning and loading.
+3. **Decide from each table's own partition setup, not from its layer or database name.** The script has
+   to work on any database and schema. So it reads which columns the table is actually partitioned on,
+   and uses that. CURRENT vs HISTORY only changes which partition columns exist. It's recorded for
+   information, not used to decide. `EFFCTV_TS` / `EXPRTN_TS` are source business dates present in both
+   layers, so they say nothing about the table type.
+4. **Record the point in time the plan describes (`PROFILED_AT`).** CURRENT tables change in place. How the
+   loader uses this is the loader's concern; retention is confirmed out of scope.
 5. **Store timestamp boundaries as `TIMESTAMP_TZ`, not `TIMESTAMP_NTZ`.** Every timestamp column here is
    `TIMESTAMP_LTZ`. Comparing an LTZ column with an NTZ value applies the reader's session time zone, which
    can shift chunk edges by hours.
@@ -52,18 +52,31 @@ hold (§5, §7).
 | Validate inputs; isolate failures to one table | IDMC (deferred), Tasks, stored procedures |
 | Run as an anonymous block from a Snowflake Workspace | |
 
+## 1a. Decisions recorded (2026-10-05)
+
+| # | Decision |
+|---|---|
+| D1 | The script must handle **any database and schema**, CURRENT or HISTORY. The decision is driven by each table's partition setup and columns, never by database or schema names (§3.3) |
+| D2 | Time Travel retention is **not a planner concern**. The planner records `PROFILED_AT` for information |
+| D3 | The metadata location is set by variables at the top of the script, `metadata_database = 'test_db'` and `metadata_schema = 'test_schema'`, to be updated by hand once finalised (§5.1) |
+| D4 | Whether `GRS_PROCESS_DATE` is derived from `GRS_REFINED_TIMESTAMP` is **unknown**. The design no longer depends on it: a split-day chunk is always "this day **and** this timestamp range" |
+| D5 | The layer type (append-only vs updated) doesn't matter. All data is loaded either way, and the goal is only to decide chunking |
+| D6 | **If a table's chunking can't be decided, that table gets status `FAILED` with the reason, and the script moves on to the next table.** The run never stops because of one table |
+| D7 | No script yet |
+
 ---
 
 ## 2. What changed from revision 4
 
 | Revision 4 | Revision 5 |
 |---|---|
-| Generic candidate list (partition column, landing timestamp, `row_effective_date`, surrogate key, other dates), scored per table | **One fixed approach** for the standard structure: partition days, then an in-day split. Business columns are never candidates (§4) |
+| Generic candidate list (partition column, landing timestamp, `row_effective_date`, surrogate key, other dates), scored per table | **One decision procedure**: partition days, then an in-day split, with fallbacks for non-standard tables. Business columns are never candidates (§4) |
 | SCD2 detected by `row_effective_date` / `row_expiration_date` | **Layer detected** by partition columns + hash columns + database name (§3.3) |
 | `EXPLAIN` pruning probe per candidate | **Not needed.** Whole-day chunks skip other files by definition. The probe stays only as a test for the loader's HISTORY-table filter (§9) |
 | Window-function cut over hour buckets | **Simple loop over days.** The list has one row per day, so it's small (§8) |
 | Timestamp boundaries `TIMESTAMP_NTZ` | **`TIMESTAMP_TZ`** (§6, F7) |
-| `PROFILED_AT` recorded as a convenience | **A requirement for CURRENT tables** (F8) |
+| `PROFILED_AT` recorded as a convenience | Revision 5 made it a loader requirement. **Revision 6: recorded for information only** (D2) |
+| Layer detected by partition + hash columns + database name (rev 5) | **Revision 6: database name not used.** The chunk axis comes from the actual partition spec. Layer is informational (D1, §3.3) |
 
 ---
 
@@ -95,69 +108,163 @@ business columns.** That is what lets one script handle every table.
 | Iceberg file row counts | Can overstate rows: v3 tables updated in place may carry deletion vectors | Exact, since nothing is deleted |
 | Catalog | Snowflake-managed (`CATALOG = 'SNOWFLAKE'`), Iceberg v3 | Same |
 
-**A point to confirm (Q1).** By its DDL, the HISTORY table is a **change log**. It has the CDC operation
+**A note on terminology (D5: it does not affect chunking).** By its DDL, the HISTORY table is a **change log**. It has the CDC operation
 (`OP`), the change sequence, and before/after hashes (`LAST_ROW_HASH` / `NEW_ROW_HASH`). It is not an SCD2
 table with dates that Zone1 maintains. The validity dates (`EFFCTV_TS` / `EXPRTN_TS`) come from the source
 and appear in the CURRENT table too. This doesn't change chunking. It does matter to anyone who assumes
 "SCD2" means one open version per key.
 
-### 3.3 Detecting the layer from the DDL
+### 3.3 What the script reads about each table (metadata only, no data scanned)
 
-| Signal | CURRENT | HISTORY |
+| What | From | Used for |
 |---|---|---|
-| Partition columns present | `GRS_PROCESS_DATE` | `GRS_PROCESS_YEAR/MONTH/DAY` |
-| Hash columns present | `ROW_HASH` | `NEW_ROW_HASH` + `LAST_ROW_HASH` |
-| Database name contains | `CURRENT` | `HISTORY` |
+| Is it an Iceberg table? | `INFORMATION_SCHEMA.TABLES.IS_ICEBERG` | Scope |
+| **Which columns it is partitioned on, and how** (identity, `DAY(…)`, `MONTH(…)` …) | `partition_specs` from `SHOW ICEBERG TABLES`, or the `PARTITION BY` clause from `GET_DDL` | **Choosing the chunk axis** (§4.2) |
+| Column names and types | `INFORMATION_SCHEMA.COLUMNS` | Finding `GRS_REFINED_TIMESTAMP`, `GRS_UNIQUE_ID`, and the partition columns' types |
+| Size in bytes, and file row counts | `ICEBERG_TABLE_FILES` | Small-table test; average row size |
+| Layer, for information | `ROW_HASH` vs `NEW_ROW_HASH`/`LAST_ROW_HASH` present | Shown in the metadata only. Never decides anything |
 
-- **All three signals agree** → the layer is decided.
-- **They disagree, or a required column is missing** (the partition column, `GRS_REFINED_TIMESTAMP`, or
-  `GRS_UNIQUE_ID`) → the table is `PLAN_FAILED` with a message naming what's missing. CONFIG can override
-  the layer for a known exception.
-- The block also confirms the table is **actually partitioned** on those columns, using the
-  `partition_specs` from `SHOW ICEBERG TABLES` or `GET_DDL`. If it isn't, chunking still works, but the
-  plan records that skipping files is not guaranteed.
+Nothing here depends on the database or schema name, so the same script works anywhere (D1).
 
 ---
 
-## 4. Chunking approach for this structure
+## 4. How the chunking technique is chosen
 
-### 4.1 Procedure per table
+### 4.1 Same rules for every table, different result per table
+
+There is **one decision procedure**, applied the same way to every table, so results are consistent and
+easy to review. What it produces is **different per table**, because it is driven by that table's own
+information and data:
+
+| What adapts | Driven by | Example |
+|---|---|---|
+| **Chunk axis**: which column(s) divide the chunks | The table's partition spec (§4.2) | `GRS_PROCESS_DATE` on CURRENT tables; `GRS_PROCESS_YEAR/MONTH/DAY` on HISTORY tables |
+| **Rows per chunk** | One size target in bytes ÷ this table's average row size | A wide table gets fewer rows per chunk than a narrow one, so both produce similarly sized chunks |
+| **Chunk ranges**: how many days each chunk covers | How many rows each day holds | Quiet periods → one chunk spans hundreds of days; busy periods → a few days per chunk |
+| **Whether a day is split, and how** | Rows in that day, and whether `GRS_REFINED_TIMESTAMP` spreads within it | A bulk backfill day of 600M rows becomes ~12 pieces; a normal day stays whole |
+| **Single chunk or not** | Table size | A small reference table → one chunk, no ranges |
+
+So the approach is fixed, but the technique and the ranges are tailored to each table automatically.
+Nothing is hand-tuned per table. CONFIG can still override the size target for a specific table.
+
+### 4.2 Step 1: choose the chunk axis from the table information
+
+The first row that matches wins:
+
+| Table information | Chunk axis | File skipping |
+|---|---|---|
+| Partitioned on a DATE column, identity (e.g. `GRS_PROCESS_DATE`) | **Partition day** | **Guaranteed** |
+| Partitioned on year/month/day INT columns (e.g. `GRS_PROCESS_YEAR/MONTH/DAY`) | **Partition day**, the three combined into one date | **Guaranteed** |
+| Partitioned with a time transform on a timestamp (`DAY(ts)`, `MONTH(ts)`, `YEAR(ts)`, `HOUR(ts)`) | **Partition period** at that transform's granularity | **Guaranteed** |
+| Not partitioned on a date (or other transforms, not seen in the reference DDL), but has `GRS_REFINED_TIMESTAMP` | **`GRS_REFINED_TIMESTAMP` ranges** across the table | Depends on file layout. Not guaranteed |
+| No date partition and no `GRS_REFINED_TIMESTAMP`, but has `GRS_UNIQUE_ID` | **Hash buckets** on `GRS_UNIQUE_ID` | None: each chunk reads the whole table |
+| None of the above | — | Table → **`FAILED`**: "no usable chunk column" (D6) |
+
+Both reference DDLs land in the first two rows. The last three rows are there so that a table which
+doesn't follow the standard structure still gets planned, or fails cleanly, instead of stopping the run.
+
+### 4.3 Step 2: set the size target for this table
+
+`TARGET_ROWS = TARGET_BYTES_PER_CHUNK ÷ AVG_ROW_BYTES`, capped at `MAX_ROWS_PER_CHUNK`. The average row size
+is the table's Iceberg file bytes ÷ its rows. If the whole table is at or below `SMALL_TABLE_BYTES` → **one
+chunk**, and the procedure stops here.
+
+### 4.4 Step 3: profile along the axis
+
+Count rows per partition day. This reads only the partition column(s), so it's cheap (§8.1). It gives the
+exact total row count, and shows whether any partition values are NULL.
+
+### 4.5 Step 4: cut the days into chunks, splitting only the days that are too big
 
 ```
-0. Layer + structure check (§3.3)                     → PLAN_FAILED if not standard
-1. Total bytes ≤ SMALL_TABLE_BYTES                    → 1 chunk (ALL)
-2. Rows per partition day (cheap: one small column)  → day list, plus a count of NULL partitions
-3. Walk the days in order, accumulating rows:
-     day_rows > TARGET_ROWS          → close the open chunk; split this day (step 4)
-     acc + day_rows > TARGET_ROWS    → close the open chunk; start a new one with this day
-     else                            → add the day to the open chunk
-4. Split one oversized day:
-     a. rows per minute of GRS_REFINED_TIMESTAMP inside that day (reads only that day)
-        no NULLs and largest minute ≤ TARGET_ROWS → DAY_SUBRANGE chunks on GRS_REFINED_TIMESTAMP
-     b. otherwise                                → DAY_HASH: n = CEIL(day_rows / TARGET_ROWS) buckets
-                                                    on HASH(GRS_UNIQUE_ID) within the day
-5. NULL partition values (if any)                     → one NULL_PARTITION chunk
-6. Check Σ chunk rows = table rows                    → else PLAN_FAILED
+walk the days in order, keeping a running total for the open chunk:
+  day_rows > TARGET_ROWS            → close the open chunk; split this day (below)
+  running + day_rows > TARGET_ROWS  → close the open chunk; start a new one with this day
+  otherwise                         → add the day to the open chunk
+
+split one oversized day:
+  a. count rows per minute of GRS_REFINED_TIMESTAMP inside that day (reads only that day)
+     no NULLs and no single minute > TARGET_ROWS → DAY_SUBRANGE chunks: this day AND a timestamp range
+  b. otherwise                                  → DAY_HASH chunks: this day AND hash bucket b of n,
+                                                   n = CEIL(day_rows / TARGET_ROWS)
+
+NULL partition values (if any) → one NULL_PARTITION chunk
+finally: Σ chunk rows must equal the table's rows, otherwise the table → FAILED
 ```
 
-`TARGET_ROWS` = `TARGET_BYTES_PER_CHUNK / AVG_ROW_BYTES`, capped at `MAX_ROWS_PER_CHUNK`. The average row
-size comes from the table's Iceberg file sizes divided by its rows.
+Each split piece is always "this day **and** …". So it stays inside its day, whether or not
+`GRS_PROCESS_DATE` is derived from `GRS_REFINED_TIMESTAMP` (D4).
 
-### 4.2 Why this order
+### 4.6 Which technique is "best optimized"
 
-| Choice | Reason |
-|---|---|
-| Partition days first | Skipping other files is **guaranteed**, because a whole-day chunk maps exactly to that day's partition. It is also what Zone1 already uses to organise the data |
-| `GRS_REFINED_TIMESTAMP` to split a day | It's on every table, never NULL by design (check that), and records written into a day partition likely arrive in roughly refined-timestamp order, so the split pieces should still skip files within the day |
-| `GRS_UNIQUE_ID` hash as the last resort | It always splits, into exactly even pieces, whatever the data looks like. That covers a bulk backfill that stamped one refined timestamp on millions of rows. The cost: each hash piece reads the whole day. That's acceptable because it only happens for oversized days |
-| No business columns | Their names vary by table and some change in place. The `GRS_*` columns are standard and suffice |
+"Optimized" here means three things, in this order:
+1. **Each chunk reads as little as possible beyond its own rows**, by skipping files.
+2. **Chunks are close to the target size and similar to each other.**
+3. **There are as few chunks as the target allows.**
 
-### 4.3 What to expect on real data
+The techniques rank like this, and the procedure always uses the best one a table's information and data
+allow, **decided day by day**:
 
-The Teradata backfill landed in the HISTORY layer within a short window. So, very likely, **a handful of
-`GRS_PROCESS_*` days hold most of the history**, and step 4 will do much of the work for history tables.
-That is exactly why the in-day split exists. The reconnaissance in §9 will show it before the script is
-trusted.
+| Rank | Technique | What a chunk reads | Chunk size accuracy | Used when |
+|---|---|---|---|---|
+| 1 | **Whole partition days** (`DAY_RANGE`) | Only its own days' files | Within one day's rows of the target | Default for every partitioned table |
+| 2 | **Day + `GRS_REFINED_TIMESTAMP` sub-range** (`DAY_SUBRANGE`) | Only that day's files, often only part of them | Within one minute's rows of the target | A day bigger than the target, with timestamps spread out |
+| 3 | **Day + hash bucket** (`DAY_HASH`) | All of that day's files, once per bucket | Exactly even | A day bigger than the target that the timestamp can't split (e.g. a bulk load stamped with one timestamp) |
+| 4 | **`GRS_REFINED_TIMESTAMP` range over the whole table** | Depends on file layout; possibly the whole table | Within one minute's rows | Table not partitioned on a date |
+| 5 | **Hash bucket over the whole table** | The whole table, every chunk | Exactly even | Last resort |
+
+One table can mix ranks 1–3. For example, most days are grouped whole, while one backfill day is split
+into hash buckets.
+
+**Columns that are never used**, and why:
+- **Business dates and keys** (`EFFCTV_TS`, `*_ID`, …): names differ per table, some change in place, and
+  none of them is the partition column.
+- **`CHANGE_SEQ_NUM` and `AR_H_TIMESTAMP`**: stored as strings.
+- **`GRS_LANDING_DATE`**: also a string.
+
+### 4.7 Worked examples
+
+The numbers are illustrative only, with `TARGET_ROWS` = 50M.
+
+**A — HISTORY table, 1.2B rows, mostly one Teradata backfill**
+
+| Days | Rows | Result |
+|---|---|---|
+| 2026-08-14 | 620M | Too big → split. Timestamps spread → ~13 `DAY_SUBRANGE` chunks. One timestamp → 13 `DAY_HASH` chunks |
+| 2026-08-15 | 380M | Too big → split into ~8 chunks the same way |
+| 2026-08-16 … 2026-10-04 (50 days × 4M) | 200M | Grouped whole: 12 days per chunk (48M) → 5 `DAY_RANGE` chunks: 4 × 12 days + 1 × 2 days |
+| **Total** | 1.2B | **~26 chunks**, all similar in size |
+
+**B — CURRENT table, 300M rows over ~4 years, busier in recent periods** (updated rows move to recent
+dates)
+
+| Days | Rows | Result |
+|---|---|---|
+| Oldest 1,000 days (50k/day) | 50M | 1 chunk covering ~1,000 days |
+| Next 200 quiet days + 50 busy days (800k/day) | 50M | 1 chunk covering 250 days |
+| Last 250 busy days | 200M | 62 days per chunk → 5 chunks (4 × 62 days + 1 × 2 days) |
+| **Total** | 300M | **7 chunks**, from 1,000 days down to 2 days wide, all about 50M rows |
+
+**C — small reference table, 2M rows, 300 MB** → below `SMALL_TABLE_BYTES` → **1 chunk** (`ALL`).
+
+**D — a table in another schema, not partitioned, with `GRS_REFINED_TIMESTAMP`** → rank 4: timestamp ranges
+across the table. The plan records that file skipping isn't guaranteed.
+
+**E — a table with no date partition, no `GRS_REFINED_TIMESTAMP` and no `GRS_UNIQUE_ID`** → status
+**`FAILED`**: "no usable chunk column". The run carries on with the next table (D6).
+
+### 4.8 How each chunk's range is set
+
+- **Half-open ranges.** A row is in a chunk when `start ≤ value < end`, so each chunk's `end` is the next
+  chunk's `start`. No row can fall in two chunks or between them.
+- **Whole-day chunks**: `DAY_START` = the chunk's first day, `DAY_END` = the next chunk's first day. Days
+  with no data in between are covered automatically.
+- **Open ends**: the **very first** chunk gets `DAY_START = NULL` and the **very last** gets
+  `DAY_END = NULL`, meaning unbounded, but only when that chunk is a whole-day range.
+- **Split day**: `DAY_START = that day`, `DAY_END = the next day`, plus either a `GRS_REFINED_TIMESTAMP`
+  range or a hash bucket number. Within the day, the first piece's timestamp start and the last piece's
+  timestamp end are open.
+- **NULL partition values**: a separate `NULL_PARTITION` chunk.
 
 ---
 
@@ -173,12 +280,20 @@ DECLARE
     p_tables        VARCHAR DEFAULT '';      -- '' = all Iceberg tables in the schema
                                              -- or e.g. 'PRDSCT1D_SCOUT_APLD_COVRG_INSRBL_OBJ, PRDSCT1D_SCOUT_X'
     p_force_replan  BOOLEAN DEFAULT FALSE;
+
+    -- ====== METADATA LOCATION: update by hand once finalised (D3) ======
+    metadata_database VARCHAR DEFAULT 'test_db';
+    metadata_schema   VARCHAR DEFAULT 'test_schema';
     -- =================================================================
     ...
 BEGIN
     ...
 END;
 ```
+
+The variables are declared at the top of the block, in `DECLARE`. Assigning them with `LET` at the very
+start of `BEGIN` works too; either way they stay in one visible place. The four metadata tables are always
+read and written as `metadata_database.metadata_schema.<table>`.
 
 Inputs are not passed as session variables (`SET`), because a session variable's string value is capped
 at **256 bytes**. A list of a few table names with these long names, about 40 characters each, would
@@ -210,7 +325,9 @@ exceed it.
   rows, any error. The same information is saved in `HIST_PLAN_RUN` / `HIST_PLAN_TABLE`.
 - **Errors**:
   - Validation errors `RAISE` and nothing is written.
-  - A problem with one table is recorded against it, and the run continues.
+  - **Any problem with one table** marks that table `FAILED` in `HIST_PLAN_TABLE`, with the reason in
+    `ERROR_MESSAGE`, and the run continues with the next table (D6). Examples: no usable chunk column, a
+    permission error, a profiling query error, or a row-sum mismatch.
 - **Interruptions**: each table commits separately, so a cancelled run keeps the finished tables.
   Re-running continues with the rest, and the interrupted run's log row is marked `ABORTED`.
 
@@ -224,14 +341,15 @@ exceed it.
 |---|---|
 | `PLAN_ID`, `RUN_ID` | Plan identity; the run that produced it |
 | `DATABASE_NAME`, `SCHEMA_NAME`, `TABLE_NAME` | The Iceberg table |
-| `LAYER` | `CURRENT` / `HISTORY` (§3.3) |
+| `LAYER` | `CURRENT` / `HISTORY` / `UNKNOWN`. For information only (§3.3) |
+| `CHUNK_AXIS` | `PARTITION_DAY` / `PARTITION_PERIOD` / `REFINED_TS_RANGE` / `UNIQUE_ID_HASH` (§4.2) |
 | `PARTITION_COLUMNS` | `GRS_PROCESS_DATE`, or `GRS_PROCESS_YEAR,GRS_PROCESS_MONTH,GRS_PROCESS_DAY` |
 | `PARTITION_VERIFIED` | Whether the Iceberg partition spec confirms those columns |
 | `CHUNK_METHOD` | `SINGLE` / `PARTITION_DAYS` (all chunks whole days) / `PARTITION_DAYS_WITH_SPLITS` (some days split) |
 | `PROFILED_AT` (`TIMESTAMP_TZ`) | The point in time the plan describes. The loader reads `AT` this (F8) |
 | `TOTAL_ROWS`, `TOTAL_BYTES`, `COLUMN_COUNT`, `AVG_ROW_BYTES` | Profile |
 | `DAY_COUNT`, `SPLIT_DAY_COUNT`, `CHUNK_COUNT`, `TARGET_ROWS_PER_CHUNK` | Result, and the target used |
-| `IS_ACTIVE`, `PLAN_STATUS` | One active plan per table. Status is `PLANNED` / `PLAN_FAILED` / `SUPERSEDED` |
+| `IS_ACTIVE`, `PLAN_STATUS` | One active plan per table. Status is `PLANNED` / `FAILED` / `SUPERSEDED` (D6) |
 | `ERROR_MESSAGE`, `PLANNED_AT` | Audit |
 
 **`HIST_PLAN_CHUNK`**: one row per chunk. Key: `(PLAN_ID, CHUNK_SEQ)`.
@@ -240,7 +358,7 @@ exceed it.
 |---|---|
 | `PLAN_ID`, `CHUNK_SEQ` | Identity and order |
 | `CHUNK_TYPE` | `ALL` / `DAY_RANGE` / `DAY_SUBRANGE` / `DAY_HASH` / `NULL_PARTITION` |
-| `DAY_START`, `DAY_END` (`DATE`) | Partition days, half-open `[start, end)`. NULL = unbounded (first and last `DAY_RANGE` only). For a split day, `DAY_END = DAY_START + 1` |
+| `DAY_START`, `DAY_END` (`DATE`) | Partition days, half-open `[start, end)`. NULL = unbounded: only on the very first or very last chunk, and only if that chunk is a `DAY_RANGE`. For a split day, `DAY_END = DAY_START + 1` |
 | `SUB_COLUMN` | `GRS_REFINED_TIMESTAMP` for `DAY_SUBRANGE`; `GRS_UNIQUE_ID` for `DAY_HASH` |
 | `SUB_START_TS`, `SUB_END_TS` (`TIMESTAMP_TZ`) | `DAY_SUBRANGE` only. Half-open; NULL = open at the day edge |
 | `HASH_BUCKET`, `HASH_MODULUS` | `DAY_HASH` only. A row is in the chunk when `MOD(ABS(HASH(GRS_UNIQUE_ID)), HASH_MODULUS) = HASH_BUCKET` |
@@ -257,8 +375,8 @@ loader turns them back into year/month/day conditions (§9, loader note).
 - the run status.
 
 **`HIST_PLAN_CONFIG`**: `SCOPE` (`*` or `db.schema.table`), `TARGET_BYTES_PER_CHUNK`, `MAX_ROWS_PER_CHUNK`,
-`SMALL_TABLE_BYTES`, `SUBSPLIT_GRAIN` (default `MINUTE`), `MAX_HASH_BUCKETS_PER_DAY`. Per-table override:
-`FORCE_LAYER`.
+`SMALL_TABLE_BYTES`, `SUBSPLIT_GRAIN` (default `MINUTE`), `MAX_HASH_BUCKETS_PER_DAY`. Per-table override of
+any of these by `SCOPE`.
 
 ---
 
@@ -273,7 +391,7 @@ loader turns them back into year/month/day conditions (§9, loader note).
 | F5 | Important | CONFIG sized in rows only; `MIN_ROWS_TO_CHUNK = 1M` is very low; the "÷ columns" proxy | Size by bytes with a row cap; bytes threshold for small tables; column count kept for information only |
 | F6 | Minor | "No open questions left"; Task and two invocation paths | Questions in §10; one path (Workspace) |
 | **F7** | **Critical** | All timestamp columns are `TIMESTAMP_LTZ`. NTZ or `VARIANT` boundaries are read in whatever session time zone the loader uses, which can shift edges by hours | Store `SUB_*_TS` as `TIMESTAMP_TZ`; set `TIMEZONE = 'UTC'` at the top of the block, because `DATE_TRUNC` on LTZ depends on it |
-| **F8** | **Critical** | CURRENT tables change in place, and an update moves a row to a new `GRS_PROCESS_DATE`. If the loader reads the live table, rows changed between plan and load are missed or loaded twice | Record `PROFILED_AT`; the loader must read `AT(TIMESTAMP => PROFILED_AT)`. Snowflake-managed Iceberg supports Time Travel, but retention (`DATA_RETENTION_TIME_IN_DAYS`, often 1 day by default) must cover the gap between plan and load (Q3) |
+| **F8** | Important (loader) | CURRENT tables change in place, and an update moves a row to a new `GRS_PROCESS_DATE`. If the loader reads the live table, rows changed between plan and load are missed or loaded twice | Record `PROFILED_AT` in the plan. How the loader handles changes after it is the loader's concern; retention was confirmed out of scope (D2) |
 
 ---
 
@@ -314,7 +432,8 @@ FOR d IN day_cursor DO                       -- ordered by process_day, NULL day
 END FOR;
 ```
 
-The first `DAY_RANGE` gets `DAY_START = NULL` and the last gets `DAY_END = NULL`. Days with no data
+The very first chunk gets `DAY_START = NULL` and the very last gets `DAY_END = NULL`, when they are
+`DAY_RANGE` chunks. Days with no data
 between two chunks are absorbed automatically, because each chunk ends where the next begins.
 
 ### 8.3 Splitting an oversized day by `GRS_REFINED_TIMESTAMP`
@@ -371,17 +490,16 @@ FROM   TABLE(INFORMATION_SCHEMA.ICEBERG_TABLE_FILES(TABLE_NAME => :fq_table));
 
 ## 10. Open questions
 
+Answered on 2026-10-05: metadata location (D3), retention (D2), CURRENT vs HISTORY scope (D1), layer
+semantics (D5), per-table failure handling (D6). Whether the process date is derived from the refined
+timestamp is unknown, but the design no longer depends on it (D4).
+
 | # | Question | Why it matters |
 |---|---|---|
-| Q1 | Is HISTORY an **append-only change log** (one row per CDC change), as its DDL suggests, rather than an SCD2 table with Zone1-maintained dates? | Wording and downstream expectations; chunking is unaffected |
-| Q2 | Which database and schema should hold the four metadata tables? | Where the block writes, and the permissions it needs |
-| Q3 | How long between planning and loading? What is `DATA_RETENTION_TIME_IN_DAYS` on the CURRENT/HISTORY databases? | F8: the loader can only read `AT(PROFILED_AT)` within retention |
-| Q4 | Will the historical load read **CURRENT tables, HISTORY tables, or both**? | Both work. It decides whether F8 is in play at all |
-| Q5 | What target chunk size should be the starting default? | CONFIG. Placeholder until the load team decides |
+| Q5 | What target chunk size (bytes) should be the starting default? | CONFIG placeholder until the load team decides |
 | Q6 | Keep `STATUS` on the chunk table (the planner writes `PENDING`, the loader owns it after that), or should the loader keep its own status table? | Ownership |
-| Q7 | One bad name in the table list: fail the whole run (recommended) or plan the valid ones? | §5.2 |
+| Q7 | A **mistyped name in the input table list** (not found, or not Iceberg): fail the whole run before anything is written (recommended), or record it as `FAILED` like D6 and carry on? | §5.2. D6 covers tables that exist but can't be chunked; this is about bad input |
 | Q8 | Skip and report non-Iceberg tables when no list is given (recommended)? | §5.2 |
-| Q9 | Is `GRS_PROCESS_DATE` (and year/month/day) derived from `GRS_REFINED_TIMESTAMP`, from `GRS_RAW_TIMESTAMP`, or set independently? | Confirms that splitting a day on `GRS_REFINED_TIMESTAMP` stays inside that day |
 
 ---
 
@@ -395,7 +513,7 @@ FROM   TABLE(INFORMATION_SCHEMA.ICEBERG_TABLE_FILES(TABLE_NAME => :fq_table));
 | Snowflake-managed Iceberg tables with `PARTITION BY` write partition metadata used for file skipping; identity transform = the raw column value | Snowflake "Partitioning for Apache Iceberg tables" docs (via search extract) |
 | Comparing LTZ with NTZ interprets the NTZ value in the session time zone | Snowflake date/time docs (via search extract) |
 | Snowsight runs blocks without `EXECUTE IMMEDIATE`; session variables are capped at 256 bytes | Snowflake docs (via search extract) |
-| Snowflake-managed Iceberg supports Time Travel | Snowflake Iceberg docs (via search extract). The retention value on these databases is **unknown** (Q3) |
+| Snowflake-managed Iceberg supports Time Travel | Snowflake Iceberg docs (via search extract). Retention is not a planner concern (D2) |
 | Iceberg file row counts don't subtract deletes or deletion vectors | Snowflake Iceberg docs and release notes (via search extract) |
 | All SQL in §8 | Written for this review, **not executed** |
 
