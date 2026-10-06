@@ -187,48 +187,9 @@ ol.steps li b{color:var(--navy);}
 /* ---------- decision option tables ---------- */
 table.opt td.id{width:56px;}
 table.opt tr.pick td{background:var(--teal-1);}
-table.opt tr.pick td.id{color:var(--navy);}
-table.opt tr.alt td{background:#FAFAF8;}
-table.opt tr.alt td.id{color:var(--g9);}
-table.opt td.big{font-size:26px;font-weight:700;color:var(--navy);text-align:center;line-height:1.1;}
-table.opt td.big.hot{color:var(--red);}
-th.nw{width:88px;text-align:center;}
 table.opt.tight td{padding:6px 10px;}
 table.opt.tight th{padding:7px 10px;}
-.recbar{border:1px solid var(--teal-2);background:var(--teal-1);padding:8px 13px;
-  font-size:14.5px;color:var(--teal-dp);line-height:1.4;margin-top:10px;}
-.recbar b{color:var(--navy);}
-.pbar{position:relative;height:13px;background:var(--g1);border:1px solid var(--g2);}
-.pbar i{position:absolute;left:0;top:0;bottom:0;background:var(--teal);}
-.pv{display:block;font-size:13px;color:var(--g11);margin-top:3px;}
-.keys{display:block;font-size:13px;color:var(--g11);line-height:1.5;margin-top:5px;
-  border-top:1px dashed var(--g2);padding-top:5px;}
-.keys b{color:var(--teal-dp);}
-.agenda.tight .item{font-size:16px;margin-bottom:5px;}
-.agenda.tight .sec{margin:10px 0 5px;}
-
-/* ---------- magnitude comparison bars ---------- */
-.mbar{margin:12px 0 0;}
-.mbar .h{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-.mbar .tr{position:relative;height:17px;background:var(--g1);border:1px solid var(--g2);}
-.mbar .fl{position:absolute;left:0;top:0;bottom:0;background:var(--teal);}
-.mbar .fl.hot{background:var(--red);}
-.mbar .vv{font-size:13.5px;color:var(--g11);margin-top:3px;}
-.mbar .vv b{color:var(--navy);}
-
-/* ---------- arithmetic vs judgement examples ---------- */
-.scen.jud{border-left-color:var(--orange);background:#FFFCF5;}
-.scen.cmp{padding:9px 16px 10px;margin-bottom:8px;}
-.scen.cmp .res{margin-top:8px;}
-.calc{font-family:var(--mono);font-size:13.5px;color:var(--teal-dp);line-height:1.45;}
-.calc .cl{display:flex;justify-content:space-between;gap:18px;}
-.calc .cl b{color:var(--navy);white-space:nowrap;}
-.calc .cl.tot{border-top:1px solid var(--g2);margin-top:5px;padding-top:5px;}
-.calc.soft{color:var(--g11);}
-.calc.soft b{color:var(--navy);}
-.calc.soft .hr{border-top:1px solid var(--g2);margin:7px 0;}
-.who{font-size:13px;color:var(--g11);line-height:1.4;margin:7px 0 0;}
-.who b{color:var(--navy);}
+table.opt tr.pick td.id{color:var(--navy);}
 
 /* ---------- log-scale premium range chart ---------- */
 .rchart{border:1px solid var(--g2);background:var(--white);padding:8px 18px 8px;}
@@ -286,13 +247,12 @@ table.opt.tight th{padding:7px 10px;}
     <div class="navsec">Requirements</div>
     <button class="tab" role="tab" data-target="s3" aria-selected="false" aria-controls="s3"><span class="tnum">03</span>Requirements &amp; open decisions</button>
     <div class="navsec">Decisions needed</div>
-    <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>D8 &mdash; Which kinds of check</button>
-    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>D1 &mdash; What is an anomaly</button>
+    <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>D1 &mdash; What is an anomaly</button>
     <div class="navsec">Solution</div>
-    <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>Options &amp; direction</button>
-    <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>Snowflake features, used how</button>
-    <button class="tab" role="tab" data-target="s8" aria-selected="false" aria-controls="s8"><span class="tnum">08</span>ML anomaly detection</button>
-    <button class="tab" role="tab" data-target="s9" aria-selected="false" aria-controls="s9"><span class="tnum">09</span>Answers &amp; next steps</button>
+    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>Options &amp; direction</button>
+    <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>Snowflake features, used how</button>
+    <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>ML anomaly detection</button>
+    <button class="tab" role="tab" data-target="s8" aria-selected="false" aria-controls="s8"><span class="tnum">08</span>Answers &amp; next steps</button>
   </div>
   <div class="navhint">
     <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
@@ -310,7 +270,7 @@ table.opt.tight th{padding:7px 10px;}
       <div class="eyebrow">Data Quality Monitoring</div>
       <h1>Catching unreasonable premium values &mdash; not just missing or lost ones</h1>
       <div class="rule"></div>
-      <p class="lede">Current controls prove premium data arrives <b>complete</b>. This shows how to also check that premium values are <b>reasonable</b> &mdash; and puts <b>named options</b> against the decisions that determine what actually gets built, so this review confirms a choice rather than defining one.</p>
+      <p class="lede">Current controls prove premium data arrives <b>complete</b>. This shows how to also check that premium values are <b>reasonable</b> &mdash; and puts <b>named options</b> against D1, the decision that determines what actually gets built, so this review confirms a choice rather than defining one.</p>
       <div class="meta">
         <b>Basis</b> &nbsp;Internal design discussion (18 Sep) + Snowflake documentation<br>
         <b>Audience</b> &nbsp;CDE review<br>
@@ -324,16 +284,15 @@ table.opt.tight th{padding:7px 10px;}
       <div class="sec">Requirements</div>
       <div class="item"><span class="k">2</span>What the monitoring must do &mdash; and what is open</div>
       <div class="sec">Decisions needed</div>
-      <div class="item"><span class="k">3</span>D8 &mdash; Arithmetic checks vs judgement calls</div>
-      <div class="item"><span class="k">4</span>D1 &mdash; What counts as an anomaly?</div>
+      <div class="item"><span class="k">3</span>D1 &mdash; What counts as an anomaly?</div>
       <div class="sec">Solution</div>
-      <div class="item"><span class="k">5</span>Options considered and the direction</div>
-      <div class="item"><span class="k">6</span>Snowflake features &mdash; which one, used how</div>
-      <div class="item"><span class="k">7</span>ML anomaly detection for premium trends</div>
-      <div class="item"><span class="k">8</span>Answers, next steps and what is still to be checked</div>
+      <div class="item"><span class="k">4</span>Options considered and the direction</div>
+      <div class="item"><span class="k">5</span>Snowflake features &mdash; which one, used how</div>
+      <div class="item"><span class="k">6</span>ML anomaly detection for premium trends</div>
+      <div class="item"><span class="k">7</span>Answers, next steps and what is still to be checked</div>
     </div>
   </div>
-  <div class="slide-no">1 / 9</div>
+  <div class="slide-no">1 / 8</div>
 </section>
 
 <!-- ===================== SLIDE 2 — PROBLEM ===================== -->
@@ -380,13 +339,13 @@ table.opt.tight th{padding:7px 10px;}
   </div>
 
   <div class="takeaway">Both scenarios pass reconciliation &mdash; we need a validity check (is the value reasonable?) alongside it.</div>
-  <div class="slide-no">2 / 9</div>
+  <div class="slide-no">2 / 8</div>
 </section>
 
 <!-- ===================== SLIDE 3 — REQUIREMENTS ===================== -->
 <section class="slide" id="s3" role="tabpanel">
   <h2>What the monitoring must do &mdash; and what is still open</h2>
-  <p class="sub">Requirements from the discussion (R1&ndash;R11) and the decisions still to make (D1&ndash;D8)</p>
+  <p class="sub">Requirements from the discussion (R1&ndash;R11) and the decisions still to make (D1&ndash;D7)</p>
 
   <div class="cols c60">
     <div>
@@ -398,7 +357,7 @@ table.opt.tight th{padding:7px 10px;}
           <tr><td class="id">R2</td><td><b>Keep balance reconciliation</b> &mdash; source amount = loaded amount</td></tr>
           <tr><td class="id">R3</td><td><b>Flag premiums much higher or lower</b> than normal &mdash; spikes and drops</td></tr>
           <tr><td class="id">R4</td><td><b>Flag trend deviations</b> &mdash; latest week vs prior weeks, far from history</td></tr>
-          <tr><td class="id">R5</td><td><b>Work at both levels</b> &mdash; records for validity, weekly / monthly totals for trend <span class="chip ok">Amended</span></td></tr>
+          <tr><td class="id">R5</td><td><b>Work at aggregate level</b>, weekly and/or monthly &mdash; not record by record &nbsp;<span class="chip warn">See D7</span></td></tr>
           <tr><td class="id">R6</td><td><b>Run after load, separate from ETL</b> &mdash; no trend logic inside ETL</td></tr>
           <tr><td class="id">R7</td><td><b>Run automatically</b> on a schedule &mdash; no repeated manual runs &nbsp;<span class="chip warn">To confirm</span></td></tr>
           <tr><td class="id">R8</td><td><b>Produce DQ results, trend metrics, anomaly indicators</b> &mdash; kept as history</td></tr>
@@ -417,86 +376,22 @@ table.opt.tight th{padding:7px 10px;}
           <tr><td class="id">D2</td><td>Which <b>threshold variables</b>, and how is each measured against the data?</td></tr>
           <tr><td class="id">D3</td><td>Which <b>business scenarios</b> to detect?</td></tr>
           <tr><td class="id">D4</td><td><b>Who is notified</b>, on which channel?</td></tr>
-          <tr><td class="id">D5</td><td>Which premium <b>tables and columns</b> are in scope?</td></tr>
+          <tr><td class="id">D5</td><td>Which premium <b>tables and columns</b> are in scope?<span class="dsc">Also settles which arithmetic relationships can be checked</span></td></tr>
           <tr><td class="id">D6</td><td><b>Weekly, monthly</b>, or both?</td></tr>
-          <tr><td class="id">D7</td><td>Records, totals, or both? <span class="chip ok">Resolved &mdash; both</span><span class="dsc">R3 and R4 already require both; R5 amended</span></td></tr>
-          <tr><td class="id">D8</td><td>Which <b>families of check</b> &mdash; arithmetic, statistical, both? &nbsp;<span class="chip chk">Added</span></td></tr>
-        </tbody>
+          <tr><td class="id">D7</td><td>Do we check <b>records, totals, or both</b>? &nbsp;<span class="chip chk">Added</span><span class="dsc">R5 says totals only, but R3 is a record-level test &mdash; confirm which, and amend R5 to match</span></td></tr>
+                  </tbody>
       </table>
-      <div class="callout teal" style="margin-top:14px;"><b>Order matters:</b> D8 and D1&ndash;D3 first; who gets alerted (D4) last. <b>Slides 4 and 5 carry options for D8 and D1.</b></div>
+      <div class="callout teal" style="margin-top:14px;"><b>Order matters:</b> D7 and D1&ndash;D3 first; who gets alerted (D4) last. <b>Slide 4 carries named options for D1.</b></div>
       <p class="also" style="font-size:14px;"><span class="chip warn">To confirm</span> = our reading of the discussion. <span class="chip chk">Added</span> = raised in review, not in the original list.</p>
     </div>
   </div>
 
-  <div class="takeaway">Confirm R1&ndash;R11 and agree the open decisions &mdash; the next two slides put named options against D8 and D1.</div>
-  <div class="slide-no">3 / 9</div>
+  <div class="takeaway">Confirm R1&ndash;R11 and agree D1&ndash;D7 &mdash; the next slide puts named options against D1.</div>
+  <div class="slide-no">3 / 8</div>
 </section>
 
-<!-- ===================== SLIDE 4 — D8 CHECK FAMILIES ===================== -->
+<!-- ===================== SLIDE 4 — D1 WHAT COUNTS AS AN ANOMALY ===================== -->
 <section class="slide" id="s4" role="tabpanel">
-  <h2>D8 &mdash; Two families of check: one gives certainties, one gives judgement calls</h2>
-  <p class="sub">Only one of the two needs a business threshold agreed before it can be built</p>
-
-  <div class="cols">
-    <div>
-      <h3>Family 1 &mdash; Arithmetic: there is a definite right answer</h3>
-      <div class="scen cmp">
-        <div class="hd">Policy P-10044 &mdash; do the parts add up?</div>
-        <div class="calc">
-          <div class="cl"><span>Dwelling coverage</span><b>$820</b></div>
-          <div class="cl"><span>Liability coverage</span><b>$240</b></div>
-          <div class="cl"><span>Medical coverage</span><b>$60</b></div>
-          <div class="cl tot"><span>Sum of the coverages</span><b>$1,120</b></div>
-          <div class="cl"><span>Recorded total premium</span><b>$1,450</b></div>
-        </div>
-        <div class="res"><span class="chip no">Wrong, by $330</span> <span>No threshold to agree. Cannot be a false alarm.</span></div>
-      </div>
-      <p class="who"><b>Others here:</b> a cancellation must carry a negative premium; written must equal earned plus unearned; premium must sit in the filed rate band.</p>
-    </div>
-
-    <div>
-      <h3>Family 2 &mdash; Statistical: it is a judgement call</h3>
-      <div class="scen jud cmp">
-        <div class="hd">Policy P-20871 &mdash; premium of $1,000,000. Is it wrong?</div>
-        <div class="calc soft">
-          If this is a <b>commercial property schedule</b><br>
-          &nbsp;&nbsp;&rarr; entirely normal
-          <div class="hr"></div>
-          If this is a <b>homeowners policy</b><br>
-          &nbsp;&nbsp;&rarr; almost certainly a decimal error
-        </div>
-        <div class="res"><span class="chip warn">Unanswerable today</span> <span>Needs a group (D1) and a threshold (D2).</span></div>
-      </div>
-      <p class="who"><b>Others here:</b> premium spikes and drops <span class="rtag">R3</span>, trend deviations <span class="rtag">R4</span>. Every alert needs a person to adjudicate it.</p>
-    </div>
-  </div>
-
-  <h3 class="gap t2">Options</h3>
-  <table class="req opt tight">
-    <thead><tr><th class="id">ID</th><th>We build&hellip;</th><th>Can start</th><th>Trade-off</th></tr></thead>
-    <tbody>
-      <tr><td class="id">D8-A</td>
-          <td><b>Statistical checks only</b><span class="dsc">The deck's current direction</span></td>
-          <td>Only once D1 <i>and</i> D2 are agreed</td>
-          <td>Every alert is a maybe; nothing is built meanwhile</td></tr>
-      <tr><td class="id">D8-B</td>
-          <td><b>Arithmetic checks only</b></td>
-          <td>Immediately</td>
-          <td>No false alarms, but a wrong value that adds up is missed</td></tr>
-      <tr class="pick"><td class="id">D8-C</td>
-          <td><b>Arithmetic first, statistical after</b> <span class="chip ok">Recommended</span></td>
-          <td>Immediately, alongside agreeing D1 and D2</td>
-          <td>Two things to build &mdash; but the POC is never blocked</td></tr>
-    </tbody>
-  </table>
-  <div class="recbar"><b>Why D8-C:</b> arithmetic checks need no business decision to begin, so they take the POC off the critical path &mdash; and give this review something working to look at.</div>
-
-  <div class="takeaway">Arithmetic checks can start today and never cry wolf &mdash; statistical checks cannot start until D1 and D2 are answered.</div>
-  <div class="slide-no">4 / 9</div>
-</section>
-
-<!-- ===================== SLIDE 5 — D1 WHAT COUNTS AS AN ANOMALY ===================== -->
-<section class="slide" id="s5" role="tabpanel">
   <h2>D1 &mdash; &ldquo;Unusually high&rdquo; compared to <i>what</i>?</h2>
   <p class="sub">Premium is not one population &mdash; so the comparison group, not the number, is the real decision</p>
 
@@ -595,11 +490,11 @@ table.opt.tight th{padding:7px 10px;}
   </table>
 
   <div class="takeaway">No single number is &ldquo;too high&rdquo; for premium &mdash; until the comparison group is agreed, no threshold has any meaning.</div>
-  <div class="slide-no">5 / 9</div>
+  <div class="slide-no">4 / 8</div>
 </section>
 
-<!-- ===================== SLIDE 6 — OPTIONS & DIRECTION ===================== -->
-<section class="slide" id="s6" role="tabpanel">
+<!-- ===================== SLIDE 5 — OPTIONS & DIRECTION ===================== -->
+<section class="slide" id="s5" role="tabpanel">
   <h2>Three options discussed &mdash; Snowflake-native is preferred</h2>
   <p class="sub" style="margin-bottom:14px;">What each option is, and how it measures up against the requirements</p>
 
@@ -625,11 +520,11 @@ table.opt.tight th{padding:7px 10px;}
   </div>
 
   <div class="takeaway">Option 1 is the goal, option 2 is how we get there &mdash; the ETL jobs stay as they are.</div>
-  <div class="slide-no">6 / 9</div>
+  <div class="slide-no">5 / 8</div>
 </section>
 
-<!-- ===================== SLIDE 7 — SNOWFLAKE FEATURES, USED HOW ===================== -->
-<section class="slide" id="s7" role="tabpanel">
+<!-- ===================== SLIDE 6 — SNOWFLAKE FEATURES, USED HOW ===================== -->
+<section class="slide" id="s6" role="tabpanel">
   <h2>Which Snowflake feature does what for premium monitoring</h2>
   <p class="sub">All of it sits inside Snowflake Horizon Catalog &mdash; Snowflake's built-in catalog to find, govern and trust data</p>
 
@@ -654,11 +549,11 @@ table.opt.tight th{padding:7px 10px;}
   <p class="also"><b>Edition &amp; cost:</b> data quality monitoring needs Enterprise Edition; scheduled checks run on serverless compute. &nbsp;<span class="chip chk">To check</span> = release status or edition not confirmed in Snowflake docs yet.</p>
 
   <div class="takeaway">Everything runs inside Snowflake Horizon &mdash; no new tool, no data movement (R11).</div>
-  <div class="slide-no">7 / 9</div>
+  <div class="slide-no">6 / 8</div>
 </section>
 
-<!-- ===================== SLIDE 8 — ML ANOMALY DETECTION ===================== -->
-<section class="slide" id="s8" role="tabpanel">
+<!-- ===================== SLIDE 7 — ML ANOMALY DETECTION ===================== -->
+<section class="slide" id="s7" role="tabpanel">
   <h2>ML anomaly detection can watch premium trends automatically</h2>
   <p class="sub">Snowflake ML Functions &mdash; how it works, what it needs, and which detector fits which job</p>
 
@@ -697,11 +592,11 @@ table.opt.tight th{padding:7px 10px;}
   </table>
 
   <div class="takeaway">Use the right detector for the job &mdash; a rule for single bad records, ML for weekly and monthly trends.</div>
-  <div class="slide-no">8 / 9</div>
+  <div class="slide-no">7 / 8</div>
 </section>
 
-<!-- ===================== SLIDE 9 — ANSWERS & NEXT STEPS ===================== -->
-<section class="slide" id="s9" role="tabpanel">
+<!-- ===================== SLIDE 8 — ANSWERS & NEXT STEPS ===================== -->
+<section class="slide" id="s8" role="tabpanel">
   <h2>Answers for the review &mdash; and what is still to be checked</h2>
   <p class="sub">The questions raised in the discussion, answered against Snowflake documentation, with the requirement each meets</p>
 
@@ -720,7 +615,7 @@ table.opt.tight th{padding:7px 10px;}
     <div>
       <h3>Next steps</h3>
       <ol class="steps">
-        <li><b>Validate</b> R1&ndash;R11 and agree D1&ndash;D8</li>
+        <li><b>Validate</b> R1&ndash;R11 and agree D1&ndash;D7</li>
         <li>Confirm LM is on <b>Enterprise Edition</b> (required)</li>
         <li><b>Build and test</b> the premium outlier check on LM's account</li>
         <li>Set up <b>alerts</b> once D1&ndash;D4 are agreed</li>
@@ -738,7 +633,7 @@ table.opt.tight th{padding:7px 10px;}
   </div>
 
   <div class="takeaway">Trends and load volumes can be watched automatically; single bad records need a threshold we agree (D1, D2).</div>
-  <div class="slide-no">9 / 9</div>
+  <div class="slide-no">8 / 8</div>
 </section>
 
 </div>
