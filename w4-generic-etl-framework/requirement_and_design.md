@@ -13,6 +13,20 @@ create. Nothing is treated as settled because an earlier POC settled it.
 
 Status markers throughout: **CLOSED** · **PROPOSED** · **OPEN**.
 
+### Working method
+
+One topic at a time. A topic is discussed, finalised, then captured in **both** places before the next topic
+opens:
+
+| Artifact | Carries |
+|---|---|
+| **this document** | the reasoning — why a decision was taken, what was rejected, what it costs |
+| **`design_tracker.xlsx`** | the structured detail — one sheet per entity, ready to become seed config |
+
+The workbook's `decisions` and `open_questions` sheets mirror §9 and §10 here. **Change both together or
+they drift.** Sheets with only a yellow example row are not yet started; the example shows the expected
+format and is meant to be deleted.
+
 ---
 
 ## 1. Requirement

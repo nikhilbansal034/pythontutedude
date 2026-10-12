@@ -178,7 +178,11 @@ grouping.
 
 | File | What it is |
 |------|-----------|
-| `requirement_and_design.md` | Living design log — requirement, design principles, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions |
+| `requirement_and_design.md` | Living design log — requirement, design principles, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions. Carries the **reasoning** |
+| `design_tracker.xlsx` | Nine sheets — load types, window strategies, target table types, write strategies, the compatibility matrix, the pipeline inventory for the teams to fill, decisions and open questions. Carries the **structured detail**, ready to become seed config |
+
+One topic at a time: discussed, finalised, captured in **both** files, then the next topic opens. The
+workbook's decisions and open-questions sheets mirror the document's, so they are changed together.
 
 **This is a fresh design**, not a continuation of any earlier proof of concept in this repository. It does
 not inherit decisions from one. The single background reference is
