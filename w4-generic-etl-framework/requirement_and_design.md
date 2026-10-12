@@ -1,28 +1,26 @@
 # Generic ETL framework — requirement and design log
 
 A single configuration-driven ETL framework in IDMC, serving every load type and every team, built on the
-existing ABC metadata tables.
+ABC metadata tables in Aurora.
 
-**Stage**: architecture design. **No build has started.**
+**Stage**: architecture design. **No build, no POC.**
 **Design lead**: Nikhil.
-**This file is a living design log.** Each aspect is worked to closure, then recorded here with its
-rationale. Status markers are used throughout: **CLOSED** · **PROPOSED** · **OPEN**.
+
+**This is a fresh design.** It is not a continuation of, and does not inherit decisions from, any earlier
+proof of concept in this repository. The ABC framework is referenced for **background and for its existing
+Aurora table structure only** — so that this design can decide what to reuse, what to extend and what to
+create. Nothing is treated as settled because an earlier POC settled it.
+
+Status markers throughout: **CLOSED** · **PROPOSED** · **OPEN**.
 
 ---
 
 ## 1. Requirement
 
-One generic ETL framework, configured in IDMC, that caters for **all load types** across all teams:
+One generic ETL framework, configured in IDMC, catering for **all load types** across all teams:
 
-- full load
-- incremental load
-- catchup load
-- history load
-- daily incremental
-- static table loads
-- truncate and load
-- SCD1 table load
-- SCD2 table load
+full load · incremental load · catchup load · history load · daily incremental · static table loads ·
+truncate and load · SCD1 table load · SCD2 table load
 
 The pipeline must include all cross-cutting functionality:
 
@@ -33,18 +31,10 @@ The pipeline must include all cross-cutting functionality:
 - **tables that can run in parallel, via grouping**
 - and other scenarios as they emerge
 
-**It must be configuration-based**, so that one framework serves all teams and all requirements.
+**It must be configuration-based**, so one framework serves all teams and all requirements.
 
-**It must use the ABC tables.** Existing ABC tables and columns are leveraged wherever they already serve;
-otherwise new tables are created or new columns added to existing tables.
-
-### Original proposal, now superseded
-The requirement as first stated included: *"1 IDMC taskflow which will serve history load and static tables
-load, and 1 IDMC taskflow to serve other types of load."*
-
-This is recorded because it was the starting point, but it is **superseded** — see **D-07** and **OQ-02**.
-Static and history are not siblings; their only commonality is that most optional modules are switched off
-for static, which is gate configuration rather than a different control structure.
+**It must use the ABC tables.** Existing ABC tables and columns are leveraged where they already serve;
+otherwise new tables are created, or new columns added to existing tables.
 
 ---
 
@@ -53,72 +43,32 @@ for static, which is gate configuration rather than a different control structur
 | In scope | Out of scope |
 |---|---|
 | Architecture of the framework and its configuration model | Build / implementation |
-| The load-type model, window derivation, write strategies | Computing chunk boundaries — see §4 |
-| DQ, reconciliation, dependency, grouping, parallelism | Chunk-size tuning and warehouse sizing |
-| Reuse and extension of the ABC metadata and runtime tables | Changing ABC's existing column semantics |
-| How Stonebranch, IDMC, Aurora and Snowflake divide the work | Replacing Stonebranch or IDMC |
-| **File-based sources — REMOVED from scope, see D-06** | |
+| The load-type model, window derivation, write strategies | Tuning: chunk sizes, warehouse sizing, thresholds |
+| DQ, reconciliation, dependency, grouping, parallelism | Replacing Stonebranch or IDMC |
+| Reuse, extension and creation of Aurora metadata tables | Restructuring tables Zone 1 depends on — see §5 |
+| How Stonebranch, IDMC, Aurora and Snowflake divide the work | |
+| **File-based sources — out of scope, see D-06** | |
 
 ---
 
-## 3. Related workstreams
+## 3. Background reference
 
-Cross-references use relative paths per the repository convention.
-
-| Workstream | Relationship |
+| Reference | Used for |
 |---|---|
-| [`../w2-abc-framework/reference.md`](../w2-abc-framework/reference.md) | **Foundation.** The ABC framework this design extends. Its metadata and runtime tables, phase sequence, flag semantics and known defects are the starting point. Read §4, §9 and §16 before reviewing this design |
-| [`../history_load_chunking_design/solution_design.md`](../history_load_chunking_design/solution_design.md) | **Upstream producer.** Profiles Iceberg tables and writes a chunk plan. This framework is the consumer of that plan — see §4 |
-| [`../w3-scd-effective-date-split/solution_design.md`](../w3-scd-effective-date-split/solution_design.md) | **Constrains the write-strategy axis.** Proves a single `MERGE` into an SCD2 target fails at runtime for multi-source effective-date splits. See D-11 |
+| [`../w2-abc-framework/reference.md`](../w2-abc-framework/reference.md) | **Background only.** The existing ABC framework: its Aurora metadata and runtime table structure, its phase sequence, and its known structural limits. §4 (metadata tables), §13 (table catalogue) and §16 (gaps) are the relevant parts |
+
+Other workstreams in this repository are **not** inputs to this design.
 
 ---
 
-## 4. The seam with the chunk planner
+## 4. Design principles
 
-This matters enough to state before anything else, because it corrects an earlier assumption in this design.
+### 4.1 Load types are axes, not a list
 
-The chunk planner workstream owns **how a large table should be cut**. Its scope note is explicit:
-
-> *"The plan is written to a metadata table. Whatever performs the load reads it later."*
-
-Its out-of-scope list includes loading data, building the per-chunk extraction or load SQL, reconciliation,
-retries and orchestration. **All of those are this framework's job.** The seam is therefore clean:
-
-```
-  chunk planner  ──writes──▶  HIST_PLAN_TABLE          ──read by──▶  this framework
-  (Snowflake                  HIST_PLAN_CHUNK                        (orchestrates and
-   Scripting)                 (plan + per-chunk ranges)               executes each chunk)
-```
-
-**Consequences for this design:**
-
-1. **This framework does not compute chunk boundaries, chunk counts, or chunk axes.** It iterates the active
-   plan's `HIST_PLAN_CHUNK` rows in sequence.
-2. **The chunking threshold is not our config.** The planner fixes it at 10 GB of Iceberg data and at most
-   250M rows per chunk (its D8/D14), set as script variables. Our engine honours whatever chunk count the
-   plan contains.
-3. **Our config carries a reference to the plan, not chunk parameters.** This replaces the
-   `chunk_size` / `chunk_column` / `chunk_threshold_rows` fields proposed earlier in the discussion.
-4. **Plan status must be respected.** The planner holds status per table (`PLANNED` / `FAILED` / `SKIPPED` /
-   `SUPERSEDED`) and never edits a plan — a re-plan supersedes the old one. Our engine must read only the
-   **active** plan and must refuse to run a chunked load whose plan is `FAILED` or absent.
-
-**Platform constraint learned from that workstream:** **stored procedures are not allowed** in that
-environment (planner scope table). This removes "write strategies as Snowflake stored procedures" from the
-options for the write-strategy library.
-
-**OQ-05** tracks the remaining question on this seam: whether row-count drift between `PROFILED_AT` and
-actual load time needs handling in our engine. The planner explicitly leaves it to the loader.
-
----
-
-## 5. Core modelling principle
-
-The requirement lists nine load types. **Modelling them as nine things is a combinatorial trap** — every new
+The requirement names nine load types. Modelling them as nine things is a combinatorial trap: every new
 requirement multiplies against every existing one, and the engine ends up knowing about specific load types.
-That is how ABC ended up with metadata tables whose code still hard-codes per-table behaviour.
 
-The nine names are **not nine things**. They sit on **three independent axes**:
+The nine names sit on **three independent axes**:
 
 | Axis | What it describes | Belongs to |
 |---|---|---|
@@ -126,16 +76,44 @@ The nine names are **not nine things**. They sit on **three independent axes**:
 | **Target table type** | what shape the target keeps | the table |
 | **Write strategy** | the mechanism that lands the data | the table (volume may override) |
 
-A "load type" is therefore nothing more than a **named preset** — a row of axis values. The engine never
-learns the words "full load" or "SCD2". Adding a tenth load type is a config insert, not a release.
+A load type is a **named preset** — a row of axis values. The engine never learns the words "full load" or
+"SCD2". Adding a tenth load type is a config insert, not a release.
 
-### The acceptance test for "configuration based"
+### 4.2 The acceptance test for "configuration based"
 
 > **No table name, column name, rule, threshold or SQL fragment may appear in any IDMC artifact.**
 
-If one does, it is a design bug. ABC fails this test in exactly two places — hand-coded DQ predicates in the
-stage mappings, and raw SQL in parameter files — and that is precisely why its configuration-driven promise
-only half works.
+If one does, it is a design bug. This is the single test that separates a framework from a convention.
+
+### 4.3 Placement
+
+> Put each responsibility where it is purpose-built and cheapest to change.
+>
+> - *When, in what order, how many at once* → **the scheduler**
+> - *What a table is, what rules apply to it* → **the config database**
+> - *Which steps run for this table* → **the engine, as gates** — never as new branches
+> - *Set-based data manipulation* → **push to the warehouse**; IDMC orchestrates, Snowflake computes
+> - *What happened* → **the audit tables**
+
+### 4.4 Config is declarative and validated
+
+Config that can express nonsense eventually will. Every axis value is drawn from a registry, and valid
+combinations are enforced before a pipeline can run — not discovered at 2am.
+
+---
+
+## 5. The constraint that shapes the data model
+
+**`batch_metadata`, `job_metadata`, `batch_run_stats`, `job_run_stats` and `job_error_stats` are shared with
+Zone 1**, which runs a *different* framework on the same physical tables.
+
+This is the hardest constraint in the design, and it dictates a rule:
+
+> **Add nullable columns to shared tables if unavoidable. Never restructure them. Put new concepts in new
+> tables, FK'd to the existing ones.**
+
+New tables have zero blast radius on Zone 1 and need no negotiation. That makes "create new" the default and
+"modify existing" the exception, which is the opposite of the instinct but the right call here.
 
 ---
 
@@ -146,7 +124,7 @@ only half works.
 │  A  ORCHESTRATION & DEPENDENCY            ← Stonebranch          │
 │     DAG · parallel groups · triggers · calendars · SLA           │
 └───────────────────────────┬──────────────────────────────────────┘
-                            │ invokes, one table at a time
+                            │ invokes, one pipeline at a time
 ┌───────────────────────────▼──────────────────────────────────────┐
 │  C  EXECUTION ENGINE                      ← IDMC                 │
 │     invariant taskflow skeleton · gates · phase sequence         │
@@ -154,9 +132,9 @@ only half works.
        │ reads                            │ delegates
 ┌──────▼─────────────────────┐  ┌─────────▼────────────────────────┐
 │  B  CONFIGURATION MODEL    │  │  D  LOAD STRATEGY LIBRARY        │
-│     ← Aurora (ABC)         │  │     ← Snowflake                  │
+│     ← Aurora               │  │     ← Snowflake                  │
 │  single source of truth    │  │  window resolution · write        │
-│  axes & presets            │  │  patterns · set-based SQL         │
+│  axes · presets · registry │  │  patterns · set-based SQL         │
 └────────────────────────────┘  └──────────────────────────────────┘
        ▲                                  ▲
        │              ┌───────────────────┴──────────────┐
@@ -170,146 +148,129 @@ only half works.
 └──────────────────────────────────────┴───────────────────────────┘
 ```
 
-### The placement principle
-
-> **Put each responsibility where it is purpose-built and cheapest to change.**
->
-> - *When, in what order, how many at once* → **the scheduler**
-> - *What a table is, what rules apply to it* → **the config database**
-> - *Which steps run for this table* → **the engine, as gates** — never as new branches
-> - *Set-based data manipulation* → **push to the warehouse**; IDMC orchestrates, Snowflake computes
-> - *What happened* → **the audit tables**
-
-| # | Category | Owns | Lives in | Status |
-|---|---|---|---|---|
-| A | Orchestration & dependency | triggering, the DAG, parallel groups, concurrency limits, calendars, SLA, job retry | Stonebranch | PROPOSED |
-| B | Configuration model | the declarative definition of every table, rule, metric, edge, strategy, preset | Aurora (ABC) | PROPOSED |
-| C | Execution engine | the invariant config-driven runtime; the skeleton and its gates | IDMC | PROPOSED |
-| D | Load strategy library | window resolution and the pluggable write patterns | Snowflake | PROPOSED |
-| E | Quality & reconciliation | rule execution, severity routing, metric computation, thresholds, verdict | Snowflake + config | PROPOSED |
-| F | State, restart & observability | run state machine, idempotency, audit trail, notifications, dashboards | Aurora + IDMC | PROPOSED |
-| G | Governance & lifecycle | onboarding, config validation, promotion, versioning, ownership | process + Liquibase | PROPOSED |
+| # | Category | Owns | Lives in |
+|---|---|---|---|
+| A | Orchestration & dependency | triggering, the DAG, parallel groups, concurrency limits, calendars, SLA, retry |Stonebranch |
+| B | Configuration model | the declarative definition of every pipeline, rule, metric, edge, strategy, preset | Aurora |
+| C | Execution engine | the invariant config-driven runtime; the skeleton and its gates | IDMC |
+| D | Load strategy library | window resolution and the pluggable write patterns | Snowflake |
+| E | Quality & reconciliation | rule execution, severity routing, metrics, thresholds, verdict | Snowflake + config |
+| F | State, restart & observability | run state machine, idempotency, audit trail, notifications, dashboards | Aurora + IDMC |
+| G | Governance & lifecycle | onboarding, config validation, promotion, versioning, ownership | process |
 
 ---
 
-## 7. Aspect 1 — Load type strategies · **CLOSED**
-
-Closed on the basis of the analysis in §8 and the decisions in §9.
+## 7. Aspect 1 — Load type model · **CLOSED**
 
 ### 7.1 Window strategies — the engine implements three
 
 | # | Strategy | How the window is derived |
 |---|---|---|
-| **W1** | `DERIVED_WATERMARK` | from the last successful run's high-water mark |
+| **W1** | `DERIVED_WATERMARK` | from the stored high-water mark for this pipeline |
 | **W2** | `EXPLICIT_RANGE` | from a supplied start and end |
 | **W3** | `ALL_ROWS` | no filter — read everything |
 
-~~W4 `FILE_DISCOVERY`~~ — **removed from scope**, see **D-06**.
+### 7.2 Pass mode — an attribute of any load
 
-### 7.2 Pass mode — an attribute, not a load type
+`SINGLE` · `CHUNKED`, available to **every** window strategy. Not history-specific: a very large full refresh
+needs it, and so does a wide incremental window after an outage.
 
-`SINGLE` · `CHUNKED` — available to **every** window strategy.
-
-Chunked execution iterates the active chunk plan from the chunk planner workstream (§4). It is not
-history-specific: a very large full refresh needs it, and so does a wide incremental window after an outage.
+**Chunk boundaries are derived at run start from config, and persisted per run.** See D-05 and D-12.
 
 ### 7.3 Named load types — presets
 
-| Load type | Window | Pass | Cleanup first | Notes |
-|---|---|---|---|---|
-| `INCREMENTAL` | W1 | either | no | frequency (daily/weekly/monthly) lives on the **schedule**, not here |
-| `HISTORY` | W2 | usually chunked | no | one-time; target is empty |
-| `CATCHUP` | W2 | either | no | **same pattern as `HISTORY`**; separate name kept for audit and governance |
-| `REPLAY` | W2 | either | **yes** | reload of a corrected range over existing data |
-| `FULL_REFRESH` | W3 | either | yes (implicit) | renamed from "static table load" — see D-04 |
-| `SNAPSHOT_APPEND` | W3 | either | no | **OPEN — see OQ-01**; included provisionally |
+| Load type | Window | Pass | Notes |
+|---|---|---|---|
+| `INCREMENTAL` | W1 | either | frequency (daily/weekly/monthly) lives on the **schedule**, not here |
+| `HISTORY` | W2 | usually chunked | bulk range |
+| `CATCHUP` | W2 | either | same pattern as `HISTORY`; separate name for audit and governance |
+| `REPLAY` | W2 | either | reload of a corrected range over existing data |
+| `FULL_REFRESH` | W3 | either | the "static table" case, and the fallback for any source with no reliable watermark |
+| `SNAPSHOT_APPEND` | W3 | either | **OPEN — OQ-01**; provisional |
 
-**Five confirmed load types, three window strategies, one pending.**
-
-### 7.4 What was eliminated, and why that is the point
+### 7.4 What was eliminated
 
 | Eliminated | Became |
 |---|---|
-| "Daily incremental" as distinct from "incremental" | One `INCREMENTAL`. Frequency is schedule metadata — D-03 |
-| "History chunked" vs "history unchunked" as two types | One `HISTORY`; pass mode is an attribute — D-05 |
+| "Daily incremental" vs "incremental" | One `INCREMENTAL`; frequency is schedule metadata — D-03 |
+| "History chunked" vs "history unchunked" | One `HISTORY`; pass mode is an attribute — D-05 |
 | "Truncate and load" as a load type | A **write strategy** value — D-02 |
 | "Static table load" as a load type | `FULL_REFRESH`, a window strategy — D-04 |
 | "SCD1 / SCD2 table load" as load types | **Target table types** — D-10 |
-| ABC's "first-time incremental" (`batch_rerun_flag='I'`) | **Not a load type at all** — just `INCREMENTAL` with a seeded watermark — D-09 |
 | File-based load | Out of scope — D-06 |
-
-D-09 is worth noting on its own: ABC made first-time incremental a whole execution type, with its own flag,
-its own code path and its own never-built backlog item. Modelled as "seed one watermark row", it disappears
-entirely. **One of ABC's three unbuilt load types is removed rather than implemented.**
 
 ---
 
-## 8. Analysis record
+## 8. Aspect 2 — Configuration data model · **IN PROGRESS**
 
-The reasoning behind §7, kept because reviewers will ask.
+### 8.1 What config must express
 
-### 8.1 Static table vs truncate-and-load vs full load
+For any pipeline, the framework must know: **identity and ownership · batch membership · execution group ·
+source binding · window strategy · target binding · target table type · write strategy · pass mode and
+chunking · dependencies · quality rules · reconciliation metrics · operational attributes** — and,
+separately from config, **what happened** at runtime.
 
-They feel overlapping because they sit on **three different axes**:
+### 8.2 The existing ABC metadata tables, assessed
 
-| Name | What it actually is | Axis |
+| ABC table | Grain | Serves this design? |
 |---|---|---|
-| Static table | a table classification — volatility and role | target table type |
-| Truncate and load | a mechanism | write strategy |
-| Full load | an extract scope | window derivation |
+| `batch_metadata` | source + domain + layer + zone | **Yes, as-is.** Batch identity. Shared with Zone 1 |
+| `job_metadata` | one target table | **Partly** — see 8.3. Shared with Zone 1 |
+| `etl_data_ingestion_metadata` | one source table per job | **Yes** — the target↔source map, already multi-row for multi-source |
+| `job_rule_master` | one rule, globally | **Structurally yes**, but not executable — no expression template |
+| `job_rule_assignment` | one rule per column per job | **Structurally yes**, but no rule parameters |
+| `balance_reconciliation_metadata` | one metric | **Yes, close** — metric type, column, threshold type and value all present |
+| batch-prerequisite config table | one dependency | **No** — upstream-batch gating only, not a table-level DAG |
 
-They co-occur often but vary independently:
+### 8.3 Two structural findings
 
-- **A full load does not imply truncate.** You can read every source row and land it via MERGE, preserving
-  surrogate keys and the target's audit history. For a dimension, truncate-and-reload **destroys surrogate
-  keys and audit history** — usually unacceptable.
-- **A static table should not always be truncated.** A static reference table that is an **RI parent** must
-  not be truncated: truncate+insert momentarily empties it, and a concurrent child load orphans every row.
-  Such tables use `MERGE_SCD1`, or the truncate is wrapped so the empty window is never visible.
-- **"Full load" hides a fourth operation** — full refresh **with delete detection**. If the source can lose
-  rows and the target must reflect it, Snowflake's missing `WHEN NOT MATCHED BY SOURCE` means an explicit
-  anti-join sweep is required. That is a distinct post-step.
+**Finding 1 — `job_metadata` conflates *what the table is* with *how it is loaded*.**
 
-### 8.2 Daily incremental vs incremental
+One row = one table = one load behaviour. But the requirement needs the **same table** loaded by `HISTORY`
+once, then `CATCHUP`, then `INCREMENTAL` daily. In ABC the load type lives on the *run*, not on config, which
+is why its history/catchup/first-time-incremental variants were never expressible as configuration at all.
 
-No difference. "Daily" is a **frequency**, and frequency is a scheduling attribute belonging to Category A.
-Window-derivation logic is identical for hourly, daily, weekly and monthly — take the last successful
-watermark, take the upstream end time, read between them. Only the resulting interval differs, and that is
-data.
+> **The fix: a new `load_pipeline` table, one row per (table × load type).** A table has as many pipelines as
+> load types it supports. The run names a pipeline, not a load type. This is the keystone of the config model
+> and it is a new table, not a change to `job_metadata` — which §5 requires anyway.
 
-The one case that could justify a second value is **intra-day micro-batch where runs may overlap** — but
-that is a concurrency-control requirement (a mutex in Category A), not a different derivation.
+**Finding 2 — the watermark should be a first-class, writable entity.**
 
-### 8.3 Why `FULL_REFRESH` and not `STATIC_LOAD`
+ABC derives the sourcing window from run history and a per-run source-window table. That makes three
+operations awkward: seeding a brand-new pipeline, replaying a range, and auditing why a window was what it
+was.
 
-Staticness is a property of the *table*; full refresh is a property of the *load*. Naming the strategy
-"static" would hide its most important other use: **it is the fallback for any table whose source has no
-reliable watermark or CDC column.** That is a common real case. Teams reading "static load" would reach for
-incremental on tables that cannot support it.
+> **The fix: an explicit `pipeline_watermark` table**, one row per (pipeline, source object), holding the last
+> successful high-water mark. Seeding becomes an insert. `REPLAY` becomes a scoped override. The derivation
+> becomes auditable. And ABC's entire "first-time incremental" special case disappears — D-09.
 
-### 8.4 Why write strategy is not simply MERGE everywhere
+### 8.4 Reuse / extend / create map · **PROPOSED**
 
-MERGE **is** right for the common case — single-source SCD1 and SCD2 dimensions — and `INCREMENTAL` and
-`CATCHUP` should use **the same strategy as each other** for a given table. If they differ, two code paths
-can produce subtly different results for the same table.
+**Reuse as-is — runtime and audit.** Shapes are sound and already carry the counts, flags and error grain
+this design needs: `batch_run_stats`, `job_run_stats`, `job_error_stats`, `job_rule_execution_log`,
+`job_rule_error_detail`, `balance_reconciliation_stats`.
 
-Six cases where MERGE is not the answer:
+**Reuse as-is — config:** `batch_metadata`, `etl_data_ingestion_metadata`.
 
-| # | Case | Why MERGE fails or is wrong |
+**Extend with nullable columns:**
+
+| Table | Add | Why |
 |---|---|---|
-| a | **Multi-source SCD2 effective-date split** | Fails **at runtime**. The live target row matches both the `D` row and an `I` row on `(key, eff_dte)`, and `ERROR_ON_NONDETERMINISTIC_MERGE` is on by default. Adding `exp_dte` to the key fixes one case and not the one where a source corrects a value without moving its dates. Proven in W3 with 26 passing assertions |
-| b | **Append-only fact / event tables** | You never update a past transaction. Upserting a ledger is semantically wrong and needlessly expensive |
-| c | **Delete detection** | Snowflake has no `WHEN NOT MATCHED BY SOURCE`; a MERGE cannot soft-delete vanished rows |
-| d | **Backdated / out-of-order SCD2 arrivals** | ABC computes `change_flag` separately for forward-dated and back-dated records and UNIONs them. A plain upsert on business key corrupts the timeline instead of splicing into it |
-| e | **ABC's own "MERGE" is not an upsert** | Broker's stage→target MERGE has **four** match branches — update non-key columns, update expiration date only, update `zone1_uuid` only, insert — and one record can hit two. The `zone1_uuid`-only branch is the entire mechanism by which Zone 1 reruns are absorbed without target cleanup |
-| f | **Volume** | At history or large-catchup scale a MERGE over a huge delta can lose badly to rebuild-and-swap. This is the one case where strategy varies by **run** rather than by table |
+| `job_rule_master` | `rule_expression_template`, `parameter_spec` | Makes DQ executable from config — D-19 |
+| `job_rule_assignment` | `rule_parameters` | Per-binding parameters (length, format, allowed set) |
+| `balance_reconciliation_metadata` | `metric_expression` | One definition generates both source and target aggregate — D-20 |
 
-### 8.5 Gaps found in the stated requirement
+**Create new:**
 
-| Gap | Resolution |
-|---|---|
-| **Replay / rerun was missing** — the most operationally common range reload | Added as `REPLAY`. It reuses W2 but has a precondition the others lack: the target already holds data for that range and must be cleaned first. ABC treats it as first-class (`batch_rerun_flag='Y'`) and its cleanup is entirely manual today |
-| **Snapshot append was missing** | Added provisionally as `SNAPSHOT_APPEND`; **OQ-01** |
+| New table | Grain | Purpose |
+|---|---|---|
+| `load_pipeline` | table × load type | **The keystone.** Window strategy, write strategy, pass mode, chunk config, active flag, owner |
+| `execution_group` | group | Parallel grouping and concurrency limit |
+| `pipeline_dependency` | edge | The table-level DAG, declared as data — D-15 |
+| `pipeline_watermark` | pipeline × source object | The high-water mark, first-class and writable |
+| `strategy_registry` | strategy | The closed set of window and write strategies |
+| `strategy_compatibility` | table type × write strategy | Validation matrix — D-23 |
+| `pipeline_run_chunk` | run × chunk | *Runtime.* Derived chunk boundaries and per-chunk status, for chunk-level restart — D-12 |
 
 ---
 
@@ -317,30 +278,31 @@ Six cases where MERGE is not the answer:
 
 | # | Decision | Status |
 |---|---|---|
-| D-01 | Nine load types are modelled as **three orthogonal axes plus named presets**, not as nine entities | CLOSED |
+| D-01 | Nine load types are modelled as **three orthogonal axes plus named presets** | CLOSED |
 | D-02 | "Truncate and load" is a **write strategy**, not a load type | CLOSED |
-| D-03 | Frequency (daily/weekly/monthly) lives on the **schedule**, not in the load model. One `INCREMENTAL` | CLOSED |
-| D-04 | "Static table load" becomes **`FULL_REFRESH`**, a window strategy, reusable beyond static tables | CLOSED |
-| D-05 | **Chunking is an attribute of any load**, available to every window strategy — not a variant of history | CLOSED |
-| D-06 | **File-based sources are out of scope.** Re-entry cost if added later: a fourth window strategy (`FILE_DISCOVERY`), a file registry, format validation ahead of row-level DQ, and trailer/control-total reconciliation. ABC has unused file-related tables that would serve as the registry | CLOSED |
-| D-07 | `HISTORY` and `CATCHUP` share **one execution pattern** but keep **two names**, for audit and governance clarity. Two names over one pattern cost nothing | CLOSED |
-| D-08 | `REPLAY` is a distinct named load type because of its **cleanup precondition** | CLOSED |
-| D-09 | ABC's "first-time incremental" is **eliminated** — it is `INCREMENTAL` with a seeded watermark | CLOSED |
-| D-10 | SCD1 / SCD2 are **target table types**, not load types. A third level is needed: table type + window → eligible write strategy | CLOSED |
-| D-11 | **At least five write strategies, two of them for SCD2** (`MERGE_SCD2` single-source, `DIFF_SCD2` multi-source/backdated), because a single MERGE provably fails. Write strategy is selected by config, never by an IDMC branch | PROPOSED |
-| D-12 | **This framework consumes the chunk plan; it does not compute it.** Chunk boundaries, counts, axes and the size threshold belong to the chunk planner workstream | CLOSED |
-| D-13 | **Write strategies cannot be Snowflake stored procedures** — not permitted in this environment | CLOSED |
-| D-14 | **One taskflow invocation = one target table.** Parallelism becomes entirely a scheduler concern and the data-driven fan-out problem inside IDMC disappears | PROPOSED |
-| D-15 | **Stonebranch executes the DAG; config declares it.** Dependency in IDMC would mean editing a taskflow to add a table, which breaks the configuration-driven promise. Stonebranch workflows are generated from, or reconciled against, the declared DAG so dependency is never GUI-only | PROPOSED |
-| D-16 | The engine additionally performs a **cheap defensive dependency gate** — is my parent's run complete for this `execution_run_id`? Not the primary mechanism; a guard, so a scheduler misconfiguration cannot silently corrupt data | PROPOSED |
-| D-17 | **Extend ABC additively** — new config tables, existing runtime tables reused as-is. New tables have zero blast radius on Zone 1, removing the hardest negotiation | PROPOSED |
-| D-18 | **Aurora config is the single source of truth.** IDMC parameter files hold environment-scoped values only (connections, config schema, service account). Nothing table-specific | PROPOSED |
-| D-19 | **DQ predicates are generated from config**, via parameterized expression templates in `rule_master`. ABC's DQ metadata is decorative because `rule_id` and severity are typed into each mapping by hand — so deactivating a rule in config does nothing | PROPOSED |
-| D-20 | **One reconciliation metric definition generates both the source and target aggregate.** ABC hand-builds the source side in the mapping and takes the target side as raw SQL from a parameter file, requiring the same column name to match in three places | PROPOSED |
-| D-21 | **Prefer idempotent recompute over compensating cleanup.** W3 demonstrates it: recompute the diff against whatever the target holds now, and restart needs no unwind. Design restart out of existence where the strategy allows | PROPOSED |
-| D-22 | **Parent-child is two problems, not one.** Orchestration dependency (load parent table before child table) is a DAG in Stonebranch. Row-level RI fallback (child row before parent row) is ABC's existing RA mechanism with its daily `process_flag` loop. Different mechanisms, different tables | PROPOSED |
-| D-23 | **Config is schema-validated before it can run**, including a table-type × write-strategy **compatibility matrix**. `APPEND_ONLY` + `MERGE_SCD2` is nonsense; `SCD2` + `TRUNCATE_INSERT` silently destroys history | PROPOSED |
-| D-24 | **Notifications are config-driven and severity-tiered.** ABC emits 11 notifications for a 10-job batch on every successful run, which trains people to ignore them | PROPOSED |
+| D-03 | Frequency lives on the **schedule**, not in the load model. One `INCREMENTAL` | CLOSED |
+| D-04 | "Static table load" becomes **`FULL_REFRESH`**, reusable beyond static tables | CLOSED |
+| D-05 | **Chunking is an attribute of any load**, available to every window strategy | CLOSED |
+| D-06 | **File-based sources out of scope.** Re-entry cost: a fourth window strategy, a file registry, format validation ahead of row-level DQ, trailer/control-total reconciliation | CLOSED |
+| D-07 | `HISTORY` and `CATCHUP` share **one pattern**, keep **two names**, for audit and governance | CLOSED |
+| D-08 | `REPLAY` is a distinct named load type | CLOSED |
+| D-09 | "First-time incremental" is **eliminated** — it is `INCREMENTAL` with a seeded watermark | CLOSED |
+| D-10 | SCD1 / SCD2 are **target table types**, not load types. Table type + window → eligible write strategy | CLOSED |
+| D-11 | **Write strategy is a pluggable library selected by config, never by an IDMC branch.** The set, and whether SCD2 needs more than one implementation, is settled in Category D against our own target shapes | PROPOSED |
+| D-12 | **Chunk boundaries are derived at run start from declared chunk config, and persisted per run** with per-chunk status, so a chunked load restarts at the failed chunk. Not static config — static boundaries go stale as data grows | PROPOSED |
+| D-13 | **One taskflow invocation = one pipeline.** Parallelism becomes entirely a scheduler concern | PROPOSED |
+| D-14 | **Stonebranch executes the DAG; config declares it.** Dependency in IDMC would mean editing a taskflow to add a table, which breaks the configuration-driven promise | PROPOSED |
+| D-15 | The engine also performs a **cheap defensive dependency gate** — a guard, so a scheduler misconfiguration cannot silently corrupt data | PROPOSED |
+| D-16 | **New concepts go in new tables, FK'd to existing ones.** Shared tables take nullable columns at most, never restructuring — §5 | CLOSED |
+| D-17 | **Aurora config is the single source of truth.** IDMC parameter files hold environment-scoped values only: connections, config schema, service account | PROPOSED |
+| D-18 | **A `load_pipeline` table, one row per (table × load type)**, so the same table can be loaded by several load types as configuration — 8.3 Finding 1 | PROPOSED |
+| D-19 | **DQ predicates are generated from config**, via parameterized expression templates | PROPOSED |
+| D-20 | **One reconciliation metric definition generates both the source and target aggregate** | PROPOSED |
+| D-21 | **The watermark is a first-class writable entity**, not derived from run history — 8.3 Finding 2 | PROPOSED |
+| D-22 | **Parent-child is two problems.** Orchestration dependency is a DAG; row-level referential-integrity fallback is a data-plane concern. Different mechanisms, different tables | PROPOSED |
+| D-23 | **Config is schema-validated before it can run**, including a table-type × write-strategy compatibility matrix | PROPOSED |
+| D-24 | **Prefer idempotent write strategies so restart and replay need no compensating cleanup.** Cleanup is then a property of (write strategy × load type), derivable — not a per-load-type flag | PROPOSED |
+| D-25 | **Notifications are config-driven and severity-tiered** | PROPOSED |
 
 ---
 
@@ -348,34 +310,28 @@ Six cases where MERGE is not the answer:
 
 | # | Question | Blocks | Owner |
 |---|---|---|---|
-| **OQ-01** | **Are there month-end snapshot tables** — policy-in-force, reserves — where every snapshot is retained rather than overwritten? If yes, `SNAPSHOT_APPEND` stays and needs its own write strategy. If no, the load-type list is five, not six | closing §7 fully | Nikhil — **confirming** |
-| **OQ-02** | **How many taskflows?** D-05 made chunking an attribute available everywhere. If the chunk loop degenerates to a single iteration when chunking is off, **one** taskflow suffices rather than two. Settle in Category C | Category C | design |
-| **OQ-03** | Does IDMC support **data-driven parallel fan-out** — N parallel sub-taskflows where N comes from a config query — or are parallel paths fixed-width? Determines whether grouping can live in IDMC at all. D-14 and D-15 are chosen so that the answer does not block the design | Category A | research |
-| **OQ-04** | Can a mapping task take a **fully dynamic SQL override** from a runtime variable? With D-13 ruling out stored procedures, this is the remaining mechanism for a config-generated write strategy | Category D | research |
-| **OQ-05** | The chunk planner records exact row counts at `PROFILED_AT` and notes that counts drift if a CURRENT table changes before loading, leaving handling to the loader. **Does our engine need to detect and handle that drift?** | Category D | design |
-| **OQ-06** | The **Create Temporary View vs pushdown vs update/upsert** tension: W3 states it is mandatory before configuring update/upsert/delete; ABC had to untick it because a MERGE broke pushdown. Both cannot hold for a framework that does both | Category D | research |
-| **OQ-07** | Is **CDC / stream-based acquisition** ever in scope for Zone 2 — Snowflake streams, Kafka? Zone 1 uses DMS/CDC upstream. Not added speculatively | scope | Nikhil |
-| **OQ-08** | Does the **delete-detection** sweep (§8.1) apply to any current table, or is it hypothetical? | Category D | Nikhil |
+| **OQ-01** | **Are there month-end snapshot tables** where every snapshot is retained rather than overwritten? If yes `SNAPSHOT_APPEND` stays and needs its own write strategy; if no the load-type list is five | closing Aspect 1 | Nikhil — confirming |
+| **OQ-02** | **How many taskflows?** If the chunk loop degenerates to a single iteration when chunking is off, one taskflow suffices rather than two | Category C | design |
+| **OQ-03** | Does IDMC support **data-driven parallel fan-out** — N parallel branches where N comes from a config query? D-13 and D-14 are chosen so the answer does not block the design | Category A | research |
+| **OQ-04** | What mechanism lets a mapping task run **config-generated SQL** — dynamic SQL override, a generated view, or something else? Determines how the write-strategy library is delivered | Category D | research |
+| **OQ-05** | **What target table types exist across the teams?** SCD1, SCD2, append-only fact, snapshot, reference — and in what proportion. Drives the write-strategy set | Category D | Nikhil |
+| **OQ-06** | Are there targets fed by **more than one source table** where both carry history? That case decides whether SCD2 needs a second write strategy | Category D | Nikhil |
+| **OQ-07** | Is **delete detection** required — must the target reflect rows that disappear from the source? | Category D | Nikhil |
+| **OQ-08** | Is **CDC / stream acquisition** ever in scope for this framework? | scope | Nikhil |
+| **OQ-09** | Can new tables be created in the **shared Aurora ABC schema**, or does this design need its own schema? Affects D-16's blast-radius argument | Category B | Nikhil |
 
 ---
 
 ## 11. Aspect order
 
-Aspects are worked one at a time to closure.
-
 | Order | Aspect | Category | Status |
 |---|---|---|---|
-| 1 | **Load type strategies** | B | **CLOSED** (pending OQ-01) |
-| 2 | **Window derivation mechanics** — W1 in particular | B / D | next |
-| 3 | Execution engine skeleton, gates, phase sequence | C | |
-| 4 | Write strategy library and the compatibility matrix | D | |
-| 5 | DQ and reconciliation from config | E | |
-| 6 | Full configuration schema and DDL deltas against ABC | B | |
+| 1 | Load type model | B | **CLOSED** (pending OQ-01) |
+| 2 | **Configuration data model** — entities, reuse/extend/create, DDL deltas | B | **in progress** |
+| 3 | Window derivation mechanics | B / D | |
+| 4 | Execution engine skeleton, gates, phase sequence | C | |
+| 5 | Write strategy library and the compatibility matrix | D | |
+| 6 | DQ and reconciliation from config | E | |
 | 7 | Orchestration, DAG declaration and grouping | A | |
 | 8 | State, restart and observability | F | |
 | 9 | Governance and lifecycle | G | |
-
-**Aspect 2 is next** because W1 is where ABC's existing sourcing-window machinery
-(`etl_data_ingestion_metadata`, `etl_data_ingestion_source_window`, and the per-source-table window
-derivation) either fits this model or has to be replaced. That is the single largest reuse-or-rebuild
-decision in the design, and D-17 depends on its answer.

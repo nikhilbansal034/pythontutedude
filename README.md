@@ -174,19 +174,16 @@ incremental, catchup, history, static, truncate-and-load, SCD1, SCD2 — and eve
 ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-child relationships and parallel
 grouping.
 
-**Status**: design in progress, no build started. Worked one aspect at a time to closure.
+**Status**: design in progress. **No build, no POC.** Worked one aspect at a time to closure.
 
 | File | What it is |
 |------|-----------|
-| `requirement_and_design.md` | Living design log — requirement, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions |
+| `requirement_and_design.md` | Living design log — requirement, design principles, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions |
 
-**Depends on three other workstreams** and says so with relative paths:
-- `../w2-abc-framework/reference.md` — the framework being extended; its tables, flags and known defects are
-  the starting point
-- `../history_load_chunking_design/solution_design.md` — produces the chunk plan this framework **consumes**;
-  it owns how a table is cut, this framework owns executing the chunks
-- `../w3-scd-effective-date-split/solution_design.md` — constrains the write-strategy axis, having proved a
-  single `MERGE` into an SCD2 target fails for multi-source effective-date splits
+**This is a fresh design**, not a continuation of any earlier proof of concept in this repository. It does
+not inherit decisions from one. The single background reference is
+`../w2-abc-framework/reference.md`, used for the existing **Aurora metadata table structure** and ABC's
+structural limits, so this design can decide what to reuse, what to extend and what to create.
 
 **Design discussion for W4 stays in this folder.** It is deliberately not appended to the W2 ABC files, which
 remain a reference for the framework as it exists today.
