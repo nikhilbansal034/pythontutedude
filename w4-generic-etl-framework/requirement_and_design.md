@@ -288,7 +288,110 @@ this design needs: `batch_run_stats`, `job_run_stats`, `job_error_stats`, `job_r
 
 ---
 
-## 9. Decisions log
+## 9. Aspect 3 — Target table types · **AGREED** (write strategies still open)
+
+### 9.1 The test for what counts as a table type
+
+> A target table type is **the structural promise the table makes about identity and history.** Nothing else.
+
+Applied strictly, two candidates collapse:
+
+- **`REFERENCE` / `STATIC` is not a table type — it is SCD1.** Both are "exactly one row per business key holding
+  current state." The invariant is identical; you cannot tell them apart by querying the table. What differs is
+  *how it is loaded*, which already lives on axes 1 and 3.
+- **An accumulating-snapshot fact is also SCD1.** A claim row updated as it moves through milestones is
+  structurally one row per key, overwritten in place. Semantically a fact; structurally SCD1, and the write
+  strategy is the same.
+
+### 9.2 The four types and their testable invariants
+
+The invariant is the load-bearing column, for two reasons given in 9.4.
+
+| Type | Invariant | Assertions |
+|---|---|---|
+| **SCD1** | Exactly one row per business key, holding the latest source state. No temporal column takes part in identity | `GROUP BY business_key HAVING COUNT(*) > 1` returns nothing |
+| **SCD2** | Per key, the rows form a **contiguous, non-overlapping cover of time** from first-seen to high date, with **exactly one** current row | (1) no overlap · (2) no gap · (3) exactly one current per key |
+| **APPEND_ONLY** | Every source event appears **exactly once**; no existing row is ever modified or deleted. Identity is the event, not the entity | no duplicate on event identity · update count = 0 |
+| **SNAPSHOT** | For every period, the **complete population as at that period**; a period is immutable once written | per-period completeness · zero writes to prior periods |
+
+*SCD3 — limited history in prior-value columns — is parked. If it exists it is a column-level concern inside SCD1.*
+
+**`APPEND_ONLY` holds** premium transactions, claim payments and recoveries, reserve movements, commission
+transactions, billing and cash-receipt events, policy lifecycle events, ledger entries.
+**The classifying test is a business question, not a technical one:**
+
+> When the business corrects something, does it write a **reversing entry** or **update the row**?
+> Reversing entry → `APPEND_ONLY`. Update in place → SCD1 or SCD2.
+
+⚠️ **The common mis-typing**: if the source can resend a *revised version of the same event* — same event id,
+different amount — it is **not** append-only. It is SCD1 or SCD2 keyed on the event. Typed as append-only, the
+corrections land as duplicates, the counts balance perfectly, and nobody notices until someone sums premium.
+
+### 9.3 Why truncate-and-load and insert-update are not interchangeable
+
+Raised as a challenge to the SCD1 collapse, and the objection is correct about behaviour:
+
+| | Truncate + load | Insert + update |
+|---|---|---|
+| Surrogate keys | **Re-minted every run** — breaks every FK pointing at them | Preserved |
+| Audit lineage | `audit_create_datetime` reset on every row; first-seen lost | Preserved |
+| Visibility | Table briefly **empty** | No empty window |
+| Source completeness | Requires the **full** population | Works with a delta |
+
+But none of those is a property of the table's *shape*. They are the **write strategy**, the **window**, and a
+third thing that had not been named anywhere — **what else in the model points at this table**. So instead of
+splitting the type, name the properties:
+
+| Property | Why it constrains the write strategy |
+|---|---|
+| `has_referenced_surrogate_key` | Truncate re-mints keys and breaks every FK pointing at them |
+| `is_ri_parent` | Truncate leaves the table briefly empty; a concurrent child load orphans every row |
+| `keeps_audit_lineage` | Truncate resets first-seen on every row |
+
+```
+TRUNCATE_INSERT is valid  ⟺  window = ALL_ROWS
+                          AND NOT has_referenced_surrogate_key
+                          AND NOT is_ri_parent
+```
+
+This **permits** truncate on mapping and config tables, **forbids** it on a dimension, and **catches a case a
+type split would wave through**: a "reference" table that *is* surrogate-key-referenced. Under a
+REFERENCE-vs-SCD1 split someone types it REFERENCE, validation passes, and the facts' foreign keys break.
+
+**"Static table" is kept as a name** — a preset over `SCD1` + those properties + `FULL_REFRESH` +
+`TRUNCATE_INSERT` — exactly as `HISTORY` and `CATCHUP` are two names over one pattern. The label costs nothing;
+claiming a structural difference that is not there costs a wrong validation rule.
+
+### 9.4 What the invariant buys
+
+1. **The compatibility matrix becomes derivable.** A write strategy is valid for a table type *iff it preserves
+   that type's invariant*. `SCD2` + `TRUNCATE_INSERT` is invalid because truncating destroys the cover of time
+   before this run's window — a violation of a stated assertion, not a matter of taste. Every cell gets decided
+   by inspection against four short rules.
+2. **The invariant becomes a generic post-load assertion.** If config knows the table type, the engine can
+   **verify the invariant after every run**, for every table, with no per-table code. Most frameworks reconcile
+   *counts* and never check *shape*; this gets shape-checking almost free. It catches a write-strategy bug on
+   day one rather than six months later when someone queries history and the numbers do not add up.
+
+### 9.5 Also determined by the table type
+
+- **The record-count balancing equation** — SCD1: `source = inserts + updates + unchanged`. SCD2:
+  `source = inserts + expiries + unchanged`. APPEND_ONLY: `source = inserts`. Reconciliation therefore becomes
+  generic **per type** rather than hand-built per table, which is exactly where ABC's version leaks.
+- **Which DQ checks are meaningful** — SCD2 wants timeline checks, APPEND_ONLY wants duplicate-event checks. The
+  table type can seed a default rule set.
+- **Whether delete detection is even applicable** — meaningless for APPEND_ONLY, meaningful for SCD1 and SCD2.
+
+### 9.6 Still open in this aspect
+
+Two of the four types are provisional, and both are scope questions rather than design questions:
+**OQ-01** (SNAPSHOT) and **OQ-10** (APPEND_ONLY). ABC's build to date is entirely SCD2 plus about three static
+tables; if that is representative, the real taxonomy is **two types plus the static preset**, with a
+correspondingly smaller strategy set. Write strategies are the next topic and are not settled here.
+
+---
+
+## 10. Decisions log
 
 | # | Decision | Status |
 |---|---|---|
@@ -317,10 +420,16 @@ this design needs: `batch_run_stats`, `job_run_stats`, `job_error_stats`, `job_r
 | D-23 | **Config is schema-validated before it can run**, including a table-type × write-strategy compatibility matrix | PROPOSED |
 | D-24 | **Prefer idempotent write strategies so restart and replay need no compensating cleanup.** Cleanup is then a property of (write strategy × load type), derivable — not a per-load-type flag | PROPOSED |
 | D-25 | **Notifications are config-driven and severity-tiered** | PROPOSED |
+| D-26 | A target table type is **the structural promise about identity and history, nothing else**. Four types: SCD1, SCD2, APPEND_ONLY, SNAPSHOT. `REFERENCE` / `STATIC` collapses into SCD1 (identical invariant), and so does an accumulating-snapshot fact | AGREED |
+| D-27 | Every table type carries a **testable invariant**, which makes the compatibility matrix derivable and lets the engine run the invariant as a **generic post-load assertion** for every table with no per-table code | PROPOSED |
+| D-28 | Three table-level properties constrain write-strategy validity — `has_referenced_surrogate_key`, `is_ri_parent`, `keeps_audit_lineage`. `TRUNCATE_INSERT` is valid iff window = `ALL_ROWS` and the table is neither surrogate-key-referenced nor an RI parent. This replaces splitting REFERENCE from SCD1 and catches the case a split would wave through | PROPOSED |
+| D-29 | **'Static table' is a named preset**, not a structural type — SCD1 + those properties + `FULL_REFRESH` + `TRUNCATE_INSERT`. Same treatment as HISTORY and CATCHUP | AGREED |
+| D-30 | **The table type drives the record-count balancing equation**, so reconciliation is generic per type rather than hand-built per table | PROPOSED |
+| D-31 | A table is classified `APPEND_ONLY` by one **business** test: on a correction, a reversing entry means append-only; an update in place means SCD1 or SCD2. A source that resends a revised version of the same event is **not** append-only | PROPOSED |
 
 ---
 
-## 10. Open questions
+## 11. Open questions
 
 | # | Question | Blocks | Owner |
 |---|---|---|---|
@@ -333,18 +442,20 @@ this design needs: `batch_run_stats`, `job_run_stats`, `job_error_stats`, `job_r
 | **OQ-07** | Is **delete detection** required — must the target reflect rows that disappear from the source? | Category D | Nikhil |
 | **OQ-08** | Is **CDC / stream acquisition** ever in scope for this framework? | scope | Nikhil |
 | **OQ-09** | Can new tables be created in the **shared Aurora ABC schema**, or does this design need its own schema? Affects D-16's blast-radius argument | Category B | Nikhil |
+| **OQ-10** | **Are transaction / event tables in Zone 2 scope at all** — premium transactions, claim payments, commission transactions, ledger entries? If they stay elsewhere, cut `APPEND_ONLY` as we cut file-based sources and Aspect 3 finishes with a smaller strategy set | Aspect 3 | Nikhil |
 
 ---
 
-## 11. Aspect order
+## 12. Aspect order
 
 | Order | Aspect | Category | Status |
 |---|---|---|---|
 | 1 | Load type model | B | **CLOSED** (pending OQ-01) |
 | 2 | **Configuration data model** — entities, reuse/extend/create, DDL deltas | B | **in progress** |
-| 3 | Window derivation mechanics | B / D | |
-| 4 | Execution engine skeleton, gates, phase sequence | C | |
-| 5 | Write strategy library and the compatibility matrix | D | |
+| 3 | **Target table types and write strategies** | D | **types AGREED; strategies next** |
+| 4 | Window derivation mechanics | B / D | |
+| 5 | Execution engine skeleton, gates, phase sequence | C | |
+
 | 6 | DQ and reconciliation from config | E | |
 | 7 | Orchestration, DAG declaration and grouping | A | |
 | 8 | State, restart and observability | F | |
