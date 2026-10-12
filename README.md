@@ -10,6 +10,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── w2-abc-framework/             ABC framework reference               — background
 ├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
 ├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
+├── w4-generic-etl-framework/     Generic config-driven ETL framework   — ACTIVE
 └── datacamp project/             DataCamp DS practical exam            — ACTIVE
 ```
 
@@ -163,6 +164,33 @@ and building load SQL are out of scope.
 run `sql/TEST_PLAN.md` and share the evidence screenshots, then do a reconnaissance run on 3–5 real table pairs.
 
 **Folder name**: does not follow the `w<n>-` convention; named as requested.
+
+---
+
+## W4 — Generic ETL framework *(active)*
+
+Architecture design for **one configuration-driven ETL framework in IDMC** serving every load type — full,
+incremental, catchup, history, static, truncate-and-load, SCD1, SCD2 — and every team, built on the existing
+ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-child relationships and parallel
+grouping.
+
+**Status**: design in progress. **No build, no POC.** Worked one aspect at a time to closure.
+
+| File | What it is |
+|------|-----------|
+| `requirement_and_design.md` | Living design log — requirement, design principles, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions. Carries the **reasoning** |
+| `design_tracker.xlsx` | Nine sheets — load types, window strategies, target table types, write strategies, the compatibility matrix, the pipeline inventory for the teams to fill, decisions and open questions. Carries the **structured detail**, ready to become seed config |
+
+One topic at a time: discussed, finalised, captured in **both** files, then the next topic opens. The
+workbook's decisions and open-questions sheets mirror the document's, so they are changed together.
+
+**This is a fresh design**, not a continuation of any earlier proof of concept in this repository. It does
+not inherit decisions from one. The single background reference is
+`../w2-abc-framework/reference.md`, used for the existing **Aurora metadata table structure** and ABC's
+structural limits, so this design can decide what to reuse, what to extend and what to create.
+
+**Design discussion for W4 stays in this folder.** It is deliberately not appended to the W2 ABC files, which
+remain a reference for the framework as it exists today.
 
 ---
 
