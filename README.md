@@ -10,6 +10,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── w2-abc-framework/             ABC framework reference               — background
 ├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
 ├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
+├── w4-generic-etl-framework/     Generic config-driven ETL framework   — ACTIVE
 └── datacamp project/             DataCamp DS practical exam            — ACTIVE
 ```
 
@@ -163,6 +164,32 @@ and building load SQL are out of scope.
 run `sql/TEST_PLAN.md` and share the evidence screenshots, then do a reconnaissance run on 3–5 real table pairs.
 
 **Folder name**: does not follow the `w<n>-` convention; named as requested.
+
+---
+
+## W4 — Generic ETL framework *(active)*
+
+Architecture design for **one configuration-driven ETL framework in IDMC** serving every load type — full,
+incremental, catchup, history, static, truncate-and-load, SCD1, SCD2 — and every team, built on the existing
+ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-child relationships and parallel
+grouping.
+
+**Status**: design in progress, no build started. Worked one aspect at a time to closure.
+
+| File | What it is |
+|------|-----------|
+| `requirement_and_design.md` | Living design log — requirement, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions |
+
+**Depends on three other workstreams** and says so with relative paths:
+- `../w2-abc-framework/reference.md` — the framework being extended; its tables, flags and known defects are
+  the starting point
+- `../history_load_chunking_design/solution_design.md` — produces the chunk plan this framework **consumes**;
+  it owns how a table is cut, this framework owns executing the chunks
+- `../w3-scd-effective-date-split/solution_design.md` — constrains the write-strategy axis, having proved a
+  single `MERGE` into an SCD2 target fails for multi-source effective-date splits
+
+**Design discussion for W4 stays in this folder.** It is deliberately not appended to the W2 ABC files, which
+remain a reference for the framework as it exists today.
 
 ---
 
