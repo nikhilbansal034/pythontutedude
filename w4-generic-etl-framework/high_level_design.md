@@ -38,6 +38,9 @@ Answered 13 October 2026. These are **facts the architecture must satisfy**, not
 | **R-08** | DQ failures handled **exactly as ABC** | Quality checking is **not a gate**. It is row routing *inside* the load plus a verdict *after* it |
 | **R-09** | Reconciliation after the write, before the run is marked successful | No staging layer — which matters because push-down makes staging expensive. A failed recon fails the run with the data left **visible** |
 | **R-10** | On a member failure the batch **continues**, as ABC does | Every member is attempted; Completed only with zero failures. Intra-batch dependency forces a **third** member outcome ABC has no concept of: **SKIPPED** |
+| **R-11** | All transformation — joins, lookups, aggregation, dedup, derivation — is **parameterised SQL** executing on Snowflake, table by table | Transformation is **configuration, not framework code**. It also fixes the cleanest seam in the design: **team SQL** produces a prepared row set shaped like the target; **framework SQL** applies it. The team owns *what the rows are*, the framework owns *how they land* — so the write-strategy library is the only SQL the framework itself owns |
+| **R-12** | Validating a team's SQL and mapping is **out of scope** — that is build's problem, not the design framework's | **B5 narrows** to *structural* validation: a cycle in the prerequisites, a member with no pipeline, a strategy illegal for its table type. It no longer implies anything about whether a query is correct or push-down safe |
+| **R-13** | **Target → target prerequisite sequencing** is a missing feature, to be held in metadata. At load start a table reads its prerequisites, checks their load status, and starts only when all are complete | Two blocks, one metadata table. **B7** resolves the prerequisites into an **attempt order**; **T2** then *verifies* rather than schedules — so a prerequisite can never still be in progress when it is checked, and there is no waiting or polling. Exactly two outcomes at T2: completed → proceed, failed or skipped → **SKIPPED** |
 
 ### A correction to the record
 
@@ -63,7 +66,7 @@ should nevertheless gain a Partial outcome is **HQ-02**.
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
 │ B2  BATCH PREREQUISITE CHECK    GATE │          │ T2  DEPENDENCIES SATISFIED?     GATE │
-│     allowed to start at all?         │          │     have its parents completed?      │
+│     allowed to start at all?         │          │     from metadata, for this run      │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
 │ B3  REGISTER THE BATCH RUN           │          │ T3  IS THE UPSTREAM DATA READY? GATE │
@@ -85,8 +88,8 @@ should nevertheless gain a Partial outcome is **HQ-02**.
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
 │ B7  BUILD THE EXECUTION PLAN    NEW  │          │ T7  EXECUTE THE LOAD                 │
-│     edges + groups → ordered waves   │          │     write strategy from config,      │
-│     of tables that may run parallel  │          │     pushed down. Rows failing a      │
+│     prerequisites + groups →         │          │     write strategy from config,      │
+│     an ATTEMPT ORDER, not a schedule │          │     pushed down. Rows failing a      │
 │                                      │          │     rule are split out HERE          │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
@@ -126,7 +129,7 @@ design's weight:
 | Block | Why it matters |
 |---|---|
 | **B5 — validate configuration** | The only place a bad configuration is caught **before data is touched**: a cycle in the dependencies, a member with no pipeline, a write strategy illegal for its table type. A framework that validates config at run time instead has already read the data when it finds out |
-| **B7 — build the execution plan** | **New, and the largest new capability.** R-07 put the intra-batch DAG here rather than in Stonebranch, so the framework must resolve edges and groups into waves itself |
+| **B7 — build the execution plan** | **New, and the largest new capability.** R-07 put the intra-batch DAG here rather than in Stonebranch. Its job is **ordering only** (R-13): it guarantees that by the time a table is attempted, every prerequisite has already been attempted — which is what lets T2 be a check rather than a scheduler |
 | **B8 — run each wave** | Carries three behaviours at once: parallel within a wave, continue-on-failure across members (ABC's rule), and **SKIPPED** for a table whose parent failed |
 
 ### The three member outcomes
@@ -141,7 +144,46 @@ design's weight:
 
 ---
 
-## 5. What is deliberately not here
+## 5. The feature register
+
+The register is the requirement phase's main output: **one row per capability the framework must have**,
+with whether ABC already provides it, where, and what breaks without it. It lives on the
+**`feature_register`** sheet — 54 features across 10 categories, every row tied to a flow block so the
+register and the diagram cannot drift into two documents.
+
+| | | |
+|---|---|---|
+| **19 PRESENT** | 35% | quality, reconciliation, run-state and error recording are **largely reusable as they stand** |
+| **7 PARTIAL** | 13% | right idea, wrong grain — batch-level where the framework needs table-level |
+| **27 MISSING** | 50% | |
+| **1 UNCONFIRMED** | | the `group` column — HQ-01 |
+
+### The headline
+
+**ABC holds the *where*. It holds almost none of the *what* or *how*.**
+
+The missing half is not spread evenly. It clusters in two categories:
+
+**Keys and table structure — ABC holds nothing at all.** No primary key, no business key, no surrogate key
+and no SCD2 date columns, anywhere. SCD2 needs the business key to group a timeline, SCD1 to merge,
+reconciliation to compare, chunking to cut — and none of it is recorded. ABC works today precisely because
+every one of those lives inside hand-written mapping SQL. **The moment the framework becomes
+configuration-driven, keys become configuration**, and that is the single largest gap between what exists and
+what this needs.
+
+**Sequencing and scope.** Prerequisite edges (R-13), the load type, the window strategy, the write strategy,
+the watermark column, pass planning — none of it exists, because none of it ever had to.
+
+### What the register confirms about `target_load_type`
+
+`job_metadata.target_load_type` holds *type 0 / type 1 / type 2 / append only* — a **table type wearing a
+load type's name**, with no slot for the real load type. That conflation is why ABC could never express
+history versus catchup versus incremental as configuration. Inferred earlier from behaviour; now confirmed
+from the column list.
+
+---
+
+## 6. What is deliberately not here
 
 | Not decided here | Where it belongs |
 |---|---|
@@ -156,7 +198,7 @@ document corrects.
 
 ---
 
-## 6. The parked work
+## 7. The parked work
 
 `requirement_and_design.md` and `design_tracker.xlsx` are **parked at the point they reached**, not deleted.
 Honest classification of what is in them:
@@ -174,7 +216,7 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 
 ---
 
-## 7. Open questions
+## 8. Open questions
 
 **`HQ-04` is the largest gap in the whole design** and it is the one only leadership can close.
 
@@ -186,10 +228,13 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 | **HQ-04** | **Non-functional requirements** — volume per table and per batch, the batch window, recovery time objective, concurrent pipeline count, audit retention period | the whole architecture |
 | **HQ-05** | Does `SKIPPED` propagate transitively to a skipped table's own dependents, and does a skipped table block the next batch run? | B7, T2 |
 | **HQ-06** | Who owns the dependency edges — derived from existing lineage metadata, or declared by hand per table? Hand-declared is simpler to build and harder to keep honest; derived is the reverse | B4, B7 |
+| **HQ-07** | **Are prerequisites always inside the same batch?** If table B's prerequisite A sits in another batch, T2 cannot resolve it within the run and it has to become a batch-level dependency for Stonebranch instead. The one thing needed to finish F-18 and F-22 | B2, B7, T2 |
+| **HQ-08** | **Declared by hand, or derived?** — supersedes HQ-06 with a better option. A prerequisite is usually *created by* a lookup in the team SQL: if B's SQL resolves A's surrogate key, B depends on A. So the edges could be **derived from the SQL**, which makes them more trustworthy, not less. Hand-declared is simpler to build and drifts the moment someone edits a query | B4, B7 |
+| **HQ-09** | If the team SQL does the joins, **the framework no longer knows what its sources are** — but it needs them for the readiness check at T3. So sources must *also* be declared, and the two can drift: someone adds a join, forgets the config row, and the framework waits on the wrong upstream or does not wait at all | T3 |
 
 ---
 
-## 8. What comes next
+## 9. What comes next
 
 The flow is the spine. Each block now gets its own detail, **one block at a time**, in diagram order —
 what it reads, what it writes, what it decides, what it must guarantee, and what it needs from configuration.
