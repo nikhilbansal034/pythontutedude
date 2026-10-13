@@ -180,10 +180,15 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
   to restamp it, and it cannot be asserted in test until it is defined.
 - **How many assets will use this pattern?** Decides whether a hand-written view per target is the right
   shape at all.
-- Does the real stage table already have an operation / CDC indicator column? If so `ACTION_FLAG` takes that
-  name and the apply adds **no column at all**. If not, it is the one genuine `ALTER`.
 
-**Integration with DataAssist** (`../solution_design.md` §20)
+**Integration with DataAssist** (`../solution_design.md` §20, §21, §22)
+
+- **The `ACTION_FLAG` question is CLOSED.** The real staging table already carries an operation indicator
+  called `CHANGE_FLAG`, plus hash-comparison and matched-target-row columns. The apply adds **no column at
+  all** — there is no `ALTER`.
+- **`ACCOUNT_PARTY_REFERENCE` is the first confirmed table needing the effective-date split**, because
+  `ACCOUNT_NUMBER_ELEMENT_T` is SCD-2. The STTM's join carries no date predicate, so the generated SQL
+  would either fan out or silently carry a stale indicator. See §22.
 
 - Day 1 needs **one rule, not eighteen** — on an empty target only rule 17 can fire, measured across all
   15 scenarios' initial loads.

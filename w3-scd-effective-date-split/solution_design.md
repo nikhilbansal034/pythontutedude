@@ -1235,13 +1235,10 @@ directly. No boundary union is needed.
 
 **The exception** is `ACTIVE_NUMERAL_ISSUE_RECORD_INDICATOR`, mapped as *"Join from
 account_number_element_t to account_ref_t by using concat(acct_ldgr_num,'-',acct_srl_num) = acct_rfrn_num
-and srl_typ_code = acct_rfrn_typ_cde"*. **If `account_number_element_t` is itself SCD-2**, that one column
-makes this a genuine two-source intersection and the split applies. If it is a current-only lookup, it does
-not. Unresolved — the table's DDL would settle it.
+and srl_typ_code = acct_rfrn_typ_cde"*.
 
-**Both real examples seen so far are union-shaped.** If that holds across the STTM, the effective-date split
-applies to a small identifiable subset of tables, and the classifier — not the split template — is the most
-valuable part of the historical instruction file.
+**`ACCOUNT_NUMBER_ELEMENT_T` is SCD-2.** Its DDL carries `ROW_EFF_DM` and `ROW_EXP_DM`. So this table **is**
+a genuine two-source intersection, and it is the first confirmed one. See §22.
 
 ### Three conflicts found in the mapping
 
@@ -1252,4 +1249,56 @@ valuable part of the historical instruction file.
 | **3** | One `DELETE_INDICATOR` here versus two delete columns in the worked example, as above |
 
 Conflict 2 is independent of this design and worth raising with whoever owns the staging DDL.
+
+---
+
+## 22. The first confirmed split table, and why the STTM gets it wrong
+
+`ACCOUNT_NUMBER_ELEMENT_T` carries `ROW_EFF_DM` and `ROW_EXP_DM`. It is SCD-2. That makes
+`ACCOUNT_PARTY_REFERENCE` the first target confirmed to need the effective-date split:
+
+| | Source | SCD-2? | Contributes |
+|---|---|---|---|
+| A | `ACCOUNT_REF_T` (or `PROSPECT_REF_T`) | **yes** | most attributes, **and the target's `ROW_EFFECTIVE_DATETIME` / `ROW_EXPIRATION_DATETIME`** |
+| B | `ACCOUNT_NUMBER_ELEMENT_T` | **yes** | `ACTIVE_NUMERAL_ISSUE_RECORD_INDICATOR`, via a join |
+
+This is exactly the shape §2 describes: two SCD-2 sources carrying **different** attributes, where the
+target's dates are taken from **one of them only**.
+
+### What goes wrong, concretely
+
+The STTM's join predicate is on business attributes alone —
+`concat(acct_ldgr_num,'-',acct_srl_num) = acct_rfrn_num AND srl_typ_code = acct_rfrn_typ_cde`. **It carries
+no date-overlap condition.** With both sides SCD-2 and holding several versions, that join is a cartesian
+across versions: N versions in A times M versions in B.
+
+So the generated Q1 for this table has two possible outcomes, and both are wrong:
+
+1. **It fans out** — several staging rows for one `(business key, effective date)`. The staging
+   de-duplication then collapses them to one arbitrary version.
+2. **It silently carries a stale value** — because the target is cut only where A changes. If
+   `ACTV_NMRL_ISS_RCRD_I` changes on a date A does not, the target is never cut there, and the row carries
+   the wrong indicator for part of its own interval. Nothing reports an error.
+
+A worked illustration. A says the reference is valid `01-Jan to 31-Dec`. B says the indicator is `'Y'` from
+`01-Jan to 01-Jun` and `'N'` from `01-Jun to 31-Dec`. The correct target is **two** rows, cut at `01-Jun`.
+The STTM as written produces one row carrying one of the two values for the whole year, or two rows that
+the de-duplication reduces to one.
+
+### What the split does instead
+
+Take the union of both sources' boundaries — `01-Jan`, `01-Jun`, `31-Dec` — rebuild the key's whole
+timeline against that set, and the target is cut at `01-Jun` because *some* source changed there. That is
+the entire design, and this table is a real instance of needing it.
+
+### Consequence for the instruction file
+
+The classifier's job is now demonstrably load-bearing rather than theoretical. Its rule for this case:
+
+> A target column whose Transformation is a **join to a second source table**, where that table carries
+> `ROW_EFF_DM` / `ROW_EXP_DM`, means the table needs the effective-date split — **even when every other
+> column comes from one source**, and even when the STTM's own join predicate mentions no dates.
+
+One column sourced this way is enough. It is also the easiest case to miss by eye, because 22 of the 23
+mapped columns in this STTM look like an ordinary union.
 
