@@ -187,17 +187,28 @@ incremental, catchup, history, static, truncate-and-load, SCD1, SCD2 — and eve
 ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-child relationships and parallel
 grouping.
 
-**Status**: design in progress. **No build, no POC.** Worked one aspect at a time to closure. Aspects 1 and 3
-(load type model; target table types and write strategies) are agreed; aspect 4 (window derivation) is open for
-discussion.
+**Status**: high-level architecture in progress. **No build, no POC.** Requirements settled; the flow is
+drawn and under review; next each block on it gets its own detail, one block at a time.
 
 | File | What it is |
 |------|-----------|
-| `requirement_and_design.md` | Living design log — requirement, design principles, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions. Carries the **reasoning** |
-| `design_tracker.xlsx` | Ten sheets — load types and window strategies, target table types, write strategies, three `window_` sheets for the window-derivation aspect under discussion, the pipeline inventory for the teams to fill, decisions and open questions. Carries the **structured detail**, ready to become seed config. A yellow cell means input is wanted from the design lead |
+| `high_level_design.md` | **ACTIVE.** The high-level architecture: the requirements settled with the design lead, the two-level flow from Stonebranch trigger to batch close, where every block exits, and what is deliberately left to low-level design |
+| `high_level_design.xlsx` | **ACTIVE.** The same content structured — the flow drawn as blocks, every block as a row, and the sheet that per-block detail hangs off |
+| `requirement_and_design.md` | **PARKED.** The earlier design log. Its load-type model and target table types are requirement-level and still stand; its write-strategy mechanics and window-derivation work are low-level design and wait for sign-off on the architecture |
+| `design_tracker.xlsx` | **PARKED** alongside it, for the same reason |
 
-One topic at a time: discussed, finalised, captured in **both** files, then the next topic opens. The
-workbook's decisions and open-questions sheets mirror the document's, so they are changed together.
+**One acceptance test governs the architecture:** one taskflow serves every load type, and **no block on the
+flow diagram branches on load type**. A load type changes parameter values, never the path through the flow.
+
+Settled with the design lead: Stonebranch triggers a **batch**, not a table · **one** taskflow · source and
+target both in **Snowflake**, so full push-down applies and there is no staging block · control tables in
+Aurora with working copies in Snowflake, pushed back at post load · Stonebranch owns the batch while the
+**framework owns sequencing and parallelism of tables within it** · DQ and continue-on-failure exactly as ABC
+does them today.
+
+The earlier iteration drifted from architecture into detailed design — watermark arithmetic and column lists
+before a flow existed. It is parked rather than deleted, with an honest classification of what carries
+forward at the top of each file.
 
 **This is a fresh design**, not a continuation of any earlier proof of concept in this repository. It does
 not inherit decisions from one. The single background reference is
