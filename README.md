@@ -114,6 +114,11 @@ The POC also **found a real defect** in the rule set: on a Zone1 rerun a genuine
 misclassified and its insert silently dropped, losing all target cover from that date onward. Fixed, with
 S12 TC03 as the regression guard (`solution_design.md` §17).
 
+A **leadership-verified worked example** arrived on 2026-10-13, adding two target columns. Days 1 to 3 of it
+were replayed through the POC and reproduce **row for row** — insert, expire-in-place and soft delete all
+match. Day 4 is unreconciled and being re-checked, and the target needs a new `current_record_ind` column.
+Detail in `solution_design.md` §19.
+
 **This settles the design question, not delivery.** IDMC is deferred, the objects still have to fold into the
 existing pipeline, and the open items in `poc_v2/README.md` remain open.
 

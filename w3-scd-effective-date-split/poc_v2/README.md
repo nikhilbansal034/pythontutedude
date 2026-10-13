@@ -2,6 +2,10 @@
 
 Everything for the POC lives here. **69 test cases across 15 scenarios, 69 passing, executed against Snowflake and evidenced.**
 
+The leadership-verified worked example of 2026-10-13 was replayed through the Step 1 view: **days 1 to 3
+reproduce row for row**, exercising insert, expire-in-place and soft delete. Day 4 is unreconciled and the
+target needs a new `current_record_ind` column — `../solution_design.md` §19.
+
 The first POC has been deleted. It was written before the 18-rule table existed and implemented a plain
 hash-diff instead, so running it would have produced behaviour the design no longer specifies. Its scenario
 catalogue survives as `../sources/Final_Scenarios_v2.xlsx`, kept for provenance only.
@@ -164,6 +168,12 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
 
 **Waiting on an answer from outside the team**
 
+- **Is the Day 4 worked example intended, or a slip in the dummy data?** It retires real-dated rows as dead
+  records where the rule table says delete indicator. Decides rules 11, 12, 15 and 16. See
+  `../solution_design.md` §19.
+- **What is `deletion_ind` for?** A third target column in the new worked example, labelled "teradata
+  replica for soft delete" and empty throughout it.
+
 - **Can a Zone1 history table hold two overlapping periods for one business key?** The design assumes not,
   that assumption is stated nowhere, and the suite cannot detect its violation. Highest-value question open.
 - **What is `UUID` on a target row** — generated per row, or carried from a source? Rules 2 and 4 exist only
@@ -182,6 +192,10 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
 - Bring the offline harness under drift control. Do this first — the shipped `MERGE` is not executed by any
   test, so a mutation score over `00_objects.sql` is currently zero.
 - Correct the seven documentation defects listed in `../solution_design.md` §18C.
+- **Add `current_record_ind`** — a new target column, `'Y'` exactly when `ROW_EXP_DTE` is the high end date.
+  Touches both DDLs, the Step 1 view and all three MERGE branches, and should come with an invariant
+  assertion so the stored flag cannot drift from the expiry it duplicates. Safe to do before the Day 4
+  question is settled. See `../solution_design.md` §19.
 
 **Other**
 
