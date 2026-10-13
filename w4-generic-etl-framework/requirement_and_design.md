@@ -23,7 +23,7 @@ opens:
 | **this document** | the reasoning — why a decision was taken, what was rejected, what it costs |
 | **`design_tracker.xlsx`** | the structured detail — one sheet per entity, ready to become seed config |
 
-The workbook's `decisions` and `open_questions` sheets mirror §9 and §10 here. **Change both together or
+The workbook's `decisions` and `open_questions` sheets mirror §12 and §13 here. **Change both together or
 they drift.** Sheets with only a yellow example row are not yet started; the example shows the expected
 format and is meant to be deleted.
 
@@ -486,7 +486,102 @@ full key set.
 
 ---
 
-## 11. Decisions log
+## 11. Aspect 4 — Window derivation · **IN DISCUSSION**
+
+> Captured in the workbook on three sheets: **`window_plain_english`** (read first), **`window_decisions`**
+> (the sixteen calls, with a yellow column for your answer), **`window_new_tables`** (table shapes).
+> Nothing in this section is in the decisions log yet. A recommendation becomes **D-38** onwards once agreed.
+
+### 11.1 What this aspect is, in one paragraph
+
+A **window** is the answer to one question the engine asks at the start of every single run: **what data is
+this run responsible for?** Nothing else in the framework can begin until that is answered, and it has to be
+answered from configuration and stored state alone — never from a hand-edited parameter file. Aspect 4 is only
+about that one question: **how the answer is worked out, where it is stored, and how it is cut into pieces when
+it is too big for one pass.**
+
+It is **not** about dependencies between tables, DQ checks, or restart orchestration. Those are Aspects 5–8.
+
+### 11.2 A window takes one of three shapes
+
+| Shape | What the engine ends up holding | Which tables need it | Why that shape |
+|---|---|---|---|
+| **Row filter** | two boundary values, used as a `WHERE` clause | `APPEND_ONLY`, `SNAPSHOT` | the run only touches rows inside the boundary, so a filter is enough |
+| **Key set** | a list of business keys — then **all** source history for those keys, whatever its date | **SCD2** | the timeline for a key is rebuilt whole. A date filter hands the rebuild half a timeline and corrupts the target |
+| **No filter** | nothing to derive | SCD1 served by `FULL_REFRESH` | the run replaces the whole table, so there is no boundary |
+
+The key-set shape is the finding that makes this aspect more than plumbing. **ABC derives only the row-filter
+shape.** Our SCD2 strategy cannot be fed by it, so Aspect 4 cannot simply copy what exists.
+
+### 11.3 The same question, answered for five real scenarios
+
+| Scenario | Load type | Table type | What the window **is** | With numbers |
+|---|---|---|---|---|
+| Nightly run of a policy dimension | `INCREMENTAL` | SCD2 | the set of **policy numbers** changed in Zone 1 since the last successful run — then every history row for those policy numbers | last run read to load batch 4471; Zone 1 is now at 4488; 1,430 policy numbers touched; the run then reads all 9,800 history rows for those 1,430 and rebuilds 1,430 timelines |
+| Nightly run of a premium transaction table | `INCREMENTAL` | APPEND_ONLY | a row filter — the transactions that landed since the last run | `(4471, 4488]` → 2.1m rows inserted; nothing already in the target is read |
+| One-time backfill of 7 years | `HISTORY` | SCD2 | the same key-set shape, but the keys are *every* key, cut into ranges | 38m policy numbers → 380 chunks of 100,000 keys; each chunk rebuilds complete timelines for its own keys; chunks are independent and parallelisable |
+| Monthly refresh of a product mapping | `FULL_REFRESH` | SCD1 | nothing to derive — read everything, replace the table | all 4,100 rows. No watermark, no key set, no chunks. `FULL_REFRESH` **is the absence of a window** |
+| Reload after an upstream fix | `REPLAY` | SCD2 | the key set touched in a range the operator **states** rather than one the engine derives | 2026-08-01 → 2026-08-31, 90,200 keys rebuilt. The nightly watermark is **not** moved (W-10) |
+
+### 11.4 The four failure modes this aspect exists to prevent
+
+| The mistake | What you see in production | Why it is hard to catch | Prevented by |
+|---|---|---|---|
+| The same boundary value used on **both** sides — inclusive low *and* inclusive high | duplicate rows in `APPEND_ONLY` targets, one per run boundary | counts are only slightly off; sum-based reconciliation can still pass | **W-03** |
+| The upstream ceiling **re-read at the end** of the run instead of captured at the start | rows that landed *during* the run sit inside the recorded window but were never read — a permanent silent gap | nothing fails; only visible by comparing source and target months later | **W-04** |
+| An SCD2 rebuild chunked **by date** instead of by key | timelines with gaps, or two rows flagged current for one key | each chunk is internally consistent, so per-chunk validation passes | **W-11** |
+| A `REPLAY` or `HISTORY` run **advances the watermark** | the next incremental skips everything between the replayed range and today | the replay itself succeeds and reports correct counts | **W-10** |
+
+What these share: **nothing fails.** The run is green, the counts are plausible, the damage surfaces weeks
+later. That is the whole argument for specifying window arithmetic once, centrally, and generating it — rather
+than leaving it to each pipeline author.
+
+### 11.5 The sixteen decisions
+
+Full options and consequences are on the **`window_decisions`** sheet. Condensed:
+
+| # | Group | Question | Recommendation |
+|---|---|---|---|
+| **W-01** | output | Row filter, or set of keys? | **Derived from the write strategy.** Not a config choice — choosing wrong is undetectable at runtime |
+| **W-02** | watermark | Business date, or arrival order? | **Arrival order** (Zone 1 load batch / load timestamp), never a business date. Removes the late-arriving-data problem *by construction* instead of handling it with a reprocessing loop. Gated on **OQ-12** |
+| **W-03** | watermark | Inclusive or exclusive boundaries? | `(low, high]` — exclusive low, inclusive high, fixed framework-wide and generated into the SQL |
+| **W-04** | watermark | When is the boundary decided and written? | **Captured once at run start**, used for every read, written only after the target commit succeeds |
+| **W-05** | watermark | Per pipeline, or per source table? | **Per source table**, always — even with one source. ABC learned this; it is why `etl_data_ingestion_source_window` exists |
+| **W-06** | readiness | One source of a multi-source target not ready? | **Skip the whole target**, advance no watermark, fail loudly — but as a declared config rule, not a side effect |
+| **W-07** | readiness | Is readiness part of window derivation? | **No — split them.** Readiness is a dependency gate (Aspect 7) evaluated first. The hard-coded upstream job name becomes config |
+| **W-08** | edge | First-ever run? | A **config field** on the pipeline-source row. No load type, no special path. Replaces ABC's never-built first-time-incremental flag |
+| **W-09** | edge | Zero-row run — success or failure? | **Success**, watermark advances; a configurable minimum-row **DQ check** raises the alarm when zero is genuinely wrong |
+| **W-10** | edge | Does `REPLAY` / `HISTORY` / `CATCHUP` move the watermark? | **No.** `EXPLICIT_RANGE` loads never read it and never write it |
+| **W-11** | chunking | What is a chunk cut on? | **Derived from the window shape** — key-set windows by key range, row-filter windows by the watermark column. Not independently configurable (§10.5) |
+| **W-12** | chunking | How is chunk size decided? | One **declared number** per pipeline with a declared unit. **No auto-tuning in v1** — explainability beats optimality in a framework many teams must trust |
+| **W-13** | chunking | Chunk plan recomputed, or persisted? | **Computed once at run start and persisted**, reused verbatim on restart. Recomputing moves boundaries and double-processes or skips work |
+| **W-14** | chunking | Parallel? Ordered? | Parallel, any order — but the watermark advances only over the **contiguous completed prefix**. Chunks 1, 2, 4 done ⇒ watermark moves to the end of 2 |
+| **W-15** | plumbing | Bound parameters, or a joined table? | **Parameters for a row filter, a transient table for a key set.** Two values bind; a million keys do not. So the Snowflake dual-write is needed only for key-set windows, not every load |
+| **W-16** | tables | Reuse ABC's two ingestion tables, or create new? | **Create new; leave ABC's pair untouched for Zone 1 → Zone 2.** This resolves **D-16** |
+
+### 11.6 Tables this needs — proposed, contingent on W-16
+
+| Table | Kind | Grain | Written by | Relation to ABC |
+|---|---|---|---|---|
+| `load_pipeline` | config | target table × load type | people | from Aspect 2. What `job_metadata` cannot be, because it conflates what a table *is* with how it is *loaded* |
+| `pipeline_source` | config | pipeline × source table | people | takes over from `etl_data_ingestion_metadata`; keyed to the pipeline, which fixes the single-source-batch limitation |
+| `pipeline_watermark` | runtime | pipeline × source table — **one row, updated in place** | engine, on success only | **no ABC equivalent.** ABC re-derives this every run by joining `job_run_stats` to `etl_data_ingestion_source_window` — which is why that query is as complex as it is |
+| `pipeline_run_window` | runtime | run × source table | engine, at run start | takes over from `etl_data_ingestion_source_window`, but **append-only**. ABC deletes and reloads per run, keeping no history of what past runs read |
+| `pipeline_run_chunk` | runtime | run × source table × chunk | engine at run start; status per chunk | **no ABC equivalent** — chunking was never config-driven. This is what makes W-13/W-14 implementable and where Aspect 8 gets restart and progress |
+
+`pipeline_source` is the one table teams would be asked to fill in; its columns are enumerated on the
+`window_new_tables` sheet, each tied to the decision that put it there.
+
+### 11.7 What gates this aspect
+
+- **OQ-11** — if Zone 1 does not retain complete history per key, `SCD2_REBUILD_TIMELINE` must be replaced
+  and the key-set window has nothing to feed. **Revisit Aspect 3 before closing Aspect 4.**
+- **OQ-12** (new) — if Zone 1 exposes no arrival-ordered column, W-02 falls back to a business date, and the
+  framework must carry a lookback window plus a reprocessing loop. More logic, more state, less safe.
+
+---
+
+## 12. Decisions log
 
 | # | Decision | Status |
 |---|---|---|
@@ -530,7 +625,7 @@ full key set.
 
 ---
 
-## 12. Open questions
+## 13. Open questions
 
 | # | Question | Blocks | Owner |
 |---|---|---|---|
@@ -545,19 +640,19 @@ full key set.
 | **OQ-09** | Can new tables be created in the **shared Aurora ABC schema**, or does this design need its own schema? Affects D-16's blast-radius argument | Category B | Nikhil |
 | **OQ-10** | **Are transaction / event tables in Zone 2 scope at all** — premium transactions, claim payments, commission transactions, ledger entries? If they stay elsewhere, cut `APPEND_ONLY` as we cut file-based sources and Aspect 3 finishes with a smaller strategy set | Aspect 3 | Nikhil |
 | **OQ-11** | **Does the Zone 1 refined layer retain complete history per key, indefinitely?** `SCD2_REBUILD_TIMELINE` depends on it and produces wrong timelines **silently** if history is pruned or archived. If retention is partial we need the incremental-splice variant — more logic, less safe. **The single most important precondition in the design** | Aspect 3 | Nikhil |
+| **OQ-12** | **Does Zone 1 expose an arrival-ordered value per table** — a load timestamp, insert timestamp or load batch id that only ever increases as data lands, and is queryable from Zone 2? **W-02 depends on it.** If the only candidate is a business date column, the framework must carry a lookback/grace window plus a reprocessing loop like ABC's RA `process_flag` — more logic, more state, less safe. Worth asking Zone 1 directly rather than inferring from the tables | Aspect 4 — W-02 | Nikhil |
 
 ---
 
-## 13. Aspect order
+## 14. Aspect order
 
 | Order | Aspect | Category | Status |
 |---|---|---|---|
 | 1 | Load type model | B | **CLOSED** (pending OQ-01) |
 | 2 | **Configuration data model** — entities, reuse/extend/create, DDL deltas | B | **in progress** |
-| 3 | **Target table types and write strategies** | D | **types AGREED; SCD2 strategy AGREED** |
-| 4 | Window derivation mechanics | B / D | |
+| 3 | **Target table types and write strategies** | D | **AGREED** |
+| 4 | **Window derivation mechanics** | B / D | **in discussion** — §11, W-01..W-16 |
 | 5 | Execution engine skeleton, gates, phase sequence | C | |
-
 | 6 | DQ and reconciliation from config | E | |
 | 7 | Orchestration, DAG declaration and grouping | A | |
 | 8 | State, restart and observability | F | |

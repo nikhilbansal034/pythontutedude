@@ -187,12 +187,14 @@ incremental, catchup, history, static, truncate-and-load, SCD1, SCD2 — and eve
 ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-child relationships and parallel
 grouping.
 
-**Status**: design in progress. **No build, no POC.** Worked one aspect at a time to closure.
+**Status**: design in progress. **No build, no POC.** Worked one aspect at a time to closure. Aspects 1 and 3
+(load type model; target table types and write strategies) are agreed; aspect 4 (window derivation) is open for
+discussion.
 
 | File | What it is |
 |------|-----------|
 | `requirement_and_design.md` | Living design log — requirement, design principles, architecture decomposition into seven categories, closed aspects with rationale, the decisions log, and open questions. Carries the **reasoning** |
-| `design_tracker.xlsx` | Nine sheets — load types, window strategies, target table types, write strategies, the compatibility matrix, the pipeline inventory for the teams to fill, decisions and open questions. Carries the **structured detail**, ready to become seed config |
+| `design_tracker.xlsx` | Ten sheets — load types and window strategies, target table types, write strategies, three `window_` sheets for the window-derivation aspect under discussion, the pipeline inventory for the teams to fill, decisions and open questions. Carries the **structured detail**, ready to become seed config. A yellow cell means input is wanted from the design lead |
 
 One topic at a time: discussed, finalised, captured in **both** files, then the next topic opens. The
 workbook's decisions and open-questions sheets mirror the document's, so they are changed together.
