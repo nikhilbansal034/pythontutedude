@@ -6,6 +6,7 @@
 > | | |
 > |---|---|
 > | [`high_level_design.xlsx`](high_level_design.xlsx) | the same content, structured — and the sheet we hang per-block detail off |
+> | [`framework_flow.drawio`](framework_flow.drawio) | the flow as an editable diagram: three columns — configuration read · the flow and its checks · state written or the failure exit |
 > | [`requirement_and_design.md`](requirement_and_design.md) · [`design_tracker.xlsx`](design_tracker.xlsx) | **PARKED.** See §6 |
 
 ---
@@ -33,20 +34,22 @@ Answered 13 October 2026. These are **facts the architecture must satisfy**, not
 | **R-03** | **One** taskflow, fully scalable, every scenario | No block may branch on load type. §1 |
 | **R-04** | Runs **in parallel** with ABC; new development comes onto it once ready | No migration dependency, no backward-compatibility burden, own tables, ABC untouched. Nothing in production is put at risk |
 | **R-05** | Source **and** target both in Snowflake | Full push-down is achievable for every load, so there is **no acquisition or staging block at all** — the framework is transform-and-load only. And every transformation must be push-down safe, because push-down is all-or-nothing |
-| **R-06** | Control tables in Aurora · working copies in Snowflake · pushed back at post load | Two **named blocks** rather than an implementation detail: B6 and B10. Names a failure mode the architecture must make alertable — Aurora and Snowflake out of step |
-| **R-07** | Stonebranch owns the **batch only**; table sequencing and parallelism belong to Aurora / Snowflake / IDMC | The framework builds its **own execution plan**. B7 — the largest new capability in the design |
+| **R-06** | Control tables in Aurora · working copies in Snowflake · pushed back at post load | Two **named blocks** rather than an implementation detail: B5 and B8. Names a failure mode the architecture must make alertable — Aurora and Snowflake out of step |
+| **R-07** | Stonebranch owns the **batch only**; table sequencing and parallelism belong to Aurora / Snowflake / IDMC | The framework builds its **own execution plan**. B6 — the largest new capability in the design |
 | **R-08** | DQ failures handled **exactly as ABC** | Quality checking is **not a gate**. It is row routing *inside* the load plus a verdict *after* it |
 | **R-09** | Reconciliation after the write, before the run is marked successful | No staging layer — which matters because push-down makes staging expensive. A failed recon fails the run with the data left **visible** |
 | **R-10** | On a member failure the batch **continues**, as ABC does | Every member is attempted; Completed only with zero failures. Intra-batch dependency forces a **third** member outcome ABC has no concept of: **SKIPPED** |
 | **R-11** | All transformation — joins, lookups, aggregation, dedup, derivation — is **parameterised SQL** executing on Snowflake, table by table | Transformation is **configuration, not framework code**. It also fixes the cleanest seam in the design: **team SQL** produces a prepared row set shaped like the target; **framework SQL** applies it. The team owns *what the rows are*, the framework owns *how they land* — so the write-strategy library is the only SQL the framework itself owns |
-| **R-12** | Validating a team's SQL and mapping is **out of scope** — that is build's problem, not the design framework's | **B5 narrows** to *structural* validation: a cycle in the prerequisites, a member with no pipeline, a strategy illegal for its table type. It no longer implies anything about whether a query is correct or push-down safe |
-| **R-13** | **Target → target prerequisite sequencing** is a missing feature, to be held in metadata. At load start a table reads its prerequisites, checks their load status, and starts only when all are complete | Two blocks, one metadata table. **B7** resolves the prerequisites into an **attempt order**; **T2** then *verifies* rather than schedules — so a prerequisite can never still be in progress when it is checked, and there is no waiting or polling. Exactly two outcomes at T2: completed → proceed, failed or skipped → **SKIPPED** |
+| **R-12** | Validating a team's SQL and mapping is **out of scope** — that is build's problem, not the design framework's. **Validating a target's structure is out of scope too**: no invariant assertion after the write | The configuration-validation block has been **removed from the flow entirely**. What survives is implicit: an unplaceable prerequisite makes B6's plan unbuildable |
+| **R-13** | **Target → target prerequisite sequencing** is a missing feature, to be held in metadata. At load start a table reads its prerequisites, checks their load status, and starts only when all are complete | Two blocks, one metadata table. **B6** resolves the prerequisites into an **attempt order**; **T2** then *verifies* rather than schedules — so a prerequisite can never still be in progress when it is checked, and there is no waiting or polling. Exactly two outcomes at T2: completed → proceed, failed or skipped → **SKIPPED** |
+
+| **R-14** | **Remove configuration validation and batch-level reconciliation** from the flow | The batch spine drops from twelve blocks to **ten**, renumbered B1–B10. Reconciliation is per table only, at T9. **HQ-03 becomes moot** |
 
 ### Assumptions taken to close the design
 
 | # | Assumption | How it is defended | What breaks if it is wrong |
 |---|---|---|---|
-| **A-01** | **Prerequisites are always inside the same batch** (HQ-07) | **B5 rejects** any configuration whose declared prerequisite is not an active member of the same batch — so the assumption cannot rot silently | Batch membership stops being a purely operational grouping: two tables in a prerequisite relationship **must** be co-batched, so the dependency graph now constrains how batches are composed. A genuine cross-batch need becomes a batch-level dependency for Stonebranch instead (F-22, now out of scope) |
+| **A-01** | **Prerequisites are always inside the same batch** (HQ-07) | **B6 cannot place** a declared prerequisite that is not a member of this batch, so the plan is unbuildable and the batch fails. Less explicit than a dedicated validation block, but not lost | Batch membership stops being a purely operational grouping: two tables in a prerequisite relationship **must** be co-batched, so the dependency graph now constrains how batches are composed. A genuine cross-batch need becomes a batch-level dependency for Stonebranch instead (F-22, now out of scope) |
 
 ---
 
@@ -66,61 +69,62 @@ should nevertheless gain a Partial outcome is **HQ-02**.
 
 ```
    LEVEL 1 · BATCH                                   LEVEL 2 · TABLE
-   runs once per batch                               invoked once per member table, at B8
+   runs once per batch                               invoked once per member table, at B7
 
 ┌──────────────────────────────────────┐          ┌──────────────────────────────────────┐
 │ B1  TRIGGER                          │          │ T1  REGISTER THE JOB RUN             │
 │     Stonebranch starts the batch     │          │     inherit the batch run identifier │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B2  BATCH PREREQUISITE CHECK    GATE │          │ T2  DEPENDENCIES SATISFIED?     GATE │
+│ B2  BATCH PREREQUISITE CHECK   CHECK │          │ T2  PREREQUISITES SATISFIED?   CHECK │
 │     allowed to start at all?         │          │     from metadata, for this run      │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B3  REGISTER THE BATCH RUN           │          │ T3  IS THE UPSTREAM DATA READY? GATE │
+│ B3  REGISTER THE BATCH RUN           │          │ T3  IS THE UPSTREAM DATA READY?CHECK │
 │     establish the run identifier     │          │     has the source landed?           │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
 │ B4  LOAD BATCH CONFIGURATION         │          │ T4  DETERMINE WHAT THIS RUN          │
-│     members · groups · edges ·       │          │     PROCESSES                        │
-│     each table's pipeline            │          │     mechanics = low level design     │
+│     members · groups · prerequisites │          │     PROCESSES                        │
+│     load type · table type · write   │          │     mechanics = low level design     │
+│     strategy · keys · the team SQL   │          │                                      │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B5  VALIDATE CONFIGURATION      GATE │          │ T5  PLAN THE PASSES                  │
-│     refuse an incoherent batch       │          │     fixed before anything is written │
-│     before any data is touched       │          │                                      │
+│ B5  MIRROR CONTROL TABLES            │          │ T5  PLAN THE PASSES                  │
+│     TO SNOWFLAKE                     │          │     fixed before anything is written │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B6  MIRROR CONTROL TABLES            │          │ T6  REGISTER THE CHECKS              │
-│     TO SNOWFLAKE                     │          │     which rules apply, from config   │
+│ B6  BUILD THE EXECUTION PLAN    NEW  │          │ T6  REGISTER THE CHECKS              │
+│     prerequisites + groups →         │          │     which rules apply, from config   │
+│     an ATTEMPT ORDER, not a schedule │          │                                      │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B7  BUILD THE EXECUTION PLAN    NEW  │          │ T7  EXECUTE THE LOAD                 │
-│     prerequisites + groups →         │          │     write strategy from config,      │
-│     an ATTEMPT ORDER, not a schedule │          │     pushed down. Rows failing a      │
+│ B7  RUN EACH WAVE IN ORDER           │─────────▶│ T7  EXECUTE THE LOAD                 │
+│     within a wave, in parallel       │  for each│     write strategy from config,      │
+│     each table runs LEVEL 2  ────────│  table   │     pushed down. Rows failing a      │
 │                                      │          │     rule are split out HERE          │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B8  RUN EACH WAVE IN ORDER           │─────────▶│ T8  RECORD THE CHECK VERDICT         │
-│     within a wave, in parallel       │  for each│     critical → job fails             │
-│     each table runs LEVEL 2  ────────│  table   │     informational → warning          │
+│ B8  PUSH STATE BACK TO AURORA        │          │ T8  ANY CRITICAL FAILURE?      CHECK │
+│     working copies → system of record│          │     critical → fail · info → warn    │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B9  BATCH RECONCILIATION             │          │ T9  TABLE RECONCILIATION             │
-│     totals across member tables      │          │     after write, before success      │
+│ B9  DETERMINE THE BATCH OUTCOME      │          │ T9  RECONCILIATION BALANCES?   CHECK │
+│     zero member failures → Completed │          │     after write, before success      │
+│     else Failed       (ABC rule)     │          │                                      │
 └──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
 ┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B10 PUSH STATE BACK TO AURORA        │          │ T10 POST-LOAD STEPS                  │
-│     working copies → system of record│          │     as this table's config requires  │
-└──────────────────┬───────────────────┘          └──────────────────┬───────────────────┘
-┌──────────────────▼───────────────────┐          ┌──────────────────▼───────────────────┐
-│ B11 DETERMINE THE BATCH OUTCOME      │          │ T11 CLOSE THE JOB RUN                │
-│     zero failures → Completed        │◀─────────│     advance stored state ONLY on     │
-│     else Failed       (ABC rule)     │  return  │     success · return to B8           │
-└──────────────────┬───────────────────┘          └──────────────────────────────────────┘
-┌──────────────────▼───────────────────┐
-│ B12 NOTIFY AND CLOSE                 │
-└──────────────────────────────────────┘
+│ B10 NOTIFY AND CLOSE                 │          │ T10 POST-LOAD STEPS                  │
+│                                      │          │     as this table's config requires  │
+└──────────────────────────────────────┘          └──────────────────┬───────────────────┘
+                                                  ┌──────────────────▼───────────────────┐
+                                                  │ T11 CLOSE THE JOB RUN                │
+                                                  │     advance stored state ONLY on     │
+                                                  │     success                          │
+                                                  └──────────────────┬───────────────────┘
+                                                                     │
+                     ◀───────────────────────────────────────────────┘
+                     return to B7 — next table, then the next wave
 ```
 
 **The branch that is not on this diagram.** `HISTORY`, `CATCHUP`, `INCREMENTAL`, `REPLAY` and
@@ -136,9 +140,8 @@ design's weight:
 
 | Block | Why it matters |
 |---|---|
-| **B5 — validate configuration** | The only place a bad configuration is caught **before data is touched**: a cycle in the prerequisites, a member with no pipeline, a write strategy illegal for its table type, and **a declared prerequisite that is not a member of this batch** — the rule that defends A-01. *Structural* validation only; SQL and mapping validity is build's (R-12). A framework that validates config at run time instead has already read the data when it finds out |
-| **B7 — build the execution plan** | **New, and the largest new capability.** R-07 put the intra-batch DAG here rather than in Stonebranch. Its job is **ordering only** (R-13): it guarantees that by the time a table is attempted, every prerequisite has already been attempted — which is what lets T2 be a check rather than a scheduler |
-| **B8 — run each wave** | Carries three behaviours at once: parallel within a wave, continue-on-failure across members (ABC's rule), and **SKIPPED** for a table whose parent failed |
+| **B6 — build the execution plan** | **New, and the largest new capability.** R-07 put the intra-batch DAG here rather than in Stonebranch. Its job is **ordering only** (R-13): it guarantees that by the time a table is attempted, every prerequisite has already been attempted — which is what lets T2 be a check rather than a scheduler. It is also now what **defends A-01**: a prerequisite outside this batch cannot be placed, so the plan is unbuildable and the batch fails here |
+| **B7 — run each wave** | Carries three behaviours at once: parallel within a wave, continue-on-failure across members (ABC's rule), and **SKIPPED** for a table whose parent failed |
 
 ### The three member outcomes
 
@@ -192,7 +195,26 @@ from the column list.
 
 ---
 
-## 6. What is deliberately not here
+## 6. The checks
+
+Seven checks, and nothing else stops a run. Every one is a diamond on the drawIO diagram.
+
+| | Check | How it is evaluated | On failure |
+|---|---|---|---|
+| **B2** | is this batch allowed to start | calendar · prior run of this batch still in flight · upstream batch status | abort — **no run state is created at all** |
+| **B6** | is the plan buildable | every declared prerequisite can be placed in an attempt order | batch Failed. Also **defends A-01** |
+| **B9** | batch outcome | zero member failures? | batch Failed (HQ-02 asks whether *Partial* is wanted) |
+| **T2** | prerequisites satisfied | per prerequisite, its load status **for this run** | **SKIPPED** — distinct from Failed, because no data was touched |
+| **T3** | upstream data ready | the readiness rule against the declared source list | job Failed |
+| **T8** | quality verdict | any CRITICAL → fail; INFORMATIONAL alone → complete with a warning | job Failed, rows already quarantined |
+| **T9** | reconciliation balances | counts, and amounts where the table has a measure | job Failed, **data left visible** for investigation |
+
+**Row-level quality evaluation happens inside T7**, not as a gate: rows failing a rule are split out as the
+load runs — CRITICAL quarantined and not loaded, INFORMATIONAL quarantined and loaded. T8 only reads the verdict.
+
+---
+
+## 7. What is deliberately not here
 
 | Not decided here | Where it belongs |
 |---|---|
@@ -201,13 +223,15 @@ from the column list.
 | The SQL behind each write strategy at T7 | low level design |
 | Physical model, column names, DDL | low level design |
 | Rule thresholds, chunk sizes, warehouse sizing | low level design |
+| **Whether a team's SQL is correct or push-down safe** | **build** (R-12) |
+| **Whether the target is still structurally valid after a write** — no invariant assertion | **out of scope** (R-12) |
 
 The previous iteration of this design went into all five before the flow existed. That was the mistake this
 document corrects.
 
 ---
 
-## 7. The parked work
+## 8. The parked work
 
 `requirement_and_design.md` and `design_tracker.xlsx` are **parked at the point they reached**, not deleted.
 Honest classification of what is in them:
@@ -225,25 +249,25 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 
 ---
 
-## 8. Open questions
+## 9. Open questions
 
 **`HQ-04` is the largest gap in the whole design** and it is the one only leadership can close.
 
 | # | Question | Blocks |
 |---|---|---|
-| **HQ-01** | Confirm the `group` column on `job_metadata` — exact name, and what it means today. Parallel-group label, sequence number, or something else? The ABC reference documents no such column, so this needs the live DDL | B7 |
-| **HQ-02** | Should this framework's batch gain a **Partial** outcome, or stay with ABC's two states? *"12 of 15 loaded, 3 skipped because their parent failed"* is materially different from a flat Failed, and it is what a morning operations call needs | B11 |
-| **HQ-03** | What are the batch-level control totals at B9? Cross-table totals only mean something where members share a measure. If none does, B9 collapses to an aggregate of the per-table recons and should be drawn that way | B9 |
+| **HQ-01** | Confirm the `group` column on `job_metadata` — exact name, and what it means today. Parallel-group label, sequence number, or something else? The ABC reference documents no such column, so this needs the live DDL | B6 |
+| **HQ-02** | Should this framework's batch gain a **Partial** outcome, or stay with ABC's two states? *"12 of 15 loaded, 3 skipped because their parent failed"* is materially different from a flat Failed, and it is what a morning operations call needs | B9 |
+| ~~**HQ-03**~~ | **CLOSED — moot.** Batch-level reconciliation has been removed from the flow, so there are no cross-member totals to define. Reconciliation is per table, at T9 | — |
 | **HQ-04** | **Non-functional requirements** — volume per table and per batch, the batch window, recovery time objective, concurrent pipeline count, audit retention period | the whole architecture |
-| **HQ-05** | Does `SKIPPED` propagate transitively to a skipped table's own dependents, and does a skipped table block the next batch run? | B7, T2 |
+| **HQ-05** | Does `SKIPPED` propagate transitively to a skipped table's own dependents, and does a skipped table block the next batch run? | B6, T2 |
 | ~~**HQ-06**~~ | **Superseded by HQ-08**, which offers a better option than either side of this question. | — |
-| ~~**HQ-07**~~ | **CLOSED — yes, by assumption A-01.** Taken to close the design rather than verified, and defended by a B5 rule | — |
-| **HQ-08** | **PROPOSED: declared by hand, validated by the framework** — which *reverses* the lean toward derived stated when this question was raised. **A join is not a prerequisite:** a lookup against a static reference table needs no ordering, and only the author knows which joins must be sequenced. Derived edges must still be stored and refreshed when the SQL changes, so the drift exposure does not go away; and deriving them needs SQL parsing, which is machinery for a problem declaration plus the B5 rule already solves | B4, B7 — **awaiting confirmation** |
+| ~~**HQ-07**~~ | **CLOSED — yes, by assumption A-01.** Taken to close the design rather than verified, and defended at B6 by plan-buildability | — |
+| **HQ-08** | **PROPOSED: declared by hand, validated by the framework** — which *reverses* the lean toward derived stated when this question was raised. **A join is not a prerequisite:** a lookup against a static reference table needs no ordering, and only the author knows which joins must be sequenced. Derived edges must still be stored and refreshed when the SQL changes, so the drift exposure does not go away; and deriving them needs SQL parsing, which is machinery for a problem declaration plus B6's plan-buildability already solves | B4, B6 — **awaiting confirmation** |
 | **HQ-09** | **PROPOSED: dissolved** by reframing what the declared source list is *for*. It is a **readiness list** — the tables whose completion gates this load — not a lineage list, and it was never meant to equal the set of tables the SQL touches. A static reference table the SQL joins gates nothing and does not belong on it. So the two diverging is not drift; they were never the same set. The residual risk — a join added to a table that *does* gate, undeclared — is a build and review concern, where R-12 already puts it | T3 — **awaiting confirmation** |
 
 ---
 
-## 9. What comes next
+## 10. What comes next
 
 The flow is the spine. Each block now gets its own detail, **one block at a time**, in diagram order —
 what it reads, what it writes, what it decides, what it must guarantee, and what it needs from configuration.
