@@ -187,13 +187,14 @@ incremental, catchup, history, static, truncate-and-load, SCD1, SCD2 — and eve
 ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-child relationships and parallel
 grouping.
 
-**Status**: high-level architecture in progress. **No build, no POC.** Requirements settled; the flow is
-drawn and under review; next each block on it gets its own detail, one block at a time.
+**Status**: high-level architecture in progress. **No build, no POC.** Requirements settled, the flow drawn,
+and the feature register scored: of 54 capabilities, **19 already exist in ABC, 7 partly, 26 are missing** —
+and the missing half clusters in keys and table structure, where ABC records nothing at all.
 
 | File | What it is |
 |------|-----------|
 | `high_level_design.md` | **ACTIVE.** The high-level architecture: the requirements settled with the design lead, the two-level flow from Stonebranch trigger to batch close, where every block exits, and what is deliberately left to low-level design |
-| `high_level_design.xlsx` | **ACTIVE.** The same content structured — the flow drawn as blocks, every block as a row, and the sheet that per-block detail hangs off |
+| `high_level_design.xlsx` | **ACTIVE.** The same content structured — the flow drawn as blocks, every block as a row, the load-type / table-type / write-strategy vocabulary, and the **feature register**: 54 capabilities the framework needs, scored against what ABC already provides |
 | `requirement_and_design.md` | **PARKED.** The earlier design log. Its load-type model and target table types are requirement-level and still stand; its write-strategy mechanics and window-derivation work are low-level design and wait for sign-off on the architecture |
 | `design_tracker.xlsx` | **PARKED** alongside it, for the same reason |
 
