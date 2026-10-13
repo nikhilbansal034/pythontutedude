@@ -995,7 +995,8 @@ than by default.
 | **A2** | **What is `UUID` on a target row** — generated per row and restamped, or carried from a source? (§13 Q9) | Rules 2 and 4 exist *solely* to restamp it. Its correctness cannot be asserted in test until its definition is settled. If it is carried from a source, which source supplies it for an interval only one source covers? |
 | **A3** | **How many assets will use this pattern?** (§12 Q5) | At two or three, a hand-written view per target is fine. At fifteen or more it is the wrong shape, and that is hard to reverse once built |
 | **A4** | **Is the Day 4 worked example intended, or a slip in the dummy data?** (§19) | Decides whether rules 11, 12, 15 and 16 retire by delete indicator or by dead record. The author is re-checking |
-| **A5** | **What is `deletion_ind` for?** (§19) | Labelled "teradata replica for soft delete" and empty throughout the worked example. Decides whether Zone2 writes it at all |
+| **A5** | **What is `deletion_ind` for?** (§19) | **Largely answered by §20** — Q1 carries `DELETE_INDICATOR` from the source's `DLT_I`. One confirmation needed that this is the same column and that `is_deleted` is separate |
+| **A6** | **Which tables actually need the effective-date split?** (§20) | The classifier reads the STTM. `BROKER_PARTY` turns out not to need it — its sources are prioritised alternatives, not co-equal SCD2 feeds. Needs an STTM sample for a genuine two-source table |
 
 ### B. Ours to do, no external answer needed
 
@@ -1005,7 +1006,9 @@ than by default.
 | **B2** | Add genuine de-duplication coverage: a duplicate `(key, effective date)` with **distinct** timestamps where **neither** value matches the incumbent | De-dup and "latest wins" are both currently untested |
 | **B3** | Fix S05 to test its own stated premise — the **same** value either side of the gap | The gap guard is currently never exercised |
 | **B4** | Bring the offline harness under drift control: generate its apply logic from `00_objects.sql`, or extend `check_merge_drift.py` to cover it | The shipped MERGE is not executed by any test |
-| **B5** | Add `current_record_ind` — both DDLs, the Step 1 view, all three MERGE branches — with an invariant assertion that it never disagrees with the row's own expiry date | §19. Safe to do now: it does not depend on how A4 resolves |
+| **B5** | Add `current_record_ind` — both DDLs, the Step 1 view, all three MERGE branches — with an invariant assertion that it never disagrees with the row's own expiry date | §19. Safe to do now: it does not depend on how A4 resolves. §20 confirms the derivation matches production-generated code |
+| **B6** | Write the historical (Day 1) instruction file for DataAssist: per-table classifier, one template per classification, and self-check assertions emitted into the generated SQL | §20. Blocked only on an STTM sample for a two-source table |
+| **B7** | Give the incremental phase a second, attribute-only hash, or redefine `AUDIT_CHANGE_HASH` to exclude the dates | §20. Day 2 only — the decision table cannot work while the expiry is inside the hash |
 
 **B4 should be sequenced first.** The review recommends replacing "18 of 18 rules reached" with a mutation
 score as the coverage gate, which is right — rule coverage measures *reachability* and says nothing about
@@ -1103,3 +1106,259 @@ So the implementation restamps the UUID in cases the requirement does not ask fo
 cannot be settled until someone defines what `UUID` means (§18 A2), and no test asserts it either (review
 finding F5). Recorded here rather than changed.
 
+---
+
+## 20. Integrating with DataAssist — what Q1 and Q2 already do
+
+DataAssist generates two files per table from the data modeller's STTM: **Q1** (Zone 1 source to temporary
+staging) and **Q2** (staging to Zone 2 target). Both were read for `BROKER_PARTY`.
+
+### What they do today
+
+**Q1** builds one staging row per `(business key, effective datetime)` through layered CTEs: the history
+tables `UNION ALL`'d with a `TABLE_PRIORITY`, deduplicated by
+`ROW_NUMBER() OVER (PARTITION BY key, eff_dte ORDER BY priority, exp_dte DESC)`; then non-history tables
+added only via `NOT EXISTS` against the history ones, with default dates `1900-01-01` to `9999-12-31`; then
+secondary tables on the same basis. The final `SELECT` builds every target column, including an
+`AUDIT_CHANGE_HASH`.
+
+**Q2** is an upsert keyed on `(business key, effective datetime)`. It left-joins staging to a
+de-duplicated target and emits `DD_CHANGE_FLAG`: **0** insert (no target row), **1** update (hash differs),
+**3** skip (hash same). IDMC filters out 3 and runs the rest data-driven, taking
+`COALESCE(target_sk, SEQ.NEXTVAL)` for the surrogate key.
+
+### Day 1 needs one rule, not eighteen
+
+On a full history load the target is empty, so no rebuilt interval can match a target row. Rules 1 to 16
+all require a match and rule 18 requires a target row that has disappeared. **Only rule 17 — insert — can
+fire.**
+
+Measured, not reasoned: the first test case of each of the 15 scenarios loads an empty target, and across
+all fifteen differently-shaped datasets Step 1 produced **rule 17 and nothing else**.
+
+So the historical instruction file is not about the decision table at all. It is about **deriving the
+timeline correctly** — the boundary union across sources, deduplication, collapsing adjacent equal values,
+gaps, and the two indicators. The 18 rules are entirely the incremental reconciliation layer.
+
+### Q1 and Q2 are already right for Day 1, and wrong for Day 2
+
+Q2's `DD_UPDATE` path **updates the matched target row in place**. That is exactly the `upd` the
+requirement struck through, because in-place update is what must *not* happen — the rule is
+retire-and-replace.
+
+On an empty target that branch never fires, so Q1 and Q2 as they stand are correct for a historical load.
+From the first incremental run onward they would overwrite history and report success. **This is a Q2
+change, not a Q1 change**, which is a further reason to take historical first.
+
+### A hash conflict that bites at Day 2
+
+`AUDIT_CHANGE_HASH` is an MD5 over the business key, the attributes, **both dates**, and both indicators.
+
+The decision table needs a hash over **target-bound attributes only, excluding dates**, because the whole
+table turns on telling *"hash same, expiry differs"* (rules 5 to 8) apart from *"hash differs"*
+(rules 9 to 16). With the expiry inside the hash those branches collapse: every date change looks like a
+value change. Day 2 needs either a second attribute-only hash or this one redefined. Day 1 is unaffected.
+
+### Two open questions largely answered by the generated SQL
+
+| | Finding |
+|---|---|
+| **A5** `deletion_ind` | Q1 derives `DELETE_INDICATOR` as `COALESCE(DLT_I, 'N')` — **carried from the source**, not invented by Zone 2. The likely reading is that this is the "Teradata replica" column, while `is_deleted` is Zone 2's own soft-delete flag set by the rules. Worth one confirmation, but no longer open-ended |
+| **B5** `current_record_ind` | Q1 derives it as `CASE WHEN ROW_EXP_DTE >= '9999-12-31' THEN 'Y' ELSE 'N'` — exactly the derivation proposed in §19, already in production-generated code |
+
+### The table-independence problem, and where it is answered
+
+`BROKER_PARTY` is **not** an example of the problem this design solves. Its eight sources are *prioritised
+alternatives for the same attribute set*, so Q1 picks one row per `(key, effective date)` by priority. That
+is a **union**. This design solves an **intersection**: two or more SCD2 sources carrying *different*
+attributes, whose boundaries must be merged so the target is cut wherever either source changes.
+
+A per-table classifier therefore has to read the STTM and decide:
+
+| The target's attributes map from | Effective-date split applies? |
+|---|---|
+| no SCD2 source | **No** — plain load |
+| one SCD2 source, or N prioritised alternatives for the same attributes | **No** — dates come straight from that source. `BROKER_PARTY` sits here |
+| two or more SCD2 sources contributing **different** attributes | **Yes** — boundary union required |
+
+That is mechanically derivable: group the STTM's source columns by source table, see which of those tables
+carry effective and expiry dates, and test whether the target's attributes draw from more than one of them.
+
+**Consequence worth stating plainly:** for a table in the third class, Day 1's Q1 is *not* today's Q1.
+Priority-union has to become boundary-union plus interval intersection. Historical integration is new Q1
+logic for those tables, not a configuration change.
+## 21. The real STTM and table DDLs — what they settle
+
+Three artefacts for `ACCOUNT_PARTY_REFERENCE`: the two source DDLs, the STTM mapping, and the staging and
+target DDLs. Between them they close a question that has been open since this work started, and they narrow
+the integration considerably.
+
+### The staging table is already shaped for this design
+
+`ACCOUNT_PARTY_REFERENCE_STG` carries, before anything we add:
+
+| Staging column | What it already is |
+|---|---|
+| **`CHANGE_FLAG`** | An operation indicator. **This is `ACTION_FLAG` under another name** |
+| `SRC_HASH_VAL`, `SRC_PREV_HASH_VAL`, `SRC_HASH_MATCH` | The hash comparison the rules need — including the **target's prior hash**, which is exactly the "rebuilt versus existing" comparison |
+| `TGT_ACTIVE_ROW_EFFECTIVE_DATETIME`, `TGT_ACTIVE_<table>_ID` | The matched target row's effective date and surrogate key — what our stage carries as the matched key |
+
+**This closes the `ACTION_FLAG` question.** It was the one genuine `ALTER` the design might have needed, and
+it is not needed: the column exists, under the name `CHANGE_FLAG`. The apply adds **no column at all**.
+
+The target DDL also confirms §19 directly: `CURRENT_RECORD_INDICATOR VARCHAR(1) NOT NULL` and
+`DELETE_INDICATOR VARCHAR(1) NOT NULL` are both already there. Note there is **one** delete column here,
+where the worked example showed two (`is_deleted` and `deletion_ind`); either that example covered a
+different table or the two collapse to this one.
+
+### The classifier, now written against real STTM text
+
+The STTM gives, per target column: current-state table(s), current-state column(s), a free-text
+Transformation, the physical target column, and flags for `Future State Table SCD Type` and natural key.
+That is enough to classify a table mechanically:
+
+| Signal in the Transformation text | Reading |
+|---|---|
+| *"union data from these 2 tables"*, *"when sourcing from X … when sourcing from Y"*, *"Null when sourcing from Y"* | **Alternative sources.** One row comes from one source and takes that source's dates. **Union — no split** |
+| *"Join from A to B by …"* where **both** A and B carry `row_eff_dm` / `row_exp_dm` | **Co-equal SCD-2 feeds.** One attribute's validity is governed by a second timeline. **Split required** |
+| only one source table carries effective dates | **No split** |
+
+`Future State Table SCD Type = SCD-2` gates the whole thing, and the natural-key flags identify the
+business key.
+
+### `ACCOUNT_PARTY_REFERENCE` is a union table — with one open exception
+
+Its STTM says *"union data from these 2 tables"*, and three columns are marked *"Null when sourcing from
+prospect_ref_t"*. `PROSPECT_INDICATOR` is hardcoded `'N'` from one source and `'Y'` from the other. Each row
+comes from `account_ref_t` **or** `prospect_ref_t` and takes that source's `row_eff_dm` / `row_exp_dm`
+directly. No boundary union is needed.
+
+**The exception** is `ACTIVE_NUMERAL_ISSUE_RECORD_INDICATOR`, mapped as *"Join from
+account_number_element_t to account_ref_t by using concat(acct_ldgr_num,'-',acct_srl_num) = acct_rfrn_num
+and srl_typ_code = acct_rfrn_typ_cde"*.
+
+**`ACCOUNT_NUMBER_ELEMENT_T` is SCD-2.** Its DDL carries `ROW_EFF_DM` and `ROW_EXP_DM`. So this table **is**
+a genuine two-source intersection, and it is the first confirmed one. See §22.
+
+### Three conflicts found in the mapping
+
+| | Issue |
+|---|---|
+| **1** | The STTM sets `Delete_Indicator` to *"Hardcode 'N' (it doesn't look like we have a soft delete process for this table currently in ADW)"*, in red. Rules **7, 11 and 15** retire a row by setting that column to `'Y'`. A hardcoded `'N'` makes the delete-indicator mechanism inoperable on this table, and the modeller is openly unsure |
+| **2** | **A type bug.** Target has `SOURCE_ACCOUNT_PARTY_REFERENCE_IDENTIFIER VARCHAR(255)`; staging declares it `NUMBER(38,0)`. The transformation builds it by concatenating `stkr_id - acct_rfrn_num - acct_rfrn_typ_cde`, a string. Loading `account_ref_t` rows into that staging column will fail or mangle. Also `ACCOUNT_PARTY_REFERENCE_NAME` is `VARCHAR(255)` in the target and `VARCHAR(70)` in staging — truncation risk |
+| **3** | One `DELETE_INDICATOR` here versus two delete columns in the worked example, as above |
+
+Conflict 2 is independent of this design and worth raising with whoever owns the staging DDL.
+
+---
+
+## 22. The first confirmed split table, and why the STTM gets it wrong
+
+`ACCOUNT_NUMBER_ELEMENT_T` carries `ROW_EFF_DM` and `ROW_EXP_DM`. It is SCD-2. That makes
+`ACCOUNT_PARTY_REFERENCE` the first target confirmed to need the effective-date split:
+
+| | Source | SCD-2? | Contributes |
+|---|---|---|---|
+| A | `ACCOUNT_REF_T` (or `PROSPECT_REF_T`) | **yes** | most attributes, **and the target's `ROW_EFFECTIVE_DATETIME` / `ROW_EXPIRATION_DATETIME`** |
+| B | `ACCOUNT_NUMBER_ELEMENT_T` | **yes** | `ACTIVE_NUMERAL_ISSUE_RECORD_INDICATOR`, via a join |
+
+This is exactly the shape §2 describes: two SCD-2 sources carrying **different** attributes, where the
+target's dates are taken from **one of them only**.
+
+### What goes wrong, concretely
+
+The STTM's join predicate is on business attributes alone —
+`concat(acct_ldgr_num,'-',acct_srl_num) = acct_rfrn_num AND srl_typ_code = acct_rfrn_typ_cde`. **It carries
+no date-overlap condition.** With both sides SCD-2 and holding several versions, that join is a cartesian
+across versions: N versions in A times M versions in B.
+
+So the generated Q1 for this table has two possible outcomes, and both are wrong:
+
+1. **It fans out** — several staging rows for one `(business key, effective date)`. The staging
+   de-duplication then collapses them to one arbitrary version.
+2. **It silently carries a stale value** — because the target is cut only where A changes. If
+   `ACTV_NMRL_ISS_RCRD_I` changes on a date A does not, the target is never cut there, and the row carries
+   the wrong indicator for part of its own interval. Nothing reports an error.
+
+A worked illustration. A says the reference is valid `01-Jan to 31-Dec`. B says the indicator is `'Y'` from
+`01-Jan to 01-Jun` and `'N'` from `01-Jun to 31-Dec`. The correct target is **two** rows, cut at `01-Jun`.
+The STTM as written produces one row carrying one of the two values for the whole year, or two rows that
+the de-duplication reduces to one.
+
+### What the split does instead
+
+Take the union of both sources' boundaries — `01-Jan`, `01-Jun`, `31-Dec` — rebuild the key's whole
+timeline against that set, and the target is cut at `01-Jun` because *some* source changed there. That is
+the entire design, and this table is a real instance of needing it.
+
+### Consequence for the instruction file
+
+The classifier's job is now demonstrably load-bearing rather than theoretical. Its rule for this case:
+
+> A target column whose Transformation is a **join to a second source table**, where that table carries
+> `ROW_EFF_DM` / `ROW_EXP_DM`, means the table needs the effective-date split — **even when every other
+> column comes from one source**, and even when the STTM's own join predicate mentions no dates.
+
+One column sourced this way is enough. It is also the easiest case to miss by eye, because 22 of the 23
+mapped columns in this STTM look like an ordinary union.
+
+
+---
+
+## 23. The historical-load instruction file, and what verifying it found
+
+`dataassist_historical_load_instructions.md` is the deliverable for the first integration step: the
+historical (Day 1) load only, written to be read by DataAssist rather than by a person. Its shape is
+**decision procedure, then templates, then self-check assertions** — a per-table classifier run off the
+STTM text, one SQL template per classification, and assertions DataAssist emits *into* the generated SQL so
+a wrong classification fails loudly at run time instead of producing quietly wrong data.
+
+Three things in it are worth recording here.
+
+### The one deliberate override of the STTM
+
+For a split (class C) table the STTM names one source's `ROW_EFF_DM` / `ROW_EXP_DM` as the mapping for the
+target's dates. **That mapping has to be overridden**: the target's dates are the derived interval
+boundaries, built from both sources' boundaries, and in general match neither source's raw dates. This is
+unavoidable — §22 shows why — but it is the only place the instructions depart from the STTM as written, and
+it needs conscious acceptance rather than silent handling.
+
+### A misclassified table passes every obvious check
+
+Writing the assertions turned up something that changes how much the classifier matters. Take the split
+table generated with the **non-split** template: the dedup `ROW_NUMBER()` collapses the join fanout to one
+row per `(business key, effective date)` *before* staging is written. So the duplicate-key check, the
+current-indicator check, the overlap check, the interval-width check, the null-key check and the
+one-open-row check **all pass**, on data that is wrong. Executed against §22's example: two staging rows,
+both carrying indicator `'N'`, the first of them wrong over a period the source says is `'Y'`, and the
+duplicate-key check returned 0.
+
+The only check that catches it is the **containment** check — for each staging interval, the contributing
+source must supply exactly one distinct value across every version overlapping it. That check is therefore
+not one of eight niceties; it is the single runtime guard against a misclassification, and the reason the
+instruction file states it cannot be dropped.
+
+### The containment check has to count values, not versions
+
+The first form of it counted *overlapping versions* and required at most one. That is wrong, and was proved
+wrong against the collapse example: a collapsed interval legitimately spans two contributor versions —
+that is the point of collapsing, the value did not change, so the target is not cut there. The
+version-counting form reports a violation on correct data. Counting **distinct contributed values** reports
+one only when a single target interval would have to carry two different values at once, which is the
+actual fault. Both forms are preserved in the instruction file, the wrong one explicitly marked, so it is
+not reintroduced.
+
+### Verified, not asserted
+
+`tools/verify_historical_examples.py` and `tools/verify_historical_check7.py` execute every worked example
+and every assertion in the instruction file. The documented row-by-row outputs are what those scripts
+produce, including the four-row naive join and the two-row collapse. Re-run both whenever an example in the
+instruction file changes.
+
+### What this does not cover
+
+The incremental load. The 18-rule table, both retirement mechanisms, hash comparison against the target and
+rerun handling are all out of scope by construction, because on an empty target only rule 17 can fire
+(§20). One item carries forward: the incremental load needs a hash over **target-bound attributes only,
+excluding the dates**, to tell *"same values, different expiry"* from *"different values"*. That is B7 in
+§18 and it is unaffected by the historical load, where the hash is only stored.

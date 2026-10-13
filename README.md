@@ -80,11 +80,12 @@ enrichment — where the driving table alone sets the target dates.
 | File | What it is |
 |------|-----------|
 | `solution_design.md` | How it gets solved: the architecture, the locked 18-rule table (§6), the two retirement mechanisms, the IDMC components, the test strategy and its result (§16), and the defect the POC found (§17) |
+| `dataassist_historical_load_instructions.md` | **The first integration deliverable.** The historical (Day 1) load, written to be read by the DataAssist code generator rather than by a person: a per-table classifier run off the STTM text, one SQL template per classification, worked data examples, and the self-check assertions DataAssist emits into the generated SQL so a wrong classification fails at run time. Verified by `tools/verify_historical_*.py` |
 | `poc_v2/` | **The POC.** `00_objects.sql` holds every object, the Step 1 diff view and the Step 2 MERGE; `scenarios/S01.sql … S15.sql` are one file per scenario; `TEST_PLAN.md` is the 15-scenario × 69-test-case grid with the rules each reaches and its result; `evidence/POC_Evidence.xlsx` carries 346 captioned screenshots of the run against Snowflake. See `poc_v2/README.md` |
 | `scd_date_split_design_deck.html` | **The design walkthrough deck** &mdash; 7 slides, self-contained, no build step. Open it in a browser; arrow keys or the left navigator to move, `Ctrl`/`Cmd`+`P` prints one slide per page. Covers the problem, the 18-rule decision table, the two retirement mechanisms, the architecture, how a single run works, and a worked example. Internal audience &mdash; delivery team and technical leads |
 | `TEST_LEAD_REVIEW.md` | The independent test lead review of the POC: conditional sign-off with four blocking exit criteria |
 | `TEST_LEAD_REVIEW_RESPONSE.md` | Our response &mdash; every finding independently re-executed before being accepted, with what reproduced and what was understated |
-| `tools/` | Generators and checks, all runnable: `mk_scenarios.py` generates the 15 scenario files from one spec, `refresh_docs.py` rebuilds the test-plan grid from a real run, `check_sql_lint.py` catches the two Snowflake-only errors DuckDB accepts, `check_merge_drift.py` proves all 70 copies of the apply MERGE are byte-identical, `run_scenario_duckdb.py` is the offline harness, `annotate_evidence.py` captions the evidence workbook |
+| `tools/` | Generators and checks, all runnable: `mk_scenarios.py` generates the 15 scenario files from one spec, `refresh_docs.py` rebuilds the test-plan grid from a real run, `check_sql_lint.py` catches the two Snowflake-only errors DuckDB accepts, `check_merge_drift.py` proves all 70 copies of the apply MERGE are byte-identical, `run_scenario_duckdb.py` is the offline harness, `annotate_evidence.py` captions the evidence workbook, `verify_historical_examples.py` and `verify_historical_check7.py` execute every example and assertion in the historical instruction file |
 | `Requirement.xlsx` | The client's requirement, and the source of truth for the rules alongside `solution_design.md` §6 |
 | `sources/Final_Scenarios_v2.xlsx` | The v1 scenario catalogue, kept for provenance only. It predates the 18-rule table |
 | `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
@@ -118,6 +119,13 @@ A **leadership-verified worked example** arrived on 2026-10-13, adding two targe
 were replayed through the POC and reproduce **row for row** — insert, expire-in-place and soft delete all
 match. Day 4 is unreconciled and being re-checked, and the target needs a new `current_record_ind` column.
 Detail in `solution_design.md` §19.
+
+**Integration has started, historical load first.** `dataassist_historical_load_instructions.md` is the input to the client's
+DataAssist generator for the Day 1 load. `ACCOUNT_PARTY_REFERENCE` is the first target confirmed to need the split — two SCD-2
+sources, and only **one of its 23 mapped columns** reveals it (`solution_design.md` §22). Writing the instruction file's runtime
+assertions turned up the sharpest reason the classifier matters: a split table generated with the non-split template **passes
+every obvious check**, because the staging de-duplication hides the join fanout before staging is written. One containment check
+catches it, and nothing else does (§23).
 
 **This settles the design question, not delivery.** IDMC is deferred, the objects still have to fold into the
 existing pipeline, and the open items in `poc_v2/README.md` remain open.

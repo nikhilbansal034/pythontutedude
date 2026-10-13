@@ -180,10 +180,36 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
   to restamp it, and it cannot be asserted in test until it is defined.
 - **How many assets will use this pattern?** Decides whether a hand-written view per target is the right
   shape at all.
-- Does the real stage table already have an operation / CDC indicator column? If so `ACTION_FLAG` takes that
-  name and the apply adds **no column at all**. If not, it is the one genuine `ALTER`.
+
+**Integration with DataAssist** (`../solution_design.md` §20, §21, §22, §23)
+
+- **The historical-load instructions are written**: `../dataassist_historical_load_instructions.md`, the
+  input to the generator for the Day 1 load. Classifier, three templates, worked data examples, eight
+  runtime assertions. Every example and assertion in it is executed by
+  `../tools/verify_historical_examples.py` and `../tools/verify_historical_check7.py`, not reasoned about.
+- **A misclassified table passes every obvious check.** A split table generated with the non-split template
+  is caught by the containment assertion **and by nothing else** — the staging de-duplication collapses the
+  join fanout before staging is written, so duplicate-key, overlap, interval-width, null-key, current-flag
+  and one-open-row checks all pass on wrong data. Proved, not argued: §23.
+
+- **The `ACTION_FLAG` question is CLOSED.** The real staging table already carries an operation indicator
+  called `CHANGE_FLAG`, plus hash-comparison and matched-target-row columns. The apply adds **no column at
+  all** — there is no `ALTER`.
+- **`ACCOUNT_PARTY_REFERENCE` is the first confirmed table needing the effective-date split**, because
+  `ACCOUNT_NUMBER_ELEMENT_T` is SCD-2. The STTM's join carries no date predicate, so the generated SQL
+  would either fan out or silently carry a stale indicator. See §22.
+
+- Day 1 needs **one rule, not eighteen** — on an empty target only rule 17 can fire, measured across all
+  15 scenarios' initial loads.
+- DataAssist's Q1/Q2 are already correct for a historical load, and would overwrite history from the first
+  incremental run, because Q2's update path writes in place.
+- `BROKER_PARTY` does **not** need the effective-date split — its sources are prioritised alternatives, not
+  co-equal SCD2 feeds. A per-table classifier reading the STTM decides which tables do.
 
 **Ours to do**
+
+- Write the **incremental** instruction file, once the historical one is integrated. It is the one that
+  needs the 18-rule table, and it needs B7 settled first (an attribute-only hash, excluding the dates).
 
 - Settle the overlap position, then add a corrupt-input case that fails without it.
 - Add real de-duplication coverage — a duplicate `(key, effective date)` with **distinct** timestamps where
