@@ -188,13 +188,14 @@ ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-chil
 grouping.
 
 **Status**: high-level architecture in progress. **No build, no POC.** Requirements settled, the flow drawn,
-and the feature register scored: of 54 capabilities, **19 already exist in ABC, 7 partly, 26 are missing** —
-and the missing half clusters in keys and table structure, where ABC records nothing at all.
+and the feature register scored: the gap list stands at **26 features**, clustering in keys and table structure, where ABC records nothing at all.
+The batch spine is ten blocks, the table spine eleven, and **seven checks** are the only things that stop a run.
 
 | File | What it is |
 |------|-----------|
 | `high_level_design.md` | **ACTIVE.** The high-level architecture: the requirements settled with the design lead, the two-level flow from Stonebranch trigger to batch close, where every block exits, and what is deliberately left to low-level design |
 | `high_level_design.xlsx` | **ACTIVE.** The same content structured — the flow drawn as blocks, every block as a row, the load-type / table-type / write-strategy vocabulary, and the **feature register**: 54 capabilities the framework needs, scored against what ABC already provides |
+| `framework_flow.drawio` | **ACTIVE.** The flow as an editable diagram — three columns: the configuration each step reads, the flow and its seven checks, and the state written or the failure exit |
 | `requirement_and_design.md` | **PARKED.** The earlier design log. Its load-type model and target table types are requirement-level and still stand; its write-strategy mechanics and window-derivation work are low-level design and wait for sign-off on the architecture |
 | `design_tracker.xlsx` | **PARKED** alongside it, for the same reason |
 
