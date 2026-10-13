@@ -1302,3 +1302,63 @@ The classifier's job is now demonstrably load-bearing rather than theoretical. I
 One column sourced this way is enough. It is also the easiest case to miss by eye, because 22 of the 23
 mapped columns in this STTM look like an ordinary union.
 
+
+---
+
+## 23. The historical-load instruction file, and what verifying it found
+
+`dataassist_historical_load_instructions.md` is the deliverable for the first integration step: the
+historical (Day 1) load only, written to be read by DataAssist rather than by a person. Its shape is
+**decision procedure, then templates, then self-check assertions** — a per-table classifier run off the
+STTM text, one SQL template per classification, and assertions DataAssist emits *into* the generated SQL so
+a wrong classification fails loudly at run time instead of producing quietly wrong data.
+
+Three things in it are worth recording here.
+
+### The one deliberate override of the STTM
+
+For a split (class C) table the STTM names one source's `ROW_EFF_DM` / `ROW_EXP_DM` as the mapping for the
+target's dates. **That mapping has to be overridden**: the target's dates are the derived interval
+boundaries, built from both sources' boundaries, and in general match neither source's raw dates. This is
+unavoidable — §22 shows why — but it is the only place the instructions depart from the STTM as written, and
+it needs conscious acceptance rather than silent handling.
+
+### A misclassified table passes every obvious check
+
+Writing the assertions turned up something that changes how much the classifier matters. Take the split
+table generated with the **non-split** template: the dedup `ROW_NUMBER()` collapses the join fanout to one
+row per `(business key, effective date)` *before* staging is written. So the duplicate-key check, the
+current-indicator check, the overlap check, the interval-width check, the null-key check and the
+one-open-row check **all pass**, on data that is wrong. Executed against §22's example: two staging rows,
+both carrying indicator `'N'`, the first of them wrong over a period the source says is `'Y'`, and the
+duplicate-key check returned 0.
+
+The only check that catches it is the **containment** check — for each staging interval, the contributing
+source must supply exactly one distinct value across every version overlapping it. That check is therefore
+not one of eight niceties; it is the single runtime guard against a misclassification, and the reason the
+instruction file states it cannot be dropped.
+
+### The containment check has to count values, not versions
+
+The first form of it counted *overlapping versions* and required at most one. That is wrong, and was proved
+wrong against the collapse example: a collapsed interval legitimately spans two contributor versions —
+that is the point of collapsing, the value did not change, so the target is not cut there. The
+version-counting form reports a violation on correct data. Counting **distinct contributed values** reports
+one only when a single target interval would have to carry two different values at once, which is the
+actual fault. Both forms are preserved in the instruction file, the wrong one explicitly marked, so it is
+not reintroduced.
+
+### Verified, not asserted
+
+`tools/verify_historical_examples.py` and `tools/verify_historical_check7.py` execute every worked example
+and every assertion in the instruction file. The documented row-by-row outputs are what those scripts
+produce, including the four-row naive join and the two-row collapse. Re-run both whenever an example in the
+instruction file changes.
+
+### What this does not cover
+
+The incremental load. The 18-rule table, both retirement mechanisms, hash comparison against the target and
+rerun handling are all out of scope by construction, because on an empty target only rule 17 can fire
+(§20). One item carries forward: the incremental load needs a hash over **target-bound attributes only,
+excluding the dates**, to tell *"same values, different expiry"* from *"different values"*. That is B7 in
+§18 and it is unaffected by the historical load, where the hash is only stored.

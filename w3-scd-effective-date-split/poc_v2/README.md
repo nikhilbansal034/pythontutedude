@@ -181,7 +181,16 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
 - **How many assets will use this pattern?** Decides whether a hand-written view per target is the right
   shape at all.
 
-**Integration with DataAssist** (`../solution_design.md` §20, §21, §22)
+**Integration with DataAssist** (`../solution_design.md` §20, §21, §22, §23)
+
+- **The historical-load instructions are written**: `../dataassist_historical_load_instructions.md`, the
+  input to the generator for the Day 1 load. Classifier, three templates, worked data examples, eight
+  runtime assertions. Every example and assertion in it is executed by
+  `../tools/verify_historical_examples.py` and `../tools/verify_historical_check7.py`, not reasoned about.
+- **A misclassified table passes every obvious check.** A split table generated with the non-split template
+  is caught by the containment assertion **and by nothing else** — the staging de-duplication collapses the
+  join fanout before staging is written, so duplicate-key, overlap, interval-width, null-key, current-flag
+  and one-open-row checks all pass on wrong data. Proved, not argued: §23.
 
 - **The `ACTION_FLAG` question is CLOSED.** The real staging table already carries an operation indicator
   called `CHANGE_FLAG`, plus hash-comparison and matched-target-row columns. The apply adds **no column at
@@ -198,6 +207,9 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
   co-equal SCD2 feeds. A per-table classifier reading the STTM decides which tables do.
 
 **Ours to do**
+
+- Write the **incremental** instruction file, once the historical one is integrated. It is the one that
+  needs the 18-rule table, and it needs B7 settled first (an attribute-only hash, excluding the dates).
 
 - Settle the overlap position, then add a corrupt-input case that fails without it.
 - Add real de-duplication coverage — a duplicate `(key, effective date)` with **distinct** timestamps where
