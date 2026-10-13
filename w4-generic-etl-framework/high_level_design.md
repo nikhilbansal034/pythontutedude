@@ -249,9 +249,174 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 
 ---
 
-## 9. Open questions
+## 9. Requirement coverage review
+
+Sixteen requirements arrived on the **`Requirement summary`** sheet. Reviewed against the design as drawn:
+
+| | | |
+|---|---|---|
+| **7 COVERED** | | one base framework · all table types · job-error table · CDE recon · post-load reuse · the Snowflake config copy (already decided at R-06) · groups (as a known gap) |
+| **1 PARTIAL** | | RI routing |
+| **5 GAP** | | group-level restart status · ABC table completeness · Snowflake copy granularity · **Aurora connection architecture** · *(see conflicts)* |
+| **3 CONFLICT** | | the three below |
+
+**A conflict matters more than a gap**: a gap is something to add, a conflict means something already agreed has
+to change. All three carry a recommendation below, all three are **PROPOSED** rather than settled, and each
+names the one answer it needs.
+
+### C-1 · The DQ-results merge — **PROPOSED**
+
+> *"Critical DQ that scales — the merge references DQ results, not ever-longer conditions."*
+
+**What is actually wrong today.** ABC evaluates DQ **inside** the load mapping, as an expression that builds
+`error_description`, with **`rule_id` and the severity code hard-coded in that expression** (`1` = null check,
+`'C'` = critical). Two separate problems in one: the expression **grows** with every rule, and adding a rule is
+a **code change, not configuration**.
+
+**The fix — split T7 in two.**
+
+| | | |
+|---|---|---|
+| **T7a** | **evaluate** | run the configured rules over the run's scope · write one row per (record, rule, severity) |
+| **T7b** | **write** | the load **anti-joins** the scope against the critical failures |
+
+The predicate in the write becomes constant:
+
+```sql
+NOT EXISTS (SELECT 1 FROM <dq_result> d
+            WHERE d.job_run_id = :run_id
+              AND d.record_id  = s.record_id
+              AND d.severity   = 'C')
+```
+
+**A hundred rules and it is still one `NOT EXISTS`.** That is the scaling property the requirement asks for.
+
+**Why it is cheaper than it looks.** Two pieces of the ABC schema already fit:
+
+- **`job_rule_error_detail`** already holds `source_record_identifier`, `rule_id`, severity and `job_run_id`
+  — it *is* the result set. It is only written at the wrong *time* today: as a by-product of the load rather
+  than before it.
+- **`job_rule_assignment.pattern_available` / `pattern`** are unused and kept at `'N'`. The W2 reference records
+  that an expression could be stored there and reused in the ETL, left explicitly unresolved. **That is exactly
+  the configuration home a rule predicate needs** — the slot was anticipated and never filled.
+
+**Four consequences.**
+
+1. **The row identifier becomes mandatory configuration.** Joining results back to rows needs a stable per-row
+   identifier in the scope. This makes **F-05 (keys)** load-bearing for quality as well as for the write — it
+   *deepens* the biggest gap already found rather than adding a new one.
+2. **One extra pass over the scope.** Evaluate, then write. Mitigation: materialise the scope once into a
+   transient table and let both passes read it — which is also what T5's pass plan wants, so the cost buys
+   something else.
+3. **Informational behaviour is unchanged.** The anti-join filters `severity = 'C'` only. Informational rows are
+   recorded and still load. **R-08 preserved exactly**, mechanism changed.
+4. **A restart wrinkle.** Quarantine rows are now written *before* the load, so a failed load leaves quarantine
+   records for a run that never completed. `job_run_id` is already on those rows so cleanup is scoped — but it
+   needs stating rather than discovering.
+
+> **Recommendation: adopt.** The predicate is constant, the result table exists, and the configuration slot for
+> rule predicates exists and is empty.
+
+**Open — HQ-10.** Does every target have a **stable record identifier** available in the source scope, or must
+it be derived (a hash of the business key)?
+
+---
+
+### C-2 · "Waits only for the tables it needs" — **PROPOSED**
+
+**What it costs as drawn.** B6 builds **static waves**: wave 3 starts when every table in waves 1–2 has been
+*attempted*.
+
+> 20 tables. 19 quick and independent. One slow table in wave 1 that exactly **one** table depends on.
+> **Waves:** the 18 that need nothing from it still wait. **Ready-set:** they start immediately.
+
+That cost lands directly on the batch window — **HQ-04**, still unanswered.
+
+**Why waves were chosen, and why that reason survives.** Waves make *"prerequisite still in progress"*
+**unreachable by construction**, which is what lets T2 be a pure check with exactly two outcomes and no polling.
+That property is worth keeping.
+
+**The middle path.** Keep the plan as a **dependency graph**, not as waves. B7's loop becomes:
+
+> *Launch every table whose prerequisites are all **Completed** and which has not been attempted. When members
+> finish, recompute the ready set.*
+
+| | Static waves | **Dynamic ready-set** | True event-driven |
+|---|---|---|---|
+| Parallelism | loosest | **tight** | tightest |
+| Can T2 see "in progress"? | no | **no** | no |
+| Needs | compute once | **a loop** | per-task completion events |
+
+**T2's guarantee is preserved** — B7 only ever launches a table whose prerequisites are *already* Completed. No
+waiting, no polling, no idle concurrency slots, and barely more machinery than a wave iterator.
+
+What remains is the **recompute grain**: after each parallel group drains (a loop — always possible), or on each
+individual completion (tightest — needs event-driven launch, which is **OQ-03**).
+
+> **Recommendation: specify the semantics as ready-set** — a table waits only for its own prerequisites — **and
+> implement as recompute-per-group if IDMC cannot launch on individual completion events.** The requirement is
+> about semantics; the grain is an IDMC capability question. **B6 changes from "resolve into waves" to "resolve
+> into a dependency graph".**
+
+---
+
+### C-3 · Helix owns SCD Type 1 — **PROPOSED**
+
+**The history, plainly.** Static, reference and mapping tables were **collapsed into SCD1** earlier in this
+design, on the argument that the invariant is identical — *exactly one row per business key holding the latest
+source state* — and that truncate-versus-merge is a **write strategy** difference. The design lead pushed back
+at the time; that push-back was defended rather than accepted.
+
+**What the new requirement does to it.** *"SCD1 is Helix's"* and *"static tables are ours"* cannot both be
+expressed while they share a type. **The type is being asked to do organisational work it cannot do.** The
+collapse did create a problem — but on reflection the problem is not a missing type.
+
+| | Fix | Cost |
+|---|---|---|
+| **A** | Split `STATIC` back out as its own table type | Re-introduces two types with one invariant, and risks a genuine SCD1 dimension being typed STATIC and getting truncate-and-load onto a surrogate-key-referenced table |
+| **B** | Keep one type; express ownership as **scope** | Nothing changes in the type model |
+
+> **Recommendation: B.** Ownership is not a property of a table's *shape* — it is a property of *which pipeline
+> loads it*. A table this framework does not load simply **has no pipeline row here**. Encoding ownership as a
+> table type would conflate what a table **is** with how it is **loaded**, which is the exact original sin in
+> `job_metadata.target_load_type`. Splitting `STATIC` out repeats that mistake in a new costume.
+>
+> **With one caveat, because habit beats documentation.** If teams and leadership *talk* about "static tables"
+> as a category, give them the word — as a **label with no behavioural effect**: a `table_category` column
+> (DIMENSION · REFERENCE · MAPPING · FACT) used for reporting and navigation only, which **cannot** influence
+> the write strategy and therefore cannot cause a wrong one. Vocabulary without power over behaviour.
+
+**Open — HQ-12, and the most consequential of the three.** Is Helix owning SCD1 **permanent**, or a current
+state this framework eventually absorbs?
+
+| | |
+|---|---|
+| **Permanent** | SCD1 may be dead weight. `MERGE_SCD1` serves nothing and the table-type set shrinks |
+| **Transitional** | everything stays; scope is simply narrow on day one |
+
+---
+
+### Also new
+
+**Sequencing within a group** contradicts what a group means here — in this design a group is *by definition*
+parallel-safe. A stage-before-target pair is a **prerequisite edge**, not an intra-group sequence. And **stage
+tables as batch members is new**: the flow assumes every member is a final target. A stage table that is a
+member needs a table type and a write strategy of its own.
+
+### What these three need from the design lead
+
+| | Question | Why it matters |
+|---|---|---|
+| **HQ-10** | Is there a stable record identifier per row, or is it derived? | Decides whether C-1 needs a derived key before it can work |
+| **HQ-11** | Confirm ready-set semantics — B6 resolves a graph, not waves | Nothing blocking; confirmation only |
+| **HQ-12** | **Is Helix owning SCD1 permanent or transitional?** | **Answer this first** — it is the only one of the three that can *shrink* the design rather than extend it |
+
+---
+
+## 10. Open questions
 
 **`HQ-04` is the largest gap in the whole design** and it is the one only leadership can close.
+**`HQ-12` is the one to answer first**, because it is the only question here that can make the design *smaller*.
 
 | # | Question | Blocks |
 |---|---|---|
@@ -264,13 +429,25 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 | ~~**HQ-07**~~ | **CLOSED — yes, by assumption A-01.** Taken to close the design rather than verified, and defended at B6 by plan-buildability | — |
 | **HQ-08** | **PROPOSED: declared by hand, validated by the framework** — which *reverses* the lean toward derived stated when this question was raised. **A join is not a prerequisite:** a lookup against a static reference table needs no ordering, and only the author knows which joins must be sequenced. Derived edges must still be stored and refreshed when the SQL changes, so the drift exposure does not go away; and deriving them needs SQL parsing, which is machinery for a problem declaration plus B6's plan-buildability already solves | B4, B6 — **awaiting confirmation** |
 | **HQ-09** | **PROPOSED: dissolved** by reframing what the declared source list is *for*. It is a **readiness list** — the tables whose completion gates this load — not a lineage list, and it was never meant to equal the set of tables the SQL touches. A static reference table the SQL joins gates nothing and does not belong on it. So the two diverging is not drift; they were never the same set. The residual risk — a join added to a table that *does* gate, undeclared — is a build and review concern, where R-12 already puts it | T3 — **awaiting confirmation** |
+| **HQ-10** | Is there a **stable record identifier** per row available in the source scope, or must it be derived (a hash of the business key)? C-1's anti-join has to join quality results back to rows, so without one the design needs a derived key first | C-1 · T7a, T7b |
+| **HQ-11** | Confirm **ready-set semantics** — B6 resolves a *dependency graph* rather than static waves, so a table waits only for its own prerequisites. Nothing blocking; confirmation only. The recompute *grain* (per group, or per individual completion) is OQ-03, an IDMC capability question | C-2 · B6, B7 |
+| **HQ-12** | **Is Helix owning SCD Type 1 permanent, or a current state this framework eventually absorbs?** **Answer this one first** — it is the only open question that can *shrink* the design rather than extend it. Permanent means `MERGE_SCD1` may serve nothing and the table-type set contracts; transitional means everything stays and scope is simply narrow on day one | C-3 · table types, write strategies |
 
 ---
 
-## 10. What comes next
+## 11. What comes next
 
-The flow is the spine. Each block now gets its own detail, **one block at a time**, in diagram order —
-what it reads, what it writes, what it decides, what it must guarantee, and what it needs from configuration.
-Still no low-level design: a block's detail stops at the contract, not the mechanism.
+**Per-block detail is on hold until the three conflicts in §9 are settled**, because two of them change the
+flow rather than describe it: C-1 splits T7 into evaluate-then-write, and C-2 changes what B6 produces. Writing
+block detail against a spine that is about to move would be work done twice.
 
-**HQ-04 is worth starting in parallel**, because it is the only item here that needs someone other than us.
+Once they are settled, each block gets its own detail, **one block at a time**, in diagram order — what it
+reads, what it writes, what it decides, what it must guarantee, and what it needs from configuration. Still no
+low-level design: a block's detail stops at the contract, not the mechanism.
+
+**Two things are worth starting in parallel**, because both need someone other than us:
+
+| | |
+|---|---|
+| **HQ-04** | the non-functional requirements — leadership |
+| **HQ-12** | whether Helix owning SCD1 is permanent — and it may *shrink* the design |
