@@ -42,6 +42,14 @@ Answered 13 October 2026. These are **facts the architecture must satisfy**, not
 | **R-12** | Validating a team's SQL and mapping is **out of scope** — that is build's problem, not the design framework's | **B5 narrows** to *structural* validation: a cycle in the prerequisites, a member with no pipeline, a strategy illegal for its table type. It no longer implies anything about whether a query is correct or push-down safe |
 | **R-13** | **Target → target prerequisite sequencing** is a missing feature, to be held in metadata. At load start a table reads its prerequisites, checks their load status, and starts only when all are complete | Two blocks, one metadata table. **B7** resolves the prerequisites into an **attempt order**; **T2** then *verifies* rather than schedules — so a prerequisite can never still be in progress when it is checked, and there is no waiting or polling. Exactly two outcomes at T2: completed → proceed, failed or skipped → **SKIPPED** |
 
+### Assumptions taken to close the design
+
+| # | Assumption | How it is defended | What breaks if it is wrong |
+|---|---|---|---|
+| **A-01** | **Prerequisites are always inside the same batch** (HQ-07) | **B5 rejects** any configuration whose declared prerequisite is not an active member of the same batch — so the assumption cannot rot silently | Batch membership stops being a purely operational grouping: two tables in a prerequisite relationship **must** be co-batched, so the dependency graph now constrains how batches are composed. A genuine cross-batch need becomes a batch-level dependency for Stonebranch instead (F-22, now out of scope) |
+
+---
+
 ### A correction to the record
 
 I described `Partial` as an ABC *batch outcome* when asking R-10. That was imprecise.
@@ -128,7 +136,7 @@ design's weight:
 
 | Block | Why it matters |
 |---|---|
-| **B5 — validate configuration** | The only place a bad configuration is caught **before data is touched**: a cycle in the dependencies, a member with no pipeline, a write strategy illegal for its table type. A framework that validates config at run time instead has already read the data when it finds out |
+| **B5 — validate configuration** | The only place a bad configuration is caught **before data is touched**: a cycle in the prerequisites, a member with no pipeline, a write strategy illegal for its table type, and **a declared prerequisite that is not a member of this batch** — the rule that defends A-01. *Structural* validation only; SQL and mapping validity is build's (R-12). A framework that validates config at run time instead has already read the data when it finds out |
 | **B7 — build the execution plan** | **New, and the largest new capability.** R-07 put the intra-batch DAG here rather than in Stonebranch. Its job is **ordering only** (R-13): it guarantees that by the time a table is attempted, every prerequisite has already been attempted — which is what lets T2 be a check rather than a scheduler |
 | **B8 — run each wave** | Carries three behaviours at once: parallel within a wave, continue-on-failure across members (ABC's rule), and **SKIPPED** for a table whose parent failed |
 
@@ -155,7 +163,8 @@ register and the diagram cannot drift into two documents.
 |---|---|---|
 | **19 PRESENT** | 35% | quality, reconciliation, run-state and error recording are **largely reusable as they stand** |
 | **7 PARTIAL** | 13% | right idea, wrong grain — batch-level where the framework needs table-level |
-| **27 MISSING** | 50% | |
+| **26 MISSING** | 48% | |
+| **1 OUT OF SCOPE** | | cross-batch prerequisites — closed by A-01 |
 | **1 UNCONFIRMED** | | the `group` column — HQ-01 |
 
 ### The headline
@@ -227,10 +236,10 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 | **HQ-03** | What are the batch-level control totals at B9? Cross-table totals only mean something where members share a measure. If none does, B9 collapses to an aggregate of the per-table recons and should be drawn that way | B9 |
 | **HQ-04** | **Non-functional requirements** — volume per table and per batch, the batch window, recovery time objective, concurrent pipeline count, audit retention period | the whole architecture |
 | **HQ-05** | Does `SKIPPED` propagate transitively to a skipped table's own dependents, and does a skipped table block the next batch run? | B7, T2 |
-| **HQ-06** | Who owns the dependency edges — derived from existing lineage metadata, or declared by hand per table? Hand-declared is simpler to build and harder to keep honest; derived is the reverse | B4, B7 |
-| **HQ-07** | **Are prerequisites always inside the same batch?** If table B's prerequisite A sits in another batch, T2 cannot resolve it within the run and it has to become a batch-level dependency for Stonebranch instead. The one thing needed to finish F-18 and F-22 | B2, B7, T2 |
-| **HQ-08** | **Declared by hand, or derived?** — supersedes HQ-06 with a better option. A prerequisite is usually *created by* a lookup in the team SQL: if B's SQL resolves A's surrogate key, B depends on A. So the edges could be **derived from the SQL**, which makes them more trustworthy, not less. Hand-declared is simpler to build and drifts the moment someone edits a query | B4, B7 |
-| **HQ-09** | If the team SQL does the joins, **the framework no longer knows what its sources are** — but it needs them for the readiness check at T3. So sources must *also* be declared, and the two can drift: someone adds a join, forgets the config row, and the framework waits on the wrong upstream or does not wait at all | T3 |
+| ~~**HQ-06**~~ | **Superseded by HQ-08**, which offers a better option than either side of this question. | — |
+| ~~**HQ-07**~~ | **CLOSED — yes, by assumption A-01.** Taken to close the design rather than verified, and defended by a B5 rule | — |
+| **HQ-08** | **PROPOSED: declared by hand, validated by the framework** — which *reverses* the lean toward derived stated when this question was raised. **A join is not a prerequisite:** a lookup against a static reference table needs no ordering, and only the author knows which joins must be sequenced. Derived edges must still be stored and refreshed when the SQL changes, so the drift exposure does not go away; and deriving them needs SQL parsing, which is machinery for a problem declaration plus the B5 rule already solves | B4, B7 — **awaiting confirmation** |
+| **HQ-09** | **PROPOSED: dissolved** by reframing what the declared source list is *for*. It is a **readiness list** — the tables whose completion gates this load — not a lineage list, and it was never meant to equal the set of tables the SQL touches. A static reference table the SQL joins gates nothing and does not belong on it. So the two diverging is not drift; they were never the same set. The residual risk — a join added to a table that *does* gate, undeclared — is a build and review concern, where R-12 already puts it | T3 — **awaiting confirmation** |
 
 ---
 

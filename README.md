@@ -188,7 +188,7 @@ ABC metadata tables. Includes DQ, reconciliation, dependency checks, parent-chil
 grouping.
 
 **Status**: high-level architecture in progress. **No build, no POC.** Requirements settled, the flow drawn,
-and the feature register scored: of 54 capabilities, **19 already exist in ABC, 7 partly, 27 are missing** —
+and the feature register scored: of 54 capabilities, **19 already exist in ABC, 7 partly, 26 are missing** —
 and the missing half clusters in keys and table structure, where ABC records nothing at all.
 
 | File | What it is |
