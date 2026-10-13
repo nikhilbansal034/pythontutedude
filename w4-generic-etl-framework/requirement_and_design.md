@@ -288,7 +288,7 @@ this design needs: `batch_run_stats`, `job_run_stats`, `job_error_stats`, `job_r
 
 ---
 
-## 9. Aspect 3 — Target table types · **AGREED** (write strategies still open)
+## 9. Aspect 3 — Target table types · **AGREED**
 
 ### 9.1 The test for what counts as a table type
 
@@ -391,7 +391,102 @@ correspondingly smaller strategy set. Write strategies are the next topic and ar
 
 ---
 
-## 10. Decisions log
+## 10. Aspect 3 (continued) — Write strategies · **SCD2 AGREED**
+
+### 10.1 The strategy set
+
+| Strategy | Serves | Idempotent | Requires from the window | Status |
+|---|---|---|---|---|
+| **`SCD2_REBUILD_TIMELINE`** | SCD2 | **by construction** | the affected **key set**, then full source history for those keys | **AGREED** |
+| **`MERGE_SCD1`** | SCD1 | yes | the delta rows only | AGREED |
+| **`TRUNCATE_INSERT`** | SCD1, conditionally | yes | every row — requires `ALL_ROWS` | AGREED |
+| `INSERT_APPEND` | APPEND_ONLY | yes, with dedup on event identity | the delta rows only | pending OQ-10 |
+| `SNAPSHOT_INSERT` | SNAPSHOT | yes, per period | every row as at the period | pending OQ-01 |
+| `SOFT_DELETE_SWEEP` | SCD1, SCD2 | yes | the **full** key set — cannot work from a window | pending OQ-07 |
+
+`SOFT_DELETE_SWEEP` is **not a write strategy** but a post-step, and it is separate for a structural reason — see 10.5.
+
+### 10.2 Why one SCD2 strategy and not two
+
+A cheap forward-only variant (expire the current row, insert the new one) is faster and correct *only while incoming
+effective dates never land inside an existing timeline*. The moment one backdated row arrives it silently corrupts
+the timeline. **Two strategies where one is a correctness trap is worse than one slower strategy**, and the fast path
+can always be added later behind config — whereas a corrupted timeline cannot easily be un-corrupted.
+
+### 10.3 `SCD2_REBUILD_TIMELINE` — the governing principle
+
+> **For every affected key, the target timeline is a deterministic function of the source.**
+
+Not "apply the delta to what is there" — recompute what the timeline *should* be, then make the target match.
+Everything good about the strategy follows from that, and so do its preconditions.
+
+**The five steps:**
+
+1. **Find the affected keys** — `SELECT DISTINCT business_key FROM source WHERE <window predicate>`. The window's
+   whole job here is to identify **keys, not rows**.
+2. **Load the full picture for those keys** — all source rows for the affected keys from *every* source (not just
+   rows inside the window), plus all existing target rows for those keys. A backdated row at *T* forces a re-cut of
+   everything from *T* onward, and the rows defining that stretch may sit outside the window.
+3. **Rebuild** — collect all change points (distinct effective dates across all sources); emit a row per consecutive
+   pair; each row's attributes are a point-in-time lookup per source as at that change point; the last row takes the
+   high-date expiry and the current marker; then **collapse adjacent rows whose mapped attributes are identical**.
+   That last step is the one people skip: a change in an unmapped source column would otherwise emit a duplicate
+   version. A hash over the mapped attributes handles it. Cutting at every change point from either source *is* the
+   intersection of two timelines, so **multi-source needs no special case**.
+4. **Apply by diff, in three set-based statements** — see 10.4.
+5. **Assert the invariant** over the affected keys: no overlap, no gap, exactly one current.
+
+### 10.4 Why diff-and-three-statements
+
+| Classification | Action |
+|---|---|
+| identical on key, effective, expiry **and** attributes | leave alone |
+| same `(key, effective)`, different expiry or attributes | **UPDATE** |
+| in the rebuild, not in the target | **INSERT** |
+| in the target, not in the rebuild | **DELETE** / soft-delete |
+
+**Not `DELETE` affected keys + `INSERT` the rebuild.** Simpler and tempting, but it re-mints surrogate keys and
+resets audit lineage on every row *including the unchanged ones* — the truncate problem from §9.3, scoped to
+affected keys instead of the whole table. Acceptable only when nothing references the surrogate keys.
+
+**Not one `MERGE`.** Two Snowflake behaviours to confirm in our own environment: a rebuilt timeline can match a
+single target row against *several* incoming rows on `(key, effective)`, and `ERROR_ON_NONDETERMINISTIC_MERGE`
+defaults on — so the statement errors rather than silently choosing. And with no `WHEN NOT MATCHED BY SOURCE`, a
+MERGE cannot express the fourth row of that table at all.
+
+**Where idempotency comes from:** rerun it, the rebuild produces the same timeline, the diff classifies everything
+unchanged, **zero rows are written**. Not "idempotent if we are careful" — idempotent by construction. Which buys:
+
+- **`REPLAY` needs no cleanup for SCD2** — rerun with the corrected range. This amends D-08.
+- **Restart needs no unwind** — a failure mid-apply leaves a partial timeline; the next run recomputes and converges.
+- **`HISTORY`, `CATCHUP` and `INCREMENTAL` become the same operation** over different key sets. Only the window
+  predicate differs.
+
+### 10.5 Three consequences that ripple outward
+
+**Chunking for SCD2 must cut on KEY RANGE, never on a date column.** A date chunk hands the rebuild a *partial*
+timeline for a key and corrupts it. This amends D-05 and D-12, and it is a constraint we would have missed had
+chunking been designed before strategies.
+
+**The count-balancing identity is per *(table type × write strategy)*, not per table type.** For a rebuild:
+`rows_rebuilt = inserted + updated + unchanged`, with deleted tracked separately. Amends D-30.
+
+**Delete detection cannot live inside the strategy.** A window predicate cannot find keys that have *vanished* from
+the source — they are absent, so nothing matches them. Hence `SOFT_DELETE_SWEEP` as a separate post-step over the
+full key set.
+
+### 10.6 Preconditions — all three fail silently
+
+1. **The source retains complete history per key.** If it keeps only a rolling window the rebuild is *wrong*, not
+   merely incomplete. **OQ-11**, and the load-bearing assumption of the whole strategy.
+2. **Source timelines are internally sane** — no overlapping or contradictory rows for a key. A DQ check that must
+   run **before** the rebuild; garbage in yields a plausible-looking but wrong timeline.
+3. **One pipeline per table at a time.** Two concurrent rebuilds race over overlapping key sets. D-13 plus a
+   scheduler mutex covers it, but it needs stating rather than assuming.
+
+---
+
+## 11. Decisions log
 
 | # | Decision | Status |
 |---|---|---|
@@ -424,12 +519,18 @@ correspondingly smaller strategy set. Write strategies are the next topic and ar
 | D-27 | Every table type carries a **testable invariant**, which makes the compatibility matrix derivable and lets the engine run the invariant as a **generic post-load assertion** for every table with no per-table code | PROPOSED |
 | D-28 | Three table-level properties constrain write-strategy validity — `has_referenced_surrogate_key`, `is_ri_parent`, `keeps_audit_lineage`. `TRUNCATE_INSERT` is valid iff window = `ALL_ROWS` and the table is neither surrogate-key-referenced nor an RI parent. This replaces splitting REFERENCE from SCD1 and catches the case a split would wave through | PROPOSED |
 | D-29 | **'Static table' is a named preset**, not a structural type — SCD1 + those properties + `FULL_REFRESH` + `TRUNCATE_INSERT`. Same treatment as HISTORY and CATCHUP | AGREED |
-| D-30 | **The table type drives the record-count balancing equation**, so reconciliation is generic per type rather than hand-built per table | PROPOSED |
+| D-30 | **The table type drives the record-count balancing equation**, so reconciliation is generic rather than hand-built per table — *amended by D-36: the identity is per (table type × write strategy)* | PROPOSED |
 | D-31 | A table is classified `APPEND_ONLY` by one **business** test: on a correction, a reversing entry means append-only; an update in place means SCD1 or SCD2. A source that resends a revised version of the same event is **not** append-only | PROPOSED |
+| D-32 | **SCD2 has exactly one write strategy**, `SCD2_REBUILD_TIMELINE`. A cheap forward-only variant is a correctness trap — one backdated row corrupts the timeline silently. A fast path can be added later; a corrupted timeline cannot easily be un-corrupted | AGREED |
+| D-33 | For every affected key the target timeline is a **deterministic function of the source** — recompute, then match by diff in three set-based statements. Not DELETE+INSERT (re-mints surrogate keys, resets audit lineage on unchanged rows), not one MERGE (nondeterministic match; no `WHEN NOT MATCHED BY SOURCE`). **Idempotency follows by construction** | PROPOSED |
+| D-34 | **Chunking for SCD2 must cut on key range, never on a date column** — a date chunk hands the rebuild a partial timeline and corrupts it. Amends D-05 and D-12 | PROPOSED |
+| D-35 | **Delete detection cannot live inside a write strategy** — a window cannot see keys that vanished. It is a separate post-step over the full key set | PROPOSED |
+| D-36 | The **record-count balancing identity is per (table type × write strategy)**, not per table type alone. Amends D-30 | PROPOSED |
+| D-37 | `SCD2_REBUILD_TIMELINE` has three preconditions, **all of which fail silently**: complete source history per key (OQ-11); internally sane source timelines, checked *before* the rebuild; one pipeline per table at a time | PROPOSED |
 
 ---
 
-## 11. Open questions
+## 12. Open questions
 
 | # | Question | Blocks | Owner |
 |---|---|---|---|
@@ -443,16 +544,17 @@ correspondingly smaller strategy set. Write strategies are the next topic and ar
 | **OQ-08** | Is **CDC / stream acquisition** ever in scope for this framework? | scope | Nikhil |
 | **OQ-09** | Can new tables be created in the **shared Aurora ABC schema**, or does this design need its own schema? Affects D-16's blast-radius argument | Category B | Nikhil |
 | **OQ-10** | **Are transaction / event tables in Zone 2 scope at all** — premium transactions, claim payments, commission transactions, ledger entries? If they stay elsewhere, cut `APPEND_ONLY` as we cut file-based sources and Aspect 3 finishes with a smaller strategy set | Aspect 3 | Nikhil |
+| **OQ-11** | **Does the Zone 1 refined layer retain complete history per key, indefinitely?** `SCD2_REBUILD_TIMELINE` depends on it and produces wrong timelines **silently** if history is pruned or archived. If retention is partial we need the incremental-splice variant — more logic, less safe. **The single most important precondition in the design** | Aspect 3 | Nikhil |
 
 ---
 
-## 12. Aspect order
+## 13. Aspect order
 
 | Order | Aspect | Category | Status |
 |---|---|---|---|
 | 1 | Load type model | B | **CLOSED** (pending OQ-01) |
 | 2 | **Configuration data model** — entities, reuse/extend/create, DDL deltas | B | **in progress** |
-| 3 | **Target table types and write strategies** | D | **types AGREED; strategies next** |
+| 3 | **Target table types and write strategies** | D | **types AGREED; SCD2 strategy AGREED** |
 | 4 | Window derivation mechanics | B / D | |
 | 5 | Execution engine skeleton, gates, phase sequence | C | |
 
