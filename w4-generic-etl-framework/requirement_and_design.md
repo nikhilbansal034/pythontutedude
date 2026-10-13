@@ -1,5 +1,28 @@
 # Generic ETL framework — requirement and design log
 
+> ## ⛔ PARKED — 13 October 2026
+>
+> This file and `design_tracker.xlsx` are **parked at the point they reached**, not deleted. The active
+> design is **[`high_level_design.md`](high_level_design.md)** and **[`high_level_design.xlsx`](high_level_design.xlsx)**.
+>
+> Why: this log drifted from architecture into low-level design. §2 lists *"window derivation, write
+> strategies"* as in-scope, which defined the scope as detailed design and then faithfully executed it.
+> Requirements and the high-level architecture had to come first.
+>
+> What is still good and carries forward:
+>
+> | Content | Classification | Fate |
+> |---|---|---|
+> | §7 load type model — nine names → three axes plus presets | requirement clarification | **stands** — feeds B4 and T4 |
+> | §9 four target table types and their invariants | requirement / conceptual model | **stands** — feeds T7 |
+> | §10 the *set* of six write strategies | architecture | **stands** — feeds T7 |
+> | §10 `SCD2_REBUILD_TIMELINE`'s five steps and three statements | low level design | parked |
+> | §11 Aspect 4 — all sixteen window questions | low level design | parked |
+> | §6 seven categories | architecture, but thin | **superseded** by the high level design |
+>
+> Nothing below has been edited for the park. Read it as a record of where the thinking got to.
+
+---
 A single configuration-driven ETL framework in IDMC, serving every load type and every team, built on the
 ABC metadata tables in Aurora.
 
