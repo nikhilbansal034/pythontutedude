@@ -994,6 +994,8 @@ than by default.
 | **A1** | **Can a Zone1 history table hold two overlapping periods for the same business key?** | Decides whether the overlap problem is a documented precondition or a code guard. It is the single highest-value question in the pack, and it becomes an order of magnitude more expensive to answer after the IDMC mappings exist |
 | **A2** | **What is `UUID` on a target row** — generated per row and restamped, or carried from a source? (§13 Q9) | Rules 2 and 4 exist *solely* to restamp it. Its correctness cannot be asserted in test until its definition is settled. If it is carried from a source, which source supplies it for an interval only one source covers? |
 | **A3** | **How many assets will use this pattern?** (§12 Q5) | At two or three, a hand-written view per target is fine. At fifteen or more it is the wrong shape, and that is hard to reverse once built |
+| **A4** | **Is the Day 4 worked example intended, or a slip in the dummy data?** (§19) | Decides whether rules 11, 12, 15 and 16 retire by delete indicator or by dead record. The author is re-checking |
+| **A5** | **What is `deletion_ind` for?** (§19) | Labelled "teradata replica for soft delete" and empty throughout the worked example. Decides whether Zone2 writes it at all |
 
 ### B. Ours to do, no external answer needed
 
@@ -1003,6 +1005,7 @@ than by default.
 | **B2** | Add genuine de-duplication coverage: a duplicate `(key, effective date)` with **distinct** timestamps where **neither** value matches the incumbent | De-dup and "latest wins" are both currently untested |
 | **B3** | Fix S05 to test its own stated premise — the **same** value either side of the gap | The gap guard is currently never exercised |
 | **B4** | Bring the offline harness under drift control: generate its apply logic from `00_objects.sql`, or extend `check_merge_drift.py` to cover it | The shipped MERGE is not executed by any test |
+| **B5** | Add `current_record_ind` — both DDLs, the Step 1 view, all three MERGE branches — with an invariant assertion that it never disagrees with the row's own expiry date | §19. Safe to do now: it does not depend on how A4 resolves |
 
 **B4 should be sequenced first.** The review recommends replacing "18 of 18 rules reached" with a mutation
 score as the coverage gate, which is right — rule coverage measures *reachability* and says nothing about
@@ -1016,4 +1019,87 @@ about `TARGET_TABLE_NAME` filtering, §9's surviving v1 content, §4's trap-cove
 description of an S15 test that does not exist, the "volume" label on a six-key scenario, §6's UUID column
 for rules 8/10/12/14/16, and the root `README.md`'s coverage claims. Detail in
 `TEST_LEAD_REVIEW_RESPONSE.md` §1.
+
+---
+
+## 19. Requirement update: two new target columns, and the leadership-verified worked example
+
+Two artefacts arrived on 2026-10-13: the **original rule table** the POC was built from (unchanged, and
+still the source of truth for the decision logic), and a **worked example with dummy data, verified with
+leadership**, covering four consecutive days. The worked example introduces target columns the POC does not
+have.
+
+### What the worked example confirmed
+
+Days 1 to 3 were replayed through the real Step 1 view. The POC reproduces the leadership-verified target
+**row for row** — every date, every delete flag, every row the example marks "no change", and the surrogate
+key surviving where it should:
+
+| Day | What the sources did | Rule the POC chose | Mechanism | Result |
+|---|---|---|---|---|
+| 1 | initial load, two intervals | 17 | insert | exact match, 2 rows |
+| 2 | table 2 splits into B1 / B2 / B3 | **5** | **expire in place** — key survives, nothing retired, no replacement row | exact match, 4 rows |
+| 3 | table 2's B2 is split again | **7** + 17 | **soft delete** — `IS_DEL = 'Y'`, **both dates untouched** — plus an insert at the same effective date | exact match, 6 rows |
+
+Day 3 is the strongest confirmation in the pack: it is the case most implementations get wrong, and the
+retired row keeps its published interval exactly as the design requires.
+
+**Caveat on what "the POC reproduces" means here.** That replay used the offline harness, so Step 1 is the
+real view but the apply is the harness's stand-in, not the shipped `MERGE` — finding F6 in §18. The two
+agree on these days, but nothing checks that automatically.
+
+### Day 4 — not reconciled
+
+Day 4 corrects a commission value in place (`B1` to `B1_1`) without moving any dates. That hits two target
+rows whose expiry is a **real date**, so the rule table gives **rule 11** — `IS_DEL = 'Y'`, dates untouched,
+plus an insert at the same effective date. The POC does exactly that.
+
+The worked example instead shows those two rows as **dead records**: expiry pulled back to the row's own
+effective date, `IS_DEL` left at `'N'`.
+
+| | worked example | POC, per the rule table |
+|---|---|---|
+| old row at 1-Jan | `1-Jan -> 1-Jan`, `IS_DEL = 'N'` | `1-Jan -> 10-Jan`, `IS_DEL = 'Y'` |
+| old row at 10-Jan | `10-Jan -> 10-Jan`, `IS_DEL = 'N'` | `10-Jan -> 15-Jan`, `IS_DEL = 'Y'` |
+
+Both runs produce the same eight rows and the same two inserts; only the retirement mechanism differs.
+
+The rule table is explicit for this case — *diff hash, same expiry, **non high end date*** reads
+*"(update with is_deleted = 'Y' & create new entry)"*, and the `upd` that preceded it is struck through.
+Day 3 of the same worked example also uses the soft delete on a real-dated row. The author is re-checking
+the Day 4 simulation; a slip there is the likeliest explanation (the Day 4 block also shows table 1's value
+as `A1` on rows at 10-Jan, where days 1 to 3 have `A2` covering that period).
+
+**Nothing has been changed pending that check.** If Day 4 turns out to be intended, rules **11, 12, 15 and
+16** move from delete indicator to dead record, and S01 TC04, S10 and S12 need re-running.
+
+### The new columns
+
+| Column | Status | What has to happen |
+|---|---|---|
+| `current_record_ind` | **Not in the POC** | `'Y'` exactly when `ROW_EXP_DTE` is the high end date, `'N'` otherwise. Verified correct against all 14 rows of days 1 to 3 by deriving it on the fly |
+| `is_deleted` | **Already present** as `IS_DEL` | Nothing. Confirmed matching on every day |
+| `deletion_ind` | **Not in the POC** | Labelled *"teradata replica for soft delete"* and left empty throughout the worked example. Unclear whether Zone2 populates it at all, and what distinguishes it from `IS_DEL` — **open question** |
+
+`current_record_ind` carries no information that `ROW_EXP_DTE` does not already carry, so it adds no new
+decision logic: every rule that moves a row's expiry off the high end date flips it to `'N'`, and every
+insert at the high end date sets it to `'Y'`. Day 2 shows exactly that, flipping the `10-Jan` row from `'Y'`
+to `'N'` when rule 5 expires it in place.
+
+That redundancy is the risk. A stored column that duplicates another can drift out of step without anything
+failing, so it should be added **together with an invariant assertion** — in every scenario, no row may have
+`current_record_ind` disagreeing with its own expiry date.
+
+### A divergence found while checking this
+
+The POC stamps a fresh `UUID_STRING()` on **every** stage row, and the apply restamps `UUID` on **both** the
+`'U'` and `'D'` branches — so on regular runs as well as reruns.
+
+The rule table asks for a UUID update only on the **rerun** rows of the first group, rules 2 and 4. In the
+second group the phrase *"with new uuid if needed"* is **struck through**, and the third and fourth groups
+do not mention UUID at all.
+
+So the implementation restamps the UUID in cases the requirement does not ask for. Whether that is wrong
+cannot be settled until someone defines what `UUID` means (§18 A2), and no test asserts it either (review
+finding F5). Recorded here rather than changed.
 
