@@ -1103,3 +1103,71 @@ So the implementation restamps the UUID in cases the requirement does not ask fo
 cannot be settled until someone defines what `UUID` means (§18 A2), and no test asserts it either (review
 finding F5). Recorded here rather than changed.
 
+---
+
+## 21. The real STTM and table DDLs — what they settle
+
+Three artefacts for `ACCOUNT_PARTY_REFERENCE`: the two source DDLs, the STTM mapping, and the staging and
+target DDLs. Between them they close a question that has been open since this work started, and they narrow
+the integration considerably.
+
+### The staging table is already shaped for this design
+
+`ACCOUNT_PARTY_REFERENCE_STG` carries, before anything we add:
+
+| Staging column | What it already is |
+|---|---|
+| **`CHANGE_FLAG`** | An operation indicator. **This is `ACTION_FLAG` under another name** |
+| `SRC_HASH_VAL`, `SRC_PREV_HASH_VAL`, `SRC_HASH_MATCH` | The hash comparison the rules need — including the **target's prior hash**, which is exactly the "rebuilt versus existing" comparison |
+| `TGT_ACTIVE_ROW_EFFECTIVE_DATETIME`, `TGT_ACTIVE_<table>_ID` | The matched target row's effective date and surrogate key — what our stage carries as the matched key |
+
+**This closes the `ACTION_FLAG` question.** It was the one genuine `ALTER` the design might have needed, and
+it is not needed: the column exists, under the name `CHANGE_FLAG`. The apply adds **no column at all**.
+
+The target DDL also confirms §19 directly: `CURRENT_RECORD_INDICATOR VARCHAR(1) NOT NULL` and
+`DELETE_INDICATOR VARCHAR(1) NOT NULL` are both already there. Note there is **one** delete column here,
+where the worked example showed two (`is_deleted` and `deletion_ind`); either that example covered a
+different table or the two collapse to this one.
+
+### The classifier, now written against real STTM text
+
+The STTM gives, per target column: current-state table(s), current-state column(s), a free-text
+Transformation, the physical target column, and flags for `Future State Table SCD Type` and natural key.
+That is enough to classify a table mechanically:
+
+| Signal in the Transformation text | Reading |
+|---|---|
+| *"union data from these 2 tables"*, *"when sourcing from X … when sourcing from Y"*, *"Null when sourcing from Y"* | **Alternative sources.** One row comes from one source and takes that source's dates. **Union — no split** |
+| *"Join from A to B by …"* where **both** A and B carry `row_eff_dm` / `row_exp_dm` | **Co-equal SCD-2 feeds.** One attribute's validity is governed by a second timeline. **Split required** |
+| only one source table carries effective dates | **No split** |
+
+`Future State Table SCD Type = SCD-2` gates the whole thing, and the natural-key flags identify the
+business key.
+
+### `ACCOUNT_PARTY_REFERENCE` is a union table — with one open exception
+
+Its STTM says *"union data from these 2 tables"*, and three columns are marked *"Null when sourcing from
+prospect_ref_t"*. `PROSPECT_INDICATOR` is hardcoded `'N'` from one source and `'Y'` from the other. Each row
+comes from `account_ref_t` **or** `prospect_ref_t` and takes that source's `row_eff_dm` / `row_exp_dm`
+directly. No boundary union is needed.
+
+**The exception** is `ACTIVE_NUMERAL_ISSUE_RECORD_INDICATOR`, mapped as *"Join from
+account_number_element_t to account_ref_t by using concat(acct_ldgr_num,'-',acct_srl_num) = acct_rfrn_num
+and srl_typ_code = acct_rfrn_typ_cde"*. **If `account_number_element_t` is itself SCD-2**, that one column
+makes this a genuine two-source intersection and the split applies. If it is a current-only lookup, it does
+not. Unresolved — the table's DDL would settle it.
+
+**Both real examples seen so far are union-shaped.** If that holds across the STTM, the effective-date split
+applies to a small identifiable subset of tables, and the classifier — not the split template — is the most
+valuable part of the historical instruction file.
+
+### Three conflicts found in the mapping
+
+| | Issue |
+|---|---|
+| **1** | The STTM sets `Delete_Indicator` to *"Hardcode 'N' (it doesn't look like we have a soft delete process for this table currently in ADW)"*, in red. Rules **7, 11 and 15** retire a row by setting that column to `'Y'`. A hardcoded `'N'` makes the delete-indicator mechanism inoperable on this table, and the modeller is openly unsure |
+| **2** | **A type bug.** Target has `SOURCE_ACCOUNT_PARTY_REFERENCE_IDENTIFIER VARCHAR(255)`; staging declares it `NUMBER(38,0)`. The transformation builds it by concatenating `stkr_id - acct_rfrn_num - acct_rfrn_typ_cde`, a string. Loading `account_ref_t` rows into that staging column will fail or mangle. Also `ACCOUNT_PARTY_REFERENCE_NAME` is `VARCHAR(255)` in the target and `VARCHAR(70)` in staging — truncation risk |
+| **3** | One `DELETE_INDICATOR` here versus two delete columns in the worked example, as above |
+
+Conflict 2 is independent of this design and worth raising with whoever owns the staging DDL.
+
