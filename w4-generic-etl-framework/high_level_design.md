@@ -249,7 +249,58 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 
 ---
 
-## 9. Open questions
+## 9. Requirement coverage review
+
+Sixteen requirements arrived on the **`Requirement summary`** sheet. Reviewed against the design as drawn:
+
+| | | |
+|---|---|---|
+| **7 COVERED** | | one base framework · all table types · job-error table · CDE recon · post-load reuse · the Snowflake config copy (already decided at R-06) · groups (as a known gap) |
+| **1 PARTIAL** | | RI routing |
+| **5 GAP** | | group-level restart status · ABC table completeness · Snowflake copy granularity · **Aurora connection architecture** · *(see conflicts)* |
+| **3 CONFLICT** | | the three below |
+
+**A conflict matters more than a gap**: a gap is something to add, a conflict means something already agreed has to change.
+
+### C-1 · The DQ-results merge *(most consequential)*
+
+> *"Critical DQ that scales — the merge references DQ results, not ever-longer conditions."*
+
+**T7 currently splits failing rows out inline as the load runs**, which is ABC's model — and inline conditions
+are exactly what makes the merge grow with every new rule. For the merge to *reference* DQ results, quality
+evaluation has to produce a **result set the write joins**. That changes T7's shape, not just its configuration.
+
+### C-2 · "Waits only for the tables it needs"
+
+Stricter than what B6 does. B6 resolves prerequisites into **waves**, so a table in wave 3 waits for every
+table in waves 1 and 2 to be *attempted* — more than its own prerequisites. Per-table readiness gives maximal
+parallelism, but then a prerequisite **can** still be in progress when checked, which is precisely what the
+wave model was chosen to prevent (HQ-07). A real trade-off:
+
+| | Waves (as drawn) | Per-table readiness |
+|---|---|---|
+| Parallelism | over-serialises | maximal |
+| In-progress prerequisite | unreachable by construction | reachable — needs a wait or a poll at T2 |
+
+### C-3 · Helix owns SCD Type 1
+
+The design assumes SCD1 is **in** scope: `table_type` lists it first and two write strategies serve it. But
+note the deeper issue — **static / mapping / truncate tables were collapsed into SCD1** earlier in this design.
+*"SCD1 is Helix's"* and *"static tables are ours"* cannot both be true while they share one type.
+
+You pushed back on that collapse at the time. This requirement is evidence you were right, and **`STATIC` may
+need to be its own table type again.**
+
+### Also new
+
+**Sequencing within a group** contradicts what a group means here — in this design a group is *by definition*
+parallel-safe. A stage-before-target pair is a **prerequisite edge**, not an intra-group sequence. And **stage
+tables as batch members is new**: the flow assumes every member is a final target. A stage table that is a
+member needs a table type and a write strategy of its own.
+
+---
+
+## 10. Open questions
 
 **`HQ-04` is the largest gap in the whole design** and it is the one only leadership can close.
 
@@ -267,7 +318,7 @@ Nothing is wasted. Three of those rows are Stage 0 inputs we would have had to p
 
 ---
 
-## 10. What comes next
+## 11. What comes next
 
 The flow is the spine. Each block now gets its own detail, **one block at a time**, in diagram order —
 what it reads, what it writes, what it decides, what it must guarantee, and what it needs from configuration.
