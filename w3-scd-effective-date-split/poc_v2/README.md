@@ -183,6 +183,15 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
 - Does the real stage table already have an operation / CDC indicator column? If so `ACTION_FLAG` takes that
   name and the apply adds **no column at all**. If not, it is the one genuine `ALTER`.
 
+**Integration with DataAssist** (`../solution_design.md` §20)
+
+- Day 1 needs **one rule, not eighteen** — on an empty target only rule 17 can fire, measured across all
+  15 scenarios' initial loads.
+- DataAssist's Q1/Q2 are already correct for a historical load, and would overwrite history from the first
+  incremental run, because Q2's update path writes in place.
+- `BROKER_PARTY` does **not** need the effective-date split — its sources are prioritised alternatives, not
+  co-equal SCD2 feeds. A per-table classifier reading the STTM decides which tables do.
+
 **Ours to do**
 
 - Settle the overlap position, then add a corrupt-input case that fails without it.
