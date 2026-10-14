@@ -1407,3 +1407,126 @@ it arrives as a join or as a lookup. That is now R6 in `dataassist_generation_ru
 eight findings as rules with detectable triggers rather than as a defect list, so they transfer to the next
 table. `tools/verify_tpa_assertions.py` and `tools/verify_tpa_agreement_fk.py` reproduce every executed
 claim.
+
+---
+
+## 25. The ADW HR generated assets — `DEPARTMENT`, `JOB` and `OFFICE_DEPARTMENT`
+
+A second table was generated after the tooling was corrected: `DEPARTMENT`, from `HR_DEPT_T` in the ADW HR
+source. It is a different asset from a different source and was reviewed on its own terms, against its own
+STTM. Findings are in `dataassist_department_findings.md`.
+
+**19 of 21 columns are correct and the structure is sound.** The table is correctly classified as a single
+history source — `HR_DEPT_T` carries its own `ROW_EFF_DTE` / `ROW_EXP_DTE`, so no interval derivation is
+needed and none was generated, which is useful evidence the classifier does not over-apply the split.
+`CURRENT_RECORD_INDICATOR` is derived from the expiry rather than stored, `AUDIT_CHANGE_HASH` excludes both
+row dates and the surrogate key, audit identifiers come from framework parameters, and Q2 is a plain
+`INSERT … SELECT` rather than a merge — the right shape for an empty target.
+
+**The two wrong columns share a pattern, and it is a different one from the first review.**
+
+> The generated SQL is correct wherever the STTM was explicit, and wrong wherever it was ambiguous — and
+> the self-checks cannot tell the difference.
+
+`SOURCE_SYSTEM_NAME` took the incremental branch of a load-type conditional in a file that declares itself
+historical, hardcoding `'EMPLOYEE'` where the STTM asks for the source column. The STTM row disagrees with
+itself by one character — the column-name cell reads `src_sys_nme`, the prose reads `src_sys_nm` — which
+would explain a fall-through, and makes the fall-through the defect rather than the typo. `DELETE_INDICATOR`
+was emitted as NULL where a historical row needs `'N'`; since it is the last term of the change hash, every
+unchanged row would be re-versioned on the first incremental run.
+
+**The sharpest finding is about the checks themselves.** Three of the eight emitted assertions restate a
+computation the same query already performed, so they report zero whatever the data holds. Proved by seeding
+a deliberately corrupt source chain — a department with two rows on one effective date — and running the
+checks verbatim: the duplicate-key check reported **0**, because the de-duplication that precedes it
+guarantees the property it tests. The same check pointed at the source finds the duplicate at once.
+
+That generalises past this table: **the de-duplication step is exactly what hides a corrupt source chain,
+so a check placed downstream of it cannot see the thing it was written to catch.** A check whose predicate
+restates the query is a tautology, and a green tautology reads exactly like a passing test.
+
+Four further findings are smaller: no `TRUNCATE` on a truncate-and-reload load, so a re-run doubles the
+target; Q2 re-reading the framework's audit parameters instead of carrying the ones Q1 stamped into staging,
+which breaks the join used to trace a load; a hash concatenation whose `|` separator can occur in the data;
+and a lineage object omitting the source system.
+
+One question goes to the data modeller rather than the generator. Only `Department_Number` is flagged a
+natural key, but the STTM asks history to carry `src_sys_nme`, which implies several systems feed the table.
+If it genuinely varies, the business key is `(DEPARTMENT_NUMBER, SOURCE_SYSTEM_NAME)` — and today the dedup
+would silently discard one system's department. This cannot be observed until the first finding is fixed.
+
+### `JOB`, the second HR asset, and what it settles
+
+`JOB` (from `HR_JOB_T`) was generated from the same mapping template. **23 of 25 columns are correct and
+the structure is equally sound** — correct single-source classification, derived current-record indicator,
+a 13-attribute hash excluding both row dates, framework audit identifiers, and a 25-column `INSERT … SELECT`
+whose insert and select lists match in count and order.
+
+It also **reproduces six of `DEPARTMENT`'s seven findings exactly**, including the `src_sys_nme` /
+`src_sys_nm` one-character inconsistency, which appears identically in both STTM sheets. That settles their
+status: these are **defects of the HR mapping template and of the generator's fall-through behaviour, not of
+either table**. Fixing them per table will not converge.
+
+`JOB` contributes one finding of its own, and it is the most dangerous found on any asset so far. The STTM
+flags only `Job_Code` as the natural key, but the table also carries `HR_Business_Group_Code` — and a
+four-character job code being unique across every HR business group is an assumption nothing states. The
+dedup partitions on `JOB_CODE` alone. Executed with one job code present in two business groups, the load
+drops a whole job, **and all eight generated self-checks report zero**. Nothing in the output says a row was
+lost.
+
+That sharpens §24's lesson rather than repeating it. There the de-duplication hid a corrupt source chain
+from a check placed downstream of it; here it hides **a wrong business key** from every check at once,
+because every check is keyed on the same wrong key. The single check that would have caught it compares the
+source row count against the staging row count — a check none of the generated sets emits.
+
+Both reviews are in `dataassist_department_findings.md`, with
+`tools/verify_department_findings.py` reproducing every executed claim.
+
+### `OFFICE_DEPARTMENT`, and the first asset to exercise the foreign-key split
+
+The third HR asset is an association table: a composite natural key (`Office_Number`, `Department_Number`)
+and two foreign keys into `OFFICE` and `DEPARTMENT`, both SCD-2. **34 of its 36 columns are correct**, and it
+is the strongest output the generator has produced.
+
+Two things it proves that the simpler tables could not.
+
+**The generator uses every natural key the STTM declares.** Both flagged columns appear in the dedup
+partition, in every keyed check, and check 9 is emitted once per key column. That settles `JOB`'s J1 as a
+**mapping** defect rather than a generator defect — the fix belongs in the STTM.
+
+**It implemented the foreign-key boundary split unprompted, and correctly in the common case.** Q2 builds
+`fk_bounds` → `fk_intervals` → `fk_split_stg`: the union of each FK table's version boundaries falling
+strictly inside the staging interval, cut with `LEAD()`, re-joined by containment. This is the same shape as
+§24's unresolved finding on a foreign key into an SCD-2 dimension, arrived at independently. Verified: an
+office gaining a version mid-interval cuts the association row in two, each half carrying the version in
+force.
+
+Three findings are its own, and all three concern that new machinery rather than the mapping.
+
+- **`fk_bounds` collects the FK tables' effective dates but never their expiration dates.** That is
+  sufficient only while a parent's chain is contiguous. Executed with an office retired mid-interval and no
+  successor, the association row carries the expired office version to the high end date — no effective date
+  fell inside, so no cut was made.
+- **The nine self-checks run against the pre-split staging table.** Q2 then rebuilds the row set, so every
+  property they establish is established about a table that is not what reaches the target. One staging row
+  checked; two rows inserted. The split is the most complex step in the pipeline and the only one with no
+  assertions.
+- **An unresolved foreign key lands as NULL and nothing counts it.** Both lookups are `LEFT JOIN`s, and an
+  association row is nothing but its two foreign keys. The load-order dependency on `OFFICE` and
+  `DEPARTMENT` is also undeclared, so running early produces a table of NULL keys that passes every check.
+
+One further item is recorded as **not assessed**: both screenshots begin mid-file, at line 35 of Q1 and line
+31 of Q2. Whether a truncate or a load-order declaration lives in the unread lines cannot be established
+either way, so the missing-truncate finding raised on the other two tables is deliberately **not** raised
+here.
+
+**Across three tables the six template defects are now conclusive.** The `src_sys_nme` / `src_sys_nm`
+one-character inconsistency appears in all three STTM sheets, and the generator falls through to the wrong
+branch each time. These belong to the HR mapping template and to the generator's fall-through behaviour, not
+to any table, and fixing them per table will not converge.
+
+The pattern across all three is worth stating once: **the generator is reliable where the mapping is
+explicit and improvises where it is not, and its self-checks are placed where they cannot observe the step
+that would fail.** `DEPARTMENT` showed a check downstream of the de-duplication that hides a corrupt chain;
+`JOB` showed every check keyed on the same wrong key; `OFFICE_DEPARTMENT` shows every check pointed at a
+table Q2 then rebuilds.
