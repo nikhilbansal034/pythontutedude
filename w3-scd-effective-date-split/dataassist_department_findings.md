@@ -1,15 +1,38 @@
-# `DEPARTMENT` (HR) historical load — review findings and the rules they give
+# ADW HR historical loads — review findings and the rules they give
 
-**Scope: the `DEPARTMENT` table only.** Source `HR_DEPT_T` (ADW HR), target
-`GRS_DIAI_GLOBAL_EMPLOYEE_DATA_DOMAIN_CURATED_DB.EMPLOYEE_MAIN_T.DEPARTMENT`. Reviewed against its own
-STTM and the generated `DEPARTMENT_Q1_SRC_TO_STG.sql` and `DEPARTMENT_Q2_STG_TO_TGT.sql`.
+Covers two generated assets from the ADW HR source:
 
-This file is self-contained. It draws no comparison with any other table.
+| Table | Source | Findings | Section |
+|---|---|---|---|
+| `DEPARTMENT` | `HR_DEPT_T` | **D1 – D7** | below |
+| `JOB` | `HR_JOB_T` | **J1 – J7** | [§ JOB](#job-hr-historical-load) |
 
-Each finding is written as a **rule with a trigger**, so it can be applied to the next table, with the
-`DEPARTMENT` defect as the evidence that the rule is needed.
+Both reviewed against their own STTM and their own generated
+`<TABLE>_Q1_SRC_TO_STG.sql` / `<TABLE>_Q2_STG_TO_TGT.sql`. Each finding is written as a **rule with a
+trigger**, so it applies to the next table, with the defect as the evidence that the rule is needed.
+
+This file covers the ADW HR assets only. It draws no comparison with tables from other sources.
+
+> ### Read this first: the two tables share one STTM template, and therefore one set of defects
+>
+> `JOB` reproduces **six of `DEPARTMENT`'s seven findings exactly** — same conditional taking the wrong
+> branch, same NULL indicator, same three tautological checks, same missing truncate, same re-read audit
+> parameters, same hash separator. The `src_sys_nme` / `src_sys_nm` one-character inconsistency appears
+> **identically in both STTMs**, which makes it templated rather than a typo on one row.
+>
+> **Treat D1 – D7 as defects of the HR mapping template, not of `DEPARTMENT`.** Fix them once, at the
+> template and in the generator, and every HR table generated afterwards is clean. Fixing them table by
+> table will not converge.
+>
+> **`JOB` has one finding of its own — J1 — and it is the most dangerous on either table**, because it
+> produces a load that passes all eight self-checks while silently dropping rows.
 
 ---
+
+## `DEPARTMENT` (HR) historical load
+
+Source `HR_DEPT_T`, target
+`GRS_DIAI_GLOBAL_EMPLOYEE_DATA_DOMAIN_CURATED_DB.EMPLOYEE_MAIN_T.DEPARTMENT`.
 
 ## Verdict
 
@@ -451,7 +474,7 @@ This depends on **D1** being fixed first — until then the value would be the c
 
 ---
 
-## Open — needs a DDL before it can be closed
+## `DEPARTMENT` — open, needs a DDL before it can be closed
 
 | | What is needed | What it decides |
 |---|---|---|
@@ -460,7 +483,7 @@ This depends on **D1** being fixed first — until then the value would be the c
 
 ---
 
-## For the data modeller — the business key may be incomplete
+## `DEPARTMENT` — for the data modeller: the business key may be incomplete
 
 The STTM flags **only `Department_Number`** as a natural key, and the dedup partitions on
 `(DEPARTMENT_NUMBER, ROW_EFFECTIVE_DATETIME)` alone.
@@ -482,7 +505,7 @@ because today every row carries the constant `'EMPLOYEE'`.
 
 ---
 
-## Fix list, in order
+## `DEPARTMENT` — fix list, in order
 
 | | Fix | Size |
 |---|---|---|
@@ -499,14 +522,339 @@ because today every row carries the constant `'EMPLOYEE'`.
 
 ---
 
-## Verification
+---
+---
 
-`tools/verify_department_findings.py` reproduces every executed claim in this file: the hash divergence in
-**D2**, the three tautological checks and the hidden source duplicate in **D3**, the double-insert in
-**D4**, and the dedup discarding a second source system in the modeller note. It needs `duckdb` only.
+# `JOB` (HR) historical load
+
+Source `HR_JOB_T`, target `GRS_DIAI_GLOBAL_EMPLOYEE_DATA_DOMAIN_CURATED_DB.EMPLOYEE_MAIN_T.JOB`.
+Reviewed against the `JOB` STTM and the generated `JOB_Q1_SRC_TO_STG.sql` / `JOB_Q2_STG_TO_TGT.sql`.
+
+## Verdict
+
+| | |
+|---|---|
+| Column mappings | **23 of 25 correct** |
+| Structure | **Correct** |
+| Self-checks | **8 emitted; 3 are tautologies, and none caught the worst case** |
+| Safe to run | **No** |
+
+### What is right, and should not be disturbed
+
+- **Correctly classified as a single history source.** `HR_JOB_T` carries its own `ROW_EFF_DTE` /
+  `ROW_EXP_DTE`, so no interval derivation was generated and none is needed.
+- **`CURRENT_RECORD_INDICATOR` derived from the expiry**, not stored.
+- **`AUDIT_CHANGE_HASH` over 13 business attributes**, excluding both row dates and the surrogate key.
+- **Audit identifiers from framework parameters** in Q1.
+- **Q2 is `INSERT … SELECT` with `JOB_SEQ.NEXTVAL`** — the right shape for an empty target. Its 25-column
+  insert list and its select list match exactly in count and order; checked position by position.
+
+---
+
+## J1 — the business key is probably `(JOB_CODE, HR_BUSINESS_GROUP_CODE)`, not `JOB_CODE` alone
+
+**Severity: highest on either table. It produces a load that passes every check while losing rows.**
+
+This is `JOB`'s own finding. It has no counterpart in `DEPARTMENT`.
+
+### Trigger
+
+The STTM flags a single natural-key column, **and** the same table carries another column that names a
+scope, owner, group, company or region. Treat the key as suspect until proved otherwise: a code that
+identifies a thing *within* an organisational unit is rarely unique across all of them.
+
+### What the STTM says
+
+| | Column | Type | Natural Key |
+|---|---|---|---|
+| 2 | `Job_Code` | `CHAR(4)` | **Y** |
+| 3 | `HR_Business_Group_Code` | `CHAR(10)` | — |
+
+`HR_Business_Group_Code` is described as *"Code identifying the HR business group for the employee."*
+A four-character job code being globally unique across every HR business group is an assumption, not a
+fact, and nothing in the mapping states it.
+
+### What was generated
+
+```sql
+ROW_NUMBER() OVER (
+    PARTITION BY JOB_CODE, ROW_EFFECTIVE_DATETIME
+    ORDER BY TABLE_PRIORITY ASC, ROW_EXPIRATION_DATETIME DESC
+) AS final_dedup_rn
+...
+final_deduped AS ( SELECT * FROM cross_table_deduped WHERE final_dedup_rn = 1 )
+```
+
+### Why it is wrong
+
+If one job code exists in two business groups, the dedup keeps one and discards the other. Executed, with
+job `A100` present in `CORP-US` and `SPECIALTY`:
+
+```
+source rows 4 -> staging rows 3
+   ('A100', 'CORP-US  ', 'Claims Adjuster')
+   ('B200', 'CORP-US  ', 'Senior Actuary')
+   ('B200', 'CORP-US  ', 'Actuary')
+-> the SPECIALTY 'Underwriting Analyst' job is gone
+```
+
+**A whole job disappeared.** Then all eight generated self-checks, run verbatim against that staging table:
+
+```
+reports 0   1 DUPLICATE_KEY_EFF     = 0
+reports 0   2 CURRENT_IND_MISMATCH  = 0
+reports 0   3 OVERLAPPING_INTERVALS = 0
+reports 0   4 BAD_INTERVAL          = 0
+reports 0   5 NULL_BUSINESS_KEY     = 0
+reports 0   6 OPEN_ENDED_COUNT      = 0
+reports 0   8 NON_INSERT_FLAG       = 0
+reports 0   9 DEGENERATE_KEY        = 0
+```
+
+**Every check passes. The load reads as completely clean.** Re-keyed on
+`(JOB_CODE, HR_BUSINESS_GROUP_CODE, ROW_EFFECTIVE_DATETIME)`, all four source rows survive.
+
+This is what makes J1 worse than J2 and J3: those are visible the moment anyone looks at a row, while J1
+produces a table that is simply missing jobs and reports nothing.
+
+### Settle it before generating — one query
+
+```sql
+-- Non-zero means JOB_CDE is NOT globally unique, and the historical load will lose rows.
+SELECT COUNT(*) AS DUPLICATE_KEY_EFF_IN_SOURCE FROM (
+  SELECT JOB_CDE, ROW_EFF_DTE
+  FROM GRS_DIAI_HISTORY_RAW_DB.LEGACY_NA_MM_CM_ADW_HR_T_D.HR_JOB_T
+  GROUP BY 1, 2 HAVING COUNT(*) > 1);
+```
+
+### Correct output, if it comes back non-zero
+
+The key change must be applied in **every** place the key appears — the dedup, every keyed self-check, and
+any later incremental merge:
+
+```sql
+ROW_NUMBER() OVER (
+    PARTITION BY JOB_CODE, HR_BUSINESS_GROUP_CODE, ROW_EFFECTIVE_DATETIME
+    ORDER BY TABLE_PRIORITY ASC, ROW_EXPIRATION_DATETIME DESC
+) AS final_dedup_rn
+```
+
+### The rule
+
+**A business key is a claim about the data, not a field in the STTM.** Before generating, verify it:
+
+1. Run the source-side duplicate query above for the declared key.
+2. If it returns zero, record that: `-- BUSINESS KEY: JOB_CODE (verified unique per effective date on <date>)`.
+3. If it returns non-zero, **halt**. Do not generate a dedup that resolves the ambiguity by discarding rows.
+   Name the candidate scope column in the halt message.
+4. Always emit the dedup-loss check below, whatever the key turns out to be.
+
+```sql
+-- Nothing may be lost to de-duplication.
+SELECT 'DEDUP_DISCARDED_ROWS' AS CHECK_NAME,
+       (SELECT COUNT(*) FROM GRS_DIAI_HISTORY_RAW_DB.LEGACY_NA_MM_CM_ADW_HR_T_D.HR_JOB_T)
+     - (SELECT COUNT(*) FROM JOB_STG) AS FAILURES;
+```
+
+This single check would have caught J1 on its own. **Nothing else did.**
+
+---
+
+## J2 — `SOURCE_SYSTEM_NAME` takes the incremental branch in a historical load
+
+**Severity: high. Blocks the run.** Same defect as **D1** — rule and correct behaviour there.
+
+### JOB's evidence
+
+STTM row 11:
+
+> **`for History use src_sys_nm else hardcoded as 'EMPLOYEE' for incremental`**
+
+Generated:
+
+```sql
+CAST('EMPLOYEE' AS VARCHAR(30))             AS SOURCE_SYSTEM_NAME,
+```
+
+The file sits under `HR - Historical` and its own lineage declares `'LOAD_TYPE', 'HISTORICAL'`.
+
+### Correct output
+
+```sql
+CAST(hj.SRC_SYS_NME AS VARCHAR(30))         AS SOURCE_SYSTEM_NAME,
+```
+
+### What `JOB` adds to the rule
+
+The `Current State Column` cell reads **`src_sys_nme`** and the prose reads **`src_sys_nm`** — the same
+one-character inconsistency as `DEPARTMENT` row 7, on a different table in a different STTM sheet.
+
+**That makes it templated, not a typo.** Every HR table generated from this mapping template will hardcode
+`'EMPLOYEE'` in its historical load. Fix it at the template, not per table — and fix the generator's
+fall-through, because the fall-through is what turns a one-character inconsistency into wrong data.
+
+The value also feeds the hash, as its tenth term.
+
+---
+
+## J3 — `DELETE_INDICATOR` is NULL
+
+**Severity: high. May block the run outright.** Same defect as **D2** — rule and correct behaviour there.
+
+### JOB's evidence
+
+STTM row 21, `Delete_Indicator`, `CHAR(1)`, Transformation `Audit Field`. Generated:
+
+```sql
+CAST(NULL AS VARCHAR(1))                    AS DELETE_INDICATOR,
+```
+
+It is the **thirteenth and last** term of `AUDIT_CHANGE_HASH`:
+
+```
+DELETE_INDICATOR NULL -> 24795da7d7bc2afa7e70bb5953ae9304
+DELETE_INDICATOR 'N'  -> 36fe425697bd86ea131ac8ecd1ebf034
+```
+
+Every unchanged row re-versions on the first incremental run.
+
+`Current_Record_Indicator` (row 20) carries the identical bare `Audit Field` transformation and **was**
+derived correctly — the same inconsistency as on `DEPARTMENT`, confirming the generator has a rule for one
+indicator column and none for the other.
+
+### Correct output
+
+```sql
+CAST('N' AS VARCHAR(1))                     AS DELETE_INDICATOR,
+```
+
+---
+
+## J4 — three of the eight checks cannot fail
+
+**Severity: high.** Same defect as **D3** — rule and correct placement there.
+
+### JOB's evidence
+
+| Check | Why it cannot fire on `JOB` |
+|---|---|
+| **1** `DUPLICATE_KEY_EFF` | groups by `(JOB_CODE, ROW_EFFECTIVE_DATETIME)`, which is **exactly** the partition of the `ROW_NUMBER()` that `final_deduped` filters to 1 |
+| **2** `CURRENT_IND_MISMATCH` | compares `CURRENT_RECORD_INDICATOR` against the expression that produced it two CTEs earlier |
+| **8** `NON_INSERT_FLAG` | `CHANGE_FLAG` is the literal `0` in the final `SELECT` list |
+
+Checks **3, 4, 5, 6 and 9 are sound**.
+
+**J1 is the proof of why check 1's placement matters.** The de-duplication is the step that destroyed the
+row, and the check written to detect duplicates runs downstream of it. Pointed at `HR_JOB_T` instead, the
+same check returns `1` immediately:
+
+```
+source-side duplicate check on (JOB_CDE, ROW_EFF_DTE): 1
+```
+
+---
+
+## J5 — Q2 re-reads `$AUDIT_BATCH_ID` instead of carrying staging's
+
+**Severity: medium.** Same defect as **D5** — rule there.
+
+### JOB's evidence
+
+Q1 writes `$AUDIT_BATCH_ID` / `$AUDIT_JOB_ID` into `JOB_STG`. Q2, reading from that same table, reads the
+parameters again:
+
+```sql
+CAST($AUDIT_BATCH_ID AS NUMBER(38,0))       AS AUDIT_BATCH_ID,
+CAST($AUDIT_JOB_ID AS NUMBER(38,0))         AS AUDIT_JOB_ID,
+```
+
+Should be `stg.AUDIT_BATCH_ID` / `stg.AUDIT_JOB_ID`. Q2 also overwrites `ROW_CREATE_DATETIME` and
+`ROW_UPDATE_DATETIME` with a fresh `CURRENT_TIMESTAMP()` rather than carrying staging's.
+
+Note that Q2 **does** correctly carry `stg.AUDIT_CHANGE_HASH` and `stg.AUDIT_ZONE_1_LINEAGE_ID` — so the
+template already knows how to carry a staging value. Only the parameter-derived columns are re-read.
+
+---
+
+## J6 — no `TRUNCATE` on a truncate-and-reload load
+
+**Severity: medium.** Same defect as **D4** — rule and correct output there.
+
+`JOB_Q2_STG_TO_TGT.sql` is a bare `INSERT … SELECT` into `…EMPLOYEE_MAIN_T.JOB`, with no `TRUNCATE` and no
+target-empty guard. A re-run after a partial failure doubles the table and nothing reports it.
+
+---
+
+## J7 — hash separator, and thin lineage
+
+**Severity: low, but the separator is now-or-never.** Same defects as **D6** and **D7**.
+
+### What `JOB` adds
+
+`JOB`'s hash has **13 terms against `DEPARTMENT`'s 9**, and four of them are free-text name fields:
+
+```
+JOB_TITLE_NAME, JOB_NAME, JOB_FAMILY_NAME, EEO_OCCUPATIONAL_CATEGORY_NAME
+```
+
+Free text is where a literal `|` actually turns up. More terms and more free text means more surface for a
+separator collision to mask a real change. The fix is the same — `CHR(31)` and a distinct NULL marker —
+and it must land **before the first load**, because changing a hash definition afterwards re-versions every
+row in the table.
+
+Lineage is the same shape as `DEPARTMENT`'s and omits the source system:
+
+```sql
+CAST(OBJECT_CONSTRUCT('SOURCE_TABLE',  f.SOURCE_TABLE_NAME,
+                      'SOURCE_SYSTEM', f.SOURCE_SYSTEM_NAME,
+                      'LOAD_TYPE',     'HISTORICAL') AS VARIANT) AS AUDIT_ZONE_1_LINEAGE_ID,
+```
+
+Depends on **J2** being fixed first, or the value is the constant `'EMPLOYEE'`.
+
+---
+
+## `JOB` — open, needs an answer before generation
+
+| | What is needed | What it decides |
+|---|---|---|
+| **J1** | The duplicate query above, run against `HR_JOB_T` | Whether the business key is `JOB_CODE` or `(JOB_CODE, HR_BUSINESS_GROUP_CODE)`. **Non-zero means the current load loses rows silently** |
+| J2 | `HR_JOB_T` DDL | Whether the column is `SRC_SYS_NME` or `SRC_SYS_NM` |
+| J3 | `JOB` target DDL | Whether `DELETE_INDICATOR` is `NOT NULL`, and so whether the insert fails or merely stores a wrong value |
+
+`SOURCE_SYSTEM_NAME` is a second candidate key component here, as on `DEPARTMENT` — but it cannot be
+assessed until J2 is fixed, because today every row carries the constant `'EMPLOYEE'`.
+
+---
+
+## `JOB` — fix list, in order
+
+| | Fix | Size |
+|---|---|---|
+| 1 | **J1** — run the duplicate query; if non-zero, re-key the dedup and every keyed check | query first, then small |
+| 2 | **J2** — `SOURCE_SYSTEM_NAME` → `hj.SRC_SYS_NME`, **and correct the HR STTM template** | one line + template |
+| 3 | **J3** — `DELETE_INDICATOR` → `'N'` | one line |
+| 4 | **J4** — move check 1 to the source, add the dedup-loss check, drop checks 2 and 8 | small |
+| 5 | **J6** — truncate, or document the framework's and add the target-empty check | one line |
+| 6 | **J5** — carry `stg.AUDIT_BATCH_ID`, `stg.AUDIT_JOB_ID`, `stg.ROW_CREATE_DATETIME`, `stg.ROW_UPDATE_DATETIME` | four lines |
+| 7 | **J7** — hash separator and lineage | one line, now or never |
+
+---
+
+# Verification
+
+`tools/verify_department_findings.py` reproduces every executed claim in this file. It needs `duckdb` only.
+
+| Claim | Where |
+|---|---|
+| Hash divergence from a NULL delete indicator | **D2**, **J3** |
+| Three tautological checks, and a source duplicate hidden by the dedup | **D3**, **J4** |
+| Double-insert from a missing truncate | **D4**, **J6** |
+| Dedup discarding a second source system | `DEPARTMENT` modeller note |
+| **A whole job lost while all eight checks report zero** | **J1** |
 
 ```
 python3 tools/verify_department_findings.py
 ```
 
-Re-run it if any example here changes.
+Re-run it if any example in this file changes.

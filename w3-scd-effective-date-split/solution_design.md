@@ -1410,7 +1410,7 @@ claim.
 
 ---
 
-## 25. The second generated asset — `DEPARTMENT` (HR)
+## 25. The ADW HR generated assets — `DEPARTMENT` and `JOB`
 
 A second table was generated after the tooling was corrected: `DEPARTMENT`, from `HR_DEPT_T` in the ADW HR
 source. It is a different asset from a different source and was reviewed on its own terms, against its own
@@ -1454,3 +1454,30 @@ One question goes to the data modeller rather than the generator. Only `Departme
 natural key, but the STTM asks history to carry `src_sys_nme`, which implies several systems feed the table.
 If it genuinely varies, the business key is `(DEPARTMENT_NUMBER, SOURCE_SYSTEM_NAME)` — and today the dedup
 would silently discard one system's department. This cannot be observed until the first finding is fixed.
+
+### `JOB`, the second HR asset, and what it settles
+
+`JOB` (from `HR_JOB_T`) was generated from the same mapping template. **23 of 25 columns are correct and
+the structure is equally sound** — correct single-source classification, derived current-record indicator,
+a 13-attribute hash excluding both row dates, framework audit identifiers, and a 25-column `INSERT … SELECT`
+whose insert and select lists match in count and order.
+
+It also **reproduces six of `DEPARTMENT`'s seven findings exactly**, including the `src_sys_nme` /
+`src_sys_nm` one-character inconsistency, which appears identically in both STTM sheets. That settles their
+status: these are **defects of the HR mapping template and of the generator's fall-through behaviour, not of
+either table**. Fixing them per table will not converge.
+
+`JOB` contributes one finding of its own, and it is the most dangerous found on any asset so far. The STTM
+flags only `Job_Code` as the natural key, but the table also carries `HR_Business_Group_Code` — and a
+four-character job code being unique across every HR business group is an assumption nothing states. The
+dedup partitions on `JOB_CODE` alone. Executed with one job code present in two business groups, the load
+drops a whole job, **and all eight generated self-checks report zero**. Nothing in the output says a row was
+lost.
+
+That sharpens §24's lesson rather than repeating it. There the de-duplication hid a corrupt source chain
+from a check placed downstream of it; here it hides **a wrong business key** from every check at once,
+because every check is keyed on the same wrong key. The single check that would have caught it compares the
+source row count against the staging row count — a check none of the generated sets emits.
+
+Both reviews are in `dataassist_department_findings.md`, with
+`tools/verify_department_findings.py` reproducing every executed claim.

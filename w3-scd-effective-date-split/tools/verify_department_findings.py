@@ -110,3 +110,80 @@ for run in (1,2):
     print(f"   after run {run}: {n} row(s) in target")
 print("   -> a re-run duplicates every row. A1 of the instruction file says truncate-and-reload;")
 print("      the generated Q2 contains no TRUNCATE.")
+
+print("\n" + "=" * 70 + "\n")
+print("J1 / J4 — JOB: a whole job lost while every check reports zero\n")
+
+c = duckdb.connect()
+HI = "TIMESTAMP '9999-12-31 00:00:00'"
+
+print("=== A. JOB_CODE scoped to HR business group? dedup partitions on JOB_CODE alone ===")
+c.execute("""CREATE TABLE HR_JOB_T(JOB_CDE VARCHAR, HR_BUSN_GRP_CDE VARCHAR, JOB_TITL_NME VARCHAR,
+             SRC_SYS_NME VARCHAR, ROW_EFF_DTE TIMESTAMP, ROW_EXP_DTE TIMESTAMP)""")
+c.executemany("INSERT INTO HR_JOB_T VALUES (?,?,?,?,?,?)", [
+  ('A100','CORP-US  ','Claims Adjuster'    ,'EMPLOYEE','2024-01-01','9999-12-31'),
+  ('A100','SPECIALTY','Underwriting Analyst','EMPLOYEE','2024-01-01','9999-12-31'),
+  ('B200','CORP-US  ','Actuary'            ,'EMPLOYEE','2024-01-01','2024-07-01'),
+  ('B200','CORP-US  ','Senior Actuary'     ,'EMPLOYEE','2024-07-01','9999-12-31')])
+print("   source holds job A100 in TWO business groups, and a clean 2-version chain for B200:")
+for r in c.execute("SELECT JOB_CDE,HR_BUSN_GRP_CDE,JOB_TITL_NME,ROW_EFF_DTE FROM HR_JOB_T").fetchall(): print("     ", r)
+
+# Q1 as generated
+c.execute(f"""CREATE TABLE JOB_STG AS
+WITH job_hr_job_t_records AS (
+  SELECT CAST(hj.JOB_CDE AS VARCHAR(4)) AS JOB_CODE,
+         CAST(hj.HR_BUSN_GRP_CDE AS VARCHAR(10)) AS HR_BUSINESS_GROUP_CODE,
+         CAST(hj.JOB_TITL_NME AS VARCHAR(80)) AS JOB_TITLE_NAME,
+         CAST('EMPLOYEE' AS VARCHAR(30)) AS SOURCE_SYSTEM_NAME,
+         CAST(hj.ROW_EFF_DTE AS TIMESTAMP) AS ROW_EFFECTIVE_DATETIME,
+         CAST(hj.ROW_EXP_DTE AS TIMESTAMP) AS ROW_EXPIRATION_DATETIME,
+         CAST(NULL AS VARCHAR(1)) AS DELETE_INDICATOR, 1 AS TABLE_PRIORITY
+  FROM HR_JOB_T hj),
+all_records AS (SELECT * FROM job_hr_job_t_records),
+cross_table_deduped AS (
+  SELECT *, CAST(CASE WHEN ROW_EXPIRATION_DATETIME >= {HI} THEN 'Y' ELSE 'N' END AS VARCHAR(1))
+              AS CURRENT_RECORD_INDICATOR,
+         ROW_NUMBER() OVER (PARTITION BY JOB_CODE, ROW_EFFECTIVE_DATETIME
+                            ORDER BY TABLE_PRIORITY ASC, ROW_EXPIRATION_DATETIME DESC) AS final_dedup_rn
+  FROM all_records),
+final_deduped AS (SELECT * FROM cross_table_deduped WHERE final_dedup_rn = 1)
+SELECT JOB_CODE, HR_BUSINESS_GROUP_CODE, JOB_TITLE_NAME, SOURCE_SYSTEM_NAME,
+       ROW_EFFECTIVE_DATETIME, ROW_EXPIRATION_DATETIME, CURRENT_RECORD_INDICATOR,
+       DELETE_INDICATOR, 0 AS CHANGE_FLAG
+FROM final_deduped""")
+src_n = c.execute("SELECT COUNT(*) FROM HR_JOB_T").fetchone()[0]
+stg_n = c.execute("SELECT COUNT(*) FROM JOB_STG").fetchone()[0]
+print(f"\n   source rows {src_n} -> staging rows {stg_n}")
+for r in c.execute("SELECT JOB_CODE,HR_BUSINESS_GROUP_CODE,JOB_TITLE_NAME FROM JOB_STG ORDER BY 1,2").fetchall(): print("     ", r)
+print("   -> the SPECIALTY 'Underwriting Analyst' job is gone. One business group's job silently dropped.\n")
+
+print("=== B. the generated checks against that same loss ===")
+checks = [
+ ("1 DUPLICATE_KEY_EFF",    "SELECT COUNT(*) FROM (SELECT JOB_CODE, ROW_EFFECTIVE_DATETIME FROM JOB_STG GROUP BY 1,2 HAVING COUNT(*)>1)"),
+ ("2 CURRENT_IND_MISMATCH", f"SELECT COUNT(*) FROM JOB_STG WHERE CURRENT_RECORD_INDICATOR <> CASE WHEN ROW_EXPIRATION_DATETIME >= {HI} THEN 'Y' ELSE 'N' END"),
+ ("3 OVERLAPPING_INTERVALS","SELECT COUNT(*) FROM JOB_STG a JOIN JOB_STG b ON a.JOB_CODE=b.JOB_CODE AND a.ROW_EFFECTIVE_DATETIME<b.ROW_EFFECTIVE_DATETIME AND b.ROW_EFFECTIVE_DATETIME<a.ROW_EXPIRATION_DATETIME"),
+ ("4 BAD_INTERVAL",         "SELECT COUNT(*) FROM JOB_STG WHERE ROW_EXPIRATION_DATETIME <= ROW_EFFECTIVE_DATETIME"),
+ ("5 NULL_BUSINESS_KEY",    "SELECT COUNT(*) FROM JOB_STG WHERE JOB_CODE IS NULL"),
+ ("6 OPEN_ENDED_COUNT",     f"SELECT COUNT(*) FROM (SELECT JOB_CODE FROM JOB_STG WHERE ROW_EXPIRATION_DATETIME >= {HI} GROUP BY 1 HAVING COUNT(*)<>1)"),
+ ("8 NON_INSERT_FLAG",      "SELECT COUNT(*) FROM JOB_STG WHERE CHANGE_FLAG <> 0"),
+ ("9 DEGENERATE_KEY",       "SELECT CASE WHEN COUNT(DISTINCT JOB_CODE) <= 1 THEN 1 ELSE 0 END FROM JOB_STG"),
+]
+for n,q in checks:
+    v=c.execute(q).fetchone()[0]
+    print(f"   {'reports 0' if v==0 else 'FIRES  '}  {n} = {v}")
+print("   -> all eight report 0. A whole job was lost and nothing says so.\n")
+
+print("=== C. the same checks with the key as (JOB_CODE, HR_BUSINESS_GROUP_CODE) ===")
+c.execute("""CREATE TABLE JOB_STG_FIXED AS
+  SELECT * FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY JOB_CDE, HR_BUSN_GRP_CDE, ROW_EFF_DTE
+                              ORDER BY ROW_EXP_DTE DESC) AS rn FROM HR_JOB_T) WHERE rn=1""")
+print(f"   staging rows: {c.execute('SELECT COUNT(*) FROM JOB_STG_FIXED').fetchone()[0]}  (all four source rows kept)")
+lost = c.execute("""SELECT COUNT(*) FROM (SELECT JOB_CDE, ROW_EFF_DTE FROM HR_JOB_T GROUP BY 1,2 HAVING COUNT(*)>1)""").fetchone()[0]
+print(f"   source-side duplicate check on (JOB_CDE, ROW_EFF_DTE): {lost}  <- the signal, available only before the dedup\n")
+
+print("=== D. DELETE_INDICATOR NULL inside the 13-term hash ===")
+def h(*v): return hashlib.md5("|".join("" if x is None else str(x) for x in v).encode()).hexdigest()
+cols = ['A100','CORP-US','Claims Adjuster','Claims Adj','Claims','Ops','Professional','Y','N','EMPLOYEE','2024-01-01','9999-12-31']
+print(f"   DELETE_INDICATOR NULL -> {h(*cols, None)}")
+print(f"   DELETE_INDICATOR 'N'  -> {h(*cols, 'N')}")
+print(f"   {'DIFFER -> every unchanged row re-versions on the first incremental run' if h(*cols,None)!=h(*cols,'N') else 'match'}")
