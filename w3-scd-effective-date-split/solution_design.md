@@ -1407,3 +1407,50 @@ it arrives as a join or as a lookup. That is now R6 in `dataassist_generation_ru
 eight findings as rules with detectable triggers rather than as a defect list, so they transfer to the next
 table. `tools/verify_tpa_assertions.py` and `tools/verify_tpa_agreement_fk.py` reproduce every executed
 claim.
+
+---
+
+## 25. The second generated asset — `DEPARTMENT` (HR)
+
+A second table was generated after the tooling was corrected: `DEPARTMENT`, from `HR_DEPT_T` in the ADW HR
+source. It is a different asset from a different source and was reviewed on its own terms, against its own
+STTM. Findings are in `dataassist_department_findings.md`.
+
+**19 of 21 columns are correct and the structure is sound.** The table is correctly classified as a single
+history source — `HR_DEPT_T` carries its own `ROW_EFF_DTE` / `ROW_EXP_DTE`, so no interval derivation is
+needed and none was generated, which is useful evidence the classifier does not over-apply the split.
+`CURRENT_RECORD_INDICATOR` is derived from the expiry rather than stored, `AUDIT_CHANGE_HASH` excludes both
+row dates and the surrogate key, audit identifiers come from framework parameters, and Q2 is a plain
+`INSERT … SELECT` rather than a merge — the right shape for an empty target.
+
+**The two wrong columns share a pattern, and it is a different one from the first review.**
+
+> The generated SQL is correct wherever the STTM was explicit, and wrong wherever it was ambiguous — and
+> the self-checks cannot tell the difference.
+
+`SOURCE_SYSTEM_NAME` took the incremental branch of a load-type conditional in a file that declares itself
+historical, hardcoding `'EMPLOYEE'` where the STTM asks for the source column. The STTM row disagrees with
+itself by one character — the column-name cell reads `src_sys_nme`, the prose reads `src_sys_nm` — which
+would explain a fall-through, and makes the fall-through the defect rather than the typo. `DELETE_INDICATOR`
+was emitted as NULL where a historical row needs `'N'`; since it is the last term of the change hash, every
+unchanged row would be re-versioned on the first incremental run.
+
+**The sharpest finding is about the checks themselves.** Three of the eight emitted assertions restate a
+computation the same query already performed, so they report zero whatever the data holds. Proved by seeding
+a deliberately corrupt source chain — a department with two rows on one effective date — and running the
+checks verbatim: the duplicate-key check reported **0**, because the de-duplication that precedes it
+guarantees the property it tests. The same check pointed at the source finds the duplicate at once.
+
+That generalises past this table: **the de-duplication step is exactly what hides a corrupt source chain,
+so a check placed downstream of it cannot see the thing it was written to catch.** A check whose predicate
+restates the query is a tautology, and a green tautology reads exactly like a passing test.
+
+Four further findings are smaller: no `TRUNCATE` on a truncate-and-reload load, so a re-run doubles the
+target; Q2 re-reading the framework's audit parameters instead of carrying the ones Q1 stamped into staging,
+which breaks the join used to trace a load; a hash concatenation whose `|` separator can occur in the data;
+and a lineage object omitting the source system.
+
+One question goes to the data modeller rather than the generator. Only `Department_Number` is flagged a
+natural key, but the STTM asks history to carry `src_sys_nme`, which implies several systems feed the table.
+If it genuinely varies, the business key is `(DEPARTMENT_NUMBER, SOURCE_SYSTEM_NAME)` — and today the dedup
+would silently discard one system's department. This cannot be observed until the first finding is fixed.
