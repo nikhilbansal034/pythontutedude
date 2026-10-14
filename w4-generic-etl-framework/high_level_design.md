@@ -7,6 +7,7 @@
 > |---|---|
 > | [`high_level_design.xlsx`](high_level_design.xlsx) | the same content, structured — and the sheet we hang per-block detail off |
 > | [`framework_flow.drawio`](framework_flow.drawio) | the flow as an editable diagram: three columns — configuration read · the flow and its checks · state written or the failure exit |
+> | [`Zone2_OneTime_Loads.pptx`](Zone2_OneTime_Loads.pptx) | **background.** ABC's September 2026 design for Historical, Catchup and First-Time Incremental loads. Analysed in §10 |
 > | [`requirement_and_design.md`](requirement_and_design.md) · [`design_tracker.xlsx`](design_tracker.xlsx) | **PARKED.** See §6 |
 
 ---
@@ -410,10 +411,90 @@ member needs a table type and a write strategy of its own.
 | **HQ-10** | Is there a stable record identifier per row, or is it derived? | Decides whether C-1 needs a derived key before it can work |
 | **HQ-11** | Confirm ready-set semantics — B6 resolves a graph, not waves | Nothing blocking; confirmation only |
 | **HQ-12** | **Is Helix owning SCD1 permanent or transitional?** | **Answer this first** — it is the only one of the three that can *shrink* the design rather than extend it |
+| **HQ-13** | Slide 14 of the one-time loads deck says *"use History / Catchup as the job run ID"*. A fixed identifier, a derived one, or something else? Flagged rather than guessed | §10 |
 
 ---
 
-## 10. Open questions
+## 10. What the Zone 2 one-time loads design confirms
+
+[`Zone2_OneTime_Loads.pptx`](Zone2_OneTime_Loads.pptx) — September 2026, 15 slides — is ABC's design for
+Historical, Catchup and First-Time Incremental loads. The W2 reference records all three flag values as
+**never built**; they are now designed, finalized, and specified down to four Informatica objects.
+
+**Verdict: nothing structural changes in this design.** It is the strongest validation the design has had, and
+it supplies the business case's clearest number. Four things get added, none of them to the flow.
+
+### 10.1 The restart conflict is this design's thesis, proven in ABC's own words
+
+ABC resolves execution type from the rerun flag first, then from the previous batch status. So:
+
+> Flag `'N'` → restart works, **but loses the H/C/I windowing.**
+> Flag `'H'`/`'C'`/`'I'` → **never enters the restart step, so cleanup never happens.**
+
+The cause is that **load type and run disposition are encoded in one field.** `batch_rerun_flag` can say
+*"this is a history load"* or *"this is a restart"* — never both. *"Restart of a history load"* is
+inexpressible.
+
+ABC's finalized fix (Option 1 of four evaluated) **doubles the vocabulary**: `H → HR`, `C → CR`, `I → IR`,
+with execution type resolving to Restart whenever the flag is in `{N, HR, CR, IR}`. That is **2N flags for N
+load types**, growing with every load type added.
+
+**This is the second instance of one root cause.** We already found `job_metadata.target_load_type` to be a
+*table* type wearing a *load* type's name. `batch_rerun_flag` is a *load* type wearing a *run disposition's*
+name. ABC encodes orthogonal concepts in single flag fields and pays for it each time.
+
+In this design they are separate axes already — **load type is configuration on the pipeline, disposition is
+run state** — so *"restart of a history load"* needs no new flag value at all. That is **D-01's
+orthogonal-axes decision validated from outside this conversation.**
+
+### 10.2 The number for leadership
+
+| | |
+|---|---|
+| Adding one load-type variant **to ABC** | four Informatica mapping changes, plus the pre-load workflow |
+| Adding one **to this framework** | **one configuration row** |
+
+The clearest quantified contrast the business case has had — and it comes from ABC's own document, not from us.
+
+### 10.3 Four additions — none structural
+
+**1 · The framework registers its own runs.** ABC's one-time loads require **manual DML into two runtime
+tables** (`batch_run_stats` and `batch_sourcing_stats`) before a run can start, which is exactly why the batch
+prerequisite and pre-load steps are skipped for all three. F-17 said the explicit range is supplied "through
+the static parameter file today, by hand" — it is worse than that. In this design **B2 and B3 run for every
+load type** and the range comes from configuration, which removes the manual step rather than documenting it.
+
+**2 · T3 stays, as configurable readiness — not a bypass.** Slide 14's new direction is to *"drop source-table
+dependency checks"* for History and Catchup. This design must **not** grow a load-type branch at T3. The right
+expression is **F-29**: a configurable readiness rule, which may be *"the upstream batch covering this range is
+complete"*, or nothing at all. Same check, different configuration — the acceptance test survives.
+
+**3 · The 3-day lookback is evidence for OQ-12.** First-Time Incremental starts at *"Catchup end − 3 days
+(Yet to be decided)"*. That is a **late-arrival grace window**, introduced precisely because the boundary is a
+GRS/business timestamp rather than arrival-ordered. It is the problem W-02 predicted, appearing in the wild —
+and it strengthens the case for answering **OQ-12** (does Zone 1 expose an arrival-ordered column).
+
+**4 · Per-source window granularity is confirmed.** *"For first time incremental load… for each source batch,
+there will be one manual entry in the `batch_sourcing_stats` table."* That is **W-05** — watermark per
+(pipeline × source table), not per pipeline — validated by a real requirement.
+
+### 10.4 Two corrections to the audit
+
+| | |
+|---|---|
+| **`batch_sourcing_stats` is a second window source** | ABC now derives the window from `batch_sourcing_stats` for H and C, and from `etl_data_ingestion_source_window` for everything else, with I taking its start from the former and its entry in the latter. **F-15 describes only the second.** |
+| **H and C share one Batch ID, Job ID and mapping** | In this design they are two `load_pipeline` rows, because a generic mapping has no reason to share. Not a contradiction — but migrating an existing H/C pair means **splitting one ID into two pipeline rows**, which belongs in the coexistence story (R-04) |
+
+### 10.5 Open
+
+| | |
+|---|---|
+| **HQ-13** | Slide 14 says *"use History / Catchup as the job run ID"*. Reads ambiguously — a fixed identifier, a derived one, or something else? Flagged rather than guessed |
+| **Reference** | The W2 `reference.md` states H/C/I were never built. That is now **out of date**. It is a factual correction to a background document rather than design discussion, but W2 was declared off-limits for this work — **say the word and I will correct it** |
+
+---
+
+## 11. Open questions
 
 **`HQ-04` is the largest gap in the whole design** and it is the one only leadership can close.
 **`HQ-12` is the one to answer first**, because it is the only question here that can make the design *smaller*.
@@ -435,7 +516,7 @@ member needs a table type and a write strategy of its own.
 
 ---
 
-## 11. What comes next
+## 12. What comes next
 
 **Per-block detail is on hold until the three conflicts in §9 are settled**, because two of them change the
 flow rather than describe it: C-1 splits T7 into evaluate-then-write, and C-2 changes what B6 produces. Writing

@@ -203,6 +203,7 @@ The batch spine is ten blocks, the table spine eleven, and **seven checks** are 
 |------|-----------|
 | `high_level_design.md` | **ACTIVE.** The high-level architecture: the requirements settled with the design lead, the two-level flow from Stonebranch trigger to batch close, where every block exits, and what is deliberately left to low-level design |
 | `high_level_design.xlsx` | **ACTIVE.** The same content structured — the flow drawn as blocks, every block as a row, the load-type / table-type / write-strategy vocabulary, and the **feature register**: 54 capabilities the framework needs, scored against what ABC already provides |
+| `Zone2_OneTime_Loads.pptx` | **Background.** ABC's September 2026 design for Historical, Catchup and First-Time Incremental loads — the three rerun flags the W2 reference records as never built. Analysed in §10 of the design: nothing structural changes, and it validates the orthogonal-axes decision from outside this conversation |
 | `framework_flow.drawio` | **ACTIVE.** The flow as an editable diagram — three columns: the configuration each step reads, the flow and its seven checks, and the state written or the failure exit |
 | `requirement_and_design.md` | **PARKED.** The earlier design log. Its load-type model and target table types are requirement-level and still stand; its write-strategy mechanics and window-derivation work are low-level design and wait for sign-off on the architecture |
 | `design_tracker.xlsx` | **PARKED** alongside it, for the same reason |
