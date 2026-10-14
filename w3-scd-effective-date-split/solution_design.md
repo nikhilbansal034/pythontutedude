@@ -1410,7 +1410,7 @@ claim.
 
 ---
 
-## 25. The ADW HR generated assets — `DEPARTMENT` and `JOB`
+## 25. The ADW HR generated assets — `DEPARTMENT`, `JOB` and `OFFICE_DEPARTMENT`
 
 A second table was generated after the tooling was corrected: `DEPARTMENT`, from `HR_DEPT_T` in the ADW HR
 source. It is a different asset from a different source and was reviewed on its own terms, against its own
@@ -1481,3 +1481,52 @@ source row count against the staging row count — a check none of the generated
 
 Both reviews are in `dataassist_department_findings.md`, with
 `tools/verify_department_findings.py` reproducing every executed claim.
+
+### `OFFICE_DEPARTMENT`, and the first asset to exercise the foreign-key split
+
+The third HR asset is an association table: a composite natural key (`Office_Number`, `Department_Number`)
+and two foreign keys into `OFFICE` and `DEPARTMENT`, both SCD-2. **34 of its 36 columns are correct**, and it
+is the strongest output the generator has produced.
+
+Two things it proves that the simpler tables could not.
+
+**The generator uses every natural key the STTM declares.** Both flagged columns appear in the dedup
+partition, in every keyed check, and check 9 is emitted once per key column. That settles `JOB`'s J1 as a
+**mapping** defect rather than a generator defect — the fix belongs in the STTM.
+
+**It implemented the foreign-key boundary split unprompted, and correctly in the common case.** Q2 builds
+`fk_bounds` → `fk_intervals` → `fk_split_stg`: the union of each FK table's version boundaries falling
+strictly inside the staging interval, cut with `LEAD()`, re-joined by containment. This is the same shape as
+§24's unresolved finding on a foreign key into an SCD-2 dimension, arrived at independently. Verified: an
+office gaining a version mid-interval cuts the association row in two, each half carrying the version in
+force.
+
+Three findings are its own, and all three concern that new machinery rather than the mapping.
+
+- **`fk_bounds` collects the FK tables' effective dates but never their expiration dates.** That is
+  sufficient only while a parent's chain is contiguous. Executed with an office retired mid-interval and no
+  successor, the association row carries the expired office version to the high end date — no effective date
+  fell inside, so no cut was made.
+- **The nine self-checks run against the pre-split staging table.** Q2 then rebuilds the row set, so every
+  property they establish is established about a table that is not what reaches the target. One staging row
+  checked; two rows inserted. The split is the most complex step in the pipeline and the only one with no
+  assertions.
+- **An unresolved foreign key lands as NULL and nothing counts it.** Both lookups are `LEFT JOIN`s, and an
+  association row is nothing but its two foreign keys. The load-order dependency on `OFFICE` and
+  `DEPARTMENT` is also undeclared, so running early produces a table of NULL keys that passes every check.
+
+One further item is recorded as **not assessed**: both screenshots begin mid-file, at line 35 of Q1 and line
+31 of Q2. Whether a truncate or a load-order declaration lives in the unread lines cannot be established
+either way, so the missing-truncate finding raised on the other two tables is deliberately **not** raised
+here.
+
+**Across three tables the six template defects are now conclusive.** The `src_sys_nme` / `src_sys_nm`
+one-character inconsistency appears in all three STTM sheets, and the generator falls through to the wrong
+branch each time. These belong to the HR mapping template and to the generator's fall-through behaviour, not
+to any table, and fixing them per table will not converge.
+
+The pattern across all three is worth stating once: **the generator is reliable where the mapping is
+explicit and improvises where it is not, and its self-checks are placed where they cannot observe the step
+that would fail.** `DEPARTMENT` showed a check downstream of the de-duplication that hides a corrupt chain;
+`JOB` showed every check keyed on the same wrong key; `OFFICE_DEPARTMENT` shows every check pointed at a
+table Q2 then rebuilds.

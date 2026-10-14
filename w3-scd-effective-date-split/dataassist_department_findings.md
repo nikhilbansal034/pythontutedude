@@ -1,31 +1,42 @@
 # ADW HR historical loads — review findings and the rules they give
 
-Covers two generated assets from the ADW HR source:
+Covers three generated assets from the ADW HR source:
 
-| Table | Source | Findings | Section |
-|---|---|---|---|
-| `DEPARTMENT` | `HR_DEPT_T` | **D1 – D7** | below |
-| `JOB` | `HR_JOB_T` | **J1 – J7** | [§ JOB](#job-hr-historical-load) |
+| Table | Source | Shape | Findings | Section |
+|---|---|---|---|---|
+| `DEPARTMENT` | `HR_DEPT_T` | single key, no FKs | **D1 – D7** | below |
+| `JOB` | `HR_JOB_T` | single key, no FKs | **J1 – J7** | [§ JOB](#job-hr-historical-load) |
+| `OFFICE_DEPARTMENT` | `OFF_DEPT_T` | **composite key, two SCD-2 FKs** | **OD1 – OD9** | [§ OFFICE_DEPARTMENT](#office_department-hr-historical-load) |
 
-Both reviewed against their own STTM and their own generated
+Each reviewed against its own STTM and its own generated
 `<TABLE>_Q1_SRC_TO_STG.sql` / `<TABLE>_Q2_STG_TO_TGT.sql`. Each finding is written as a **rule with a
 trigger**, so it applies to the next table, with the defect as the evidence that the rule is needed.
 
 This file covers the ADW HR assets only. It draws no comparison with tables from other sources.
 
-> ### Read this first: the two tables share one STTM template, and therefore one set of defects
+> ### Read this first: one STTM template, one set of defects — fix it once
 >
-> `JOB` reproduces **six of `DEPARTMENT`'s seven findings exactly** — same conditional taking the wrong
-> branch, same NULL indicator, same three tautological checks, same missing truncate, same re-read audit
-> parameters, same hash separator. The `src_sys_nme` / `src_sys_nm` one-character inconsistency appears
-> **identically in both STTMs**, which makes it templated rather than a typo on one row.
+> **Six findings reproduce identically on all three tables**: the load-type conditional taking the wrong
+> branch, the NULL delete indicator, the three tautological checks, the missing truncate, the re-read audit
+> parameters, and the hash separator. The `src_sys_nme` / `src_sys_nm` one-character inconsistency appears
+> **in all three STTM sheets**.
 >
-> **Treat D1 – D7 as defects of the HR mapping template, not of `DEPARTMENT`.** Fix them once, at the
-> template and in the generator, and every HR table generated afterwards is clean. Fixing them table by
-> table will not converge.
+> **These are defects of the HR mapping template and of the generator's fall-through behaviour, not of any
+> one table.** Fix them once and every HR table generated afterwards is clean. Fixing them table by table
+> will not converge.
 >
-> **`JOB` has one finding of its own — J1 — and it is the most dangerous on either table**, because it
-> produces a load that passes all eight self-checks while silently dropping rows.
+> Each table then contributes findings of its own:
+>
+> | | What it adds |
+> |---|---|
+> | `JOB` | **J1** — a business key that is probably scoped to another column. Silently drops rows while **all eight self-checks report zero** |
+> | `OFFICE_DEPARTMENT` | **OD1 – OD3** — the foreign-key boundary split. The hardest thing the generator has produced, correct in the common case, wrong at the edge and unasserted |
+>
+> ### What the third table also proves about the generator
+>
+> `OFFICE_DEPARTMENT`'s STTM flags **two** natural-key columns, and the generator used **both**, everywhere —
+> dedup, every keyed check, and check 9 emitted once per key column. So the generator uses every natural key
+> the STTM declares. **That makes J1 a mapping defect, not a generator defect**, and it is fixed in the STTM.
 
 ---
 
@@ -841,17 +852,394 @@ assessed until J2 is fixed, because today every row carries the constant `'EMPLO
 
 ---
 
+---
+---
+
+# `OFFICE_DEPARTMENT` (HR) historical load
+
+Source `OFF_DEPT_T`, target `GRS_DIAI_GLOBAL_EMPLOYEE_DATA_DOMAIN_CURATED_DB.EMPLOYEE_MAIN_T.OFFICE_DEPARTMENT`.
+Reviewed against the `OFFICE_DEPARTMENT` STTM and the generated
+`OFFICE_DEPARTMENT_Q1_SRC_TO_STG.sql` / `OFFICE_DEPARTMENT_Q2_STG_TO_TGT.sql`.
+
+**This is an association table**, and the first HR asset with a composite natural key and foreign keys into
+other SCD-2 tables. It is therefore the first to exercise machinery the other two never needed.
+
+## Verdict
+
+| | |
+|---|---|
+| Column mappings | **34 of 36 correct** |
+| Structure | **The strongest of the three**, and it does something the others did not have to |
+| Self-checks | 9 emitted and correctly keyed — but they check the **wrong table** |
+| Safe to run | **No** |
+
+### What is right, and should not be disturbed
+
+**1. The composite natural key is handled correctly.** The STTM flags **two** columns `Y` —
+`Office_Number` (`CHAR(4)`) and `Department_Number` (`CHAR(5)`) — and both are used everywhere:
+
+```sql
+ROW_NUMBER() OVER (
+    PARTITION BY OFFICE_NUMBER, DEPARTMENT_NUMBER, ROW_EFFECTIVE_DATETIME
+    ORDER BY TABLE_PRIORITY ASC, ROW_EXPIRATION_DATETIME DESC
+) AS final_dedup_rn
+```
+
+Checks 1, 3, 5 and 6 are keyed on both, and check 9 is emitted twice, once per key column.
+
+**2. It implemented the foreign-key boundary split.** `OFFICE` and `DEPARTMENT` are both SCD-2, so a single
+`OFFICE_DEPARTMENT` interval spanning a version change in either would carry a stale foreign key. Q2 builds
+`fk_bounds` → `fk_intervals` → `fk_split_stg`: it unions each FK table's version boundaries that fall
+strictly inside the staging interval, cuts at them with `LEAD()`, and re-joins to staging by containment.
+Executed, with office `O001` gaining a new version on 2024-05-01:
+
+```
+('O001', 2024-01-01, 2024-05-01, 501, 701)
+('O001', 2024-05-01, 9999-12-31, 502, 701)
+```
+
+**Correct.** And because the intervals are cut at FK boundaries first, the point-in-time lookup that follows
+— matching on the interval's start date — is then sound, since each split interval lies wholly inside one
+FK version.
+
+**3. The 36-column insert list and select list match in count and order.** Checked position by position.
+
+**4. `AUDIT_CHANGE_HASH` excludes `OFFICE_ID` and `DEPARTMENT_ID`.** Correct: a foreign key being
+renumbered is not a business change and must not re-version the row.
+
+---
+
+## OD1 — a boundary union over an SCD-2 foreign key must collect expiry dates, not only effective dates
+
+**Severity: high. This is the defect inside the new machinery.**
+
+### Trigger
+Any boundary union built from another table's version chain — a foreign-key split, or a multi-source
+effective-date split.
+
+### What was generated
+
+Both FK branches of `fk_bounds` add only the effective date:
+
+```sql
+SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, pa.ROW_EFFECTIVE_DATETIME AS b
+FROM OFFICE_DEPARTMENT_STG s
+JOIN …OFFICE pa ON TRIM(CAST(s.OFFICE_NUMBER AS VARCHAR)) = TRIM(CAST(pa.OFFICE_NUMBER AS VARCHAR))
+WHERE pa.ROW_EFFECTIVE_DATETIME > s.ROW_EFFECTIVE_DATETIME
+  AND pa.ROW_EFFECTIVE_DATETIME < s.ROW_EXPIRATION_DATETIME
+```
+
+### Why it is wrong
+
+Effective dates alone are sufficient **only while the FK table's chain is contiguous** — then each version's
+expiry equals the next version's effective date, so collecting effective dates captures every boundary. The
+assumption fails in two ordinary cases:
+
+- the chain **ends**: the entity is retired and its last version expires at a real date
+- the chain has a **gap**: the entity is absent for a period and returns later
+
+Executed, with office `O001` retired on 2024-05-01 and no successor version:
+
+```
+('O001', 2024-01-01, 9999-12-31, 501, 701)
+```
+
+**One row, carrying `OFFICE_ID` 501 to the high end date — and 501 expired on 2024-05-01.** No effective
+date fell inside the interval, so no cut was made, and the point-in-time lookup matched on the interval's
+start where the office was still live. The association points at a retired office for the rest of time.
+
+### Correct output
+
+Add the expiry boundaries, symmetrically, for every FK table:
+
+```sql
+UNION ALL
+SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, pa.ROW_EXPIRATION_DATETIME AS b
+FROM OFFICE_DEPARTMENT_STG s
+JOIN …OFFICE pa ON TRIM(CAST(s.OFFICE_NUMBER AS VARCHAR)) = TRIM(CAST(pa.OFFICE_NUMBER AS VARCHAR))
+WHERE pa.ROW_EXPIRATION_DATETIME > s.ROW_EFFECTIVE_DATETIME
+  AND pa.ROW_EXPIRATION_DATETIME < s.ROW_EXPIRATION_DATETIME
+```
+
+and the same block for `DEPARTMENT`. This is free when the chain is contiguous: the dates are already in the
+set and the enclosing `SELECT DISTINCT` absorbs them.
+
+### The rule
+
+**A version chain is defined by two dates, so a boundary union takes both.** Collecting only effective dates
+silently assumes the chain has no end and no gaps, and neither assumption is enforced anywhere upstream.
+Where a union is built over another table's versions, emit an effective-date branch **and** an
+expiration-date branch, with the same predicate shape.
+
+---
+
+## OD2 — the self-checks validate the pre-split table, not what is inserted
+
+**Severity: high.**
+
+### Trigger
+Q2 does anything that changes the row set — a split, a filter, an explode, a lookup that can drop rows.
+
+### What was generated
+
+All nine assertions sit at the end of Q1 and run against `OFFICE_DEPARTMENT_STG`. Q2 then rebuilds the row
+set through `fk_bounds` → `fk_intervals` → `fk_split_stg` before inserting. Executed:
+
+```
+rows checked by Q1's nine assertions : 1
+rows actually inserted by Q2         : 2
+```
+
+### Why it is wrong
+
+Every property the nine checks establish is established about a table that **is not what reaches the
+target**. The split is the newest and most complex step in the whole pipeline, and it is the one step with
+no assertions at all: no duplicate check, no overlap check, no interval-width check, no open-ended check on
+the rows actually written.
+
+It also admits a failure mode of its own. `fk_split_stg` joins intervals back to staging by containment; if
+staging held two overlapping rows for one `(OFFICE_NUMBER, DEPARTMENT_NUMBER)` pair, an interval could match
+**both**, duplicating output. Q1's overlap check would have caught that — but it ran before the split, and
+nothing re-runs after it.
+
+### Correct output
+
+Re-point the keyed checks at `fk_split_stg`, and add a cover check that the split tiles each staging row
+exactly:
+
+```sql
+-- Every staging row must survive the split as at least one output interval.
+SELECT 'SPLIT_LOST_COVER' AS CHECK_NAME, COUNT(*) AS FAILURES FROM (
+  SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, s.ROW_EFFECTIVE_DATETIME
+  FROM OFFICE_DEPARTMENT_STG s
+  LEFT JOIN fk_split_stg f
+    ON  f.OFFICE_NUMBER     = s.OFFICE_NUMBER
+    AND f.DEPARTMENT_NUMBER = s.DEPARTMENT_NUMBER
+    AND f.ROW_EFFECTIVE_DATETIME  >= s.ROW_EFFECTIVE_DATETIME
+    AND f.ROW_EXPIRATION_DATETIME <= s.ROW_EXPIRATION_DATETIME
+  GROUP BY 1, 2, 3 HAVING COUNT(f.ROW_EFFECTIVE_DATETIME) = 0);
+```
+
+### The rule
+
+**Check the rows you are about to write, not the rows you happened to stage.** Where Q2 changes the row set,
+the keyed assertions belong after that change — or Q2 carries its own copy of them. A check upstream of a
+transformation says nothing about the transformation's output.
+
+---
+
+## OD3 — an unresolved foreign key lands as NULL and nothing counts it
+
+**Severity: high.**
+
+### Trigger
+Any `LEFT JOIN` whose result populates a column the STTM marks `Is FK = True`.
+
+### What was generated
+
+Both lookups are `LEFT JOIN`s, so a missing parent yields NULL rather than an error:
+
+```sql
+CAST(p_office_id.OFFICE_ID AS NUMBER(38,0))         AS OFFICE_ID,      -- looked up in OFFICE on OFFICE_NUMBER
+CAST(p_department_id.DEPARTMENT_ID AS NUMBER(38,0)) AS DEPARTMENT_ID,  -- looked up in DEPARTMENT on DEPARTMENT_NUMBER
+```
+
+Executed, with an office number absent from `OFFICE`:
+
+```
+('O999', 2024-01-01, 9999-12-31, None, 701)
+```
+
+### Why it is wrong
+
+An association row is nothing but its two foreign keys. One of them NULL makes the row unusable, and
+**no check counts it** — the load reports success. If the target columns are `NOT NULL`, the insert instead
+fails on the first miss, which at least fails loudly but gives no count of how many would have missed.
+
+### Correct output
+
+```sql
+SELECT 'UNRESOLVED_OFFICE_FK'     AS CHECK_NAME, COUNT(*) AS FAILURES
+FROM fk_split_stg WHERE OFFICE_ID IS NULL;
+
+SELECT 'UNRESOLVED_DEPARTMENT_FK' AS CHECK_NAME, COUNT(*) AS FAILURES
+FROM fk_split_stg WHERE DEPARTMENT_ID IS NULL;
+```
+
+### The load-order dependency, which nothing states
+
+`OFFICE` and `DEPARTMENT` must be **fully loaded before** `OFFICE_DEPARTMENT` runs. Neither generated file
+says so. Run early, this load produces a table of NULL foreign keys that passes every assertion emitted.
+Generation should record the dependency where a human and the scheduler will both see it:
+
+```sql
+-- LOAD DEPENDENCY: OFFICE and DEPARTMENT must both complete before this load runs.
+-- Both foreign keys are resolved by point-in-time lookup against those tables.
+```
+
+### The rule
+
+A `LEFT JOIN` resolving a declared foreign key needs a resolution check and a stated load dependency. The
+join is written as `LEFT` so the load does not die on one bad row — which means something else has to
+notice.
+
+---
+
+## OD4 — `SOURCE_SYSTEM_NAME` takes the incremental branch in a historical load
+
+**Severity: high. Blocks the run.** Same defect as **D1** / **J2** — rule and correct behaviour there.
+
+STTM row 22 carries the same conditional, and the same one-character split between the `Current State
+Column` cell (`src_sys_nme`) and the prose (`src_sys_nm`). Generated:
+
+```sql
+CAST('EMPLOYEE' AS VARCHAR(30))             AS SOURCE_SYSTEM_NAME,
+```
+
+Should be `CAST(od.SRC_SYS_NME AS VARCHAR(30))`. It is the nineteenth term of the hash.
+
+**Third occurrence, third STTM sheet.** Fix the template.
+
+---
+
+## OD5 — `DELETE_INDICATOR` is NULL
+
+**Severity: high. May block the run outright.** Same defect as **D2** / **J3** — rule there.
+
+```sql
+CAST(NULL AS VARCHAR(1))                    AS DELETE_INDICATOR,
+```
+
+Should be `'N'`. It is the **twenty-second and last** term of `AUDIT_CHANGE_HASH`, so every unchanged row
+re-versions on the first incremental run.
+
+`Current_Record_Indicator` (row 31) again carries the identical bare `Audit Field` transformation and again
+**was** derived correctly — the same asymmetry on all three tables.
+
+---
+
+## OD6 — three of the nine checks cannot fail
+
+**Severity: high.** Same defect as **D3** / **J4** — rule and correct placement there.
+
+| Check | Why it cannot fire |
+|---|---|
+| **1** `DUPLICATE_KEY_EFF` | groups by `(OFFICE_NUMBER, DEPARTMENT_NUMBER, ROW_EFFECTIVE_DATETIME)`, which is **exactly** the `ROW_NUMBER()` partition that `final_deduped` filters to 1 |
+| **2** `CURRENT_IND_MISMATCH` | compares `CURRENT_RECORD_INDICATOR` against the expression that produced it |
+| **8** `NON_INSERT_FLAG` | `CHANGE_FLAG` is the literal `0` in the final `SELECT` |
+
+Checks **3, 4, 5, 6 and both copies of 9 are sound** — and on this table they are keyed correctly on both
+natural-key columns. Their weakness here is **OD2**, not their logic: they run against the wrong table.
+
+---
+
+## OD7 — Q2 re-reads `$AUDIT_BATCH_ID` instead of carrying staging's
+
+**Severity: medium.** Same defect as **D5** / **J5** — rule there.
+
+```sql
+CAST($AUDIT_BATCH_ID AS NUMBER(38,0))       AS AUDIT_BATCH_ID,
+CAST($AUDIT_JOB_ID AS NUMBER(38,0))         AS AUDIT_JOB_ID,
+```
+
+Should be `stg.AUDIT_BATCH_ID` / `stg.AUDIT_JOB_ID`. `ROW_CREATE_DATETIME` and `ROW_UPDATE_DATETIME` are
+likewise re-derived from `CURRENT_TIMESTAMP()` rather than carried.
+
+As on `JOB`, Q2 **does** correctly carry `stg.AUDIT_CHANGE_HASH` and `stg.AUDIT_ZONE_1_LINEAGE_ID`, so the
+template already knows how to carry a staging value — only the parameter-derived columns are re-read.
+
+---
+
+## OD8 — hash separator, and thin lineage
+
+**Severity: low, but the separator is now-or-never.** Same defects as **D6** and **D7**.
+
+`OFFICE_DEPARTMENT`'s hash has **22 terms**, the largest of the three, and **ten are free text** — including
+four address lines (`MAILING_ADDRESS_LINE_1_TEXT`, `MAILING_ADDRESS_LINE_2_TEXT` and their physical
+equivalents, all `VARCHAR(80)`). Street addresses are the most likely place in this whole data set for a
+literal `|` to appear, and one occurrence shifts every field boundary after it, masking a real change.
+
+Fix as in D6 — `CHR(31)` and a distinct NULL marker — **before the first load**, because changing a hash
+definition afterwards re-versions every row.
+
+Lineage omits the source system, as on the other two:
+
+```sql
+CAST(OBJECT_CONSTRUCT('SOURCE_TABLE',  f.SOURCE_TABLE_NAME,
+                      'SOURCE_SYSTEM', f.SOURCE_SYSTEM_NAME,
+                      'LOAD_TYPE',     'HISTORICAL') AS VARIANT) AS AUDIT_ZONE_1_LINEAGE_ID,
+```
+
+Depends on **OD4** being fixed first.
+
+---
+
+## OD9 — part of both files was not reviewed
+
+**Severity: unknown, and that is the point.**
+
+The screenshots of both generated files **begin mid-file**: `OFFICE_DEPARTMENT_Q1_SRC_TO_STG.sql` at line 35
+(`WITH`), and `OFFICE_DEPARTMENT_Q2_STG_TO_TGT.sql` at line 31. On `DEPARTMENT` and `JOB` the files began at
+line 1.
+
+**Lines 1–34 of Q1 and 1–30 of Q2 were not read and are not assessed anywhere in this section.** If a
+`TRUNCATE`, a target-empty guard or a load-dependency check lives there, the corresponding concerns are
+already handled. If those lines are a comment header, they are not.
+
+No finding above depends on them. Everything below is open until they are seen:
+
+- whether this load truncates before inserting, or guards against a non-empty target (the `D4` / `J6`
+  defect — **not raised for this table**, because it cannot be established either way)
+- whether a load-order dependency on `OFFICE` and `DEPARTMENT` is already declared (**OD3**)
+
+**Record what was reviewed.** A review that silently covers part of a file is worse than one that says which
+part, because the gap is invisible to whoever reads the findings next.
+
+---
+
+## `OFFICE_DEPARTMENT` — open, needs an answer before generation
+
+| | What is needed | What it decides |
+|---|---|---|
+| **OD9** | Lines 1–34 of Q1 and 1–30 of Q2 | Whether a truncate and a load-order declaration already exist |
+| OD3 | `OFFICE_DEPARTMENT` target DDL | Whether `OFFICE_ID` / `DEPARTMENT_ID` are `NOT NULL`, and so whether an unresolved FK fails the insert or lands silently |
+| OD4 | `OFF_DEPT_T` DDL | Whether the column is `SRC_SYS_NME` or `SRC_SYS_NM` |
+| OD5 | `OFFICE_DEPARTMENT` target DDL | Whether `DELETE_INDICATOR` is `NOT NULL` |
+
+---
+
+## `OFFICE_DEPARTMENT` — fix list, in order
+
+| | Fix | Size |
+|---|---|---|
+| 1 | **OD1** — add each FK table's expiry dates to `fk_bounds` | two `UNION ALL` blocks |
+| 2 | **OD3** — FK-resolution checks, and declare the load dependency on `OFFICE` / `DEPARTMENT` | two checks + a comment |
+| 3 | **OD2** — re-point the keyed checks at `fk_split_stg`, add the cover check | small |
+| 4 | **OD4 / OD5** — source column and `'N'`, **fixed at the HR template** | one line each |
+| 5 | **OD6** — move check 1 to the source, drop checks 2 and 8 | small |
+| 6 | **OD7** — carry `stg.AUDIT_BATCH_ID`, `stg.AUDIT_JOB_ID`, `stg.ROW_CREATE_DATETIME`, `stg.ROW_UPDATE_DATETIME` | four lines |
+| 7 | **OD8** — hash separator and lineage | one line, now or never |
+
+> **Net read.** The hardest thing the generator has produced — the foreign-key boundary split — is here and
+> is correct in the common case. What is missing is the edge (**OD1**) and the assurance around it
+> (**OD2**, **OD3**). That is a better position than the two simpler tables, which were straightforward and
+> wrong; this one is complex and nearly right.
+
 # Verification
 
 `tools/verify_department_findings.py` reproduces every executed claim in this file. It needs `duckdb` only.
 
 | Claim | Where |
 |---|---|
-| Hash divergence from a NULL delete indicator | **D2**, **J3** |
-| Three tautological checks, and a source duplicate hidden by the dedup | **D3**, **J4** |
+| Hash divergence from a NULL delete indicator | **D2**, **J3**, **OD5** |
+| Three tautological checks, and a source duplicate hidden by the dedup | **D3**, **J4**, **OD6** |
 | Double-insert from a missing truncate | **D4**, **J6** |
 | Dedup discarding a second source system | `DEPARTMENT` modeller note |
 | **A whole job lost while all eight checks report zero** | **J1** |
+| The FK boundary split cutting correctly when a parent gains a version | `OFFICE_DEPARTMENT`, what is right |
+| **A stale foreign key when a parent is retired mid-interval** | **OD1** |
+| An unresolved foreign key landing as NULL, uncounted | **OD3** |
+| Q2 inserting a different row set than the one Q1's checks validated | **OD2** |
 
 ```
 python3 tools/verify_department_findings.py

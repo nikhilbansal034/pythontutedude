@@ -187,3 +187,107 @@ cols = ['A100','CORP-US','Claims Adjuster','Claims Adj','Claims','Ops','Professi
 print(f"   DELETE_INDICATOR NULL -> {h(*cols, None)}")
 print(f"   DELETE_INDICATOR 'N'  -> {h(*cols, 'N')}")
 print(f"   {'DIFFER -> every unchanged row re-versions on the first incremental run' if h(*cols,None)!=h(*cols,'N') else 'match'}")
+
+print("\n" + "=" * 70 + "\n")
+print("OD1 / OD2 / OD3 — OFFICE_DEPARTMENT: the foreign-key boundary split\n")
+
+c = duckdb.connect()
+
+c.execute("""CREATE TABLE OFFICE(OFFICE_ID INT, OFFICE_NUMBER VARCHAR,
+             ROW_EFFECTIVE_DATETIME DATE, ROW_EXPIRATION_DATETIME DATE, ROW_UPDATE_DATETIME DATE)""")
+c.execute("""CREATE TABLE DEPARTMENT(DEPARTMENT_ID INT, DEPARTMENT_NUMBER VARCHAR,
+             ROW_EFFECTIVE_DATETIME DATE, ROW_EXPIRATION_DATETIME DATE, ROW_UPDATE_DATETIME DATE)""")
+c.execute("""CREATE TABLE OFFICE_DEPARTMENT_STG(OFFICE_NUMBER VARCHAR, DEPARTMENT_NUMBER VARCHAR,
+             PHONE_NUMBER VARCHAR, ROW_EFFECTIVE_DATETIME DATE, ROW_EXPIRATION_DATETIME DATE)""")
+
+def q2(label):
+    """The generated Q2 CTE chain, transcribed."""
+    return c.execute(f"""
+    WITH fk_bounds AS (
+      SELECT DISTINCT OFFICE_NUMBER, DEPARTMENT_NUMBER, b FROM (
+        SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, s.ROW_EFFECTIVE_DATETIME AS b FROM OFFICE_DEPARTMENT_STG s
+        UNION ALL
+        SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, s.ROW_EXPIRATION_DATETIME AS b FROM OFFICE_DEPARTMENT_STG s
+        UNION ALL
+        SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, pa.ROW_EFFECTIVE_DATETIME AS b
+        FROM OFFICE_DEPARTMENT_STG s JOIN OFFICE pa ON TRIM(s.OFFICE_NUMBER)=TRIM(pa.OFFICE_NUMBER)
+        WHERE pa.ROW_EFFECTIVE_DATETIME > s.ROW_EFFECTIVE_DATETIME
+          AND pa.ROW_EFFECTIVE_DATETIME < s.ROW_EXPIRATION_DATETIME
+        UNION ALL
+        SELECT s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, pa.ROW_EFFECTIVE_DATETIME AS b
+        FROM OFFICE_DEPARTMENT_STG s JOIN DEPARTMENT pa ON TRIM(s.DEPARTMENT_NUMBER)=TRIM(pa.DEPARTMENT_NUMBER)
+        WHERE pa.ROW_EFFECTIVE_DATETIME > s.ROW_EFFECTIVE_DATETIME
+          AND pa.ROW_EFFECTIVE_DATETIME < s.ROW_EXPIRATION_DATETIME)
+      WHERE b IS NOT NULL),
+    fk_intervals AS (
+      SELECT OFFICE_NUMBER, DEPARTMENT_NUMBER, b AS ROW_EFFECTIVE_DATETIME,
+             LEAD(b) OVER (PARTITION BY OFFICE_NUMBER, DEPARTMENT_NUMBER ORDER BY b) AS ROW_EXPIRATION_DATETIME
+      FROM fk_bounds),
+    fk_split_stg AS (
+      SELECT fi.ROW_EFFECTIVE_DATETIME, fi.ROW_EXPIRATION_DATETIME,
+             s.OFFICE_NUMBER, s.DEPARTMENT_NUMBER, s.PHONE_NUMBER
+      FROM fk_intervals fi
+      JOIN OFFICE_DEPARTMENT_STG s ON fi.OFFICE_NUMBER=s.OFFICE_NUMBER AND fi.DEPARTMENT_NUMBER=s.DEPARTMENT_NUMBER
+       AND s.ROW_EFFECTIVE_DATETIME <= fi.ROW_EFFECTIVE_DATETIME
+       AND s.ROW_EXPIRATION_DATETIME >= fi.ROW_EXPIRATION_DATETIME
+      WHERE fi.ROW_EXPIRATION_DATETIME IS NOT NULL)
+    SELECT stg.OFFICE_NUMBER, stg.ROW_EFFECTIVE_DATETIME, stg.ROW_EXPIRATION_DATETIME,
+           p_office_id.OFFICE_ID, p_department_id.DEPARTMENT_ID
+    FROM fk_split_stg stg
+    LEFT JOIN (SELECT OFFICE_ID, OFFICE_NUMBER, ROW_EFFECTIVE_DATETIME, ROW_EXPIRATION_DATETIME FROM OFFICE
+               QUALIFY ROW_NUMBER() OVER (PARTITION BY OFFICE_NUMBER, ROW_EFFECTIVE_DATETIME ORDER BY ROW_UPDATE_DATETIME DESC)=1
+              ) p_office_id
+      ON stg.OFFICE_NUMBER = p_office_id.OFFICE_NUMBER
+     AND stg.ROW_EFFECTIVE_DATETIME >= p_office_id.ROW_EFFECTIVE_DATETIME
+     AND stg.ROW_EFFECTIVE_DATETIME <  p_office_id.ROW_EXPIRATION_DATETIME
+    LEFT JOIN (SELECT DEPARTMENT_ID, DEPARTMENT_NUMBER, ROW_EFFECTIVE_DATETIME, ROW_EXPIRATION_DATETIME FROM DEPARTMENT
+               QUALIFY ROW_NUMBER() OVER (PARTITION BY DEPARTMENT_NUMBER, ROW_EFFECTIVE_DATETIME ORDER BY ROW_UPDATE_DATETIME DESC)=1
+              ) p_department_id
+      ON stg.DEPARTMENT_NUMBER = p_department_id.DEPARTMENT_NUMBER
+     AND stg.ROW_EFFECTIVE_DATETIME >= p_department_id.ROW_EFFECTIVE_DATETIME
+     AND stg.ROW_EFFECTIVE_DATETIME <  p_department_id.ROW_EXPIRATION_DATETIME
+    ORDER BY 2""").fetchall()
+
+def reset():
+    for t in ("OFFICE","DEPARTMENT","OFFICE_DEPARTMENT_STG"): c.execute(f"DELETE FROM {t}")
+
+print("=== A. the normal case: OFFICE gains a new version mid-interval ===")
+reset()
+c.executemany("INSERT INTO OFFICE VALUES (?,?,?,?,?)", [
+  (501,'O001','2024-01-01','2024-05-01','2024-01-01'),
+  (502,'O001','2024-05-01','9999-12-31','2024-05-01')])
+c.execute("INSERT INTO DEPARTMENT VALUES (701,'D001',DATE '2024-01-01',DATE '9999-12-31',DATE '2024-01-01')")
+c.execute("INSERT INTO OFFICE_DEPARTMENT_STG VALUES ('O001','D001','555-0100',DATE '2024-01-01',DATE '9999-12-31')")
+for r in q2("A"): print("   ", r)
+print("   -> interval correctly CUT at 2024-05-01; each half carries the office version in force. CORRECT.\n")
+
+print("=== B. OFFICE is RETIRED mid-interval (its expiry is a boundary, its effective date is not) ===")
+reset()
+c.execute("INSERT INTO OFFICE VALUES (501,'O001',DATE '2024-01-01',DATE '2024-05-01',DATE '2024-01-01')")  # no successor
+c.execute("INSERT INTO DEPARTMENT VALUES (701,'D001',DATE '2024-01-01',DATE '9999-12-31',DATE '2024-01-01')")
+c.execute("INSERT INTO OFFICE_DEPARTMENT_STG VALUES ('O001','D001','555-0100',DATE '2024-01-01',DATE '9999-12-31')")
+for r in q2("B"): print("   ", r)
+print("   -> ONE row 2024-01-01 -> 9999-12-31 carrying OFFICE_ID 501, which EXPIRED on 2024-05-01.")
+print("      fk_bounds collects only the FK tables' EFFECTIVE dates, never their EXPIRATION dates,")
+print("      so a retirement or a gap in the FK chain is not a cut point. STALE FK.\n")
+
+print("=== C. the office_number does not exist in OFFICE at all ===")
+reset()
+c.execute("INSERT INTO DEPARTMENT VALUES (701,'D001',DATE '2024-01-01',DATE '9999-12-31',DATE '2024-01-01')")
+c.execute("INSERT INTO OFFICE_DEPARTMENT_STG VALUES ('O999','D001','555-0100',DATE '2024-01-01',DATE '9999-12-31')")
+for r in q2("C"): print("   ", r)
+print("   -> OFFICE_ID is NULL. The association row points at no office, and NO CHECK counts it.\n")
+
+print("=== D. the Q1 self-checks run on OFFICE_DEPARTMENT_STG, BEFORE Q2 re-splits ===")
+reset()
+c.executemany("INSERT INTO OFFICE VALUES (?,?,?,?,?)", [
+  (501,'O001','2024-01-01','2024-05-01','2024-01-01'),
+  (502,'O001','2024-05-01','9999-12-31','2024-05-01')])
+c.execute("INSERT INTO DEPARTMENT VALUES (701,'D001',DATE '2024-01-01',DATE '9999-12-31',DATE '2024-01-01')")
+c.execute("INSERT INTO OFFICE_DEPARTMENT_STG VALUES ('O001','D001','555-0100',DATE '2024-01-01',DATE '9999-12-31')")
+stg_n = c.execute("SELECT COUNT(*) FROM OFFICE_DEPARTMENT_STG").fetchone()[0]
+out_n = len(q2("D"))
+print(f"   rows checked by Q1's nine assertions : {stg_n}")
+print(f"   rows actually inserted by Q2         : {out_n}")
+print("   -> Q2 changes the row set. Nothing asserts the post-split output: no duplicate check,")
+print("      no overlap check, no interval-width check, no open-ended check, no FK-resolution check.")
