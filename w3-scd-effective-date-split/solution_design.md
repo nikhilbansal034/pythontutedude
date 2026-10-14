@@ -1362,3 +1362,48 @@ rerun handling are all out of scope by construction, because on an empty target 
 (§20). One item carries forward: the incremental load needs a hash over **target-bound attributes only,
 excluding the dates**, to tell *"same values, different expiry"* from *"different values"*. That is B7 in
 §18 and it is unaffected by the historical load, where the hash is only stored.
+
+---
+
+## 24. The first generated output, reviewed
+
+DataAssist generated Q1 and Q2 for `THIRD_PARTY_AGREEMENT` from §23's instruction file. Both were read in
+full against the STTM and against the DDLs for `CNTR_CLM_ADMNM_T`, `AGREEMENT` and `CONTRACT_T`.
+
+**The split itself came out right, and generalised further than it was proved.** The POC established the
+mechanism on two sources; the generated Q1 applies it to **eight** contributing sources unaided — boundary
+union, `LEAD()` intervals, containment resolution with the driving source on an INNER join and contributors
+on LEFT joins, and a gap-aware collapse that merges adjacent equal values but never collapses across a gap.
+The deliberate override landed too: the target's dates are the derived boundaries, not the
+`contract_t.row_eff_dm` the STTM names. `AUDIT_CHANGE_HASH` excludes both dates, which settles B7 in
+practice.
+
+**What came out wrong was almost all one behaviour.** Of nine findings raised, eight hold; the ninth was
+withdrawn once `CNTR_CLM_ADMNM_T`'s DDL showed it has no `ROW_EFF_DM` and is not SCD-2, making DataAssist's
+use of its business dates correct. Of the eight that hold, six are the generator **producing plausible SQL
+where it should have stopped** — a misspelled `coalasce` dropped on 12 columns, a `<>` condition dropped on
+3, and a join predicate naming `CONTRACT_T.PRSP_ID`, a column that does not exist, silently replaced with an
+existing alias.
+
+Two findings are structural and were confirmed by execution rather than argued:
+
+- **Four of seven self-checks were keyed on `SOURCE_SYSTEM_CODE`**, a hardcoded `'CCO'`. With two business
+  keys in staging, three fail on correct data and one can never fire. The cause is that the STTM's other
+  natural key, `Agreement_ID`, is NULL in staging — it is resolved in Q2 — so nothing varying was available
+  to key on.
+- **The Q2 `MERGE` is keyed on that resolved `AGREEMENT_ID`.** `AGREEMENT` is SCD-2 and `AGREEMENT_ID` is
+  its per-version primary key, so a reload that renumbers it makes the merge match zero rows and insert the
+  same business row again. Executed: target holding `901`, source renumbered to `903`, match count 0.
+
+**The sharpest finding is a second instance of the blind spot that made this a split table at all.**
+`AGREEMENT` is named exactly once in the STTM, in the free-text transformation of row 2, on a row whose
+`Current State Table` column says `Contract_t`. A classifier reading that column never sees it. It is SCD-2,
+and Q2 resolves the foreign key on the staging row's start date alone, so an interval spanning an agreement
+version boundary carries the expired version for its tail. Demonstrated: one staging row 2024-01-01 to
+9999-12-31 resolves to `AGREEMENT_ID = 901`, which expired 2024-04-01.
+
+The lesson generalises past joins: **a table can govern the output while appearing only in prose**, whether
+it arrives as a join or as a lookup. That is now R6 in `dataassist_generation_rules.md`, which carries all
+eight findings as rules with detectable triggers rather than as a defect list, so they transfer to the next
+table. `tools/verify_tpa_assertions.py` and `tools/verify_tpa_agreement_fk.py` reproduce every executed
+claim.
