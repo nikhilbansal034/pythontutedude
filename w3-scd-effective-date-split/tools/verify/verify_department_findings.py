@@ -1,4 +1,4 @@
-"""Reproduces every executed claim in dataassist_department_findings.md.
+"""Reproduces every executed claim in dataassist/review_hr_tables.md.
 
 D2 hash divergence, D3 tautological checks and the hidden source duplicate,
 D4 double-insert, and the dedup discarding a second source system.

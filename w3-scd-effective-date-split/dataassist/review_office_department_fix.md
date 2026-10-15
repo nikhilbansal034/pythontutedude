@@ -4,7 +4,7 @@
 This file reviews the **new** `OFFICE_DEPARTMENT_Q1_SRC_TO_STG.sql` and
 `OFFICE_DEPARTMENT_Q2_STG_TO_TGT.sql` against the same STTM.
 
-Round 1 findings OD1 – OD9 are in `dataassist_department_findings.md`. This file records **what those
+Round 1 findings OD1 – OD9 are in `review_hr_tables.md`. This file records **what those
 fixes achieved** and **what the fix round introduced**, as rules with triggers in the same form.
 
 ---
@@ -381,7 +381,7 @@ carrying forward.
 
 ## Verification
 
-`tools/verify_office_department_fix_review.py` reproduces every executed claim in this file:
+`../tools/verify/verify_office_department_fix_review.py` reproduces every executed claim in this file:
 
 | Claim | Finding |
 |---|---|
@@ -391,7 +391,7 @@ carrying forward.
 | A NULL expiry in staging drops the row and no Q1 check reports it | OD13 |
 
 ```
-python3 tools/verify_office_department_fix_review.py
+python3 ../tools/verify/verify_office_department_fix_review.py
 ```
 
 Re-run it if any example here changes.

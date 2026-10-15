@@ -3,7 +3,7 @@
 **Audience:** the DataAssist generator. **Scope:** the historical / full-history load only.
 **Out of scope:** incremental loads. See §11.
 
-**Read `dataassist_generation_rules.md` first.** It is the generation discipline — when to stop rather
+**Read `generation_rules.md` first.** It is the generation discipline — when to stop rather
 than guess — learned from reviewing the first generated output against this file. This file says *what to
 produce*; that one says *how to behave while producing it*.
 
@@ -59,7 +59,7 @@ Run before generating anything. Each failure is a **stop**, not a warning.
 |---|---|---|
 | P1 | The target has `ROW_EFFECTIVE_DATETIME` and `ROW_EXPIRATION_DATETIME`, both `NOT NULL` | Without both there is no SCD-2 timeline to build |
 | P2 | The target has `CURRENT_RECORD_INDICATOR` and `DELETE_INDICATOR` | §5 populates both |
-| P3 | The STTM names a **business key** — the natural-key flagged column(s) — and it is not the surrogate key, **not a hardcoded constant, and present in staging**. If every natural-key column is a constant or resolved downstream, use the driving table's own identifier and say so in a comment | The timeline is built per business key, and every assertion and the MERGE are keyed on it. A constant key makes all of them measure nothing — `dataassist_generation_rules.md` R3 |
+| P3 | The STTM names a **business key** — the natural-key flagged column(s) — and it is not the surrogate key, **not a hardcoded constant, and present in staging**. If every natural-key column is a constant or resolved downstream, use the driving table's own identifier and say so in a comment | The timeline is built per business key, and every assertion and the MERGE are keyed on it. A constant key makes all of them measure nothing — `generation_rules.md` R3 |
 | P4 | The target's surrogate key has a sequence available | Q2 assigns it |
 | P5 | Every source table named in the STTM exists and is readable | |
 | P6 | For each source table, record whether it carries **effective and expiry date columns** (`ROW_EFF_DM` / `ROW_EXP_DM` or equivalent). **This is the input to the classifier** | §4 |
@@ -398,7 +398,7 @@ SELECT 'NON_INSERT_FLAG', COUNT(*) FROM <staging> WHERE CHANGE_FLAG <> 0;
 > one contributed column, drop the second argument.
 >
 > **Emit check 7 once per contributing source, not once per table.** The first generated output omitted it
-> entirely on a table with eight contributors — `dataassist_generation_rules.md` R5.
+> entirely on a table with eight contributors — `generation_rules.md` R5.
 
 ---
 
@@ -431,8 +431,8 @@ scripts in `tools/` reproduce it:
 | `verify_historical_check7.py` | Generating §8's class C table with the **class B** template passes checks 1 to 6 and is caught **only** by check 7 |
 
 ```
-python3 tools/verify_historical_examples.py
-python3 tools/verify_historical_check7.py
+python3 ../tools/verify/verify_historical_examples.py
+python3 ../tools/verify/verify_historical_check7.py
 ```
 
 They need `duckdb` only. **If an example in this file is changed, re-run both.** A documented example that

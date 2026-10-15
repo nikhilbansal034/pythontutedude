@@ -9,7 +9,7 @@ Covers three generated assets from the ADW HR source:
 | `OFFICE_DEPARTMENT` | `OFF_DEPT_T` | **composite key, two SCD-2 FKs** | **OD1 – OD9** | [§ OFFICE_DEPARTMENT](#office_department-hr-historical-load) |
 
 > **`OFFICE_DEPARTMENT` has been regenerated since this review.** Six of its nine findings are fixed.
-> The corrected output is reviewed in **`dataassist_office_department_fix_review.md`**, which records what
+> The corrected output is reviewed in **`review_office_department_fix.md`**, which records what
 > the fixes achieved and the four defects the fix round introduced — including one that silently discards
 > the foreign-key split entirely. Read that file before acting on OD1 – OD9.
 
@@ -1232,7 +1232,7 @@ part, because the gap is invisible to whoever reads the findings next.
 
 # Verification
 
-`tools/verify_department_findings.py` reproduces every executed claim in this file. It needs `duckdb` only.
+`../tools/verify/verify_department_findings.py` reproduces every executed claim in this file. It needs `duckdb` only.
 
 | Claim | Where |
 |---|---|
@@ -1247,7 +1247,7 @@ part, because the gap is invisible to whoever reads the findings next.
 | Q2 inserting a different row set than the one Q1's checks validated | **OD2** |
 
 ```
-python3 tools/verify_department_findings.py
+python3 ../tools/verify/verify_department_findings.py
 ```
 
 Re-run it if any example in this file changes.
