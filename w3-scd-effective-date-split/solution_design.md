@@ -1530,3 +1530,59 @@ explicit and improvises where it is not, and its self-checks are placed where th
 that would fail.** `DEPARTMENT` showed a check downstream of the de-duplication that hides a corrupt chain;
 `JOB` showed every check keyed on the same wrong key; `OFFICE_DEPARTMENT` shows every check pointed at a
 table Q2 then rebuilds.
+
+---
+
+## 26. `OFFICE_DEPARTMENT`, regenerated — what the fix round achieved and what it cost
+
+DataAssist was corrected after §25's review and `OFFICE_DEPARTMENT` regenerated. Findings are in
+`dataassist_office_department_fix_review.md`.
+
+**Six of the nine findings are fixed, and fixed well.** The boundary union now collects each parent's
+expiry dates as well as its effective dates; `SOURCE_SYSTEM_NAME` takes the historical branch, which also
+settles that the source column is `SRC_SYS_NME`; `DELETE_INDICATOR` is `'N'`; lineage carries the source
+system; the hash uses `CHR(31)` with a distinct NULL marker; and Q2 opens with a `TARGET_NOT_EMPTY` guard
+and a commented truncate. All 36 columns now map correctly.
+
+The self-check rebuild is better than what was proposed. The duplicate-key check moved upstream of the
+de-duplication where it can actually fail, a `DEDUP_DISCARDED_ROWS` check was added, and the two remaining
+tautologies were **kept and relabelled "tamper guard"** — which states what they are for rather than
+implying they test the data.
+
+**The round also introduced one critical defect and three regressions, and they share a shape.**
+
+> Every defect in this round is a value that was computed correctly and then not used, or one that was
+> already correct and got replaced. None is a failure to understand the design.
+
+The critical one: `fk_split_stg` builds each sub-interval under the aliases `SPLIT_ROW_EFFECTIVE_DATETIME`
+and `SPLIT_ROW_EXPIRATION_DATETIME`, but carries the original staging dates alongside them via `SELECT s.*`.
+The foreign-key lookups correctly use the split dates — and then the output emits the **original** ones, and
+the closing `QUALIFY ROW_NUMBER()` partitions on the original effective date, which is identical across
+every sub-interval. So the sub-intervals collapse back to one row, carrying the unsplit interval and
+whichever foreign key a tie-break over identical values happened to keep. Executed on an association
+spanning two office versions: two correct sub-intervals in, one row out, pointing at the office version that
+did not exist for the first four months of its own interval.
+
+**That is worse than not splitting at all** — without a split the row would at least carry the parent in
+force at its start. The fix is four references and one recomputed expression.
+
+It cannot ship alone. `AUDIT_CHANGE_HASH` now includes both row dates and the current-record indicator, and
+is computed in Q1 before the split exists — so once the split reaches the target, two sub-intervals of one
+staging row carry the same hash despite different periods and different foreign keys. That regression also
+undoes B7, which §24 had recorded as settled in practice.
+
+Two smaller regressions: the audit batch and job identifiers went back to a clock and session reading, now
+correctly typed but no longer joinable to the framework's control tables; and `WHERE b IS NOT NULL` was
+removed with nothing replacing it, so a NULL interval date makes the containment predicate NULL and drops
+the row, which Q1's NULL-blind interval checks do not report.
+
+**The round-1 finding still open is the one that would have caught all of this.** There are no assertions on
+the post-split output — every check in the pipeline still runs against the pre-split staging table. A single
+comparison between the row count out of `fk_split_stg` and the row count out of the final `SELECT` reports
+the critical defect on the first run.
+
+This sharpens the lesson across all four reviewed assets rather than adding a new one. §24: a check
+downstream of the de-duplication cannot see the corrupt chain the dedup hid. §25: every check keyed on the
+same wrong key is blind to the key being wrong, and every check pointed at a table Q2 rebuilds is blind to
+the rebuild. Here: a pipeline that transforms its data after the last assertion has no assurance at all over
+what it writes.
