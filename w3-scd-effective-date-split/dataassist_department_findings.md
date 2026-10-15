@@ -8,6 +8,11 @@ Covers three generated assets from the ADW HR source:
 | `JOB` | `HR_JOB_T` | single key, no FKs | **J1 – J7** | [§ JOB](#job-hr-historical-load) |
 | `OFFICE_DEPARTMENT` | `OFF_DEPT_T` | **composite key, two SCD-2 FKs** | **OD1 – OD9** | [§ OFFICE_DEPARTMENT](#office_department-hr-historical-load) |
 
+> **`OFFICE_DEPARTMENT` has been regenerated since this review.** Six of its nine findings are fixed.
+> The corrected output is reviewed in **`dataassist_office_department_fix_review.md`**, which records what
+> the fixes achieved and the four defects the fix round introduced — including one that silently discards
+> the foreign-key split entirely. Read that file before acting on OD1 – OD9.
+
 Each reviewed against its own STTM and its own generated
 `<TABLE>_Q1_SRC_TO_STG.sql` / `<TABLE>_Q2_STG_TO_TGT.sql`. Each finding is written as a **rule with a
 trigger**, so it applies to the next table, with the defect as the evidence that the rule is needed.
