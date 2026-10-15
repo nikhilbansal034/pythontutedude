@@ -1586,3 +1586,45 @@ downstream of the de-duplication cannot see the corrupt chain the dedup hid. §2
 same wrong key is blind to the key being wrong, and every check pointed at a table Q2 rebuilds is blind to
 the rebuild. Here: a pipeline that transforms its data after the last assertion has no assurance at all over
 what it writes.
+
+---
+
+## 27. The context pack, and the incremental specification it required
+
+`context-pack/` exists to move this workstream into the client environment, including for an AI assistant
+there with none of the conversation behind it. Building it forced one thing into the open: **the
+incremental load had never been specified.**
+
+The historical load has had an instruction file since §23. The 18-rule table has been locked since §6 and
+proven by the POC. But nothing had ever written the rules down *as instructions a generator can act on* —
+impacted-key detection, the diff, the classifier, the double-row stage, the merge, and what DataAssist's
+current Q2 shape has to change. `context-pack/02_incremental_load_instructions.md` is that specification.
+
+**It rests on three assumptions, stated in its §0 rather than buried**, because writing it made clear they
+are not settled:
+
+- **A1** — the hash covers target-bound attributes only, excluding both row dates and anything derived from
+  them. §26's OD11 shows generated code already contradicting this.
+- **A2** — `DELETE_INDICATOR` can be written by the load. At least one real STTM hardcodes it `'N'`, which
+  makes rules 7, 11 and 15 inoperable on that table.
+- **A3** — Q2 may emit two rows for one business key, a retire and an insert. **This is the one most likely
+  to force a redesign**, because the generated Q2 shape today emits exactly one row per key by
+  construction, and its closing `QUALIFY` is what enforces that.
+
+Three things about the current generated Q2 are correct for Day 1 and wrong for Day 2, and they are now
+written down in one place: `DD_CHANGE_FLAG = 1` is update-in-place, which overwrites history on an SCD-2
+target — the `upd` wording struck from the requirement precisely because it reads that way; the one-row-per-key
+guarantee must become one-row-per-`(key, effective date, action flag)`; and change detection on a hash
+containing the dates makes every interval split read as a value change.
+
+### What the pack deliberately leaves behind
+
+About 18 MB of the 19 MB total: the 11 MB evidence workbook, the 5.9 MB of `.docx` screenshots, the meeting
+transcripts, and the generators that build this repo's own artefacts. None of it helps something generating
+SQL, and the evidence workbook alone would dominate any context window. What travels is roughly 500 KB: the
+pack, the two instruction files, `poc_v2/00_objects.sql` and the 15 scenario files, and the six verifiers.
+
+**The reference implementation is the part most likely to be left behind and worth the most.** A copilot
+that can read `00_objects.sql` has the 18 rules as working SQL rather than prose, the scenario files give it
+69 input/expected pairs, and the verifiers let it check itself with nothing but `duckdb` — no Snowflake
+connection, no credentials.
