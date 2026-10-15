@@ -240,7 +240,7 @@ Every rebuilt interval is matched to the existing target row on `(business_key, 
 row's **current expiry** decides first; the **hash** — taken over the columns that actually reach the target —
 only decides inside the high-end-date branch.
 
-**Source of truth: `Requirement.xlsx`**, confirmed with leadership. Where its wording was struck
+**Source of truth: `sources/Requirement.xlsx`**, confirmed with leadership. Where its wording was struck
 through in the spreadsheet, the surviving bracketed text is authoritative — `upd` was a shorthand that was
 struck precisely because it read as "update in place" when it means retire-and-replace.
 
@@ -716,7 +716,7 @@ These questions came out of the review and are the ones that would change what g
 |---|---|---|
 | 1 | When several source rows share a key **and** effective date in one window, are they restatements where the latest wins, or distinct versions that must all land? | The only one that changes the design rather than the documentation. If all must land, two live rows would share a key and effective date and the timeline becomes ambiguous |
 | 2 | Is `ROW_EFF_DTE` a **date** or a **timestamp**? | If intraday runs carry different times, question 1 resolves itself — the rows never collide |
-| ~~3~~ | **CLOSED** — `execution_type` does not override the rule. `Requirement.xlsx` gives the same action for regular and rerun in every cell, differing only by the UUID stamp. ~~On a Zone 1 rerun, does `execution_type` override the retirement rule?~~ The colleague's sheet says *"if execution type = Z1 rerun then update all, else mark the existing record as Dead Record"*. Neither transcript mentions rerun at all. | **REOPENED.** Option 1 (ignore `execution_type`, §6 applies unchanged) keeps the audit trail; Option 2 ("update all") suppresses it on the grounds that a rerun's previous output was a processing artefact, not a published statement. Settled as option 1: `execution_type` only restamps the UUID, and S12 tests all eight rerun rules |
+| ~~3~~ | **CLOSED** — `execution_type` does not override the rule. `sources/Requirement.xlsx` gives the same action for regular and rerun in every cell, differing only by the UUID stamp. ~~On a Zone 1 rerun, does `execution_type` override the retirement rule?~~ The colleague's sheet says *"if execution type = Z1 rerun then update all, else mark the existing record as Dead Record"*. Neither transcript mentions rerun at all. | **REOPENED.** Option 1 (ignore `execution_type`, §6 applies unchanged) keeps the audit trail; Option 2 ("update all") suppresses it on the grounds that a rerun's previous output was a processing artefact, not a published statement. Settled as option 1: `execution_type` only restamps the UUID, and S12 tests all eight rerun rules |
 | 4 | Is `IS_DEL` also set on a dead record, or left at `'N'`? | Decides how consumers and the framework's restart cleanup identify live rows |
 | 5 | Should Step 1 read a zero-length row as live at all? | Filtering `ROW_EFF_DTE < ROW_EXP_DTE` in the target read would exclude dead records however `IS_DEL` is set, and would settle question 4 |
 | 6 | Are both sources always keyed the same way? | If one is a parent that several keys point at, a parent-only change must fan out to every child before the rebuild — and the current Step 1 would find nothing, producing an empty stage and a job that reports success |
@@ -825,10 +825,10 @@ inserted/updated counts. No discrepancies. Per-test-case verdicts are in
 This settles the design question. It does **not** settle delivery: IDMC is deferred, the objects still have
 to fold into the existing pipeline, and the open items in `poc_v2/README.md` remain open.
 
-The POC was afterwards put through an **independent test lead review** (`TEST_LEAD_REVIEW.md`), which gave
+The POC was afterwards put through an **independent test lead review** (`review/TEST_LEAD_REVIEW.md`), which gave
 a **conditional sign-off**: the logic is sound and genuinely evidenced, but four exit criteria must close
 before the IDMC build starts. Every finding was independently re-executed before being accepted, and the
-outcome is recorded in `TEST_LEAD_REVIEW_RESPONSE.md`. The headline is that one unstated precondition is
+outcome is recorded in `review/TEST_LEAD_REVIEW_RESPONSE.md`. The headline is that one unstated precondition is
 load-bearing &mdash; see §18.
 
 `scd_date_split_design_deck.html` is the walkthrough deck built from this document.
@@ -982,7 +982,7 @@ choice is what made this defect findable at all.
 
 The review gave a **conditional sign-off**. The logic is sound; the reservation is that one unstated
 precondition is load-bearing and the test suite cannot currently detect its violation. Every finding was
-independently re-executed before being accepted (`TEST_LEAD_REVIEW_RESPONSE.md`).
+independently re-executed before being accepted (`review/TEST_LEAD_REVIEW_RESPONSE.md`).
 
 Nothing below has been actioned. These are recorded so that the decisions are taken deliberately rather
 than by default.
@@ -1021,7 +1021,7 @@ Seven places where the written package is out of step with the code, mostly POC 
 about `TARGET_TABLE_NAME` filtering, §9's surviving v1 content, §4's trap-coverage claims, `TEST_PLAN.md`'s
 description of an S15 test that does not exist, the "volume" label on a six-key scenario, §6's UUID column
 for rules 8/10/12/14/16, and the root `README.md`'s coverage claims. Detail in
-`TEST_LEAD_REVIEW_RESPONSE.md` §1.
+`review/TEST_LEAD_REVIEW_RESPONSE.md` §1.
 
 ---
 
@@ -1307,7 +1307,7 @@ mapped columns in this STTM look like an ordinary union.
 
 ## 23. The historical-load instruction file, and what verifying it found
 
-`dataassist_historical_load_instructions.md` is the deliverable for the first integration step: the
+`dataassist/historical_load_instructions.md` is the deliverable for the first integration step: the
 historical (Day 1) load only, written to be read by DataAssist rather than by a person. Its shape is
 **decision procedure, then templates, then self-check assertions** — a per-table classifier run off the
 STTM text, one SQL template per classification, and assertions DataAssist emits *into* the generated SQL so
@@ -1350,7 +1350,7 @@ not reintroduced.
 
 ### Verified, not asserted
 
-`tools/verify_historical_examples.py` and `tools/verify_historical_check7.py` execute every worked example
+`tools/verify/verify_historical_examples.py` and `tools/verify/verify_historical_check7.py` execute every worked example
 and every assertion in the instruction file. The documented row-by-row outputs are what those scripts
 produce, including the four-row naive join and the two-row collapse. Re-run both whenever an example in the
 instruction file changes.
@@ -1403,9 +1403,9 @@ version boundary carries the expired version for its tail. Demonstrated: one sta
 9999-12-31 resolves to `AGREEMENT_ID = 901`, which expired 2024-04-01.
 
 The lesson generalises past joins: **a table can govern the output while appearing only in prose**, whether
-it arrives as a join or as a lookup. That is now R6 in `dataassist_generation_rules.md`, which carries all
+it arrives as a join or as a lookup. That is now R6 in `dataassist/generation_rules.md`, which carries all
 eight findings as rules with detectable triggers rather than as a defect list, so they transfer to the next
-table. `tools/verify_tpa_assertions.py` and `tools/verify_tpa_agreement_fk.py` reproduce every executed
+table. `tools/verify/verify_tpa_assertions.py` and `tools/verify/verify_tpa_agreement_fk.py` reproduce every executed
 claim.
 
 ---
@@ -1414,7 +1414,7 @@ claim.
 
 A second table was generated after the tooling was corrected: `DEPARTMENT`, from `HR_DEPT_T` in the ADW HR
 source. It is a different asset from a different source and was reviewed on its own terms, against its own
-STTM. Findings are in `dataassist_department_findings.md`.
+STTM. Findings are in `dataassist/review_hr_tables.md`.
 
 **19 of 21 columns are correct and the structure is sound.** The table is correctly classified as a single
 history source — `HR_DEPT_T` carries its own `ROW_EFF_DTE` / `ROW_EXP_DTE`, so no interval derivation is
@@ -1479,8 +1479,8 @@ from a check placed downstream of it; here it hides **a wrong business key** fro
 because every check is keyed on the same wrong key. The single check that would have caught it compares the
 source row count against the staging row count — a check none of the generated sets emits.
 
-Both reviews are in `dataassist_department_findings.md`, with
-`tools/verify_department_findings.py` reproducing every executed claim.
+Both reviews are in `dataassist/review_hr_tables.md`, with
+`tools/verify/verify_department_findings.py` reproducing every executed claim.
 
 ### `OFFICE_DEPARTMENT`, and the first asset to exercise the foreign-key split
 
@@ -1536,7 +1536,7 @@ table Q2 then rebuilds.
 ## 26. `OFFICE_DEPARTMENT`, regenerated — what the fix round achieved and what it cost
 
 DataAssist was corrected after §25's review and `OFFICE_DEPARTMENT` regenerated. Findings are in
-`dataassist_office_department_fix_review.md`.
+`dataassist/review_office_department_fix.md`.
 
 **Six of the nine findings are fixed, and fixed well.** The boundary union now collects each parent's
 expiry dates as well as its effective dates; `SOURCE_SYSTEM_NAME` takes the historical branch, which also

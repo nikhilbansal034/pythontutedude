@@ -1,7 +1,7 @@
 # W3 POC v2 — independent test lead review
 
-**Reviewed**: 2026-09-26 · **Scope**: `Requirement.xlsx`, `solution_design.md`, `glossary.md`, `poc_v2/`
-(all 15 scenarios, 69 test cases), `poc_v2/evidence/`, `tools/`
+**Reviewed**: 2026-09-26 · **Scope**: `../sources/Requirement.xlsx`, `solution_design.md`, `glossary.md`, `../poc_v2/`
+(all 15 scenarios, 69 test cases), `../poc_v2/evidence/`, `../tools/`
 **Method**: independent re-execution, evidence audit, requirement trace, and mutation testing.
 
 > ## Verdict — CONDITIONAL SIGN-OFF
@@ -21,15 +21,15 @@ Nothing in this section is taken from the package's own claims. Each row was re-
 
 | Check | Method | Result |
 |---|---|---|
-| 69 test cases pass | Re-ran all 15 scenarios through `tools/run_scenario_duckdb.py` | **69/69 PASS — reproduced** |
-| No Snowflake-only SQL errors | `tools/check_sql_lint.py` | clean |
-| Apply MERGE has not drifted | `tools/check_merge_drift.py` | 70 copies byte-identical |
+| 69 test cases pass | Re-ran all 15 scenarios through `../tools/run_scenario_duckdb.py` | **69/69 PASS — reproduced** |
+| No Snowflake-only SQL errors | `../tools/check_sql_lint.py` | clean |
+| Apply MERGE has not drifted | `../tools/check_merge_drift.py` | 70 copies byte-identical |
 | Evidence volume | Unzipped the OOXML, counted `xl/media/*` | **346 PNGs**, 17 sheets, 15 drawings |
 | Captions reconcile | Parsed `caption_ledger.json` | **346 captions**, one per image |
 | Verdicts reconcile | Parsed `verdicts.json` | 69 entries, all PASS, matches `TEST_PLAN.md` |
 | Evidence is really Snowflake | Rendered `image1.png`, `image257.png` | **Genuine Snowsight** — result-grid chrome, row counts, query timings, column type badges. Data matches the seeds exactly |
 | S12 TC03 regression guard is real | Rendered `image257.png` | Confirmed: on `Z1_RERUN`, rules **4, 6, 17** appear and **18 does not**; the rule-17 insert reaches `9999-12-31` |
-| Rule table is faithful to the requirement | Parsed `xl/sharedStrings.xml` of `Requirement.xlsx` for `<strike>` runs | **Corroborated** — see §2 |
+| Rule table is faithful to the requirement | Parsed `xl/sharedStrings.xml` of `../sources/Requirement.xlsx` for `<strike>` runs | **Corroborated** — see §2 |
 
 ### The strikethrough claim checks out
 
@@ -233,7 +233,7 @@ rather than the documentation."*
 
 ### 🟠 F4 — S05 does not test its own premise
 
-S05 is titled, in both `TEST_PLAN.md` and `poc_v2/README.md`:
+S05 is titled, in both `TEST_PLAN.md` and `../poc_v2/README.md`:
 
 > *"A gap in cover, **with the same value either side**"*
 
@@ -267,7 +267,7 @@ only behavioural difference from rules 1 and 3, which emit nothing. Mutation F5 
 that a `'U'` stage row *is emitted* (a row-count assertion) but never that the UUID *actually changes on
 the target row*.
 
-`poc_v2/README.md` states the manual screenshot verification checked `RULE_NO`, `ACTION_FLAG`, `DEL_IND`,
+`../poc_v2/README.md` states the manual screenshot verification checked `RULE_NO`, `ACTION_FLAG`, `DEL_IND`,
 business key, status and tier codes, both dates, `IS_DEL`, `AUDIT_BATCH_ID`, row counts and MERGE counts.
 **UUID is absent from that list too.** The column is unverified in both the automated and the manual pass.
 
@@ -278,7 +278,7 @@ cannot assert a value whose definition is undecided.
 
 ### 🟡 F6 — The harness runs a fourth, unguarded copy of the apply logic
 
-`tools/run_scenario_duckdb.py` intercepts every `MERGE` and substitutes its own hand-written
+`../tools/run_scenario_duckdb.py` intercepts every `MERGE` and substitutes its own hand-written
 `MERGE_AS_THREE` emulation. `check_merge_drift.py` proves the 70 SQL copies agree **with each other** —
 but nothing ties any of them to what the tests actually execute.
 
@@ -328,9 +328,9 @@ These matter because a sign-off package is read by people who will not re-derive
 | **D1** | `solution_design.md` §10.A | States *"neither it nor `win` filters on `TARGET_TABLE_NAME`"*. **Both do** — `00_objects.sql:169` and `:176`. A build team reading this would "fix" something already fixed, and may miss the genuine residual risk buried in the same paragraph (`MAX()` should come from the framework run context) |
 | **D2** | `solution_design.md` §9 | Wholesale **POC v1 content** — BR001–BR007, the T01–T26 assertions, "Verified results — Day 1 and Day 2" — inside a document whose §16 states *"Everything proved in POC v1 is treated as unproven."* Lines 341–342 still read *"The POC predates this rule… BR001 and BR006 need re-running"*, directly contradicting the headline |
 | **D3** | `solution_design.md` §4 | The four trap-coverage claims (*"BR004 exercises the repeat, BR005 the gap"*, *"BR007 exercises it"*, *"BR006 exercises it"*) are inherited from deleted v1 assets. **Two of the four are not exercised in v2** — see F2 and F4 |
-| **D4** | `poc_v2/TEST_PLAN.md` §"Why S15 matters most" | Describes a test that **does not exist**: *"TC02 in particular — ten consecutive runs, random mutations, compared after every one."* §16 records that this approach was dropped; the grid shows S15 TC02 as a single run. §16's own table still labels S15 *"Volume and differential"* |
-| **D5** | `poc_v2/TEST_PLAN.md`, `README.md` | **"Volume" is a misnomer.** S15 is 6 keys and 15 seeded rows — the largest key count in any scenario; the largest target row count asserted anywhere in the suite is 17, and the largest live-view count 15. This is a multi-key invariant test, which is valuable — but no scale or performance evidence exists anywhere in the package |
-| **D6** | `solution_design.md` §6 | The rule table marks rules 8/10/12/14/16 as *"as N, + update UUID"*. Rule 8's UUID phrase is **struck through** in `Requirement.xlsx` (§1), and the code correctly does not restamp. **The code is right; the table over-specifies.** As implemented, rules 10/12/14/16 are behaviourally identical to 9/11/13/15 and are distinguished only by the debug `RULE_NO` label |
+| **D4** | `../poc_v2/TEST_PLAN.md` §"Why S15 matters most" | Describes a test that **does not exist**: *"TC02 in particular — ten consecutive runs, random mutations, compared after every one."* §16 records that this approach was dropped; the grid shows S15 TC02 as a single run. §16's own table still labels S15 *"Volume and differential"* |
+| **D5** | `../poc_v2/TEST_PLAN.md`, `README.md` | **"Volume" is a misnomer.** S15 is 6 keys and 15 seeded rows — the largest key count in any scenario; the largest target row count asserted anywhere in the suite is 17, and the largest live-view count 15. This is a multi-key invariant test, which is valuable — but no scale or performance evidence exists anywhere in the package |
+| **D6** | `solution_design.md` §6 | The rule table marks rules 8/10/12/14/16 as *"as N, + update UUID"*. Rule 8's UUID phrase is **struck through** in `../sources/Requirement.xlsx` (§1), and the code correctly does not restamp. **The code is right; the table over-specifies.** As implemented, rules 10/12/14/16 are behaviourally identical to 9/11/13/15 and are distinguished only by the debug `RULE_NO` label |
 | **D7** | root `README.md` §"Current stage" | Repeats two claims F2 and F4 contradict — listing *"a gap in cover with the same value either side"* and *"the same version arriving twice in one window"* among cases *"all covered and confirmed"* |
 
 ---

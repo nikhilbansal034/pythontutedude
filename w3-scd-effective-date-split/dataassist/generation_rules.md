@@ -4,7 +4,7 @@
 Each rule below has a **trigger** that can be evaluated against any STTM and any DDL. The
 `THIRD_PARTY_AGREEMENT` case is only the evidence that the rule is needed.
 
-Companion file: `dataassist_historical_load_instructions.md` says **what to produce**. This file says
+Companion file: `historical_load_instructions.md` says **what to produce**. This file says
 **how to behave while producing it**.
 
 ---
@@ -529,5 +529,5 @@ if unsupported.
 
 ### Verification
 
-Every executed claim above is reproduced by `tools/verify_tpa_assertions.py` and
-`tools/verify_tpa_agreement_fk.py`. Re-run both if an example in this file changes.
+Every executed claim above is reproduced by `../tools/verify/verify_tpa_assertions.py` and
+`../tools/verify/verify_tpa_agreement_fk.py`. Re-run both if an example in this file changes.

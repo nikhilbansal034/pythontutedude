@@ -27,7 +27,7 @@ A mutation that leaves 69/69 green is a coverage hole: the suite cannot detect t
 | **F5** | UUID unasserted | **YES, with a correction** | See §3 |
 | **F6** | The harness runs an unguarded 4th copy | **YES — decisively** | See §4 |
 | **D1** | Doc says neither CTE filters `TARGET_TABLE_NAME` | **YES** | Both filter, `00_objects.sql:169` and `:176` |
-| **D2** | POC v1 content still in `solution_design.md` §9 | **YES** | `BR001`–`BR007` at lines 107–135 under a §9 that now describes `poc_v2/` |
+| **D2** | POC v1 content still in `solution_design.md` §9 | **YES** | `BR001`–`BR007` at lines 107–135 under a §9 that now describes `../poc_v2/` |
 | **D4** | `TEST_PLAN.md` describes a test that does not exist | **YES** | Line 145: *"TC02 in particular — ten consecutive runs, random mutations"*. S15 has 3 test cases; TC01 is a single six-key load |
 | **D5** | "Volume" is a misnomer | **YES** | Largest target row count asserted anywhere: **16**. Largest live count: **15** |
 | **D7** | Root `README.md` overclaims | **YES — and it is ours** | See §5 |
@@ -97,8 +97,8 @@ delete indicator inverted, a change that corrupts every retirement in the design
 
 | Where the same fault was injected | Result |
 |---|---|
-| `poc_v2/00_objects.sql` — **the MERGE that ships** | **69 pass, 0 fail. No effect whatsoever** |
-| `tools/run_scenario_duckdb.py` — `MERGE_AS_THREE`, the emulation | **58 pass, 11 fail. Caught immediately** |
+| `../poc_v2/00_objects.sql` — **the MERGE that ships** | **69 pass, 0 fail. No effect whatsoever** |
+| `../tools/run_scenario_duckdb.py` — `MERGE_AS_THREE`, the emulation | **58 pass, 11 fail. Caught immediately** |
 
 The shipped `MERGE` is never executed by the suite. `check_merge_drift.py` proves 70 copies
 are byte-identical — 70 copies of a statement no test runs.
@@ -153,5 +153,5 @@ agreed item by item. The findings are recorded here so that agreement starts fro
 facts rather than from claims.
 
 The one item already actioned is nothing more than this document: the review's own exit
-criteria (B1–B4) remain open, and `poc_v2/README.md`'s open list already states that the
+criteria (B1–B4) remain open, and `../poc_v2/README.md`'s open list already states that the
 POC's coverage is complete while delivery is not.

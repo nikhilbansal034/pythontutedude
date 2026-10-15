@@ -77,25 +77,17 @@ when a later run splits an interval that was already written.
 Distinct from the established pattern — one driving table, LEFT JOINed to others purely for attribute
 enrichment — where the driving table alone sets the target dates.
 
-| File | What it is |
+| Path | What it is |
 |------|-----------|
-| `solution_design.md` | How it gets solved: the architecture, the locked 18-rule table (§6), the two retirement mechanisms, the IDMC components, the test strategy and its result (§16), and the defect the POC found (§17) |
-| `dataassist_historical_load_instructions.md` | **The first integration deliverable.** The historical (Day 1) load, written to be read by the DataAssist code generator rather than by a person: a per-table classifier run off the STTM text, one SQL template per classification, worked data examples, and the self-check assertions DataAssist emits into the generated SQL so a wrong classification fails at run time. Verified by `tools/verify_historical_*.py` |
-| `dataassist_generation_rules.md` | **Generation discipline for DataAssist**, learned from reviewing its first generated output. Eight rules, each with a trigger evaluable against any STTM and DDL, the `THIRD_PARTY_AGREEMENT` defect as evidence, and the correct SQL. Its spine: the generator produced plausible SQL where it should have stopped — so when in doubt, fail, never fall back |
-| `dataassist_department_findings.md` | **Review of the ADW HR historical loads** — `DEPARTMENT` (D1–D7), `JOB` (J1–J7) and `OFFICE_DEPARTMENT` (OD1–OD9), each written as a rule with a trigger, the defect as evidence, and the correct SQL. All three are structurally sound (19/21, 23/25, 34/36 columns correct) and all three reproduce the **same six defects from the same STTM template**, so they are template defects rather than table defects. Each adds findings of its own: `JOB` a business key probably scoped to another column, which drops rows while every self-check reports zero; `OFFICE_DEPARTMENT` the foreign-key boundary split — the hardest thing the generator has produced, correct in the common case, wrong when a parent is retired, and validated against the wrong table. Verified by `tools/verify_department_findings.py` |
-| `dataassist_office_department_fix_review.md` | **Round 2 on `OFFICE_DEPARTMENT`** — review of the regenerated SQL after DataAssist was corrected. Six of nine findings fixed and all 36 columns now map correctly, but the round introduced one critical defect and three regressions: the foreign-key split is computed, used to pick an FK, then **discarded** by a uniqueness guarantee keyed on the pre-split date, so history is lost and the surviving FK is arbitrary. Verified by `tools/verify_office_department_fix_review.py` |
-| `poc_v2/` | **The POC.** `00_objects.sql` holds every object, the Step 1 diff view and the Step 2 MERGE; `scenarios/S01.sql … S15.sql` are one file per scenario; `TEST_PLAN.md` is the 15-scenario × 69-test-case grid with the rules each reaches and its result; `evidence/POC_Evidence.xlsx` carries 346 captioned screenshots of the run against Snowflake. See `poc_v2/README.md` |
-| `scd_date_split_design_deck.html` | **The design walkthrough deck** &mdash; 7 slides, self-contained, no build step. Open it in a browser; arrow keys or the left navigator to move, `Ctrl`/`Cmd`+`P` prints one slide per page. Covers the problem, the 18-rule decision table, the two retirement mechanisms, the architecture, how a single run works, and a worked example. Internal audience &mdash; delivery team and technical leads |
-| `TEST_LEAD_REVIEW.md` | The independent test lead review of the POC: conditional sign-off with four blocking exit criteria |
-| `TEST_LEAD_REVIEW_RESPONSE.md` | Our response &mdash; every finding independently re-executed before being accepted, with what reproduced and what was understated |
-| `tools/` | Generators and checks, all runnable: `mk_scenarios.py` generates the 15 scenario files from one spec, `refresh_docs.py` rebuilds the test-plan grid from a real run, `check_sql_lint.py` catches the two Snowflake-only errors DuckDB accepts, `check_merge_drift.py` proves all 70 copies of the apply MERGE are byte-identical, `run_scenario_duckdb.py` is the offline harness, `annotate_evidence.py` captions the evidence workbook, `verify_historical_examples.py` and `verify_historical_check7.py` execute every example and assertion in the historical instruction file, `verify_tpa_assertions.py` and `verify_tpa_agreement_fk.py` reproduce every executed claim in the generation-rules review, `verify_department_findings.py` does the same for the ADW HR reviews, `verify_office_department_fix_review.py` for the `OFFICE_DEPARTMENT` fix round |
-| `Requirement.xlsx` | The client's requirement, and the source of truth for the rules alongside `solution_design.md` §6 |
-| `sources/Final_Scenarios_v2.xlsx` | The v1 scenario catalogue, kept for provenance only. It predates the 18-rule table |
-| `glossary.md` | Zone / bucket / source-system vocabulary (SOR, `legacy_TD`, current vs. history bucket) that the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
-| `sources/DiscussionWithNidwika_Ramneek.vtt` | The walkthrough that settled the update-in-place rule, 2026-09-23 |
-| `sources/Possible_Scenarios.xlsx` | The scenario sheet shared by the team, 2026-09-22. The input the scenarios were reconciled against |
-| `sources/…vtt` | Meeting transcript, 2026-09-18. 617 cues, no speaker tags. Where the problem was first walked through |
-| `sources/scenario_screenshot.png` | The Excel mock-up shared on that call — Day 1 and Day 2 worked example |
+| `README.md` | **Start here** — index for this workstream, what lives where, and how to run the tools |
+| `solution_design.md` | The design of record: architecture, the locked 18-rule table (§6), the two retirement mechanisms, the test strategy and result (§16), the defect the POC found (§17), and the DataAssist integration and its reviews (§20–§26) |
+| `poc_v2/` | **The POC.** `00_objects.sql` holds every object, the Step 1 diff view and the Step 2 MERGE; `scenarios/S01.sql … S15.sql` are one file per scenario; `TEST_PLAN.md` is the 15-scenario × 69-test-case grid; `evidence/POC_Evidence.xlsx` carries 346 captioned screenshots |
+| `dataassist/` | **Integration with the client's code generator.** `historical_load_instructions.md` is the input we feed it; `generation_rules.md` is the generation discipline learned from its first output; `review_hr_tables.md` and `review_office_department_fix.md` are the reviews of what came back |
+| `review/` | The independent test lead review and our response — every finding re-executed before being accepted |
+| `sources/` | Raw inputs under their original filenames: meeting transcripts, `Requirement.xlsx`, the scenario workbooks, and the `.docx` files of generated SQL |
+| `tools/` | Generators and checks, all runnable from the workstream folder. `tools/verify/` holds one script per review, reproducing every executed claim in it |
+| `glossary.md` | Zone / bucket / source-system vocabulary the ABC reference leaves undefined. Every entry marked Confirmed / Inferred / Unknown |
+| `scd_date_split_design_deck.html` | **The design walkthrough deck** — 7 slides, self-contained, no build step. Open in a browser; `Ctrl`/`Cmd`+`P` prints one slide per page |
 
 **Screenshot scope**: only the `Tbl1` / `Tbl2` blocks and the Day1/Day2 target blocks are in scope. The
 `Tbl3` block, the top-right `b1`/`t1` rows, and the bottom `Zone1` notes are unrelated scratch.
@@ -123,7 +115,7 @@ were replayed through the POC and reproduce **row for row** — insert, expire-i
 match. Day 4 is unreconciled and being re-checked, and the target needs a new `current_record_ind` column.
 Detail in `solution_design.md` §19.
 
-**Integration has started, historical load first.** `dataassist_historical_load_instructions.md` is the input to the client's
+**Integration has started, historical load first.** `dataassist/historical_load_instructions.md` is the input to the client's
 DataAssist generator for the Day 1 load. `ACCOUNT_PARTY_REFERENCE` is the first target confirmed to need the split — two SCD-2
 sources, and only **one of its 23 mapped columns** reveals it (`solution_design.md` §22). Writing the instruction file's runtime
 assertions turned up the sharpest reason the classifier matters: a split table generated with the non-split template **passes

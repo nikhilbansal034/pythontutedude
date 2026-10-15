@@ -154,7 +154,7 @@ the harness ran green on a file Snowflake would not parse. Both rules it enforce
 
 - Snowflake only. **No stored procedures.**
 - IDMC is deferred. Objects are shaped to fold into the existing ETL pipeline afterwards.
-- Source of truth for the rules: `../Requirement.xlsx` and `../solution_design.md` §6.
+- Source of truth for the rules: `../sources/Requirement.xlsx` and `../solution_design.md` §6.
 
 ## Open
 
@@ -163,8 +163,8 @@ outstanding, and this list is not closed.
 
 An independent test lead review has since given a **conditional sign-off**: the logic is sound and
 genuinely evidenced, but four exit criteria must close before the IDMC build starts. The full list lives in
-`../solution_design.md` §18; the findings and our verification of them are in `../TEST_LEAD_REVIEW.md` and
-`../TEST_LEAD_REVIEW_RESPONSE.md`.
+`../solution_design.md` §18; the findings and our verification of them are in `../review/TEST_LEAD_REVIEW.md` and
+`../review/TEST_LEAD_REVIEW_RESPONSE.md`.
 
 **Waiting on an answer from outside the team**
 
@@ -183,10 +183,10 @@ genuinely evidenced, but four exit criteria must close before the IDMC build sta
 
 **Integration with DataAssist** (`../solution_design.md` §20, §21, §22, §23)
 
-- **The historical-load instructions are written**: `../dataassist_historical_load_instructions.md`, the
+- **The historical-load instructions are written**: `../dataassist/historical_load_instructions.md`, the
   input to the generator for the Day 1 load. Classifier, three templates, worked data examples, eight
   runtime assertions. Every example and assertion in it is executed by
-  `../tools/verify_historical_examples.py` and `../tools/verify_historical_check7.py`, not reasoned about.
+  `../tools/verify/verify_historical_examples.py` and `../tools/verify/verify_historical_check7.py`, not reasoned about.
 - **A misclassified table passes every obvious check.** A split table generated with the non-split template
   is caught by the containment assertion **and by nothing else** — the staging de-duplication collapses the
   join fanout before staging is written, so duplicate-key, overlap, interval-width, null-key, current-flag
