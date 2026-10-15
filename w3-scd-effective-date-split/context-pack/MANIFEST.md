@@ -5,6 +5,10 @@ landed intact.
 
 ---
 
+> **Paths below are relative to the `w3-scd-effective-date-split/` folder**, which is the copy source —
+> not to this file. They are a copy list, not links. The only true cross-links in this pack are the
+> `../…` references inside the other five files, which assume the folder shape set out in §1–§2.
+
 ## Copy these — about 500 KB
 
 ### 1. The pack itself
