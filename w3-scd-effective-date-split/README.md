@@ -14,7 +14,8 @@ enrichment — where the driving table alone sets the target dates.
 
 ```
 .
-├── solution_design.md       The design of record. Start here
+├── context-pack/            Self-contained pack for moving this to another environment
+├── solution_design.md       The design of record
 ├── glossary.md              Zone / bucket / source-system vocabulary
 ├── scd_date_split_design_deck.html   7-slide walkthrough, open in a browser
 │
@@ -24,6 +25,15 @@ enrichment — where the driving table alone sets the target dates.
 ├── sources/                 Raw inputs, original filenames
 └── tools/                   Generators, checks, and verifiers
 ```
+
+### `context-pack/` — for moving this elsewhere
+
+A self-contained pack written to be read cold, including by an AI assistant with none of the history
+behind it. `00_START_HERE.md` gives the reading order and a status board;
+`02_incremental_load_instructions.md` is the Day 2+ specification and is **the only document here that
+rests on unconfirmed assumptions** — they are listed in its §0. `MANIFEST.md` says exactly what to copy
+(about 500 KB), what to leave behind (about 18 MB, none of it useful to a copilot) and how to confirm the
+transfer landed.
 
 ### `solution_design.md` — the design of record
 

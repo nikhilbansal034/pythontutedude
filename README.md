@@ -80,6 +80,7 @@ enrichment — where the driving table alone sets the target dates.
 | Path | What it is |
 |------|-----------|
 | `README.md` | **Start here** — index for this workstream, what lives where, and how to run the tools |
+| `context-pack/` | **Self-contained pack for moving this workstream elsewhere**, including for an AI assistant with none of the history. Orientation and status board, the distilled design and 18-rule table, the Day 2+ incremental specification (the only document resting on unconfirmed assumptions — listed in its §0), the consolidated defect catalogue across four generated assets, executed worked examples, and a transfer manifest saying what to copy and what to leave behind |
 | `solution_design.md` | The design of record: architecture, the locked 18-rule table (§6), the two retirement mechanisms, the test strategy and result (§16), the defect the POC found (§17), and the DataAssist integration and its reviews (§20–§26) |
 | `poc_v2/` | **The POC.** `00_objects.sql` holds every object, the Step 1 diff view and the Step 2 MERGE; `scenarios/S01.sql … S15.sql` are one file per scenario; `TEST_PLAN.md` is the 15-scenario × 69-test-case grid; `evidence/POC_Evidence.xlsx` carries 346 captioned screenshots |
 | `dataassist/` | **Integration with the client's code generator.** `historical_load_instructions.md` is the input we feed it; `generation_rules.md` is the generation discipline learned from its first output; `review_hr_tables.md` and `review_office_department_fix.md` are the reviews of what came back |
