@@ -293,6 +293,7 @@ explicit, controlled publication event.
 | File | What it is |
 |------|-----------|
 | `problem_statement.md` | **The agreed baseline.** Problem statement, scope, model and vocabulary, settled decisions D1-D4, requirements R1-R24, assumptions A1-A4, parked dependencies, open operational policy |
+| `requirement_deck.html` | Leadership deck, 7 slides, built on the `lm-html-deck` deck-1 identity. The baseline consolidated to four themes T1-T4, with a stacked before/after timeline as the central diagram. Derived from `problem_statement.md` — update it there first, then reflect it here |
 | `sources/RE Discuss code freeze activities.msg` | The requirement source — a Copilot synthesis of the 24-Oct-2026 design discussion |
 | `sources/POC02_Recommendation_and_Design 1.html` | **Background only.** Earlier clone-and-swap recommendation. Addresses a neighbouring problem and predates this requirement |
 | `sources/POC05 - Same-Name Clone Refresh for Consumption - Deck.html` | **Background only.** Earlier same-name reclone analysis. A component, not a solution |
