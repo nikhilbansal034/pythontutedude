@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POC05 — Same-name clone refresh</title>
+<style>
+:root{
+  --teal:#0097A9;--teal-dk:#007680;--teal-dp:#004F59;--teal-1:#DDEFE8;--teal-2:#9DD4CF;
+  --navy:#012169;--blue:#00A3E0;--blue-ac:#007CB0;--green:#86BC25;--green-ac:#26890D;
+  --orange:#ED8B00;--red:#DA291C;--yellow:#FFCD00;
+  --g1:#F2F2F2;--g2:#D0D0CE;--g6:#A7A8AA;--g9:#75787B;--g11:#53565A;
+  --white:#FFFFFF;--ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;--mono:Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+.topbar{position:sticky;top:0;z-index:50;background:var(--white);border-bottom:3px solid var(--teal);}
+.topbar-inner{max-width:1320px;margin:0 auto;padding:0 20px;display:flex;align-items:stretch;}
+.brandmark{display:flex;align-items:center;padding:0 18px 0 0;margin-right:12px;border-right:1px solid var(--g2);font-size:12.5px;font-weight:700;color:var(--navy);letter-spacing:.02em;white-space:nowrap;}
+.brandmark .dot{color:var(--green);font-size:22px;line-height:0;margin-left:3px;}
+.tabs{display:flex;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600;color:var(--g9);padding:14px 13px 11px;border-bottom:3px solid transparent;margin-bottom:-3px;white-space:nowrap;line-height:1.2;text-align:left;}
+.tab .tnum{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--g6);}
+.tab:hover{color:var(--navy);background:var(--g1);}
+.tab[aria-selected="true"]{color:var(--navy);font-weight:700;border-bottom-color:var(--teal);}
+.tab[aria-selected="true"] .tnum{color:var(--teal);}
+.tab:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:8px;padding-left:14px;margin-left:8px;border-left:1px solid var(--g2);font-size:11px;color:var(--g6);white-space:nowrap;}
+.navbtn{appearance:none;border:1px solid var(--g2);background:var(--white);cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:var(--navy);width:28px;height:28px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);color:var(--white);border-color:var(--teal);}
+.navbtn:disabled{color:var(--g2);cursor:default;background:var(--white);border-color:var(--g2);}
+
+.deck{max-width:1320px;margin:0 auto;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;margin:0 0 28px;padding:44px 54px 60px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{max-width:none;padding:14px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner,body.js .slide.close .slide-inner{height:648px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:14px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+h1{font-size:42px;line-height:1.12;font-weight:700;color:var(--navy);margin:0 0 14px;}
+h2{font-size:26px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 7px;}
+.sub{font-size:15px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 16px;}
+h3{font-size:13px;font-weight:700;color:var(--g11);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 7px;}
+.cover .eyebrow,.close .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:20px;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin:2px 0 26px;}
+.cover .lede{font-size:19px;color:var(--g11);max-width:66ch;margin:0 0 30px;line-height:1.5;}
+.cover .meta{font-size:14px;color:var(--g9);line-height:1.9;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+.sectiontag{font-size:12.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin:0 0 4px;}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:6px 0 4px;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:8px 10px;font-size:13px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:7px 10px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:30px;text-align:center;color:var(--g9);font-weight:700;}
+code,.mono{font-family:var(--mono);font-size:12px;background:var(--g1);padding:1px 5px;border:1px solid var(--g2);color:var(--teal-dp);}
+tbody tr:nth-child(even) code{background:var(--white);}
+.chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:2px;white-space:nowrap;text-transform:uppercase;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+.chip.warn{background:var(--orange);color:#fff;}
+.chip.bad{background:var(--red);color:#fff;}
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;padding:11px 15px;font-size:13.5px;margin:12px 0 0;line-height:1.5;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.note{font-size:12.5px;color:var(--g9);margin:8px 0 0;line-height:1.5;}
+.cols{display:flex;gap:22px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+pre{background:#0B1F3A;color:#E8EEF6;font-family:var(--mono);font-size:12px;line-height:1.5;padding:13px 15px;margin:8px 0 0;overflow:auto;border-radius:3px;}
+pre .cm{color:#7FA8D0;}
+pre .kw{color:#7FD4C7;font-weight:700;}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .topbar{display:none;}
+  .deck,body.js .deck{max-width:none;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;zoom:0.78;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="Slide navigation">
+  <div class="topbar-inner">
+    <div class="brandmark">POC05 &mdash; clone refresh<span class="dot">.</span></div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-target="s1" aria-selected="true"  aria-controls="s1"><span class="tnum">01</span>Cover</button>
+      <button class="tab" role="tab" data-target="s2" aria-selected="false" aria-controls="s2"><span class="tnum">02</span>The scenario</button>
+      <button class="tab" role="tab" data-target="s3" aria-selected="false" aria-controls="s3"><span class="tnum">03</span>The reclone</button>
+      <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>Day-1 nuance</button>
+      <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>Verdict</button>
+      <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>Alternatives</button>
+      <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>How we prove it</button>
+    </div>
+    <div class="navhint">
+      <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+      <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+      <span>arrow keys</span>
+    </div>
+  </div>
+</nav>
+
+<div class="deck">
+
+<!-- 1 COVER -->
+<section class="slide cover active" id="s1" role="tabpanel">
+  <div class="eyebrow">POC05 &mdash; same-name clone refresh for consumption</div>
+  <h1>Recreating the clone on Day 2 &mdash;<br>do users or reports break?</h1>
+  <div class="rule"></div>
+  <p class="lede">A consumption object is a <b>clone</b> of a Zone&nbsp;3 intermittent table, recreated daily under
+    the <b>same name</b> so reports keep a stable object to point at. This deck answers whether the Day-2
+    recreate affects anyone reading the Day-1 clone.</p>
+  <div class="meta">
+    <b>Short answer</b> &nbsp;Safe for concurrency &mdash; Snowflake guarantees old-or-new. The one real risk is <b>grant loss</b>, fixed by <code>COPY GRANTS</code>.<br>
+    <b>Basis</b> &nbsp;Verified against current Snowflake documentation (CREATE TABLE / DROP TABLE, cloning-privileges KB). Same class of problem as POC02.<br>
+    <b>Discipline</b> &nbsp;Synthetic data only; read-only and additive on existing objects.
+  </div>
+  <div class="slide-no">1 / 7</div>
+</section>
+
+<!-- 2 THE SCENARIO -->
+<section class="slide" id="s2" role="tabpanel">
+  <div class="sectiontag">The scenario</div>
+  <h2>What happens across the two days</h2>
+  <p class="sub">A clone is a decoupled snapshot &mdash; updating the source never touches an existing clone.</p>
+
+  <svg viewBox="0 0 1120 150" width="100%" style="display:block;margin:2px 0 4px;" role="img" aria-label="Day 1: source v1 is loaded and a clone is made for consumption. Day 2: the source becomes v2 but the Day-1 clone is unchanged, reports read v1 consistently, then the clone is recreated under the same name pointing at v2.">
+    <defs>
+      <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L7,3 L0,6 Z" fill="#53565A"/></marker>
+    </defs>
+    <text x="270" y="20" text-anchor="middle" fill="#0097A9" font-size="11.5" font-weight="700" letter-spacing="1.2" font-family="Open Sans,Arial,sans-serif">DAY 1</text>
+    <text x="820" y="20" text-anchor="middle" fill="#0097A9" font-size="11.5" font-weight="700" letter-spacing="1.2" font-family="Open Sans,Arial,sans-serif">DAY 2</text>
+    <line x1="545" y1="34" x2="545" y2="140" stroke="#D0D0CE" stroke-width="1.4" stroke-dasharray="4 4"/>
+
+    <rect x="8"   y="40" width="150" height="64" rx="4" fill="#012169"/><text x="83"  y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Open Sans,Arial,sans-serif">Source v1</text><text x="83"  y="86" text-anchor="middle" font-size="9.5" fill="#9DD4CF" font-family="Open Sans,Arial,sans-serif">Zone 3 loaded</text>
+    <rect x="196" y="40" width="150" height="64" rx="4" fill="#0097A9"/><text x="271" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Open Sans,Arial,sans-serif">Clone (v1)</text><text x="271" y="86" text-anchor="middle" font-size="9.5" fill="#DDEFE8" font-family="Open Sans,Arial,sans-serif">ZONE3_CONSUME</text>
+    <rect x="384" y="40" width="150" height="64" rx="4" fill="#fff" stroke="#007680" stroke-width="2"/><text x="459" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#004F59" font-family="Open Sans,Arial,sans-serif">Reports</text><text x="459" y="86" text-anchor="middle" font-size="9.5" fill="#75787B" font-family="Open Sans,Arial,sans-serif">read v1</text>
+
+    <rect x="560" y="40" width="150" height="64" rx="4" fill="#012169"/><text x="635" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Open Sans,Arial,sans-serif">Source v2</text><text x="635" y="86" text-anchor="middle" font-size="9.5" fill="#9DD4CF" font-family="Open Sans,Arial,sans-serif">updated</text>
+    <rect x="748" y="40" width="150" height="64" rx="4" fill="#0097A9"/><text x="823" y="64" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Open Sans,Arial,sans-serif">Recreate clone</text><text x="823" y="82" text-anchor="middle" font-size="9.5" fill="#DDEFE8" font-family="Open Sans,Arial,sans-serif">same name &rarr; v2</text><text x="823" y="96" text-anchor="middle" font-size="9.5" fill="#FFCD00" font-family="Open Sans,Arial,sans-serif">COPY GRANTS</text>
+    <rect x="936" y="40" width="150" height="64" rx="4" fill="#fff" stroke="#007680" stroke-width="2"/><text x="1011" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#004F59" font-family="Open Sans,Arial,sans-serif">Reports</text><text x="1011" y="86" text-anchor="middle" font-size="9.5" fill="#75787B" font-family="Open Sans,Arial,sans-serif">now read v2</text>
+
+    <line x1="158" y1="72" x2="194" y2="72" stroke="#53565A" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="346" y1="72" x2="382" y2="72" stroke="#53565A" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="710" y1="72" x2="746" y2="72" stroke="#53565A" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="898" y1="72" x2="934" y2="72" stroke="#53565A" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="628" y="128" text-anchor="middle" font-size="10.5" font-weight="700" fill="#007680" font-family="Open Sans,Arial,sans-serif">the Day-1 clone is unaffected by the source update &mdash; consumers stay on a stable snapshot</text>
+  </svg>
+
+  <table>
+    <thead><tr><th class="num">#</th><th>Step</th><th>What technically happens</th><th>Issue?</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Day 1 &mdash; source loaded</td><td>Zone 3 intermittent table holds v1 data.</td><td>&mdash;</td></tr>
+      <tr><td class="num">2</td><td>Day 1 &mdash; clone created for consumption</td><td>Zero-copy clone = an independent point-in-time snapshot of v1, decoupled from the source.</td><td>&mdash;</td></tr>
+      <tr><td class="num">3</td><td>Day 2 &mdash; source updated to v2</td><td>The Day-1 clone is unaffected &mdash; a clone does not track its source.</td><td><span class="chip ok">By design</span></td></tr>
+      <tr><td class="num">4</td><td>Day 2 &mdash; reports use the Day-1 clone</td><td>They see v1 consistently &mdash; no partial/dirty reads from the in-progress source update.</td><td><span class="chip ok">Consistent</span></td></tr>
+      <tr><td class="num">5</td><td>Day 2 &mdash; clone recreated under the same name</td><td>Atomic DROP + CREATE; the consumption name now points at a v2 snapshot.</td><td><span class="chip warn">Watch grants</span></td></tr>
+    </tbody>
+  </table>
+  <div class="slide-no">2 / 7</div>
+</section>
+
+<!-- 3 THE RECLONE -->
+<section class="slide" id="s3" role="tabpanel">
+  <div class="sectiontag">The Day-2 recreate</div>
+  <h2>Three effects &mdash; only one is a real risk</h2>
+  <p class="sub">Concurrency is guaranteed safe; grants are the trap; downstream is conditional.</p>
+
+  <div class="cols">
+    <div>
+      <h3 style="margin-top:0;">1 &mdash; Access <span class="chip bad">the one to watch</span></h3>
+      <p style="font-size:13px;margin:0;"><code>CREATE OR REPLACE&hellip;CLONE</code> = <b>DROP + CREATE</b>. The recreated object keeps only <b>OWNERSHIP</b> &mdash; every explicit <code>SELECT</code> to reporting roles is lost. Reports then fail with <i>&ldquo;does not exist or not authorized&rdquo;</i> on the next run &mdash; it does not error during the reclone, so it is easy to miss.</p>
+      <pre><span class="cm">-- fix: copy grants in the same statement</span>
+<span class="kw">CREATE OR REPLACE TABLE</span> ZONE3_CONSUME
+  <span class="kw">CLONE</span> ZONE3_INTERMITTENT
+  <span class="kw">COPY GRANTS</span>;</pre>
+    </div>
+    <div>
+      <h3 style="margin-top:0;">2 &mdash; Concurrency <span class="chip ok">not an issue</span></h3>
+      <p style="font-size:13px;margin:0;"><code>CREATE OR REPLACE</code> is <b>atomic</b>: any concurrent query uses <b>either the old or the new</b> version. A query in flight completes on the Day-1 snapshot; one starting after sees Day-2. No missing-object window, no torn read.</p>
+      <p class="note" style="margin-top:8px;"><b>Subtlety:</b> one report firing several queries straddling the exact recreate instant could see v1 in one and v2 in another (each internally consistent). Reclone in a quiet window if a report needs one snapshot across queries.</p>
+      <h3>3 &mdash; Downstream &amp; storage <span class="chip part">conditional</span></h3>
+      <p style="font-size:13px;margin:0;"><b>Streams go stale</b> &mdash; recreating drops the change data (matters only if something consumes CDC off the clone). <b>Time Travel storage accrues</b> &mdash; each <code>OR REPLACE</code> retains the prior version; set <code>DATA_RETENTION_TIME_IN_DAYS</code> to bound it.</p>
+    </div>
+  </div>
+  <div class="callout"><b>Order it right.</b> A clone snapshots <i>committed</i> data &mdash; finish and commit the source load <i>before</i> recreating, or the clone captures a partial state.</div>
+  <div class="slide-no">3 / 7</div>
+</section>
+
+<!-- 4 DAY-1 NUANCE -->
+<section class="slide" id="s4" role="tabpanel">
+  <div class="sectiontag">The Day-2 recreate</div>
+  <h2>Where <code>COPY GRANTS</code> takes the grants from</h2>
+  <p class="sub">The docs are explicit &mdash; and the first-creation case is different from steady state.</p>
+
+  <div class="callout teal" style="margin-top:0;">
+    <b>Docs:</b> if the statement replaces an existing table of that name, grants are copied from the <b>table being replaced</b>; if no table of that name exists, they are copied from the <b>clone source</b>.
+  </div>
+
+  <table style="margin-top:12px;">
+    <thead><tr><th class="num">#</th><th>Day</th><th>Situation</th><th><code>COPY GRANTS</code> copies from</th><th>Consequence</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Day 2+</b><br>steady state</td><td><code>ZONE3_CONSUME</code> already exists</td><td>the <b>replaced</b> <code>ZONE3_CONSUME</code></td><td><span class="chip ok">Works</span> reporting roles&rsquo; <code>SELECT</code> is preserved</td></tr>
+      <tr><td class="num">2</td><td><b>Day 1</b><br>first creation</td><td>no <code>ZONE3_CONSUME</code> yet</td><td>the <b>clone source</b> (<code>ZONE3_INTERMITTENT</code>)</td><td><span class="chip warn">Gap</span> roles usually have <code>SELECT</code> on the consumption object, not the raw source &mdash; so Day 1 may give them <b>nothing</b></td></tr>
+    </tbody>
+  </table>
+
+  <div class="cols" style="margin-top:12px;">
+    <div>
+      <h3 style="margin-top:0;">Handle the Day-1 bootstrap</h3>
+      <table>
+        <tbody>
+          <tr><td class="num">A</td><td>After the <b>first</b> creation, grant the reporting roles once explicitly. From Day 2 on, <code>COPY GRANTS</code> carries them forward.</td></tr>
+          <tr><td class="num">B</td><td><b>Or</b> use <b>future grants</b> on the schema &mdash; covers Day 1 <i>and</i> every day with no bootstrap step.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3 style="margin-top:0;">Two models &mdash; pick one</h3>
+      <p style="font-size:13px;margin:0;">They are <b>mutually exclusive per statement</b>: with <code>COPY GRANTS</code> the new object gets the <i>explicit</i> grants but <b>not</b> future grants; without it, it gets <i>future</i> grants but <b>not</b> the previous explicit ones. The future-grants model removes the bootstrap entirely &mdash; a point in its favour.</p>
+    </div>
+  </div>
+  <div class="slide-no">4 / 7</div>
+</section>
+
+<!-- 5 VERDICT -->
+<section class="slide" id="s5" role="tabpanel">
+  <div class="sectiontag">Verdict</div>
+  <h2>Does the Day-2 recreate affect users?</h2>
+  <p class="sub">It depends entirely on whether grants are handled &mdash; nothing else.</p>
+
+  <table>
+    <thead><tr><th>Path</th><th>Result for users / reports on Day 2</th></tr></thead>
+    <tbody>
+      <tr><td>Naive <code>CREATE OR REPLACE&hellip;CLONE</code> <span class="chip bad">avoid</span><br>(no grant handling)</td><td><b>Reports lose access</b> after the reclone &mdash; the failure mode to avoid.</td></tr>
+      <tr><td><code>&hellip;CLONE&hellip;COPY GRANTS</code> (or future grants) <span class="chip ok">recommended</span><br>+ no downstream stream</td><td><b>No issue</b> &mdash; in-flight queries are safe, access is preserved, users simply see refreshed Day-2 data on their next query.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout teal">
+    <b>The thing to test explicitly is grant survival across the same-name reclone</b> &mdash; not query
+    concurrency, which Snowflake already guarantees. That test is the whole POC in a handful of statements (next-but-one slide).
+  </div>
+
+  <h3>Recommendation for the pipeline</h3>
+  <table>
+    <tbody>
+      <tr><td class="num">1</td><td>Standardise on <code>CREATE OR REPLACE TABLE&hellip;CLONE&hellip;COPY GRANTS</code> so consumers never lose access.</td></tr>
+      <tr><td class="num">2</td><td>Handle the <b>Day-1 bootstrap</b>: grant once after first creation, or prefer <b>future grants</b>. Don&rsquo;t mix the two per statement.</td></tr>
+      <tr><td class="num">3</td><td><b>Reclone only after the source load commits</b>; give the refresh role <code>CREATE TABLE</code> + ownership of the object so <code>COPY GRANTS</code> succeeds.</td></tr>
+      <tr><td class="num">4</td><td>Confirm <b>no stream</b> on the clone; set <code>DATA_RETENTION_TIME_IN_DAYS</code>; if Fail-safe cost matters, make the <b>source</b> transient (the clone inherits the type).</td></tr>
+    </tbody>
+  </table>
+  <div class="slide-no">5 / 7</div>
+</section>
+
+<!-- 6 ALTERNATIVES -->
+<section class="slide" id="s6" role="tabpanel">
+  <div class="sectiontag">Alternatives</div>
+  <h2>Other ways to refresh the consumption object</h2>
+  <p class="sub">The daily reclone is the baseline; two managed alternatives, each with a caveat.</p>
+
+  <table>
+    <thead><tr><th>Approach</th><th>When to prefer</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td><b><code>OR REPLACE&hellip;CLONE&hellip;COPY GRANTS</code></b><br>(this POC)</td><td>Simple daily refresh, same consumption name</td><td>The recommended baseline.</td></tr>
+      <tr><td><b>Build-then-SWAP</b><br><code>CLONE&hellip;COPY GRANTS</code> into a staging name, validate, then <code>ALTER TABLE&hellip;SWAP WITH</code></td><td>You want to validate the new copy <b>before</b> exposing it</td><td>Also atomic; also drops change data / stale streams. This is POC02&rsquo;s zero-downtime mechanism.</td></tr>
+      <tr><td><b>Dynamic Table</b></td><td>You want a managed, declarative refresh instead of manual recloning</td><td><span class="chip warn">POC02 caveat</span> a DT over a base masked by a <b>subquery-based</b> policy cannot refresh incrementally &mdash; it full-refreshes every cycle. Fine for unmasked Zone 3 tables.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout teal"><b>Dependent views are safe either way.</b> A view over the clone resolves <b>by name at query time</b>, so it keeps working after the reclone, and the view&rsquo;s own grants are untouched &mdash; only the recreated table&rsquo;s grants are at stake.</div>
+  <div class="slide-no">6 / 7</div>
+</section>
+
+<!-- 7 HOW WE PROVE IT -->
+<section class="slide close" id="s7" role="tabpanel">
+  <div class="eyebrow">How we prove it</div>
+  <h2 style="font-size:28px;">The grant-survival test &mdash; the whole POC in a few statements</h2>
+  <p class="sub" style="margin-bottom:14px;">Grant, recreate with and without <code>COPY GRANTS</code>, and read the grants back each time.</p>
+
+  <pre><span class="cm">-- Synthetic data only. Replace &lt;&hellip;&gt; placeholders.</span>
+<span class="kw">GRANT SELECT ON TABLE</span> ZONE3_CONSUME <span class="kw">TO ROLE</span> &lt;reporting_role&gt;;
+<span class="kw">SHOW GRANTS ON TABLE</span> ZONE3_CONSUME;            <span class="cm">-- baseline: SELECT present</span>
+
+<span class="cm">-- A) WITH COPY GRANTS  &rarr;  the grant must SURVIVE</span>
+<span class="kw">CREATE OR REPLACE TABLE</span> ZONE3_CONSUME <span class="kw">CLONE</span> ZONE3_INTERMITTENT <span class="kw">COPY GRANTS</span>;
+<span class="kw">SHOW GRANTS ON TABLE</span> ZONE3_CONSUME;            <span class="cm">-- expect: SELECT STILL there</span>
+
+<span class="cm">-- B) WITHOUT COPY GRANTS  &rarr;  the grant must be LOST (the failure mode)</span>
+<span class="kw">CREATE OR REPLACE TABLE</span> ZONE3_CONSUME <span class="kw">CLONE</span> ZONE3_INTERMITTENT;
+<span class="kw">SHOW GRANTS ON TABLE</span> ZONE3_CONSUME;            <span class="cm">-- expect: only OWNERSHIP; SELECT GONE</span></pre>
+
+  <table style="margin-top:12px;">
+    <thead><tr><th class="num">#</th><th>Run</th><th>Expected on <code>SHOW GRANTS</code></th></tr></thead>
+    <tbody>
+      <tr><td class="num">A</td><td>Recreate <b>with</b> <code>COPY GRANTS</code></td><td><span class="chip ok">Preserved</span> reporting role&rsquo;s <code>SELECT</code> still present</td></tr>
+      <tr><td class="num">B</td><td>Recreate <b>without</b> <code>COPY GRANTS</code></td><td><span class="chip bad">Lost</span> only <code>OWNERSHIP</code> remains &mdash; <code>SELECT</code> gone</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Run once on the <code>LM_P2_*</code> objects and keep the output as the evidence note &mdash; that is the one thing that turns this analysis into a proven POC, in the style of the S3v2 / POC02 packs.</p>
+  <div class="slide-no">7 / 7</div>
+</section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+  var SLIDE_W = 1280, SLIDE_H = 720, INNER_W = 1164, INNER_TOP = 34, BOTTOM_RESERVE = 40, MIN_FIT = 0.55;
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var topbar = document.querySelector(".topbar");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 && node.classList.contains("slide-no")) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover") || sl.classList.contains("close")) {
+      if (inner) { inner.style.transform = "none"; inner.style.width = INNER_W + "px"; }
+      return;
+    }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+  }
+  function fitStage() {
+    var barH = topbar ? topbar.offsetHeight : 0;
+    var z = Math.min((window.innerWidth - 28) / SLIDE_W, (window.innerHeight - barH - 28) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+    else if (e.key >= "1" && e.key <= "9") { show(parseInt(e.key, 10) - 1); e.preventDefault(); }
+  });
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>

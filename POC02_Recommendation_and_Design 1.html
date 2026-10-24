@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clone-and-swap — recommendation & design</title>
+<style>
+:root{
+  --teal:#0097A9; --teal-dk:#007680; --teal-dp:#004F59; --teal-1:#DDEFE8; --teal-2:#9DD4CF;
+  --navy:#012169; --blue:#00A3E0; --blue-ac:#007CB0;
+  --green:#86BC25; --green-ac:#26890D; --orange:#ED8B00; --red:#DA291C; --yellow:#FFCD00;
+  --g1:#F2F2F2; --g2:#D0D0CE; --g6:#A7A8AA; --g9:#75787B; --g11:#53565A;
+  --white:#FFFFFF; --ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+  --navw:220px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);
+     font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* vertical navigator */
+.sidenav{position:fixed;left:0;top:0;bottom:0;width:var(--navw);z-index:50;background:var(--white);
+  border-right:3px solid var(--teal);display:flex;flex-direction:column;}
+.brandmark{padding:14px 14px 11px;border-bottom:1px solid var(--g2);font-size:12.5px;font-weight:700;
+  color:var(--navy);letter-spacing:.02em;line-height:1.3;}
+.brandmark .dot{color:var(--green);font-size:20px;line-height:0;margin-left:2px;}
+.navsec{font-size:10px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--teal-dk);
+  padding:11px 12px 4px;background:var(--g1);border-top:1px solid var(--g2);}
+.tabs{display:block;flex:1;overflow-y:auto;scrollbar-width:thin;}
+.tab{appearance:none;border:0;border-left:3px solid transparent;border-bottom:1px solid var(--g1);
+  background:transparent;cursor:pointer;font-family:var(--font);display:block;width:100%;
+  font-size:12.5px;font-weight:600;color:var(--g9);padding:8px 11px 8px 12px;text-align:left;line-height:1.25;}
+.tab .tnum{display:inline-block;width:20px;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--g6);}
+.tab:hover{color:var(--navy);background:var(--g1);}
+.tab[aria-selected="true"]{color:var(--navy);font-weight:700;border-left-color:var(--teal);background:var(--teal-1);}
+.tab[aria-selected="true"] .tnum{color:var(--teal-dk);}
+.tab:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:7px;padding:9px 11px;border-top:1px solid var(--g2);
+  font-size:11px;color:var(--g6);}
+.navbtn{appearance:none;border:1px solid var(--g2);background:var(--white);cursor:pointer;
+  font-family:var(--font);font-size:13px;font-weight:700;color:var(--navy);
+  width:26px;height:26px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);color:var(--white);border-color:var(--teal);}
+.navbtn:disabled{color:var(--g2);cursor:default;background:var(--white);border-color:var(--g2);}
+
+/* deck shell */
+.deck{margin-left:var(--navw);max-width:1320px;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;
+  margin:0 0 28px;padding:44px 54px 78px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{max-width:none;padding:14px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;
+  border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:646px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:14px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+h1{font-size:40px;line-height:1.14;font-weight:700;color:var(--navy);margin:0 0 14px;}
+h2{font-size:26px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.sub{font-size:14.5px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 18px;}
+h3{font-size:13px;font-weight:700;color:var(--g11);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 7px;}
+
+.cover{display:flex;flex-direction:column;justify-content:center;}
+.cover .eyebrow{font-size:13.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:20px;}
+.cover h1{font-size:46px;max-width:25ch;}
+.cover .lede{font-size:18px;color:var(--g11);max-width:66ch;margin:6px 0 26px;line-height:1.5;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin-bottom:26px;}
+.cover .meta{font-size:13.5px;color:var(--g9);line-height:1.9;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px;margin:5px 0 4px;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:7px 10px;font-size:12.5px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:6px 10px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:30px;text-align:center;color:var(--g9);font-weight:700;}
+code,.mono{font-family:var(--mono);font-size:12px;background:var(--g1);padding:1px 4px;border:1px solid var(--g2);color:var(--teal-dp);}
+tbody tr:nth-child(even) code{background:var(--white);}
+
+.chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:2px 8px;border-radius:2px;white-space:nowrap;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.warn{background:var(--orange);color:#3d2400;}
+.chip.no{background:var(--red);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+
+.takeaway{position:absolute;left:62px;right:54px;bottom:34px;background:var(--teal);color:var(--white);
+  font-size:14.5px;font-weight:700;text-align:center;padding:12px 18px;line-height:1.3;}
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;padding:11px 15px;font-size:13.5px;margin:12px 0;line-height:1.5;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.callout.green{border-left-color:var(--green-ac);background:#EDF7E3;color:#1F5E08;}
+.note{font-size:12.5px;color:var(--g9);margin:7px 0 0;line-height:1.5;}
+
+.cols{display:flex;gap:22px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.w40-60>*:first-child{flex:0 0 38%;}
+.figure{margin:4px 0 4px;}
+.figure svg{width:100%;height:auto;display:block;}
+ul.tight{margin:6px 0 0;padding-left:19px;font-size:13.5px;}
+ul.tight li{margin-bottom:5px;}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px;}
+.card{border:1px solid var(--g2);border-top:4px solid var(--teal);padding:10px 13px;background:var(--white);}
+.card.rec{border-top-color:var(--green-ac);}
+.card.warnc{border-top-color:var(--orange);}
+.card .n{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.06em;}
+.card.rec .n{color:var(--green-ac);}
+.card.warnc .n{color:var(--orange);}
+.card .lbl{font-size:14.5px;font-weight:700;color:var(--navy);margin:3px 0 4px;line-height:1.25;}
+.card p{font-size:12.5px;margin:0 0 5px;line-height:1.45;}
+
+/* diagram classes */
+svg.dg{font-family:var(--font);}
+.laneh{fill:var(--navy);}
+.lanet{fill:#fff;font-size:12px;font-weight:700;}
+.box{fill:#fff;stroke:var(--teal);stroke-width:1.6;}
+.box.alt{fill:var(--teal-1);}
+.box.grey{fill:var(--g1);stroke:var(--g6);}
+.box.warnb{fill:#FFF8E8;stroke:var(--orange);}
+.box.badb{fill:#FDECEA;stroke:var(--red);}
+.box.okb{fill:#EDF7E3;stroke:var(--green-ac);}
+.t{font-size:12.5px;fill:var(--ink);font-weight:600;}
+.t.s{font-size:11px;fill:var(--g9);font-weight:400;}
+.t.w{fill:#7A4000;}.t.bad{fill:#8A1710;}.t.ok{fill:#1F5E08;}
+.t.hd{font-size:12px;font-weight:700;fill:var(--navy);}
+.arw{fill:none;stroke:var(--navy);stroke-width:1.8;marker-end:url(#ah);}
+.arw.d{stroke:var(--g9);stroke-dasharray:5 4;marker-end:url(#ahg);}
+.arw.bad{stroke:var(--red);marker-end:url(#ahr);}
+.arw.ok{stroke:var(--green-ac);marker-end:url(#aho);}
+.nb{fill:var(--orange);}.nt{font-size:11px;font-weight:700;fill:#fff;}
+.brk{fill:none;stroke:var(--g6);stroke-width:1;}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .sidenav{display:none;}
+  .deck,body.js .deck{max-width:none;margin-left:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;zoom:0.78;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#012169"/></marker>
+  <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#75787B"/></marker>
+  <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DA291C"/></marker>
+  <marker id="aho" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#26890D"/></marker>
+</defs></svg>
+
+<nav class="sidenav" aria-label="Slide navigation">
+  <div class="brandmark">Zero-downtime refresh<br>recommendation &amp; design<span class="dot">.</span></div>
+  <div class="tabs" role="tablist">
+    <div class="navsec">The case</div>
+    <button class="tab" role="tab" data-target="s1"  aria-selected="true"  aria-controls="s1"><span class="tnum">01</span>Cover</button>
+    <button class="tab" role="tab" data-target="s2"  aria-selected="false" aria-controls="s2"><span class="tnum">02</span>The problem</button>
+    <button class="tab" role="tab" data-target="s3"  aria-selected="false" aria-controls="s3"><span class="tnum">03</span>What had to be true</button>
+    <button class="tab" role="tab" data-target="s4"  aria-selected="false" aria-controls="s4"><span class="tnum">04</span>Two strategies</button>
+    <button class="tab" role="tab" data-target="s5"  aria-selected="false" aria-controls="s5"><span class="tnum">05</span>Did we prove it?</button>
+    <button class="tab" role="tab" data-target="s6"  aria-selected="false" aria-controls="s6"><span class="tnum">06</span>Head to head</button>
+    <button class="tab" role="tab" data-target="s7"  aria-selected="false" aria-controls="s7"><span class="tnum">07</span>The evidence</button>
+    <button class="tab" role="tab" data-target="s8"  aria-selected="false" aria-controls="s8"><span class="tnum">08</span>The governance point</button>
+    <button class="tab" role="tab" data-target="s9"  aria-selected="false" aria-controls="s9"><span class="tnum">09</span>The recommendation</button>
+    <div class="navsec">The design</div>
+    <button class="tab" role="tab" data-target="s10" aria-selected="false" aria-controls="s10"><span class="tnum">10</span>Recommended flow</button>
+    <button class="tab" role="tab" data-target="s11" aria-selected="false" aria-controls="s11"><span class="tnum">11</span>Related tables</button>
+    <button class="tab" role="tab" data-target="s12" aria-selected="false" aria-controls="s12"><span class="tnum">12</span>Clone vs DT for PII</button>
+    <button class="tab" role="tab" data-target="s13" aria-selected="false" aria-controls="s13"><span class="tnum">13</span>When a DT is right</button>
+    <button class="tab" role="tab" data-target="s14" aria-selected="false" aria-controls="s14"><span class="tnum">14</span>What's still open</button>
+    <button class="tab" role="tab" data-target="s15" aria-selected="false" aria-controls="s15"><span class="tnum">15</span>Close</button>
+  </div>
+  <div class="navhint">
+    <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>arrow keys</span>
+  </div>
+</nav>
+
+<div class="deck">
+
+<!-- 1 COVER -->
+<section class="slide cover active" id="s1" role="tabpanel">
+  <div class="eyebrow">POC02 · findings &amp; recommended design</div>
+  <h1>Reloading tables people are reading — without showing them the wrong data</h1>
+  <div class="rule"></div>
+  <p class="lede"><b>Clone-and-swap is the recommended default.</b> A single-table swap for one table,
+  a whole-schema swap when related tables must stay consistent. A dynamic table only for a
+  single-SELECT feed where a plaintext copy at rest and full-rebuild cost are acceptable — because it
+  cannot host a pre-cutover gate.</p>
+  <div class="meta">
+    <b>Backed by</b> &nbsp;a live evidence pack — every claim a captured query result<br>
+    <b>Tested under</b> &nbsp;the existing tag-based masking model, left untouched<br>
+    <b>Audience</b> &nbsp;platform &amp; data engineering
+  </div>
+  <div class="slide-no">1 / 15</div>
+</section>
+
+<!-- 2 THE PROBLEM -->
+<section class="slide" id="s2" role="tabpanel">
+  <h2>Readers and the reload want the same table at the same time</h2>
+  <p class="sub">What happens today when a batch load runs against a table people are querying</p>
+
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1164 250" role="img" aria-label="Continuous reads overlap a batch reload, creating an exposure window">
+    <rect class="laneh" x="8" y="24" width="150" height="48"/>
+    <text class="lanet" x="83" y="46" text-anchor="middle">End users</text>
+    <text class="lanet" x="83" y="63" text-anchor="middle" font-weight="400" font-size="10.5">reading all day</text>
+    <rect class="laneh" x="8" y="96" width="150" height="48"/>
+    <text class="lanet" x="83" y="118" text-anchor="middle">ETL pipeline</text>
+    <text class="lanet" x="83" y="135" text-anchor="middle" font-weight="400" font-size="10.5">scheduled reload</text>
+
+    <rect class="box alt" x="176" y="34" width="972" height="28"/>
+    <text class="t" x="662" y="52" text-anchor="middle">continuous SELECT traffic — never stops, never coordinated with the load</text>
+    <rect class="box warnb" x="486" y="106" width="330" height="28"/>
+    <text class="t w" x="651" y="124" text-anchor="middle">truncate &amp; reload in place</text>
+
+    <rect x="486" y="24" width="330" height="120" fill="none" stroke="#DA291C" stroke-width="2" stroke-dasharray="6 4"/>
+    <text class="t bad" x="651" y="166" text-anchor="middle" font-size="13">the exposure window</text>
+    <text class="t s" x="651" y="183" text-anchor="middle">every read landing here can see a half-loaded or empty table</text>
+
+    <path class="arw" d="M190,48 L452,48"/><circle class="nb" cx="321" cy="48" r="9"/><text class="nt" x="321" y="52" text-anchor="middle">1</text>
+    <path class="arw bad" d="M502,120 L502,66"/><circle class="nb" cx="502" cy="94" r="9"/><text class="nt" x="502" y="98" text-anchor="middle">2</text>
+    <path class="arw" d="M840,48 L1136,48"/><circle class="nb" cx="988" cy="48" r="9"/><text class="nt" x="988" y="52" text-anchor="middle">3</text>
+
+    <rect class="box grey" x="176" y="204" width="300" height="40"/><text class="t" x="326" y="223" text-anchor="middle">Shrink the window</text><text class="t s" x="326" y="238" text-anchor="middle">objective 1</text>
+    <rect class="box grey" x="486" y="204" width="330" height="40"/><text class="t" x="651" y="223" text-anchor="middle">Never a partial state</text><text class="t s" x="651" y="238" text-anchor="middle">objective 2</text>
+    <rect class="box grey" x="826" y="204" width="322" height="40"/><text class="t" x="987" y="223" text-anchor="middle">Do not weaken masking</text><text class="t s" x="987" y="238" text-anchor="middle">objective 3</text>
+  </svg>
+  </div>
+
+  <table>
+    <thead><tr><th class="num">#</th><th>Arrow</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Reads before the load</td><td>Users see the previous version — correct and consistent</td></tr>
+      <tr><td class="num">2</td><td>The load writes in place</td><td>The table now holds rows from two versions at once, and nothing tells a reader</td></tr>
+      <tr><td class="num">3</td><td>Reads after the load</td><td>Users see the new version — also correct. The problem is only ever the middle</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">The problem is not the load. It is that readers and the load share one object while it changes.</div>
+  <div class="slide-no">2 / 15</div>
+</section>
+
+<!-- 3 WHAT HAD TO BE TRUE -->
+<section class="slide" id="s3" role="tabpanel">
+  <h2>What the refresh had to guarantee</h2>
+  <p class="sub">The requirements the POC set out to prove — the third is the hard one</p>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:26%">Requirement</th><th>In plain terms</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Shrink the window</b></td><td>The time a reader can be exposed to a changing table approaches zero</td></tr>
+      <tr><td class="num">2</td><td><b>Never a partial state</b></td><td>A reader sees version N, then N+1 — never a mix, never an empty table mid-load</td></tr>
+      <tr><td class="num">3</td><td><b>Related tables agree</b></td><td>When a set must be consistent (parent + child), no reader sees a new parent against old children</td></tr>
+      <tr><td class="num">4</td><td><b>Masking not weakened, not baked in</b></td><td>Columns stay protected through the cutover, and the pipeline never writes masked values as real data</td></tr>
+      <tr><td class="num">5</td><td><b>A bad load can be stopped</b></td><td>A corrupted or mis-tagged load can be refused before any user sees it</td></tr>
+      <tr><td class="num">6</td><td><b>The masking layer is untouched</b></td><td>The existing governance objects are reused read-only — nothing disturbed</td></tr>
+    </tbody>
+  </table>
+  <div class="callout teal"><b>Why requirement 4 is the hard one.</b> A masking rule applies to every
+  identity not approved — including the one that owns the table. A pipeline denied real values does not
+  stop; it reads masked values and writes those to disk instead. Both refresh strategies have to design
+  around that.</div>
+  <div class="takeaway">Six requirements. The masking one is where the design earns its keep.</div>
+  <div class="slide-no">3 / 15</div>
+</section>
+
+
+<!-- 4 TWO STRATEGIES -->
+<section class="slide" id="s4" role="tabpanel">
+  <h2>Two strategies, three ways to cut over</h2>
+  <p class="sub">Clone-and-swap — with a single-table and a whole-schema variant — versus a dynamic table</p>
+  <div class="cards">
+    <div class="card rec">
+      <div class="n">STRATEGY 1 — CLONE-AND-SWAP</div>
+      <div class="lbl">Clone it, load the clone, swap it in</div>
+      <p>Readers stay on the live table. A clone is made, the pipeline loads it, a gate checks it, then
+      the two exchange names in one atomic transaction.</p>
+      <p><b>Single-table swap</b> — one table at a time.</p>
+      <p><b>Whole-schema swap</b> — a related set (parent + child) flips together, atomically.</p>
+      <p><b>Keeps:</b> a checkpoint to reject a bad load. <b>Costs:</b> cutover code to maintain.</p>
+    </div>
+    <div class="card warnc">
+      <div class="n">STRATEGY 2 — DYNAMIC TABLE</div>
+      <div class="lbl">Let Snowflake hold the table</div>
+      <p>The presentation table becomes a dynamic table on a freshness target. Snowflake decides when to
+      refresh it and makes the result visible atomically.</p>
+      <p><b>Keeps:</b> no cutover code; a coordinated view across a set.</p>
+      <p><b>Costs:</b> no point at which anything can be checked before readers see it; a plaintext copy
+      at rest; full rebuild every cycle over a masked base.</p>
+    </div>
+  </div>
+  <div class="takeaway">One keeps a checkpoint and costs you code. The other removes the code — and the checkpoint with it.</div>
+  <div class="slide-no">4 / 15</div>
+</section>
+
+<!-- 5 SCORECARD -->
+<section class="slide" id="s5" role="tabpanel">
+  <h2>Did we prove what we set out to?</h2>
+  <p class="sub">Each requirement, its result, and where it is proved &mdash; <span class="chip ok">Met</span> <span class="chip part">Partial</span> <span class="chip no">Open</span></p>
+  <table>
+    <thead><tr><th style="width:38%">What we needed to prove</th><th style="width:20%">Result</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td>Masking survives the refresh (clone, single swap, schema swap, DT)</td><td><span class="chip ok">Met</span></td><td>rows 1, 2 · the post-swap read · the DT's own tags</td></tr>
+      <tr><td>No partial / mixed read during cutover</td><td><span class="chip ok">clone-and-swap</span> <span class="chip part">DT</span></td><td>held-open read (single) &amp; held-open join (set); DT is snapshot-isolation, observational</td></tr>
+      <tr><td>The cutover is atomic (all-or-nothing)</td><td><span class="chip ok">Met</span></td><td>one SWAP renames both objects in a single transaction</td></tr>
+      <tr><td>A pre-cutover gate can stop a bad load</td><td><span class="chip ok">clone-and-swap</span> <span class="chip no">N/A for DT</span></td><td>the gate refuses a corrupted clone; a DT has nowhere for a gate</td></tr>
+      <tr><td>Sensitive-data protection at rest is characterised</td><td><span class="chip ok">Met</span></td><td>nothing masked at rest; clone inherits protection, DT adds a plaintext copy</td></tr>
+      <tr><td>The refresh window is reduced vs an in-place reload</td><td><span class="chip part">Partial</span></td><td>shape shown on POC data; not sized at production scale</td></tr>
+      <tr><td>The masking layer (POC01 / S3v2) left untouched</td><td><span class="chip ok">Met</span></td><td>rows, ids and rule fingerprint identical to the baseline</td></tr>
+      <tr><td>A DT can be exempted under an unattended refresh</td><td><span class="chip part">manual only</span></td><td>proved under a manual refresh; scheduler disabled by design</td></tr>
+      <tr><td>Auto-suspend after five scheduled failures</td><td><span class="chip no">Open</span></td><td>documented, not demonstrated live</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">The masking half is proven. The zero-downtime half is proven for clone-and-swap; two dynamic-table items stay open.</div>
+  <div class="slide-no">5 / 15</div>
+</section>
+
+<!-- 6 HEAD TO HEAD -->
+<section class="slide" id="s6" role="tabpanel">
+  <h2>Head to head — the rows that decide it</h2>
+  <p class="sub">The full 12-question matrix is in the evidence pack; these four are where the strategies diverge</p>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:26%">Question</th><th style="width:34%">Clone-and-swap</th><th style="width:34%">Dynamic table</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1b</td><td><b>Sensitive data at rest</b></td><td><span class="chip ok">Better</span> plaintext at rest, but protection <b>inherited</b> automatically; no new copy</td><td><span class="chip no">Worse</span> a <b>new</b> plaintext copy; protection re-applied by hand; own Time-Travel / share surface</td></tr>
+      <tr><td class="num">6</td><td><b>Related tables stay consistent</b></td><td><span class="chip ok">Yes</span> whole-schema swap flips the set atomically</td><td><span class="chip part">Yes</span> one coordinated timestamp — but see row 7</td></tr>
+      <tr><td class="num">7</td><td><b>A gate can stop a bad load</b></td><td><span class="chip ok">Yes</span> the gate refuses a corrupted load and names the failing checks</td><td><span class="chip no">No</span> nowhere between "loaded" and "visible" for a gate to live</td></tr>
+      <tr><td class="num">10</td><td><b>Refresh cost over a masked base</b></td><td><span class="chip ok">Controlled</span> full reload by design, inside your window</td><td><span class="chip no">FULL only</span> a masking policy blocks incremental — every cycle rebuilds</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>Read the divergence.</b> On all four deciding questions, clone-and-swap is the
+  safer or cheaper answer. The dynamic table wins only where none of these four matters — a single-SELECT
+  feed that wants freshness over control.</div>
+  <div class="takeaway">Where the two strategies differ, clone-and-swap is the better answer on every count.</div>
+  <div class="slide-no">6 / 15</div>
+</section>
+
+
+<!-- 7 THE EVIDENCE -->
+<section class="slide" id="s7" role="tabpanel">
+  <h2>The evidence, in five captures</h2>
+  <p class="sub">Each is a live query result in the pack — summarised here; the full SQL and grid live there</p>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:30%">Captured</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Masking holds — approved vs unapproved reader</td><td>Approved sees <code>a.one@example.invalid</code>; unapproved sees a 64-char SHA2 hash. Deterministic</td></tr>
+      <tr><td class="num">2</td><td>A clone keeps its tags; a <code>CTAS</code> loses them</td><td>Clone: all 4 sensitive columns still tagged. <code>CTAS</code>: 0 — the side-by-side proof</td></tr>
+      <tr><td class="num">3</td><td>Related set stays consistent across a schema swap</td><td>A held-open join spanning the swap returns the whole pre-swap set (<b>4</b>); a read after returns the whole new set (<b>3</b>). Never mixed</td></tr>
+      <tr><td class="num">4</td><td>The gate refuses a bad load</td><td>Clean clone → <span class="chip ok">PASS</span>. Corrupted <code>CTAS</code> → refused, naming checks <code>1-control-row, 2-sha2-text, 3-missing-tag</code></td></tr>
+      <tr><td class="num">5</td><td>Incremental refusal over a masked base</td><td>Verbatim: <code>091955 … Change tracking is not supported on queries using policies that contain subqueries</code></td></tr>
+    </tbody>
+  </table>
+  <div class="callout teal"><b>Discipline behind every capture.</b> Re-run live at generation time,
+  verbatim SQL, each under a single least-privilege role with secondary roles off, no ACCOUNTADMIN — so a
+  privilege claim is genuine and the pack cannot drift from the account.</div>
+  <div class="takeaway">Nine requirements, live captures, one retracted false finding along the way — the proof is real, not argued.</div>
+  <div class="slide-no">7 / 15</div>
+</section>
+
+<!-- 8 GOVERNANCE POINT -->
+<section class="slide" id="s8" role="tabpanel">
+  <h2>The governance point that decides it</h2>
+  <p class="sub">Nothing is masked at rest — so the real question is how protection is applied</p>
+  <div class="cols">
+    <div>
+      <div class="callout"><b>The myth.</b> "A clone is masked at rest; a dynamic table is not."
+      <b>False</b> — and a draft of the pack got it wrong. We proved it: remove the policy binding and the
+      stored SSN reads back as <code>111-22-3333</code> on the base, a clone <i>and</i> a dynamic table.
+      Tag-based masking is a <b>read-time</b> transform; storage is always plaintext.</div>
+    </div>
+    <div>
+      <div class="callout green"><b>The real asymmetry — protection lineage.</b> A <b>clone</b> inherits the
+      tags and policy automatically and is zero-copy: no new copy, no manual step, no unprotected window.
+      A <b>dynamic table</b> is a new physical plaintext copy whose protection must be re-applied by hand
+      to its own columns — miss it, or drop the tag later, and it is exposed with no error.</div>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th style="width:24%">For PII</th><th>Clone-and-swap</th><th>Dynamic table</th></tr></thead>
+    <tbody>
+      <tr><td>New plaintext copy?</td><td><b>No</b> — zero-copy over the base's storage</td><td><b>Yes</b> — a second physical copy</td></tr>
+      <tr><td>Protection applied…</td><td>Automatically, inherited with the clone</td><td>By hand, on the copy's own columns</td></tr>
+      <tr><td>Extra exposure surface</td><td>None</td><td>Its own Time Travel, Fail-safe, share / replication</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">Clone-and-swap adds no new plaintext copy and inherits protection. That is the strongest reason to prefer it for PII.</div>
+  <div class="slide-no">8 / 15</div>
+</section>
+
+<!-- 9 THE RECOMMENDATION -->
+<section class="slide" id="s9" role="tabpanel">
+  <h2>The recommendation</h2>
+  <p class="sub">Clone-and-swap as the default — three reasons, each backed by a captured result</p>
+  <div class="callout green" style="font-size:15px;"><b>Clone-and-swap is the recommended default.</b>
+  A single-table swap for one table; a whole-schema swap when related tables must stay consistent. Use a
+  dynamic table only for a single-SELECT feed where a plaintext copy at rest and full-rebuild cost are
+  acceptable.</div>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:22%">Reason</th><th>Why it decides it</th><th style="width:22%">Evidence</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Governance</b></td><td>A dynamic table keeps a second plaintext copy of PII at rest; a clone adds none and inherits protection automatically</td><td>at-rest capture + lineage</td></tr>
+      <tr><td class="num">2</td><td><b>A safety gate</b></td><td>Clone-and-swap can stop a bad load before users see it; a dynamic table has nowhere for that gate to live</td><td>gate refuses a bad load (row 7)</td></tr>
+      <tr><td class="num">3</td><td><b>Cost</b></td><td>A dynamic table over a masked base is full-rebuild only, every cycle</td><td>the <code>091955</code> refusal (R10)</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Timing (the window number) is support, not the headline — it is partial, and on POC
+  data the number is overhead. A governance argument is more defensible than a millisecond count.</p>
+  <div class="takeaway">Governance, a gate, and cost — three captured reasons, in that order, make clone-and-swap the default.</div>
+  <div class="slide-no">9 / 15</div>
+</section>
+
+
+<!-- 10 RECOMMENDED FLOW  (D1) -->
+<section class="slide" id="s10" role="tabpanel">
+  <h2>Recommended flow — readers never touch the table being loaded</h2>
+  <p class="sub">Clone-and-swap, end to end — who holds what, and when the cutover happens</p>
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1164 300" role="img" aria-label="Swimlane: users read uninterrupted while a clone is loaded, gated and swapped in">
+    <rect class="laneh" x="8" y="14" width="126" height="54"/><text class="lanet" x="71" y="38" text-anchor="middle">End users</text><text class="lanet" x="71" y="55" text-anchor="middle" font-weight="400" font-size="10">what they hit</text>
+    <rect class="laneh" x="8" y="76" width="126" height="54"/><text class="lanet" x="71" y="100" text-anchor="middle">The live name</text><text class="lanet" x="71" y="117" text-anchor="middle" font-weight="400" font-size="10">what it points at</text>
+    <rect class="laneh" x="8" y="138" width="126" height="98"/><text class="lanet" x="71" y="182" text-anchor="middle">The clone</text><text class="lanet" x="71" y="199" text-anchor="middle" font-weight="400" font-size="10">and the pipeline</text>
+
+    <rect class="box alt" x="146" y="28" width="1002" height="30"/>
+    <text class="t" x="647" y="47" text-anchor="middle">uninterrupted reads throughout — no downtime, no partial state, no query cancelled</text>
+
+    <rect class="box" x="146" y="90" width="500" height="30"/><text class="t" x="396" y="109" text-anchor="middle">version N</text>
+    <rect class="box okb" x="700" y="90" width="448" height="30"/><text class="t ok" x="924" y="109" text-anchor="middle">version N + 1</text>
+
+    <rect class="box" x="146" y="152" width="150" height="56"/><text class="t" x="221" y="176" text-anchor="middle">Clone it</text><text class="t s" x="221" y="194" text-anchor="middle">same schema, grants</text>
+    <rect class="box" x="316" y="152" width="150" height="56"/><text class="t" x="391" y="176" text-anchor="middle">Pipeline loads</text><text class="t s" x="391" y="194" text-anchor="middle">holds an approval row</text>
+    <rect class="box" x="486" y="152" width="150" height="56"/><text class="t" x="561" y="176" text-anchor="middle">Tag new columns</text><text class="t s" x="561" y="194" text-anchor="middle">if any were added</text>
+    <rect class="box warnb" x="656" y="152" width="150" height="56"/><text class="t w" x="731" y="176" text-anchor="middle">Gate runs</text><text class="t s" x="731" y="194" text-anchor="middle">five checks, or abort</text>
+    <rect class="box okb" x="826" y="152" width="150" height="56"/><text class="t ok" x="901" y="176" text-anchor="middle">Swap</text><text class="t s" x="901" y="194" text-anchor="middle">one transaction</text>
+    <rect class="box grey" x="996" y="152" width="152" height="56"/><text class="t" x="1072" y="176" text-anchor="middle">Keep, then drop</text><text class="t s" x="1072" y="194" text-anchor="middle">rollback is a re-swap</text>
+
+    <path class="arw" d="M296,180 L312,180"/><circle class="nb" cx="304" cy="180" r="9"/><text class="nt" x="304" y="184" text-anchor="middle">1</text>
+    <path class="arw" d="M466,180 L482,180"/><circle class="nb" cx="474" cy="180" r="9"/><text class="nt" x="474" y="184" text-anchor="middle">2</text>
+    <path class="arw" d="M636,180 L652,180"/><circle class="nb" cx="644" cy="180" r="9"/><text class="nt" x="644" y="184" text-anchor="middle">3</text>
+    <path class="arw ok" d="M806,180 L822,180"/><circle class="nb" cx="814" cy="180" r="9"/><text class="nt" x="814" y="184" text-anchor="middle">4</text>
+    <path class="arw" d="M976,180 L992,180"/><circle class="nb" cx="984" cy="180" r="9"/><text class="nt" x="984" y="184" text-anchor="middle">6</text>
+    <path class="arw ok" d="M901,148 L901,132 L790,132 L790,124"/><circle class="nb" cx="846" cy="132" r="9"/><text class="nt" x="846" y="136" text-anchor="middle">5</text>
+
+    <path class="brk" d="M146,246 L146,254 L806,254 L806,246"/>
+    <text class="t s" x="476" y="272" text-anchor="middle">none of this is visible to a reader — the live name still points at version N</text>
+  </svg>
+  </div>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:24%">Step</th><th>Why it is done this way</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Clone into the <b>same</b> schema, with grants</td><td>A clone elsewhere loses inherited protection; grants are not copied unless asked</td></tr>
+      <tr><td class="num">2</td><td>Pipeline loads the clone</td><td>It holds an approval row, so it reads real values and cannot write masked ones</td></tr>
+      <tr><td class="num">3</td><td>Tag anything new</td><td>A new column carries no tag, so it is unprotected until tagged — nothing errors</td></tr>
+      <tr><td class="num">4&ndash;5</td><td>Gate, then swap</td><td>The gate is the only point a bad load can still be refused; the swap is the whole visible window</td></tr>
+      <tr><td class="num">6</td><td>Keep, then drop</td><td>The old version waits one cycle, so rollback is another swap</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">Everything expensive happens where nobody is looking. Only the swap is visible.</div>
+  <div class="slide-no">10 / 15</div>
+</section>
+
+<!-- 11 RELATED TABLES  (D2) -->
+<section class="slide" id="s11" role="tabpanel">
+  <h2>Related tables — a whole-schema swap flips the set together</h2>
+  <p class="sub">One atomic <code>ALTER SCHEMA … SWAP WITH</code>, so no reader sees a new parent against old children</p>
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1164 286" role="img" aria-label="Two schemas each holding parent and child; one atomic schema swap exchanges them">
+    <rect class="box" x="60" y="40" width="300" height="150" rx="4"/>
+    <text class="t hd" x="210" y="64" text-anchor="middle">LIVE schema</text><text class="t s" x="210" y="80" text-anchor="middle">what readers query now</text>
+    <rect class="box okb" x="86" y="96" width="112" height="72"/><text class="t" x="142" y="126" text-anchor="middle">PARENT</text><text class="t s" x="142" y="144" text-anchor="middle">version N</text>
+    <rect class="box okb" x="222" y="96" width="112" height="72"/><text class="t" x="278" y="126" text-anchor="middle">CHILD</text><text class="t s" x="278" y="144" text-anchor="middle">version N</text>
+    <path class="arw d" d="M198,132 L222,132"/><text class="t s" x="210" y="182" text-anchor="middle">FK: child → parent</text>
+
+    <rect class="box" x="804" y="40" width="300" height="150" rx="4"/>
+    <text class="t hd" x="954" y="64" text-anchor="middle">STAGE schema</text><text class="t s" x="954" y="80" text-anchor="middle">the next load, fully built</text>
+    <rect class="box alt" x="830" y="96" width="112" height="72"/><text class="t" x="886" y="126" text-anchor="middle">PARENT</text><text class="t s" x="886" y="144" text-anchor="middle">version N+1</text>
+    <rect class="box alt" x="966" y="96" width="112" height="72"/><text class="t" x="1022" y="126" text-anchor="middle">CHILD</text><text class="t s" x="1022" y="144" text-anchor="middle">version N+1</text>
+    <path class="arw d" d="M942,132 L966,132"/><text class="t s" x="954" y="182" text-anchor="middle">FK-consistent set</text>
+
+    <path class="arw ok" d="M366,116 L560,116"/><path class="arw ok" d="M798,150 L604,150"/>
+    <rect class="box warnb" x="470" y="96" width="224" height="40"/>
+    <text class="t w" x="582" y="120" text-anchor="middle">ALTER SCHEMA SWAP WITH</text>
+    <circle class="nb" cx="463" cy="116" r="9"/><text class="nt" x="463" y="120" text-anchor="middle">1</text>
+    <circle class="nb" cx="701" cy="150" r="9"/><text class="nt" x="701" y="154" text-anchor="middle">2</text>
+    <text class="t s" x="582" y="150" text-anchor="middle">one transaction · swaps objects, grants &amp; tags</text>
+
+    <rect class="box" x="60" y="216" width="1044" height="52"/>
+    <text class="t" x="582" y="238" text-anchor="middle">A held-open join spanning the swap returns the whole pre-swap set (4 rows), then the whole new set (3) — never a mix</text>
+    <text class="t s" x="582" y="256" text-anchor="middle">a single statement sees only data committed before it began (READ COMMITTED, statement-level)</text>
+    <circle class="nb" cx="80" cy="242" r="9"/><text class="nt" x="80" y="246" text-anchor="middle">3</text>
+  </svg>
+  </div>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:26%">Step</th><th>What it guarantees</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1&ndash;2</td><td>One <code>ALTER SCHEMA … SWAP WITH</code></td><td>Both schemas — parent and child together — exchange names, grants and tags in a single transaction. The scope tag follows the schema (verified)</td></tr>
+      <tr><td class="num">3</td><td>A reader spanning the swap</td><td>Sees a whole consistent set before, a whole consistent set after — never a new parent against old children</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>Know before you go.</b> A view that names a table by its full old-schema path
+  breaks after the swap. Use unqualified references, or refresh views post-swap.</div>
+  <div class="takeaway">Schema swap is the multi-table cutover — set-consistency and the gate, in one atomic rename.</div>
+  <div class="slide-no">11 / 15</div>
+</section>
+
+<!-- 12 LINEAGE  (D3) -->
+<section class="slide" id="s12" role="tabpanel">
+  <h2>Why clone beats a dynamic table for PII</h2>
+  <p class="sub">Protection lineage — what happens to the tags when the data is copied</p>
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1164 270" role="img" aria-label="A clone inherits tags automatically; a dynamic table is a new copy needing manual re-tagging">
+    <rect class="box alt" x="60" y="104" width="220" height="66"/>
+    <text class="t hd" x="170" y="130" text-anchor="middle">Base table</text><text class="t s" x="170" y="148" text-anchor="middle">columns tagged · policy at read</text>
+
+    <rect class="box okb" x="560" y="34" width="300" height="66"/>
+    <text class="t ok" x="710" y="58" text-anchor="middle">CLONE — inherits protection</text><text class="t s" x="710" y="76" text-anchor="middle">tags travel automatically · zero-copy · no new copy</text>
+    <rect class="box badb" x="560" y="170" width="300" height="66"/>
+    <text class="t bad" x="710" y="194" text-anchor="middle">DYNAMIC TABLE — new plaintext copy</text><text class="t s" x="710" y="212" text-anchor="middle">tags re-applied BY HAND · own Time Travel / share</text>
+
+    <rect class="box okb" x="912" y="46" width="192" height="42"/><text class="t ok" x="1008" y="72" text-anchor="middle">protected instantly</text>
+    <rect class="box badb" x="912" y="182" width="192" height="42"/><text class="t bad" x="1008" y="202" text-anchor="middle">exposed if a step is missed</text>
+
+    <path class="arw ok" d="M280,120 L400,120 L400,67 L556,67"/><circle class="nb" cx="400" cy="93" r="9"/><text class="nt" x="400" y="97" text-anchor="middle">1</text>
+    <path class="arw bad" d="M280,150 L400,150 L400,203 L556,203"/><circle class="nb" cx="400" cy="176" r="9"/><text class="nt" x="400" y="180" text-anchor="middle">2</text>
+    <path class="arw ok" d="M860,67 L908,67"/><circle class="nb" cx="884" cy="67" r="9"/><text class="nt" x="884" y="71" text-anchor="middle">3</text>
+    <path class="arw bad" d="M860,203 L908,203"/><circle class="nb" cx="884" cy="203" r="9"/><text class="nt" x="884" y="207" text-anchor="middle">4</text>
+
+    <text class="t s" x="170" y="196" text-anchor="middle">nothing is masked</text>
+    <text class="t s" x="170" y="211" text-anchor="middle">at rest — storage is</text>
+    <text class="t s" x="170" y="226" text-anchor="middle">always plaintext</text>
+  </svg>
+  </div>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:30%">Path</th><th>Consequence</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1&ndash;3</td><td>Base → <b>clone</b></td><td>The clone inherits the tags and policy automatically and is zero-copy — protected the instant it exists, no new plaintext copy</td></tr>
+      <tr><td class="num">2&ndash;4</td><td>Base → <b>dynamic table</b></td><td>A new physical plaintext copy; protection must be re-applied to its own columns. Miss it, or drop the tag later, and it is exposed with no error</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">Same masking model, two very different outcomes: a clone stays protected for free; a dynamic table can quietly stop being.</div>
+  <div class="slide-no">12 / 15</div>
+</section>
+
+
+<!-- 13 WHEN A DT IS RIGHT  (D4) -->
+<section class="slide" id="s13" role="tabpanel">
+  <h2>When a dynamic table is the right choice</h2>
+  <p class="sub">The narrow case it still wins — and the questions that point you there</p>
+  <div class="figure">
+  <svg class="dg" viewBox="0 0 1164 210" role="img" aria-label="A decision cue routing to clone-and-swap or to a dynamic table">
+    <rect class="box" x="452" y="20" width="260" height="46"/><text class="t hd" x="582" y="40" text-anchor="middle">Choosing a strategy</text><text class="t s" x="582" y="56" text-anchor="middle">answer these, in order</text>
+
+    <rect class="box okb" x="60" y="120" width="500" height="72"/>
+    <text class="t ok" x="310" y="144" text-anchor="middle">CLONE-AND-SWAP</text>
+    <text class="t s" x="310" y="162" text-anchor="middle">procedural / multi-step load · a validation gate matters ·</text>
+    <text class="t s" x="310" y="178" text-anchor="middle">related tables must agree · cost must sit in a window</text>
+
+    <rect class="box warnb" x="604" y="120" width="500" height="72"/>
+    <text class="t w" x="854" y="144" text-anchor="middle">DYNAMIC TABLE</text>
+    <text class="t s" x="854" y="162" text-anchor="middle">the transform is a single SELECT · continuous freshness ·</text>
+    <text class="t s" x="854" y="178" text-anchor="middle">a plaintext copy at rest &amp; full-rebuild cost are acceptable</text>
+
+    <path class="arw ok" d="M520,66 L310,66 L310,116"/><circle class="nb" cx="415" cy="66" r="9"/><text class="nt" x="415" y="70" text-anchor="middle">1</text>
+    <path class="arw" d="M644,66 L854,66 L854,116"/><circle class="nb" cx="749" cy="66" r="9"/><text class="nt" x="749" y="70" text-anchor="middle">2</text>
+  </svg>
+  </div>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:30%">If this is true…</th><th>…then</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>The load is procedural, a gate matters, related tables must agree, or cost must be windowed</td><td><b>Clone-and-swap</b> — the default</td></tr>
+      <tr><td class="num">2</td><td>The transform is a single SELECT, freshness beats control, and a plaintext copy + full-rebuild cost are acceptable</td><td><b>Dynamic table</b> — the narrow case</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>Honest framing.</b> A dynamic table is not wrong — it is a platform commitment
+  rather than a piece of code: monitor refresh state, and remember a masking-rule edit rebuilds it. It
+  simply loses on the three reasons that matter most for PII presentation tables.</div>
+  <div class="takeaway">Default to clone-and-swap. Reach for a dynamic table only when none of the deciding questions applies.</div>
+  <div class="slide-no">13 / 15</div>
+</section>
+
+<!-- 14 WHAT'S STILL OPEN -->
+<section class="slide" id="s14" role="tabpanel">
+  <h2>What is still open — before a production rollout</h2>
+  <p class="sub">Carried honestly: the items the POC narrowed but did not close</p>
+  <table>
+    <thead><tr><th class="num">#</th><th style="width:34%">Open item</th><th>Status</th><th style="width:20%">Owner</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>A dynamic table's identity under an <b>unattended</b> refresh</td><td><span class="chip part">Narrowed</span> proved under a manual refresh; a scheduled one was not observed (scheduler disabled by design)</td><td>POC follow-up</td></tr>
+      <tr><td class="num">2</td><td>Auto-suspend after five scheduled failures</td><td><span class="chip no">Open</span> Snowflake-documented, not demonstrated live — disproportionate to force</td><td>POC follow-up</td></tr>
+      <tr><td class="num">3</td><td>The refresh-window number at production scale</td><td><span class="chip part">Partial</span> shape shown (swap ~445ms vs reload ~1763ms on POC data); not sized at volume</td><td>Perf test</td></tr>
+      <tr><td class="num">4</td><td>The dynamic-table refresh runs with <code>USE SECONDARY ROLES ALL</code></td><td><span class="chip warn">Hardening</span> works, but is not least-privilege — grant the owner role the base SELECT and narrow it</td><td>Platform</td></tr>
+      <tr><td class="num">5</td><td>Views that name a table by its full old-schema path</td><td><span class="chip warn">Caveat</span> break after a schema swap — use unqualified references</td><td>Build standard</td></tr>
+    </tbody>
+  </table>
+  <div class="callout teal">None of these changes the recommendation. They are items to close before a
+  production rollout of the strategy, not reasons to reconsider it.</div>
+  <div class="takeaway">The recommendation stands; five items to close on the way to production, none of them a blocker.</div>
+  <div class="slide-no">14 / 15</div>
+</section>
+
+<!-- 15 CLOSE -->
+<section class="slide cover" id="s15" role="tabpanel">
+  <div class="eyebrow">Where this leaves us</div>
+  <h1>Clone-and-swap, proven and recommended</h1>
+  <div class="rule"></div>
+  <p class="lede">The masking model is untouched and proven to survive a clone, a swap, a schema swap and
+  a dynamic table. Clone-and-swap keeps a plaintext copy off disk, keeps a gate that stops a bad load,
+  and keeps refresh cost in a window — the three reasons a dynamic table cannot match for PII tables.</p>
+  <div class="meta">
+    <b>Recommendation</b> &nbsp;Clone-and-swap default; schema swap for related sets; dynamic table only for single-SELECT feeds<br>
+    <b>The proof</b> &nbsp;the live evidence pack — every claim a captured query result<br>
+    <b>The build detail</b> &nbsp;the implementation plan — Part K, roles, teardown<br>
+    <b>Still open</b> &nbsp;five rollout items, none a blocker
+  </div>
+  <div class="slide-no">15 / 15</div>
+</section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+  var SLIDE_W = 1280, SLIDE_H = 720, INNER_W = 1164, INNER_TOP = 34, BOTTOM_RESERVE = 86, MIN_FIT = 0.55, NAV_W = 220;
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck = document.querySelector(".deck");
+  var prev = document.getElementById("prev"), next = document.getElementById("next");
+  var index = 0;
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 && (node.classList.contains("takeaway") || node.classList.contains("slide-no"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px"; inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+    sl.setAttribute("data-fit", s.toFixed(3));
+  }
+  function fitStage() {
+    var z = Math.min((window.innerWidth - NAV_W - 28) / SLIDE_W, (window.innerHeight - 28) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0; next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+  });
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage(); show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>
