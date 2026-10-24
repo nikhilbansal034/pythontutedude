@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zone 3 Consumption Gating — Requirement</title>
+<style>
+:root{
+  --teal:#0097A9; --teal-dk:#007680; --teal-dp:#004F59; --teal-1:#DDEFE8; --teal-2:#9DD4CF;
+  --navy:#012169; --blue-ac:#007CB0; --green:#86BC25; --green-ac:#26890D;
+  --orange:#ED8B00; --red:#DA291C;
+  --g1:#F2F2F2; --g2:#D0D0CE; --g6:#A7A8AA; --g9:#75787B; --g11:#53565A;
+  --white:#FFFFFF; --ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);
+     font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* ---------- left sidebar navigation ---------- */
+.sidenav{background:var(--white);border-bottom:3px solid var(--teal);}
+.brandmark{display:flex;align-items:center;padding:18px 18px 14px;font-size:15px;font-weight:700;
+  color:var(--navy);white-space:nowrap;border-bottom:1px solid var(--g2);}
+.brandmark .dot{color:var(--green);font-size:22px;line-height:0;margin-left:3px;}
+.tabs{display:flex;flex-wrap:wrap;}
+.navsec{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--teal);
+  padding:14px 18px 3px;text-transform:uppercase;}
+.tab{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--font);
+  font-size:14px;font-weight:600;color:var(--g9);padding:8px 18px;text-align:left;
+  border-left:3px solid transparent;line-height:1.3;white-space:normal;}
+.tab .tnum{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--g6);margin-bottom:1px;}
+.tab:hover{color:var(--navy);background:var(--g1);}
+.tab[aria-selected="true"]{color:var(--navy);font-weight:700;border-left-color:var(--teal);background:var(--g1);}
+.tab[aria-selected="true"] .tnum{color:var(--teal);}
+.tab:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:12px;color:var(--g6);}
+.navbtn{appearance:none;border:1px solid var(--g2);background:var(--white);cursor:pointer;
+  font-family:var(--font);font-size:14px;font-weight:700;color:var(--navy);
+  width:30px;height:30px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);color:var(--white);border-color:var(--teal);}
+.navbtn:disabled{color:var(--g2);cursor:default;background:var(--white);border-color:var(--g2);}
+body.js .sidenav{position:fixed;left:0;top:0;bottom:0;width:240px;border-bottom:0;
+  border-right:3px solid var(--teal);z-index:50;display:flex;flex-direction:column;}
+body.js .tabs{flex-direction:column;flex-wrap:nowrap;flex:1;overflow-y:auto;padding:2px 0 8px;}
+body.js .tab{width:100%;}
+body.js .navhint{border-top:1px solid var(--g2);}
+
+/* ---------- deck shell ---------- */
+.deck{max-width:1320px;margin:0 auto;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;
+  margin:0 0 28px;padding:44px 54px 78px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{margin-left:240px;max-width:none;padding:14px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:646px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:12px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+/* ---------- type ---------- */
+h1{font-size:44px;line-height:1.15;font-weight:700;color:var(--navy);margin:0 0 16px;}
+h2{font-size:30px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.sub{font-size:16px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 18px;}
+h3{font-size:14px;font-weight:700;color:var(--g11);text-transform:uppercase;
+   letter-spacing:.09em;margin:0 0 10px;}
+h3.gap{margin-top:16px;}
+
+/* ---------- cover ---------- */
+.cover .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:20px;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin-bottom:24px;}
+.cover .lede{font-size:19px;color:var(--g11);margin:0 0 28px;line-height:1.5;}
+.cover .meta{font-size:15px;color:var(--g9);line-height:1.9;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+.agenda{border:1px solid var(--g2);border-top:5px solid var(--teal);background:var(--white);padding:20px 26px 14px;}
+.agenda .ttl{font-size:14px;font-weight:700;letter-spacing:.14em;color:var(--g11);text-transform:uppercase;margin-bottom:4px;}
+.agenda .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:14px 0 7px;}
+.agenda .item{display:flex;gap:14px;align-items:baseline;font-size:17.5px;font-weight:600;color:var(--navy);margin-bottom:9px;line-height:1.3;}
+.agenda .item .k{font-size:14px;font-weight:700;color:var(--white);background:var(--navy);
+  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:16px;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:10px 12px;
+  font-size:15px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:10px 12px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);line-height:1.4;}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:40px;text-align:center;color:var(--g9);font-weight:700;}
+td b{color:var(--navy);}
+td.id,th.id{width:58px;text-align:center;font-weight:700;color:var(--navy);white-space:nowrap;}
+th.id{color:var(--white);}
+table.tight td{padding:8px 12px;}
+table.req th{padding:8px 10px;font-size:14px;}
+table.req td{padding:7px 10px;font-size:15px;line-height:1.35;}
+table.req.snug td{padding:5px 10px;}
+tbody tr.hot td{background:#FFF8E8;}
+.feat{display:block;font-family:var(--mono);font-size:12.5px;color:var(--teal-dp);line-height:1.4;}
+.dsc{display:block;font-size:13.5px;color:var(--g11);line-height:1.35;margin-top:2px;}
+.olbl{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1px;}
+.olbl.alt{color:var(--g9);}
+.src{font-size:13px;color:var(--g9);line-height:1.4;margin:7px 0 0;}
+.src b{color:var(--g11);}
+.rtag{display:inline-block;font-size:12px;font-weight:700;color:var(--navy);background:var(--teal-1);
+  border:1px solid var(--teal-2);padding:1px 6px;margin:6px 4px 0 0;white-space:nowrap;}
+.st{font-size:13.5px;color:var(--g11);}
+
+/* ---------- chips ---------- */
+.chip{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;
+  padding:3px 9px;border-radius:2px;white-space:nowrap;text-transform:uppercase;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.warn{background:var(--orange);color:#3d2400;}
+.chip.no{background:var(--red);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+.chip.chk{background:var(--white);color:#7A4000;border:1px solid var(--orange);}
+
+/* ---------- takeaway bar ---------- */
+.takeaway{position:absolute;left:62px;right:54px;bottom:32px;background:var(--teal);
+  color:var(--white);font-size:17px;font-weight:700;text-align:center;padding:13px 18px;line-height:1.3;}
+
+/* ---------- callouts, lists, layout ---------- */
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;
+  padding:12px 16px;font-size:15.5px;line-height:1.5;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.callout ul{margin:4px 0 0;padding-left:20px;} .callout li{margin-bottom:3px;}
+.stmt{border-left:5px solid var(--navy);background:var(--g1);padding:14px 18px;font-size:17px;line-height:1.5;color:var(--ink);}
+.stmt b{color:var(--navy);}
+.cols{display:flex;gap:30px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.c55>*:first-child{flex:0 0 55%;}
+.cols.c60>*:first-child{flex:0 0 60%;}
+.also{font-size:15px;color:var(--g11);margin:10px 0 0;}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:st;}
+ol.steps li{counter-increment:st;position:relative;padding:8px 12px 8px 48px;margin-bottom:7px;
+  border:1px solid var(--g2);background:var(--white);font-size:15.5px;line-height:1.35;}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:0;bottom:0;width:36px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;}
+ol.steps.teal li::before{background:var(--teal);}
+ol.steps.chk li::before{background:var(--orange);color:#3d2400;}
+ol.steps li b{color:var(--navy);}
+
+/* ---------- horizon strip ---------- */
+.hz{display:flex;gap:8px;margin:0 0 16px;}
+.hz .a{flex:1;border:1px solid var(--g2);background:var(--g1);padding:8px 12px;}
+.hz .a .h{font-size:14px;font-weight:700;color:var(--g11);line-height:1.25;}
+.hz .a .x{font-size:12.5px;color:var(--g9);line-height:1.3;margin-top:2px;}
+.hz .a.on{background:var(--teal-1);border-color:var(--teal);border-top:4px solid var(--teal);}
+.hz .a.on .h{color:var(--navy);}
+.hz .a.on .x{color:var(--teal-dp);}
+.hz .lbl{flex:0 0 150px;display:flex;flex-direction:column;justify-content:center;padding-right:4px;}
+.hz .lbl .h{font-size:14px;font-weight:700;color:var(--navy);line-height:1.25;}
+.hz .lbl .x{font-size:12.5px;color:var(--g11);line-height:1.3;margin-top:2px;}
+
+/* ---------- scenario cards ---------- */
+.scen{border:1px solid var(--g2);border-left:7px solid var(--green-ac);padding:12px 18px 14px;margin-bottom:14px;background:var(--white);}
+.scen.bad{border-left-color:var(--red);background:#FFF6F5;}
+.scen .hd{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--g9);text-transform:uppercase;margin-bottom:6px;}
+.scen .nums{display:flex;gap:20px;}
+.scen .nb .l{font-size:13px;color:var(--g9);}
+.scen .nb .v{font-size:32px;font-weight:700;color:var(--navy);line-height:1.1;}
+.scen.bad .nb .v.hot{color:var(--red);}
+.scen .res{margin-top:10px;font-size:15px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--g11);}
+
+/* ---------- diagram primitives (deck 2 vocabulary) ---------- */
+svg.dg .box{fill:#fff;stroke:var(--teal);stroke-width:1.6}
+svg.dg .box.alt{fill:var(--teal-1)}
+svg.dg .box.grey{fill:var(--g1);stroke:var(--g2)}
+svg.dg .box.warnb{fill:#FFF8E8;stroke:var(--orange)}
+svg.dg .band{fill:none;stroke:var(--teal-dk);stroke-width:1.3;stroke-dasharray:5 3}
+svg.dg .t{font:600 12.5px var(--font);fill:var(--navy)}
+svg.dg .t.s{font:11px var(--font);fill:var(--g9)}
+svg.dg .t.w{font:600 11.5px var(--font);fill:#7A4000}
+svg.dg .nb{fill:var(--orange)}
+svg.dg .nt{font:700 10.5px var(--font);fill:#fff}
+svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
+svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .sidenav{display:none;}
+  .deck,body.js .deck{max-width:none;margin:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;zoom:0.78;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidenav" aria-label="Slides">
+  <div class="brandmark">Zone 3 Gating<span class="dot">.</span></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true"><span class="tnum">01</span>Cover</button>
+    <div class="navsec">Problem</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">02</span>What goes wrong today</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">03</span>Today vs. what is required</button>
+    <div class="navsec">Requirement</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">04</span>The requirement, in four parts</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">05</span>What we gate — and what we don't</button>
+    <div class="navsec">Decisions</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">06</span>Settled, assumed, parked</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">07</span>What we need from you</button>
+  </div>
+  <div class="navhint">
+    <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>arrow keys</span>
+  </div>
+</nav>
+
+<main class="deck">
+
+<!-- ============ 01 COVER ============ -->
+<section class="slide cover active" id="s1">
+  <div class="cols c55">
+    <div>
+      <div class="eyebrow">GRS Teradata migration &middot; Zone 3 consumption</div>
+      <h1>Loaded is not the same as safe to show</h1>
+      <div class="rule"></div>
+      <p class="lede">While a batch is running, a reporting user can read a dataset that was
+      <b>never a valid version</b> &mdash; part of tonight's load against part of last night's.
+      Every source object is individually correct, so nothing flags it. The requirement is to put a
+      boundary between <b>loaded</b> and <b>visible</b>: data becomes visible as a
+      <b>controlled publication event</b>, not as a side effect of loading.</p>
+      <div class="meta">
+        <b>Basis</b> &nbsp;24-Oct-2026 design discussion, requirements agreed over four review rounds<br>
+        <b>Audience</b> &nbsp;Leadership &mdash; decision and direction, not design<br>
+        <b>Status</b> &nbsp;Requirements baseline agreed. No solution chosen, and none proposed here
+      </div>
+    </div>
+    <div>
+      <div class="agenda">
+        <div class="ttl">Agenda</div>
+        <div class="sec">Problem</div>
+        <div class="item"><span class="k">02</span><span>What a consumer sees today, and why nothing catches it</span></div>
+        <div class="item"><span class="k">03</span><span>Today against what is required, on one timeline</span></div>
+        <div class="sec">Requirement</div>
+        <div class="item"><span class="k">04</span><span>The requirement consolidated into four parts</span></div>
+        <div class="item"><span class="k">05</span><span>What gets gated, and the scale that buys us</span></div>
+        <div class="sec">Decisions</div>
+        <div class="item"><span class="k">06</span><span>What is settled, what we are assuming, what is parked</span></div>
+        <div class="item"><span class="k">07</span><span>The four calls we need, and the next step</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-no">1 / 7</div>
+</section>
+
+<!-- ============ 02 PROBLEM ============ -->
+<section class="slide" id="s2">
+  <h2>A consumer cannot tell a finished dataset from a half-finished one</h2>
+  <div class="sub">The data is not corrupt. It is incomplete in a way that nothing reports.</div>
+  <div class="cols">
+    <div>
+      <h3>Why today's controls do not catch it</h3>
+      <table class="req snug">
+        <thead><tr><th>What exists today</th><th>What it gives us</th><th>What it misses</th></tr></thead>
+        <tbody>
+          <tr><td><b>Per-object load checks</b></td><td>Each object loaded correctly</td><td>Says nothing about the <i>other</i> objects a report reads</td></tr>
+          <tr><td><b>Batch job status</b></td><td>Which jobs succeeded</td><td>Known to the platform, never to the reader</td></tr>
+          <tr><td><b>Reporting views</b></td><td>Always-current data</td><td>Always-current <i>is</i> the defect mid-batch</td></tr>
+        </tbody>
+      </table>
+      <div class="stmt" style="margin-top:14px">A reporting view is doing exactly what it was built to do.
+      <b>Showing the latest state of every object is the problem</b>, because mid-batch the latest
+      state of each object belongs to two different cycles.</div>
+      <p class="src"><b>Source:</b> 24-Oct-2026 discussion &mdash; scenario raised by Idhanta Kakkar,
+      consequence for multi-fact reporting set out by Nidwika Vedanaparthi. Confirmed by both, twice.</p>
+    </div>
+    <div>
+      <h3>The same report, read at 04:10, two nights running</h3>
+      <div class="scen">
+        <div class="hd">Night A &mdash; batch finished at 03:50</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Objects refreshed</div><div class="v">12 / 12</div></div>
+          <div class="nb"><div class="l">Cycles on screen</div><div class="v">1</div></div>
+        </div>
+        <div class="res"><span class="chip ok">Consistent</span> <span>The report is right, and happens to be right.</span></div>
+      </div>
+      <div class="scen bad">
+        <div class="hd">Night B &mdash; batch still running, two jobs failed</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Objects refreshed</div><div class="v hot">7 / 12</div></div>
+          <div class="nb"><div class="l">Cycles on screen</div><div class="v hot">2</div></div>
+        </div>
+        <div class="res"><span class="chip no">Inconsistent</span> <span>The report is wrong, and looks identical.</span></div>
+      </div>
+      <div class="callout">No error, no warning, no empty cell. The numbers are plausible, they
+      reconcile against their own source objects, and the user has no signal that Night B is
+      different from Night A. <b>They will act on it.</b></div>
+    </div>
+  </div>
+  <div class="takeaway">The exposure is invisible by construction &mdash; every individual object is valid, so every individual check passes.</div>
+  <div class="slide-no">2 / 7</div>
+</section>
+
+<!-- ============ 03 DIAGRAM ============ -->
+<section class="slide" id="s3">
+  <h2>Today against what is required &mdash; the same night, the same reader</h2>
+  <div class="sub">Only the middle changes. That gap is the entire requirement.</div>
+
+  <svg class="dg" viewBox="0 0 1164 256" width="1164" height="256" role="img"
+       aria-label="Stacked timeline comparing what a consumer sees today against what the requirement specifies">
+    <!-- row labels -->
+    <text class="t" x="4" y="44">TODAY</text>
+    <text class="t s" x="4" y="60">what a consumer sees</text>
+    <text class="t" x="4" y="134">REQUIRED</text>
+    <text class="t s" x="4" y="150">what a consumer must see</text>
+
+    <!-- TODAY bar -->
+    <rect class="box grey" x="175" y="28" width="270" height="50"/>
+    <text class="t" x="310" y="58" text-anchor="middle">previous version</text>
+
+    <rect class="box warnb" x="445" y="28" width="310" height="50"/>
+    <text class="t w" x="600" y="49" text-anchor="middle">MIXED &mdash; never a valid version</text>
+    <text class="t s" x="600" y="66" text-anchor="middle">some objects this cycle, some last cycle</text>
+
+    <rect class="box" x="755" y="28" width="385" height="50"/>
+    <text class="t" x="947" y="52" text-anchor="middle">new version</text>
+    <text class="t s" x="947" y="68" text-anchor="middle">complete only by accident of timing</text>
+
+    <!-- REQUIRED bar -->
+    <rect class="box alt" x="175" y="118" width="705" height="50"/>
+    <text class="t" x="527" y="141" text-anchor="middle">previous published version</text>
+    <text class="t s" x="527" y="157" text-anchor="middle">held unchanged for the whole batch &mdash; one complete, consistent version</text>
+
+    <rect class="box alt" x="880" y="118" width="260" height="50"/>
+    <text class="t" x="1010" y="141" text-anchor="middle">new published version</text>
+    <text class="t s" x="1010" y="157" text-anchor="middle">in full, in one step</text>
+
+    <!-- publication hard stop -->
+    <path class="cut" d="M880 106 L880 184"/>
+
+    <!-- the same instant in both rows; drawn only in the gap so it strikes no label -->
+    <path class="band" d="M570 82 L570 114"/>
+
+    <!-- axis -->
+    <path class="brk" d="M175 193 L1140 193"/>
+    <path class="brk" d="M175 188 L175 198 M570 188 L570 198 M755 188 L755 198 M880 188 L880 198"/>
+
+    <!-- numbered moments -->
+    <circle class="nb" cx="175" cy="193" r="11"/><text class="nt" x="175" y="197" text-anchor="middle">1</text>
+    <circle class="nb" cx="570" cy="193" r="11"/><text class="nt" x="570" y="197" text-anchor="middle">2</text>
+    <circle class="nb" cx="755" cy="193" r="11"/><text class="nt" x="755" y="197" text-anchor="middle">3</text>
+    <circle class="nb" cx="880" cy="193" r="11"/><text class="nt" x="880" y="197" text-anchor="middle">4</text>
+
+    <text class="t s" x="175" y="219" text-anchor="middle">batch starts</text>
+    <text class="t s" x="570" y="219" text-anchor="middle">a consumer reads</text>
+    <text class="t s" x="750" y="219" text-anchor="end">last object done</text>
+    <text class="t s" x="880" y="219" text-anchor="middle">publication</text>
+
+    <!-- legend -->
+    <rect class="box warnb" x="175" y="236" width="13" height="13"/>
+    <text class="t s" x="195" y="246">an inconsistent state is visible to consumers</text>
+    <rect class="box alt" x="520" y="236" width="13" height="13"/>
+    <text class="t s" x="540" y="246">a complete, published version</text>
+  </svg>
+  <p class="src" style="margin-top:4px">Illustrative &mdash; segment widths are not to scale.</p>
+
+  <table class="req snug" style="margin-top:6px">
+    <thead><tr><th class="num">#</th><th>The moment</th><th>Today, a consumer sees</th><th>Under the requirement</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Batch starts; objects complete one by one</td><td>The previous version</td><td>The previous published version, unchanged</td></tr>
+      <tr class="hot"><td class="num">2</td><td><b>A consumer reads mid-batch</b> &nbsp;<span class="chip warn">The gap</span></td><td>A <b>mixed state</b>: part this cycle, part last. Plausible, reconcilable, wrong</td><td>Still the previous published version. <b>Nothing has changed for them</b></td></tr>
+      <tr><td class="num">3</td><td>The last object completes</td><td>The new version &mdash; nothing checked that it is complete</td><td>Still the previous version. Loading publishes nothing</td></tr>
+      <tr><td class="num">4</td><td>Publication</td><td><i>No such step exists</i></td><td>The new published version becomes visible, in one step</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">Rows 1, 3 and 4 already behave acceptably. Row 2 is what we are being asked to fix &mdash; and row 4 is the step that fixes it.</div>
+  <div class="slide-no">3 / 7</div>
+</section>
+
+<!-- ============ 04 REQUIREMENT ============ -->
+<section class="slide" id="s4">
+  <h2>The requirement, consolidated into four parts</h2>
+  <div class="sub">Twenty-four testable requirements sit behind these four. The detail is in the baseline; the four are the commitment.</div>
+  <div class="cols c60">
+    <div>
+      <table class="req">
+        <thead><tr><th class="id">#</th><th>What we are committing to</th></tr></thead>
+        <tbody>
+          <tr><td class="id">T1</td><td><b>One version, or none.</b> A consumer sees a complete
+            version of the data their report depends on &mdash; never a partial one, never a mixture
+            of two cycles, never a missing object.<span class="rtag">R1&ndash;R7</span></td></tr>
+          <tr><td class="id">T2</td><td><b>Publication is a decision, not a consequence.</b> New data
+            becomes visible only when publication runs, at the end of a successful batch. A failed
+            batch publishes nothing and consumers keep the previous version &mdash; though the
+            business can still authorise release of an incomplete cycle, on the record. One step
+            back is always available.<span class="rtag">R8&ndash;R12</span></td></tr>
+          <tr><td class="id">T3</td><td><b>Protection travels with the data.</b> A republished object
+            keeps the tags, masking and access it had before. No sensitive value is exposed
+            unprotected, and no masked value is ever written to disk as though it were real
+            data.<span class="rtag">R13&ndash;R17</span></td></tr>
+          <tr><td class="id">T4</td><td><b>It has to work on the estate we already have.</b>
+            Repeatable every cycle, executable by the batch identity, and achievable
+            <b>without rewriting existing view logic as new ETL</b>.<span class="rtag">R18&ndash;R24</span></td></tr>
+        </tbody>
+      </table>
+      <p class="src" style="margin-top:4px"><b>Full set:</b> R1&ndash;R24 in
+      <span class="feat" style="display:inline">w5-zone3-consumption-gating/problem_statement.md</span>,
+      each written so a proof-of-concept can pass or fail it.</p>
+    </div>
+    <div>
+      <div class="callout teal"><b>T3 carries a trap worth naming.</b> Physicalising a protected
+      dataset with an identity not approved to see real values does not fail loudly &mdash; it
+      writes the <i>masked</i> values to disk as if they were the data. Restoring the tag afterwards
+      then makes a corrupted dataset look correct.</div>
+
+      <h3 class="gap">What this deliberately does not ask for</h3>
+      <table class="req snug">
+        <tbody>
+          <tr><td><b>A mechanism</b></td><td>No technology named or ruled out. Options are assessed against T1&ndash;T4</td></tr>
+          <tr><td><b>History for users</b></td><td>No consumer-facing history. One step back, for operations only</td></tr>
+          <tr><td><b>Upstream change</b></td><td>How Zone 2 loads works is untouched</td></tr>
+          <tr><td><b>A new completion marker</b></td><td>The removed validation-date concept stays removed</td></tr>
+        </tbody>
+      </table>
+      <p class="also" style="margin-top:7px">Each was a live option, closed deliberately &mdash;
+      recorded so the absence is not read as an oversight.</p>
+    </div>
+  </div>
+  <div class="takeaway">T4 is the one that will decide this. T1&ndash;T3 are satisfiable several ways; doing it without rebuilding the view estate is what narrows the field.</div>
+  <div class="slide-no">4 / 7</div>
+</section>
+
+<!-- ============ 05 SCOPE ============ -->
+<section class="slide" id="s5">
+  <h2>What gets gated &mdash; and the scale that buys us</h2>
+  <div class="sub">Two ideas the discussion kept merging. Keeping them apart is what makes this affordable.</div>
+  <div class="hz">
+    <div class="lbl"><div class="h">Three units</div><div class="x">Distinct, and not interchangeable</div></div>
+    <div class="a on"><div class="h">The object &mdash; unit of governance</div><div class="x">A table or view. Tags, masking and access bind here. Never at domain level</div></div>
+    <div class="a on"><div class="h">The consistency group &mdash; unit of visibility</div><div class="x">The objects one report depends on. Becomes visible together, or not at all</div></div>
+    <div class="a"><div class="h">The batch &mdash; unit of execution</div><div class="x">The jobs that refresh those objects. Publication is its final step</div></div>
+  </div>
+  <div class="cols">
+    <div>
+      <div class="stmt"><b>These are two different questions.</b> "Where do the controls live?"
+      is answered by the object. "What has to agree with what?" is answered by the group.
+      Collapsing them &mdash; treating the object as the unit of both &mdash; produces a design
+      that protects each object correctly and still shows a report two cycles at once.</div>
+      <h3 class="gap">Views are not published &mdash; and that is the good news</h3>
+      <p class="also">A view holds no data of its own; it is a query over the tables beneath it.
+      So a view is never gated directly. It inherits consistency from the published tables it
+      reads, and its dependencies are counted inside the group.</p>
+      <div class="callout teal">The consequence is commercial, not technical. The population we
+      have to gate is the <b>ground tables beneath the view estate</b> &mdash; not the thousands of
+      views themselves. That is the difference between a contained change and a rebuild, and it is
+      why T4 is reachable at all.</div>
+    </div>
+    <div>
+      <h3>What this means in practice</h3>
+      <table class="req snug">
+        <thead><tr><th>For</th><th>Treatment</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><b>A consumption table</b></td><td>Holds a published version. Gated directly</td><td><span class="chip part">In scope</span></td></tr>
+          <tr><td><b>A consumption view</b></td><td>Not gated. Consistent because its inputs are</td><td><span class="chip ok">Free</span></td></tr>
+          <tr><td><b>A report</b></td><td>Defines which objects must agree &mdash; its dependency list</td><td><span class="chip warn">Must be declared</span></td></tr>
+          <tr><td><b>A domain</b></td><td>A batch. Not a governed object, holds no tags or policies</td><td><span class="chip part">Execution only</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout">The one genuinely new artefact is the <b>report dependency list</b>.
+      A report lives in the BI layer, so the platform cannot derive what it reads &mdash; it has to
+      be declared and kept current. Every guarantee in T1 and T2 is only as good as that list, which
+      makes it the quiet risk in this programme rather than an administrative detail.</div>
+    </div>
+  </div>
+  <div class="takeaway">Gating the tables and letting the views inherit is what keeps this a contained change &mdash; the dependency list is the price of it.</div>
+  <div class="slide-no">5 / 7</div>
+</section>
+
+<!-- ============ 06 SETTLED ============ -->
+<section class="slide" id="s6">
+  <h2>Settled, assumed, and parked</h2>
+  <div class="sub">What is closed, what we are carrying as a stated assumption, and what belongs to someone else.</div>
+  <div class="cols c60">
+    <div>
+      <h3>Settled &mdash; agreed and not reopening</h3>
+      <table class="req snug">
+        <thead><tr><th class="id">#</th><th>Decision</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td class="id">D1</td><td>Controls bind to the <b>object</b></td><td>No domain-level tags or policies to design</td></tr>
+          <tr><td class="id">D2</td><td><b>No completion marker</b> is reintroduced</td><td>Released by the scheduler's own dependency &mdash; nothing new stored or polled</td></tr>
+          <tr><td class="id">D3</td><td>Visibility is per <b>consistency group</b></td><td>A report's objects flip together</td></tr>
+          <tr><td class="id">D4</td><td>Views <b>inherit</b>, they are not published</td><td>The view estate is not rebuilt</td></tr>
+        </tbody>
+      </table>
+      <h3 class="gap" style="margin-top:9px">Assumed &mdash; stated, not buried</h3>
+      <table class="req snug">
+        <thead><tr><th class="id">#</th><th>Assumption</th><th>If it is wrong</th></tr></thead>
+        <tbody>
+          <tr class="hot"><td class="id">A1</td><td>A batch and a report's dependency list <b>line up</b> &mdash; a batch runs for a domain or report<span class="rtag">confirm</span></td><td>If a report spans two batches, or two share an object, publishing one can leave another inconsistent. Cost rises materially</td></tr>
+          <tr><td class="id">A2</td><td>Publication waits for the <b>slowest</b> job in the group</td><td>Accepted, not a defect &mdash; but one straggler delays the whole report, so it needs alerting</td></tr>
+          <tr><td class="id">A3</td><td>Two different reports may legitimately show <b>different cycles</b></td><td>Needs saying out loud to the business before, not after, go-live</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Parked &mdash; real, and not ours</h3>
+      <div class="callout"><b>Object ownership and orphan clean-up.</b> Objects created at runtime
+      by a service account, rather than through the deployment path, may be treated as orphans and
+      removed. Owner: <b>platform &mdash; Raja / Anoop</b>. Parked, not dropped: it constrains any
+      option that creates objects at runtime, and nothing that only works on objects already
+      deployed, so it stays visible when we compare options.</div>
+
+      <h3 class="gap">Still ours, and not parked with it</h3>
+      <div class="callout teal">Whether the batch identity can <b>execute</b> publication, and the
+      governance steps around it, is a requirement on us &mdash; separate from whether the resulting
+      objects are legitimate under platform policy. Discussed together; to be tracked apart.</div>
+
+      <p class="src" style="margin-top:2px"><b>Source:</b> raised by Nidwika Vedanaparthi from
+      discussions with Raja and Anoop; Idhanta Kakkar agreed an exception would be needed.
+      Raised once, not resolved.</p>
+    </div>
+  </div>
+  <div class="takeaway">A1 is the one to test early &mdash; it is the only assumption here whose failure changes the cost of the solution rather than the plan around it.</div>
+  <div class="slide-no">6 / 7</div>
+</section>
+
+<!-- ============ 07 ASKS ============ -->
+<section class="slide" id="s7">
+  <h2>What we need from you</h2>
+  <div class="sub">Four calls, none of them technical. All four block build, none blocks the next step.</div>
+  <div class="cols">
+    <div>
+      <h3>The four calls</h3>
+      <table class="req snug">
+        <thead><tr><th class="id">#</th><th>The call</th><th>Whose</th></tr></thead>
+        <tbody>
+          <tr><td class="id">C1</td><td><b>Release of an incomplete cycle.</b> Who may authorise publishing a partial dataset, and what record is kept</td><td><span class="chip warn">Business</span></td></tr>
+          <tr><td class="id">C2</td><td><b>The permanent-failure exit.</b> If a job cannot be made to work, does the report stay on yesterday's data, or is partial release invoked &mdash; and after how long</td><td><span class="chip warn">Business</span></td></tr>
+          <tr><td class="id">C3</td><td><b>Alerting threshold.</b> How long a report may sit on the previous cycle before someone is told. Without this, the first signal is a user asking why the numbers look stale</td><td><span class="chip part">Ops</span></td></tr>
+          <tr><td class="id">C4</td><td><b>Retry window.</b> A job fails, is re-run and succeeds &mdash; may the batch still publish, however late in the day</td><td><span class="chip part">Ops</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal" style="margin-top:12px">C1 and C2 are the same question asked twice:
+      <b>when is yesterday's complete data better than today's partial data?</b> That is a business
+      judgement about the reports in question, and it is not ours to make.</div>
+    </div>
+    <div>
+      <h3>Next step &mdash; already underway</h3>
+      <ol class="steps teal">
+        <li><b>Assess the options against T1&ndash;T4.</b> Nothing inherited from earlier analysis; each option judged on the agreed requirement</li>
+        <li><b>Prove the hard parts.</b> Protection surviving republication, and the at-rest trap in T3, settled by test rather than argument</li>
+        <li><b>Size it against the real estate.</b> How many ground tables actually need gating &mdash; T4 turns on that number, and nobody has it yet</li>
+        <li><b>Come back with a recommendation</b>, with the cost of each option stated</li>
+      </ol>
+      <h3 class="gap">Confirm, when you can</h3>
+      <ol class="steps chk">
+        <li><b>A1</b> &mdash; that a batch and a report's dependency list line up. It is the assumption the design is resting on</li>
+        <li><b>The orphan exception</b> with the platform team, so it is not discovered late</li>
+      </ol>
+    </div>
+  </div>
+  <div class="takeaway">The requirement is agreed and the analysis is ours to do. What we need from you is the business judgement in C1 and C2.</div>
+  <div class="slide-no">7 / 7</div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+
+  var SLIDE_W = 1280, SLIDE_H = 720;
+  var INNER_W = 1164, INNER_TOP = 34, BOTTOM_RESERVE = 86;
+  var MIN_FIT = 0.55, NAV_W = 240;
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 &&
+          (node.classList.contains("takeaway") || node.classList.contains("slide-no"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+  }
+
+  function fitStage() {
+    var z = Math.min((window.innerWidth - NAV_W - 26) / SLIDE_W,
+                     (window.innerHeight - 26) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+    else if (e.key >= "1" && e.key <= "7") { show(parseInt(e.key, 10) - 1); e.preventDefault(); }
+  });
+
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>
