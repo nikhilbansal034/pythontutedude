@@ -199,9 +199,9 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">03</span>Today vs. what is required</button>
     <div class="navsec">Requirement</div>
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">04</span>The requirement, in four parts</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">05</span>What we gate — and what we don't</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">05</span>Three units, kept apart</button>
     <div class="navsec">Decisions</div>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">06</span>Settled, assumed, parked</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">06</span>Settled, to test, parked</button>
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">07</span>What we need from you</button>
   </div>
   <div class="navhint">
@@ -217,8 +217,8 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 <section class="slide cover active" id="s1">
   <div class="cols c55">
     <div>
-      <div class="eyebrow">GRS Teradata migration &middot; Zone 3 consumption</div>
-      <h1>Loaded is not the same as safe to show</h1>
+      <div class="eyebrow">GRS Teradata migration &middot; Requirement</div>
+      <h1>Zone 3 consumption gating</h1>
       <div class="rule"></div>
       <p class="lede">While a batch is running, a reporting user can read a dataset that was
       <b>never a valid version</b> &mdash; part of tonight's load against part of last night's.
@@ -226,9 +226,8 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       boundary between <b>loaded</b> and <b>visible</b>: data becomes visible as a
       <b>controlled publication event</b>, not as a side effect of loading.</p>
       <div class="meta">
-        <b>Basis</b> &nbsp;24-Oct-2026 design discussion, requirements agreed over four review rounds<br>
         <b>Audience</b> &nbsp;Leadership &mdash; decision and direction, not design<br>
-        <b>Status</b> &nbsp;Requirements baseline agreed. No solution chosen, and none proposed here
+        <b>Status</b> &nbsp;Requirement baseline frozen. No solution chosen, and none proposed here
       </div>
     </div>
     <div>
@@ -239,9 +238,9 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
         <div class="item"><span class="k">03</span><span>Today against what is required, on one timeline</span></div>
         <div class="sec">Requirement</div>
         <div class="item"><span class="k">04</span><span>The requirement consolidated into four parts</span></div>
-        <div class="item"><span class="k">05</span><span>What gets gated, and the scale that buys us</span></div>
+        <div class="item"><span class="k">05</span><span>The three units the requirement rests on</span></div>
         <div class="sec">Decisions</div>
-        <div class="item"><span class="k">06</span><span>What is settled, what we are assuming, what is parked</span></div>
+        <div class="item"><span class="k">06</span><span>What is settled, what is still to be tested, what is parked</span></div>
         <div class="item"><span class="k">07</span><span>The four calls we need, and the next step</span></div>
       </div>
     </div>
@@ -267,11 +266,9 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <div class="stmt" style="margin-top:14px">A reporting view is doing exactly what it was built to do.
       <b>Showing the latest state of every object is the problem</b>, because mid-batch the latest
       state of each object belongs to two different cycles.</div>
-      <p class="src"><b>Source:</b> 24-Oct-2026 discussion &mdash; scenario raised by Idhanta Kakkar,
-      consequence for multi-fact reporting set out by Nidwika Vedanaparthi. Confirmed by both, twice.</p>
     </div>
     <div>
-      <h3>The same report, read at 04:10, two nights running</h3>
+      <h3>Illustrative: one report, read at 04:10, two nights running</h3>
       <div class="scen">
         <div class="hd">Night A &mdash; batch finished at 03:50</div>
         <div class="nums">
@@ -376,35 +373,33 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 <!-- ============ 04 REQUIREMENT ============ -->
 <section class="slide" id="s4">
   <h2>The requirement, consolidated into four parts</h2>
-  <div class="sub">Twenty-four testable requirements sit behind these four. The detail is in the baseline; the four are the commitment.</div>
+  <div class="sub">Each part is backed by detailed requirements, every one written so a proof of concept can pass or fail it.</div>
   <div class="cols c60">
     <div>
       <table class="req">
-        <thead><tr><th class="id">#</th><th>What we are committing to</th></tr></thead>
+        <thead><tr><th>What we are committing to</th></tr></thead>
         <tbody>
-          <tr><td class="id">T1</td><td><b>One version, or none.</b> A consumer sees a complete
+          <tr><td><b>One version, or none.</b> A consumer sees a complete
             version of the data their report depends on &mdash; never a partial one, never a mixture
-            of two cycles, never a missing object.<span class="rtag">R1&ndash;R7</span></td></tr>
-          <tr><td class="id">T2</td><td><b>Publication is a decision, not a consequence.</b> New data
-            becomes visible only when publication runs, at the end of a successful batch. A failed
-            batch publishes nothing and consumers keep the previous version &mdash; though the
-            business can still authorise release of an incomplete cycle, on the record. One step
-            back is always available.<span class="rtag">R8&ndash;R12</span></td></tr>
-          <tr><td class="id">T3</td><td><b>Protection travels with the data.</b> A republished object
-            keeps the tags, masking and access it had before. No sensitive value is exposed
-            unprotected, and no masked value is ever written to disk as though it were real
-            data.<span class="rtag">R13&ndash;R17</span></td></tr>
-          <tr><td class="id">T4</td><td><b>It has to work on the estate we already have.</b>
+            of two cycles, never a missing object.</td></tr>
+          <tr><td><b>Publication is a decision, not a consequence.</b> New data
+            becomes visible only when publication runs, after every job in the cycle has succeeded.
+            A failed cycle publishes nothing and consumers keep the previous version &mdash; though
+            the business can still authorise release of an incomplete cycle, on the record. When the
+            missing jobs later succeed, or a newer cycle completes, the latest complete data is
+            published as normal.</td></tr>
+          <tr><td><b>Protection travels with the data.</b> A republished object
+            carries the tags, masking and access currently defined for it, including any change
+            governance has made since the last cycle. No sensitive value is exposed unprotected,
+            and no masked value is ever written to disk as though it were real data.</td></tr>
+          <tr><td><b>It has to work on the estate we already have.</b>
             Repeatable every cycle, executable by the batch identity, and achievable
-            <b>without rewriting existing view logic as new ETL</b>.<span class="rtag">R18&ndash;R24</span></td></tr>
+            <b>without rewriting existing view logic as new ETL</b>.</td></tr>
         </tbody>
       </table>
-      <p class="src" style="margin-top:4px"><b>Full set:</b> R1&ndash;R24 in
-      <span class="feat" style="display:inline">w5-zone3-consumption-gating/problem_statement.md</span>,
-      each written so a proof-of-concept can pass or fail it.</p>
     </div>
     <div>
-      <div class="callout teal"><b>T3 carries a trap worth naming.</b> Physicalising a protected
+      <div class="callout teal"><b>Protection carries a trap worth naming.</b> Physicalising a protected
       dataset with an identity not approved to see real values does not fail loudly &mdash; it
       writes the <i>masked</i> values to disk as if they were the data. Restoring the tag afterwards
       then makes a corrupted dataset look correct.</div>
@@ -412,29 +407,28 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <h3 class="gap">What this deliberately does not ask for</h3>
       <table class="req snug">
         <tbody>
-          <tr><td><b>A mechanism</b></td><td>No technology named or ruled out. Options are assessed against T1&ndash;T4</td></tr>
-          <tr><td><b>History for users</b></td><td>No consumer-facing history. One step back, for operations only</td></tr>
-          <tr><td><b>Upstream change</b></td><td>How Zone 2 loads works is untouched</td></tr>
-          <tr><td><b>A new completion marker</b></td><td>The removed validation-date concept stays removed</td></tr>
+          <tr><td><b>A mechanism</b></td><td>No technology named or ruled out. Options are assessed against these four parts</td></tr>
+          <tr><td><b>History for users</b></td><td>No consumer-facing access to earlier published versions</td></tr>
+          <tr><td><b>Upstream change</b></td><td>How Zone 2 loads work is untouched</td></tr>
         </tbody>
       </table>
       <p class="also" style="margin-top:7px">Each was a live option, closed deliberately &mdash;
       recorded so the absence is not read as an oversight.</p>
     </div>
   </div>
-  <div class="takeaway">T4 is the one that will decide this. T1&ndash;T3 are satisfiable several ways; doing it without rebuilding the view estate is what narrows the field.</div>
+  <div class="takeaway">Working on the existing estate is the part that decides this: the other three can be met several ways, but few of them avoid rebuilding the view estate.</div>
   <div class="slide-no">4 / 7</div>
 </section>
 
 <!-- ============ 05 SCOPE ============ -->
 <section class="slide" id="s5">
-  <h2>What gets gated &mdash; and the scale that buys us</h2>
-  <div class="sub">Two ideas the discussion kept merging. Keeping them apart is what makes this affordable.</div>
+  <h2>Three units &mdash; and why they are kept apart</h2>
+  <div class="sub">Two ideas that are easy to merge. Keeping them apart is what keeps the design correct.</div>
   <div class="hz">
     <div class="lbl"><div class="h">Three units</div><div class="x">Distinct, and not interchangeable</div></div>
     <div class="a on"><div class="h">The object &mdash; unit of governance</div><div class="x">A table or view. Tags, masking and access bind here. Never at domain level</div></div>
     <div class="a on"><div class="h">The consistency group &mdash; unit of visibility</div><div class="x">The objects one report depends on. Becomes visible together, or not at all</div></div>
-    <div class="a"><div class="h">The batch &mdash; unit of execution</div><div class="x">The jobs that refresh those objects. Publication is its final step</div></div>
+    <div class="a"><div class="h">The batch &mdash; unit of execution</div><div class="x">The jobs that refresh those objects. Publication follows only once all of them succeed</div></div>
   </div>
   <div class="cols">
     <div>
@@ -442,59 +436,57 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       is answered by the object. "What has to agree with what?" is answered by the group.
       Collapsing them &mdash; treating the object as the unit of both &mdash; produces a design
       that protects each object correctly and still shows a report two cycles at once.</div>
-      <h3 class="gap">Views are not published &mdash; and that is the good news</h3>
+      <h3 class="gap">Views &mdash; a working position, not frozen <span class="chip chk">To be tested</span></h3>
       <p class="also">A view holds no data of its own; it is a query over the tables beneath it.
-      So a view is never gated directly. It inherits consistency from the published tables it
-      reads, and its dependencies are counted inside the group.</p>
-      <div class="callout teal">The consequence is commercial, not technical. The population we
-      have to gate is the <b>ground tables beneath the view estate</b> &mdash; not the thousands of
-      views themselves. That is the difference between a contained change and a rebuild, and it is
-      why T4 is reachable at all.</div>
+      The working position is that a view is not published itself: it inherits consistency from
+      the published tables it reads, and its dependencies are counted inside the group.</p>
+      <div class="callout teal">If it holds, the population to gate is the <b>tables beneath the
+      view estate</b>, not the thousands of views themselves. The solution phase confirms or
+      overturns it.</div>
     </div>
     <div>
       <h3>What this means in practice</h3>
       <table class="req snug">
         <thead><tr><th>For</th><th>Treatment</th><th></th></tr></thead>
         <tbody>
-          <tr><td><b>A consumption table</b></td><td>Holds a published version. Gated directly</td><td><span class="chip part">In scope</span></td></tr>
-          <tr><td><b>A consumption view</b></td><td>Not gated. Consistent because its inputs are</td><td><span class="chip ok">Free</span></td></tr>
-          <tr><td><b>A report</b></td><td>Defines which objects must agree &mdash; its dependency list</td><td><span class="chip warn">Must be declared</span></td></tr>
+          <tr><td><b>A consumption object</b></td><td>A table or view. Carries its own tags, masking and access</td><td><span class="chip part">Governed here</span></td></tr>
+          <tr><td><b>A report</b></td><td>Defines which objects must agree &mdash; the membership of its group</td><td><span class="chip part">Sets the group</span></td></tr>
           <tr><td><b>A domain</b></td><td>A batch. Not a governed object, holds no tags or policies</td><td><span class="chip part">Execution only</span></td></tr>
         </tbody>
       </table>
-      <div class="callout">The one genuinely new artefact is the <b>report dependency list</b>.
-      A report lives in the BI layer, so the platform cannot derive what it reads &mdash; it has to
-      be declared and kept current. Every guarantee in T1 and T2 is only as good as that list, which
-      makes it the quiet risk in this programme rather than an administrative detail.</div>
+      <div class="callout">Every consistency guarantee is only as good as knowing <b>which objects
+      each group contains</b>, and which jobs refresh them. That membership has to be known and
+      kept current as reports and objects change &mdash; get it wrong and a report shows two cycles
+      with nothing to flag it.</div>
     </div>
   </div>
-  <div class="takeaway">Gating the tables and letting the views inherit is what keeps this a contained change &mdash; the dependency list is the price of it.</div>
+  <div class="takeaway">Protection is set per object, consistency per group &mdash; a design that merges the two will fail one of them.</div>
   <div class="slide-no">5 / 7</div>
 </section>
 
 <!-- ============ 06 SETTLED ============ -->
 <section class="slide" id="s6">
-  <h2>Settled, assumed, and parked</h2>
-  <div class="sub">What is closed, what we are carrying as a stated assumption, and what belongs to someone else.</div>
+  <h2>Settled, still to be tested, and parked</h2>
+  <div class="sub">What the freeze closes, what the solution phase must test, and what belongs to someone else.</div>
   <div class="cols c60">
     <div>
       <h3>Settled &mdash; agreed and not reopening</h3>
       <table class="req snug">
-        <thead><tr><th class="id">#</th><th>Decision</th><th>Why it matters</th></tr></thead>
+        <thead><tr><th>Decision</th><th>Why it matters</th></tr></thead>
         <tbody>
-          <tr><td class="id">D1</td><td>Controls bind to the <b>object</b></td><td>No domain-level tags or policies to design</td></tr>
-          <tr><td class="id">D2</td><td><b>No completion marker</b> is reintroduced</td><td>Released by the scheduler's own dependency &mdash; nothing new stored or polled</td></tr>
-          <tr><td class="id">D3</td><td>Visibility is per <b>consistency group</b></td><td>A report's objects flip together</td></tr>
-          <tr><td class="id">D4</td><td>Views <b>inherit</b>, they are not published</td><td>The view estate is not rebuilt</td></tr>
+          <tr><td>Controls bind to the <b>object</b></td><td>No domain-level tags or policies to design</td></tr>
+          <tr><td>Visibility is per <b>consistency group</b></td><td>A report's objects flip together</td></tr>
         </tbody>
       </table>
-      <h3 class="gap" style="margin-top:9px">Assumed &mdash; stated, not buried</h3>
+      <h3 class="gap" style="margin-top:9px">Working positions &mdash; not frozen, tested in the solution phase</h3>
       <table class="req snug">
-        <thead><tr><th class="id">#</th><th>Assumption</th><th>If it is wrong</th></tr></thead>
+        <thead><tr><th>Position</th><th>If it is wrong</th></tr></thead>
         <tbody>
-          <tr class="hot"><td class="id">A1</td><td>A batch and a report's dependency list <b>line up</b> &mdash; a batch runs for a domain or report<span class="rtag">confirm</span></td><td>If a report spans two batches, or two share an object, publishing one can leave another inconsistent. Cost rises materially</td></tr>
-          <tr><td class="id">A2</td><td>Publication waits for the <b>slowest</b> job in the group</td><td>Accepted, not a defect &mdash; but one straggler delays the whole report, so it needs alerting</td></tr>
-          <tr><td class="id">A3</td><td>Two different reports may legitimately show <b>different cycles</b></td><td>Needs saying out loud to the business before, not after, go-live</td></tr>
+          <tr><td><b>No new completion marker</b> &mdash; publication follows the batch's own job dependencies</td><td>Publication needs a stored completion record after all</td></tr>
+          <tr><td>Views <b>inherit</b>; only the tables beneath them are published</td><td>Views have to be gated directly, and the effort on the view estate rises sharply</td></tr>
+          <tr><td>A batch and a report's objects <b>line up</b> &mdash; a batch runs for a domain or report</td><td>If a report spans two batches, or two share an object, publishing one can leave another inconsistent</td></tr>
+          <tr><td>Publication waits for the <b>slowest</b> job in the group</td><td>Accepted, not a defect &mdash; but one straggler delays the whole report, so it needs alerting</td></tr>
+          <tr><td>Two different reports may legitimately show <b>different cycles</b></td><td>Needs saying out loud to the business before, not after, go-live</td></tr>
         </tbody>
       </table>
     </div>
@@ -510,13 +502,9 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <div class="callout teal">Whether the batch identity can <b>execute</b> publication, and the
       governance steps around it, is a requirement on us &mdash; separate from whether the resulting
       objects are legitimate under platform policy. Discussed together; to be tracked apart.</div>
-
-      <p class="src" style="margin-top:2px"><b>Source:</b> raised by Nidwika Vedanaparthi from
-      discussions with Raja and Anoop; Idhanta Kakkar agreed an exception would be needed.
-      Raised once, not resolved.</p>
     </div>
   </div>
-  <div class="takeaway">A1 is the one to test early &mdash; it is the only assumption here whose failure changes the cost of the solution rather than the plan around it.</div>
+  <div class="takeaway">The freeze closes two decisions. The working positions are inputs to the solution phase, to be confirmed or overturned there.</div>
   <div class="slide-no">6 / 7</div>
 </section>
 
@@ -528,34 +516,29 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
     <div>
       <h3>The four calls</h3>
       <table class="req snug">
-        <thead><tr><th class="id">#</th><th>The call</th><th>Whose</th></tr></thead>
+        <thead><tr><th>The call</th><th>Whose</th></tr></thead>
         <tbody>
-          <tr><td class="id">C1</td><td><b>Release of an incomplete cycle.</b> Who may authorise publishing a partial dataset, and what record is kept</td><td><span class="chip warn">Business</span></td></tr>
-          <tr><td class="id">C2</td><td><b>The permanent-failure exit.</b> If a job cannot be made to work, does the report stay on yesterday's data, or is partial release invoked &mdash; and after how long</td><td><span class="chip warn">Business</span></td></tr>
-          <tr><td class="id">C3</td><td><b>Alerting threshold.</b> How long a report may sit on the previous cycle before someone is told. Without this, the first signal is a user asking why the numbers look stale</td><td><span class="chip part">Ops</span></td></tr>
-          <tr><td class="id">C4</td><td><b>Retry window.</b> A job fails, is re-run and succeeds &mdash; may the batch still publish, however late in the day</td><td><span class="chip part">Ops</span></td></tr>
+          <tr><td><b>Release of an incomplete cycle.</b> Who may authorise publishing a partial dataset, and what record is kept</td><td><span class="chip warn">Business</span></td></tr>
+          <tr><td><b>The permanent-failure exit.</b> If a job cannot be made to work, does the report stay on yesterday's data, or is partial release invoked &mdash; and after how long</td><td><span class="chip warn">Business</span></td></tr>
+          <tr><td><b>Alerting threshold.</b> How long a report may sit on the previous cycle before someone is told. Without this, the first signal is a user asking why the numbers look stale</td><td><span class="chip part">Ops</span></td></tr>
+          <tr><td><b>Retry window.</b> A job fails, is re-run and succeeds &mdash; may the batch still publish, however late in the day</td><td><span class="chip part">Ops</span></td></tr>
         </tbody>
       </table>
-      <div class="callout teal" style="margin-top:12px">C1 and C2 are the same question asked twice:
+      <div class="callout teal" style="margin-top:12px">The two business calls are the same question asked twice:
       <b>when is yesterday's complete data better than today's partial data?</b> That is a business
       judgement about the reports in question, and it is not ours to make.</div>
     </div>
     <div>
       <h3>Next step &mdash; already underway</h3>
       <ol class="steps teal">
-        <li><b>Assess the options against T1&ndash;T4.</b> Nothing inherited from earlier analysis; each option judged on the agreed requirement</li>
-        <li><b>Prove the hard parts.</b> Protection surviving republication, and the at-rest trap in T3, settled by test rather than argument</li>
-        <li><b>Size it against the real estate.</b> How many ground tables actually need gating &mdash; T4 turns on that number, and nobody has it yet</li>
+        <li><b>Assess the options against the four parts of the requirement</b>, and test the working positions, each option judged on the frozen baseline</li>
+        <li><b>Prove the hard parts.</b> Protection surviving republication, and the at-rest trap, settled by test rather than argument</li>
+        <li><b>Size it against the real estate.</b> How many objects actually need gating &mdash; the effort question turns on that number, and nobody has it yet</li>
         <li><b>Come back with a recommendation</b>, with the cost of each option stated</li>
-      </ol>
-      <h3 class="gap">Confirm, when you can</h3>
-      <ol class="steps chk">
-        <li><b>A1</b> &mdash; that a batch and a report's dependency list line up. It is the assumption the design is resting on</li>
-        <li><b>The orphan exception</b> with the platform team, so it is not discovered late</li>
       </ol>
     </div>
   </div>
-  <div class="takeaway">The requirement is agreed and the analysis is ours to do. What we need from you is the business judgement in C1 and C2.</div>
+  <div class="takeaway">The requirement is frozen and the analysis is ours. What we need from you is the business call on releasing incomplete data.</div>
   <div class="slide-no">7 / 7</div>
 </section>
 
