@@ -288,12 +288,16 @@ consumption dataset while the upstream batch is still running. The visible state
 object changes today as a side effect of upstream loading; it must instead change only as an
 explicit, controlled publication event.
 
-**Status**: requirements phase closed, solution phase not started.
+**Status**: requirements phase closed, solution phase not started. The requirement is split into
+**Part A — publication gating** (what a consumer may see, and when) and **Part B — governance
+continuity** (whether what they see is still protected), plus a set of constraints binding on both.
+The two are separately specified and **jointly delivered** — Part B's size is an output of the
+mechanism chosen for Part A, so options are scored against both together.
 
 | File | What it is |
 |------|-----------|
-| `problem_statement.md` | **The agreed, frozen baseline.** Problem statement, scope, model and vocabulary, settled decisions D1 and D3, requirements R1-R24, parked dependencies, open operational policy. Section 6 carries working positions (D2, D4, A1-A4) that are **outside** the freeze |
-| `requirement_deck.html` | Leadership deck, 7 slides, built on the `lm-html-deck` deck-1 identity. The baseline consolidated to four parts, with a stacked before/after timeline as the central diagram. By direction it carries **no requirement IDs and no source references**, unlike the skill's default. Derived from `problem_statement.md` — update it there first, then reflect it here |
+| `problem_statement.md` | **The agreed baseline.** Problem statement, scope, model and vocabulary, settled decisions D1 and D3, then Part A (§5), Part B (§6) and shared constraints (§7). Requirements R1-R28, parked dependencies, open operational policy C1-C5. Section 8 carries working positions (D2, D4, A1-A4) that are **outside** the freeze |
+| `requirement_deck.html` | Leadership deck, 7 slides, built on the `lm-html-deck` deck-1 identity. The baseline consolidated to Part A, Part B and what binds both, with a stacked before/after timeline as the central diagram. By direction it carries **no requirement IDs and no source references**, unlike the skill's default. Derived from `problem_statement.md` — update it there first, then reflect it here |
 | `sources/RE Discuss code freeze activities.msg` | The requirement source — a Copilot synthesis of the 24-Oct-2026 design discussion |
 | `sources/POC02_Recommendation_and_Design 1.html` | **Background only.** Earlier clone-and-swap recommendation. Addresses a neighbouring problem and predates this requirement |
 | `sources/POC05 - Same-Name Clone Refresh for Consumption - Deck.html` | **Background only.** Earlier same-name reclone analysis. A component, not a solution |
@@ -302,16 +306,32 @@ explicit, controlled publication event.
 above as a basis for analysis. This problem is approached fresh — see the provenance section of
 `problem_statement.md`.
 
-**The four discriminating requirements**, each capable of eliminating an otherwise attractive
+**ID stability.** R1-R24 are unchanged from the pre-split baseline — the restructure regroups
+them, it does not renumber them, so every earlier reference stays valid. R25-R28 are new, from the
+governance analysis. R16 was restated to be testable; its intent is unchanged.
+
+**The five discriminating requirements**, each capable of eliminating an otherwise attractive
 option on its own: **R4** (publishing one consistency group must not make another inconsistent),
 **R15** (publication must not persist masked values as real data), **R20** (no per-object
 redevelopment of existing view logic), **R22** (consistency-group membership known and kept
-current).
+current), **R27** (R15 is met either by the publication identity passing through every masking
+policy, or by never reading and rewriting the data — the two routes rule out different mechanisms).
+
+**C5 is the question to answer first.** May the publication identity read sensitive data in the
+clear? It selects R27's route, and so narrows the option space *before* evaluation rather than
+after.
 
 **Vocabulary that matters.** The *unit of governance* is the object — tags, masking and grants
 bind there. The *unit of visibility* is the consistency group — the closure of ground objects a
 report depends on. Collapsing those two produces a broken design. That views inherit consistency
 rather than being published is a working position (D4), not part of the freeze.
+
+**Two ID namespaces, easily confused.** **Part A / Part B** name the halves of the requirement;
+**A1-A4** are the assumptions in §8. Always write "Part A", never a bare "A".
+
+**Why Part B exists at all.** Protection in Snowflake is applied at *read* time, not stored — so a
+view inherits it for free, and a physical copy severs it. Part B exists only because publication
+replaces a physical object. This is a second, independent argument for working position D4.
 
 **Not W4.** W4 is the generic ETL framework that loads objects. W5 is about when a loaded object
 becomes *visible*. They meet only at the publication step (R8).
