@@ -11,6 +11,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── w3-scd-effective-date-split/  Multi-source SCD2 date split          — ACTIVE
 ├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
 ├── w4-generic-etl-framework/     Generic config-driven ETL framework   — ACTIVE
+├── w5-zone3-consumption-gating/  Zone 3 consumption publication gating — ACTIVE
 └── datacamp project/             DataCamp DS practical exam            — ACTIVE
 ```
 
@@ -277,6 +278,43 @@ anywhere.
 **Folder name**: `datacamp project` contains a space and does not follow the
 `w<n>-<topic>` convention used by the other workstreams. Quote it in shell
 commands.
+
+---
+
+## W5 — Zone 3 consumption publication gating *(active)*
+
+Stopping business/reporting users from seeing a partially refreshed, internally inconsistent
+consumption dataset while the upstream batch is still running. The visible state of a consumption
+object changes today as a side effect of upstream loading; it must instead change only as an
+explicit, controlled publication event.
+
+**Status**: requirements phase closed, solution phase not started.
+
+| File | What it is |
+|------|-----------|
+| `problem_statement.md` | **The agreed baseline.** Problem statement, scope, model and vocabulary, settled decisions D1-D4, requirements R1-R24, assumptions A1-A4, parked dependencies, open operational policy |
+| `sources/RE Discuss code freeze activities.msg` | The requirement source — a Copilot synthesis of the 24-Oct-2026 design discussion |
+| `sources/POC02_Recommendation_and_Design 1.html` | **Background only.** Earlier clone-and-swap recommendation. Addresses a neighbouring problem and predates this requirement |
+| `sources/POC05 - Same-Name Clone Refresh for Consumption - Deck.html` | **Background only.** Earlier same-name reclone analysis. A component, not a solution |
+
+**Deliberately excluded as inputs**: the prior consumption-layer option analysis, and the two decks
+above as a basis for analysis. This problem is approached fresh — see the provenance section of
+`problem_statement.md`.
+
+**The four discriminating requirements**, each capable of eliminating an otherwise attractive
+option on its own: **R4** (publishing one consistency group must not make another inconsistent),
+**R14** (publication must not persist masked values as real data), **R20** (no per-object
+redevelopment of existing view logic), **R22** (dependency-graph integrity across
+report → object → job).
+
+**Vocabulary that matters.** The *unit of governance* is the object — tags, masking and grants
+bind there. The *unit of visibility* is the consistency group — the closure of ground objects a
+report depends on. Collapsing those two produces a broken design. Views hold no state and are not
+published; they inherit consistency from their published inputs, which is what keeps the view
+estate tractable.
+
+**Not W4.** W4 is the generic ETL framework that loads objects. W5 is about when a loaded object
+becomes *visible*. They meet only at the batch-terminal publication step (R8).
 
 ---
 
