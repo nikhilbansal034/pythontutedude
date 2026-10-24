@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zone 3 Consumption Gating — Requirement & Solution Options</title>
+<style>
+:root{
+  --teal:#0097A9; --teal-dk:#007680; --teal-dp:#004F59; --teal-1:#DDEFE8; --teal-2:#9DD4CF;
+  --navy:#012169; --blue-ac:#007CB0; --green:#86BC25; --green-ac:#26890D;
+  --orange:#ED8B00; --red:#DA291C;
+  --g1:#F2F2F2; --g2:#D0D0CE; --g6:#A7A8AA; --g9:#75787B; --g11:#53565A;
+  --white:#FFFFFF; --ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);
+     font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* ---------- left sidebar navigation ---------- */
+.sidenav{background:var(--white);border-bottom:3px solid var(--teal);}
+.brandmark{display:flex;align-items:center;padding:18px 18px 14px;font-size:15px;font-weight:700;
+  color:var(--navy);white-space:nowrap;border-bottom:1px solid var(--g2);}
+.brandmark .dot{color:var(--green);font-size:22px;line-height:0;margin-left:3px;}
+.tabs{display:flex;flex-wrap:wrap;}
+.navsec{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--teal);
+  padding:14px 18px 3px;text-transform:uppercase;}
+.tab{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--font);
+  font-size:14px;font-weight:600;color:var(--g9);padding:8px 18px;text-align:left;
+  border-left:3px solid transparent;line-height:1.3;white-space:normal;}
+.tab .tnum{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--g6);margin-bottom:1px;}
+.tab:hover{color:var(--navy);background:var(--g1);}
+.tab[aria-selected="true"]{color:var(--navy);font-weight:700;border-left-color:var(--teal);background:var(--g1);}
+.tab[aria-selected="true"] .tnum{color:var(--teal);}
+.tab:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:12px;color:var(--g6);}
+.navbtn{appearance:none;border:1px solid var(--g2);background:var(--white);cursor:pointer;
+  font-family:var(--font);font-size:14px;font-weight:700;color:var(--navy);
+  width:30px;height:30px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);color:var(--white);border-color:var(--teal);}
+.navbtn:disabled{color:var(--g2);cursor:default;background:var(--white);border-color:var(--g2);}
+body.js .sidenav{position:fixed;left:0;top:0;bottom:0;width:240px;border-bottom:0;
+  border-right:3px solid var(--teal);z-index:50;display:flex;flex-direction:column;}
+body.js .tabs{flex-direction:column;flex-wrap:nowrap;flex:1;overflow-y:auto;padding:2px 0 8px;}
+body.js .tab{width:100%;}
+body.js .navhint{border-top:1px solid var(--g2);}
+
+/* ---------- deck shell ---------- */
+.deck{max-width:1320px;margin:0 auto;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;
+  margin:0 0 28px;padding:44px 54px 78px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{margin-left:240px;max-width:none;padding:14px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:646px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:12px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+/* ---------- type ---------- */
+h1{font-size:44px;line-height:1.15;font-weight:700;color:var(--navy);margin:0 0 16px;}
+h2{font-size:30px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.sub{font-size:16px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 18px;}
+h3{font-size:14px;font-weight:700;color:var(--g11);text-transform:uppercase;
+   letter-spacing:.09em;margin:0 0 10px;}
+h3.gap{margin-top:16px;}
+h3 .st{text-transform:none;letter-spacing:0;font-weight:400;color:var(--g9);}
+
+/* ---------- cover ---------- */
+.cover .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:20px;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin-bottom:24px;}
+.cover .lede{font-size:19px;color:var(--g11);margin:0 0 28px;line-height:1.5;}
+.cover .meta{font-size:15px;color:var(--g9);line-height:1.9;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+.agenda{border:1px solid var(--g2);border-top:5px solid var(--teal);background:var(--white);padding:20px 26px 14px;}
+.agenda .ttl{font-size:14px;font-weight:700;letter-spacing:.14em;color:var(--g11);text-transform:uppercase;margin-bottom:4px;}
+.agenda .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:14px 0 7px;}
+.agenda .item{display:flex;gap:14px;align-items:baseline;font-size:17.5px;font-weight:600;color:var(--navy);margin-bottom:9px;line-height:1.3;}
+.agenda .item .k{font-size:14px;font-weight:700;color:var(--white);background:var(--navy);
+  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:16px;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:10px 12px;
+  font-size:15px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:10px 12px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);line-height:1.4;}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:40px;text-align:center;color:var(--g9);font-weight:700;}
+td b{color:var(--navy);}
+td.id,th.id{width:58px;text-align:center;font-weight:700;color:var(--navy);white-space:nowrap;}
+th.id{color:var(--white);}
+table.tight td{padding:8px 12px;}
+table.req th{padding:8px 10px;font-size:14px;}
+table.req td{padding:7px 10px;font-size:15px;line-height:1.35;}
+table.req.snug td{padding:5px 10px;}
+tbody tr.hot td{background:#FFF8E8;}
+.feat{display:block;font-family:var(--mono);font-size:12.5px;color:var(--teal-dp);line-height:1.4;}
+.dsc{display:block;font-size:13.5px;color:var(--g11);line-height:1.35;margin-top:2px;}
+.olbl{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1px;}
+.olbl.alt{color:var(--g9);}
+.src{font-size:13px;color:var(--g9);line-height:1.4;margin:7px 0 0;}
+.src b{color:var(--g11);}
+.rtag{display:inline-block;font-size:12px;font-weight:700;color:var(--navy);background:var(--teal-1);
+  border:1px solid var(--teal-2);padding:1px 6px;margin:6px 4px 0 0;white-space:nowrap;}
+.st{font-size:13.5px;color:var(--g11);}
+
+/* ---------- chips ---------- */
+.chip{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;
+  padding:3px 9px;border-radius:2px;white-space:nowrap;text-transform:uppercase;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.warn{background:var(--orange);color:#3d2400;}
+.chip.no{background:var(--red);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+.chip.chk{background:var(--white);color:#7A4000;border:1px solid var(--orange);}
+
+/* ---------- takeaway bar ---------- */
+.takeaway{position:absolute;left:62px;right:54px;bottom:32px;background:var(--teal);
+  color:var(--white);font-size:17px;font-weight:700;text-align:center;padding:13px 18px;line-height:1.3;}
+
+/* ---------- callouts, lists, layout ---------- */
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;
+  padding:12px 16px;font-size:15.5px;line-height:1.5;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.callout ul{margin:4px 0 0;padding-left:20px;} .callout li{margin-bottom:3px;}
+.stmt{border-left:5px solid var(--navy);background:var(--g1);padding:14px 18px;font-size:17px;line-height:1.5;color:var(--ink);}
+.stmt b{color:var(--navy);}
+.cols{display:flex;gap:30px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.c55>*:first-child{flex:0 0 55%;}
+.cols.c60>*:first-child{flex:0 0 60%;}
+.also{font-size:15px;color:var(--g11);margin:10px 0 0;}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:st;}
+ol.steps li{counter-increment:st;position:relative;padding:8px 12px 8px 48px;margin-bottom:7px;
+  border:1px solid var(--g2);background:var(--white);font-size:15.5px;line-height:1.35;}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:0;bottom:0;width:36px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;}
+ol.steps.teal li::before{background:var(--teal);}
+ol.steps.chk li::before{background:var(--orange);color:#3d2400;}
+ol.steps li b{color:var(--navy);}
+
+/* ---------- horizon strip ---------- */
+.hz{display:flex;gap:8px;margin:0 0 16px;}
+.hz .a{flex:1;border:1px solid var(--g2);background:var(--g1);padding:8px 12px;}
+.hz .a .h{font-size:14px;font-weight:700;color:var(--g11);line-height:1.25;}
+.hz .a .x{font-size:12.5px;color:var(--g9);line-height:1.3;margin-top:2px;}
+.hz .a.on{background:var(--teal-1);border-color:var(--teal);border-top:4px solid var(--teal);}
+.hz .a.on .h{color:var(--navy);}
+.hz .a.on .x{color:var(--teal-dp);}
+.hz .lbl{flex:0 0 150px;display:flex;flex-direction:column;justify-content:center;padding-right:4px;}
+.hz .lbl .h{font-size:14px;font-weight:700;color:var(--navy);line-height:1.25;}
+.hz .lbl .x{font-size:12.5px;color:var(--g11);line-height:1.3;margin-top:2px;}
+
+/* ---------- scenario cards ---------- */
+.scen{border:1px solid var(--g2);border-left:7px solid var(--green-ac);padding:12px 18px 14px;margin-bottom:14px;background:var(--white);}
+.scen.bad{border-left-color:var(--red);background:#FFF6F5;}
+.scen .hd{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--g9);text-transform:uppercase;margin-bottom:6px;}
+.scen .nums{display:flex;gap:20px;}
+.scen .nb .l{font-size:13px;color:var(--g9);}
+.scen .nb .v{font-size:32px;font-weight:700;color:var(--navy);line-height:1.1;}
+.scen.bad .nb .v.hot{color:var(--red);}
+.scen .res{margin-top:10px;font-size:15px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--g11);}
+
+/* ---------- diagram primitives (deck 2 vocabulary) ---------- */
+svg.dg .box{fill:#fff;stroke:var(--teal);stroke-width:1.6}
+svg.dg .box.alt{fill:var(--teal-1)}
+svg.dg .box.grey{fill:var(--g1);stroke:var(--g2)}
+svg.dg .box.warnb{fill:#FFF8E8;stroke:var(--orange)}
+svg.dg .band{fill:none;stroke:var(--teal-dk);stroke-width:1.3;stroke-dasharray:5 3}
+svg.dg .t{font:600 12.5px var(--font);fill:var(--navy)}
+svg.dg .t.s{font:11px var(--font);fill:var(--g9)}
+svg.dg .t.w{font:600 11.5px var(--font);fill:#7A4000}
+svg.dg .nb{fill:var(--orange)}
+svg.dg .nt{font:700 10.5px var(--font);fill:#fff}
+svg.dg .brk{fill:none;stroke:var(--g9);stroke-width:1.2}
+svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .sidenav{display:none;}
+  .deck,body.js .deck{max-width:none;margin:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;zoom:0.78;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidenav" aria-label="Slides">
+  <div class="brandmark">Zone 3 Gating<span class="dot">.</span></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true"><span class="tnum">01</span>Cover</button>
+    <div class="navsec">Problem</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">02</span>What goes wrong today</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">03</span>Today vs. what is required</button>
+    <div class="navsec">Requirement</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">04</span>The requirement, in two parts</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">05</span>Three units, kept apart</button>
+    <div class="navsec">Decisions</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">06</span>Settled, to test, parked</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">07</span>What we need from you</button>
+    <div class="navsec">Solution</div>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">08</span>Three places the gate could live</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">09</span>What we ruled out, and why</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">10</span>Refresh: ownership, not tags</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">11</span>Publication: group shape decides</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">12</span>Architecture, end to end</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">13</span>What we must prove</button>
+  </div>
+  <div class="navhint">
+    <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>arrow keys</span>
+  </div>
+</nav>
+
+<main class="deck">
+
+<!-- ============ 01 COVER ============ -->
+<section class="slide cover active" id="s1">
+  <div class="cols c55">
+    <div>
+      <div class="eyebrow">GRS Teradata migration &middot; Requirement &amp; solution options</div>
+      <h1>Zone 3 consumption gating</h1>
+      <div class="rule"></div>
+      <p class="lede">While a batch is running, a reporting user can read a dataset that was
+      <b>never a valid version</b> &mdash; part of tonight's load against part of last night's.
+      Every source object is individually correct, so nothing flags it. The requirement is to put a
+      boundary between <b>loaded</b> and <b>visible</b>: data becomes visible as a
+      <b>controlled publication event</b>, not as a side effect of loading.</p>
+      <div class="meta">
+        <b>Audience</b> &nbsp;Leadership &mdash; decision and direction<br>
+        <b>Status</b> &nbsp;Requirement frozen. Solution options under evaluation &mdash; <b>none chosen</b><br>
+        <b>Evidence</b> &nbsp;Snowflake behaviour verified against documentation
+      </div>
+    </div>
+    <div>
+      <div class="agenda">
+        <div class="ttl">Agenda</div>
+        <div class="sec">Problem</div>
+        <div class="item"><span class="k">02</span><span>What a consumer sees today, and why nothing catches it</span></div>
+        <div class="item"><span class="k">03</span><span>Today against what is required, on one timeline</span></div>
+        <div class="sec">Requirement</div>
+        <div class="item"><span class="k">04</span><span>The requirement in two parts, and what binds both</span></div>
+        <div class="item"><span class="k">05</span><span>The three units the requirement rests on</span></div>
+        <div class="sec">Decisions</div>
+        <div class="item"><span class="k">06</span><span>What is settled, what is still to be tested, what is parked</span></div>
+        <div class="item"><span class="k">07</span><span>The five calls we need, and the next step</span></div>
+        <div class="sec">Solution options &mdash; nothing decided yet</div>
+        <div class="item"><span class="k">08</span><span>The three layers a gate could sit in, and what is ruled out</span></div>
+        <div class="item"><span class="k">10</span><span>Refresh and publication &mdash; the two live questions</span></div>
+        <div class="item"><span class="k">12</span><span>The architecture, and what must be proven before we conclude</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-no">1 / 13</div>
+</section>
+
+<!-- ============ 02 PROBLEM ============ -->
+<section class="slide" id="s2">
+  <h2>A consumer cannot tell a finished dataset from a half-finished one</h2>
+  <div class="sub">The data is not corrupt. It is incomplete in a way that nothing reports.</div>
+  <div class="cols">
+    <div>
+      <h3>Why today's controls do not catch it</h3>
+      <table class="req snug">
+        <thead><tr><th>What exists today</th><th>What it gives us</th><th>What it misses</th></tr></thead>
+        <tbody>
+          <tr><td><b>Per-object load checks</b></td><td>Each object loaded correctly</td><td>Says nothing about the <i>other</i> objects a report reads</td></tr>
+          <tr><td><b>Batch job status</b></td><td>Which jobs succeeded</td><td>Known to the platform, never to the reader</td></tr>
+          <tr><td><b>Reporting views</b></td><td>Always-current data</td><td>Always-current <i>is</i> the defect mid-batch</td></tr>
+        </tbody>
+      </table>
+      <div class="stmt" style="margin-top:14px">A reporting view is doing exactly what it was built to do.
+      <b>Showing the latest state of every object is the problem</b>, because mid-batch the latest
+      state of each object belongs to two different cycles.</div>
+    </div>
+    <div>
+      <h3>Illustrative: one report, read at 04:10, two nights running</h3>
+      <div class="scen">
+        <div class="hd">Night A &mdash; batch finished at 03:50</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Objects refreshed</div><div class="v">12 / 12</div></div>
+          <div class="nb"><div class="l">Cycles on screen</div><div class="v">1</div></div>
+        </div>
+        <div class="res"><span class="chip ok">Consistent</span> <span>The report is right, and happens to be right.</span></div>
+      </div>
+      <div class="scen bad">
+        <div class="hd">Night B &mdash; batch still running, two jobs failed</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Objects refreshed</div><div class="v hot">7 / 12</div></div>
+          <div class="nb"><div class="l">Cycles on screen</div><div class="v hot">2</div></div>
+        </div>
+        <div class="res"><span class="chip no">Inconsistent</span> <span>The report is wrong, and looks identical.</span></div>
+      </div>
+      <div class="callout">No error, no warning, no empty cell. The numbers are plausible, they
+      reconcile against their own source objects, and the user has no signal that Night B is
+      different from Night A. <b>They will act on it.</b></div>
+    </div>
+  </div>
+  <div class="takeaway">The exposure is invisible by construction &mdash; every individual object is valid, so every individual check passes.</div>
+  <div class="slide-no">2 / 13</div>
+</section>
+
+<!-- ============ 03 DIAGRAM ============ -->
+<section class="slide" id="s3">
+  <h2>Today against what is required &mdash; the same night, the same reader</h2>
+  <div class="sub">Only the middle changes. That gap is the entire requirement.</div>
+
+  <svg class="dg" viewBox="0 0 1164 256" width="1164" height="256" role="img"
+       aria-label="Stacked timeline comparing what a consumer sees today against what the requirement specifies">
+    <!-- row labels -->
+    <text class="t" x="4" y="44">TODAY</text>
+    <text class="t s" x="4" y="60">what a consumer sees</text>
+    <text class="t" x="4" y="134">REQUIRED</text>
+    <text class="t s" x="4" y="150">what a consumer must see</text>
+
+    <!-- TODAY bar -->
+    <rect class="box grey" x="175" y="28" width="270" height="50"/>
+    <text class="t" x="310" y="58" text-anchor="middle">previous version</text>
+
+    <rect class="box warnb" x="445" y="28" width="310" height="50"/>
+    <text class="t w" x="600" y="49" text-anchor="middle">MIXED &mdash; never a valid version</text>
+    <text class="t s" x="600" y="66" text-anchor="middle">some objects this cycle, some last cycle</text>
+
+    <rect class="box" x="755" y="28" width="385" height="50"/>
+    <text class="t" x="947" y="52" text-anchor="middle">new version</text>
+    <text class="t s" x="947" y="68" text-anchor="middle">complete only by accident of timing</text>
+
+    <!-- REQUIRED bar -->
+    <rect class="box alt" x="175" y="118" width="705" height="50"/>
+    <text class="t" x="527" y="141" text-anchor="middle">previous published version</text>
+    <text class="t s" x="527" y="157" text-anchor="middle">held unchanged for the whole batch &mdash; one complete, consistent version</text>
+
+    <rect class="box alt" x="880" y="118" width="260" height="50"/>
+    <text class="t" x="1010" y="141" text-anchor="middle">new published version</text>
+    <text class="t s" x="1010" y="157" text-anchor="middle">in full, in one step</text>
+
+    <!-- publication hard stop -->
+    <path class="cut" d="M880 106 L880 184"/>
+
+    <!-- the same instant in both rows; drawn only in the gap so it strikes no label -->
+    <path class="band" d="M570 82 L570 114"/>
+
+    <!-- axis -->
+    <path class="brk" d="M175 193 L1140 193"/>
+    <path class="brk" d="M175 188 L175 198 M570 188 L570 198 M755 188 L755 198 M880 188 L880 198"/>
+
+    <!-- numbered moments -->
+    <circle class="nb" cx="175" cy="193" r="11"/><text class="nt" x="175" y="197" text-anchor="middle">1</text>
+    <circle class="nb" cx="570" cy="193" r="11"/><text class="nt" x="570" y="197" text-anchor="middle">2</text>
+    <circle class="nb" cx="755" cy="193" r="11"/><text class="nt" x="755" y="197" text-anchor="middle">3</text>
+    <circle class="nb" cx="880" cy="193" r="11"/><text class="nt" x="880" y="197" text-anchor="middle">4</text>
+
+    <text class="t s" x="175" y="219" text-anchor="middle">batch starts</text>
+    <text class="t s" x="570" y="219" text-anchor="middle">a consumer reads</text>
+    <text class="t s" x="750" y="219" text-anchor="end">last object done</text>
+    <text class="t s" x="880" y="219" text-anchor="middle">publication</text>
+
+    <!-- legend -->
+    <rect class="box warnb" x="175" y="236" width="13" height="13"/>
+    <text class="t s" x="195" y="246">an inconsistent state is visible to consumers</text>
+    <rect class="box alt" x="520" y="236" width="13" height="13"/>
+    <text class="t s" x="540" y="246">a complete, published version</text>
+  </svg>
+  <p class="src" style="margin-top:4px">Illustrative &mdash; segment widths are not to scale.</p>
+
+  <table class="req snug" style="margin-top:6px">
+    <thead><tr><th class="num">#</th><th>The moment</th><th>Today, a consumer sees</th><th>Under the requirement</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Batch starts; objects complete one by one</td><td>The previous version</td><td>The previous published version, unchanged</td></tr>
+      <tr class="hot"><td class="num">2</td><td><b>A consumer reads mid-batch</b> &nbsp;<span class="chip warn">The gap</span></td><td>A <b>mixed state</b>: part this cycle, part last. Plausible, reconcilable, wrong</td><td>Still the previous published version. <b>Nothing has changed for them</b></td></tr>
+      <tr><td class="num">3</td><td>The last object completes</td><td>The new version &mdash; nothing checked that it is complete</td><td>Still the previous version. Loading publishes nothing</td></tr>
+      <tr><td class="num">4</td><td>Publication</td><td><i>No such step exists</i></td><td>The new published version becomes visible, in one step</td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">Rows 1, 3 and 4 already behave acceptably. Row 2 is what we are being asked to fix &mdash; and row 4 is the step that fixes it.</div>
+  <div class="slide-no">3 / 13</div>
+</section>
+
+<!-- ============ 04 REQUIREMENT ============ -->
+<section class="slide" id="s4">
+  <h2>The requirement, in two parts</h2>
+  <div class="sub">Two different problems, with opposite failure signatures. Separately specified &mdash; and jointly delivered.</div>
+  <div class="cols c60">
+    <div>
+      <h3>Part A &mdash; publication gating &nbsp;<span class="st">fails visibly: wrong numbers. Reviewed by the business</span></h3>
+      <table class="req snug">
+        <tbody>
+          <tr><td><b>One version, or none.</b> A consumer sees a complete version of the data their
+            report depends on &mdash; never a partial one, never a mixture of two cycles.</td></tr>
+          <tr><td><b>Publication is a decision, not a consequence.</b> New data becomes visible only
+            when publication runs, after every job in the cycle has succeeded. A failed cycle
+            publishes nothing &mdash; though the business can still authorise release, on the
+            record.</td></tr>
+          <tr><td><b>What is published is the real data.</b> No masked value is ever written to disk
+            as though it were genuine. A dataset failing this is <i>wrong</i>, not merely
+            unprotected.</td></tr>
+        </tbody>
+      </table>
+      <h3 class="gap" style="margin-top:14px">Part B &mdash; governance continuity &nbsp;<span class="st">fails silently: no error at all. Reviewed by security</span></h3>
+      <table class="req snug">
+        <tbody>
+          <tr><td><b>Protection travels with the data.</b> A republished object carries the tags,
+            masking and access currently defined for it &mdash; including any change governance has
+            made, and never reinstating one it has removed.</td></tr>
+          <tr><td><b>Protection lands before anyone can read it.</b> The governance step sits inside
+            the publication gate, not after it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="callout"><b>The two parts are not independent.</b> How much Part B costs is
+      decided by the mechanism chosen for Part A: one that never copies data leaves Part B nearly
+      empty, one that physicalises makes it large.
+      <br><br>Two specifications, <b>not two phases and not two workstreams</b>. Options are scored
+      against both together, and Part A cannot go live ahead of Part B.</div>
+
+      <div class="callout teal" style="margin-top:7px"><b>Binding on both.</b> It has to work on
+      the estate we have: repeatable every cycle, run by the batch identity, and achievable
+      <b>without rewriting existing view logic as new ETL</b>.</div>
+
+      <h3 class="gap">What this deliberately does not ask for</h3>
+      <table class="req snug">
+        <tbody>
+          <tr><td><b>A mechanism</b></td><td>No technology named or ruled out</td></tr>
+          <tr><td><b>History for users</b></td><td>No consumer-facing access to earlier versions</td></tr>
+          <tr><td><b>Upstream change</b></td><td>How Zone 2 loads work is untouched</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="takeaway">Split for review, joined for delivery &mdash; and the Part A mechanism we pick is what sets the size of Part B.</div>
+  <div class="slide-no">4 / 13</div>
+</section>
+
+<!-- ============ 05 SCOPE ============ -->
+<section class="slide" id="s5">
+  <h2>Three units &mdash; and why they are kept apart</h2>
+  <div class="sub">Two ideas that are easy to merge. Keeping them apart is what keeps the design correct.</div>
+  <div class="hz">
+    <div class="lbl"><div class="h">Three units</div><div class="x">Distinct, and not interchangeable</div></div>
+    <div class="a on"><div class="h">The object &mdash; unit of governance</div><div class="x">A table or view. Tags, masking and access bind here. Never at domain level</div></div>
+    <div class="a on"><div class="h">The consistency group &mdash; unit of visibility</div><div class="x">The objects one report depends on. Becomes visible together, or not at all</div></div>
+    <div class="a"><div class="h">The batch &mdash; unit of execution</div><div class="x">The jobs that refresh those objects. Publication follows only once all of them succeed</div></div>
+  </div>
+  <div class="cols">
+    <div>
+      <div class="stmt"><b>These are two different questions.</b> "Where do the controls live?"
+      is answered by the object. "What has to agree with what?" is answered by the group.
+      Collapsing them &mdash; treating the object as the unit of both &mdash; produces a design
+      that protects each object correctly and still shows a report two cycles at once.</div>
+      <h3 class="gap">Views &mdash; a working position, not frozen <span class="chip chk">To be tested</span></h3>
+      <p class="also">A view holds no data of its own; it is a query over the tables beneath it.
+      The working position is that a view is not published itself: it inherits consistency from
+      the published tables it reads, and its dependencies are counted inside the group.</p>
+      <div class="callout teal">If it holds, the population to gate is the <b>tables beneath the
+      view estate</b>, not the thousands of views themselves. The solution phase confirms or
+      overturns it.</div>
+    </div>
+    <div>
+      <h3>What this means in practice</h3>
+      <table class="req snug">
+        <thead><tr><th>For</th><th>Treatment</th><th></th></tr></thead>
+        <tbody>
+          <tr><td><b>A consumption object</b></td><td>A table or view. Carries its own tags, masking and access</td><td><span class="chip part">Governed here</span></td></tr>
+          <tr><td><b>A report</b></td><td>Defines which objects must agree &mdash; the membership of its group</td><td><span class="chip part">Sets the group</span></td></tr>
+          <tr><td><b>A domain</b></td><td>A batch. Not a governed object, holds no tags or policies</td><td><span class="chip part">Execution only</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout">Every consistency guarantee is only as good as knowing <b>which objects
+      each group contains</b>, and which jobs refresh them. That membership has to be known and
+      kept current as reports and objects change &mdash; get it wrong and a report shows two cycles
+      with nothing to flag it.</div>
+    </div>
+  </div>
+  <div class="takeaway">Protection is set per object, consistency per group &mdash; a design that merges the two will fail one of them.</div>
+  <div class="slide-no">5 / 13</div>
+</section>
+
+<!-- ============ 06 SETTLED ============ -->
+<section class="slide" id="s6">
+  <h2>Settled, still to be tested, and parked</h2>
+  <div class="sub">What the freeze closes, what the solution phase must test, and what belongs to someone else.</div>
+  <div class="cols c60">
+    <div>
+      <h3>Settled &mdash; agreed and not reopening</h3>
+      <table class="req snug">
+        <thead><tr><th>Decision</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td>Controls bind to the <b>object</b></td><td>No domain-level tags or policies to design</td></tr>
+          <tr><td>Visibility is per <b>consistency group</b></td><td>A report's objects flip together</td></tr>
+        </tbody>
+      </table>
+      <h3 class="gap" style="margin-top:9px">Working positions &mdash; not frozen, tested in the solution phase</h3>
+      <table class="req snug">
+        <thead><tr><th>Position</th><th>If it is wrong</th></tr></thead>
+        <tbody>
+          <tr><td><b>No new completion marker</b> &mdash; publication follows the batch's own job dependencies</td><td>Publication needs a stored completion record after all</td></tr>
+          <tr><td>Views <b>inherit</b>; only the tables beneath them are published</td><td>Views have to be gated directly, and the effort on the view estate rises sharply</td></tr>
+          <tr><td>A batch and a report's objects <b>line up</b> &mdash; a batch runs for a domain or report</td><td>If a report spans two batches, or two share an object, publishing one can leave another inconsistent</td></tr>
+          <tr><td>Publication waits for the <b>slowest</b> job in the group</td><td>Accepted, not a defect &mdash; but one straggler delays the whole report, so it needs alerting</td></tr>
+          <tr><td>Two different reports may legitimately show <b>different cycles</b></td><td>Needs saying out loud to the business before, not after, go-live</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>Parked &mdash; real, and not ours</h3>
+      <div class="callout"><b>Object ownership and orphan clean-up.</b> Objects created at runtime
+      by a service account, rather than through the deployment path, may be treated as orphans and
+      removed. Owner: <b>platform &mdash; Raja / Anoop</b>. Parked, not dropped: it constrains any
+      option that creates objects at runtime, and nothing that only works on objects already
+      deployed, so it stays visible when we compare options.</div>
+
+      <h3 class="gap">Still ours, and not parked with it</h3>
+      <div class="callout teal">Whether the batch identity can <b>execute</b> publication, and the
+      governance steps around it, is a requirement on us &mdash; separate from whether the resulting
+      objects are legitimate under platform policy. Discussed together; to be tracked apart.</div>
+    </div>
+  </div>
+  <div class="takeaway">The freeze closes two decisions. The working positions are inputs to the solution phase, to be confirmed or overturned there.</div>
+  <div class="slide-no">6 / 13</div>
+</section>
+
+<!-- ============ 07 ASKS ============ -->
+<section class="slide" id="s7">
+  <h2>What we need from you</h2>
+  <div class="sub">Five calls, none of them technical. One of them narrows the options before we start; the rest block build.</div>
+  <div class="cols">
+    <div>
+      <h3>The five calls</h3>
+      <table class="req snug">
+        <thead><tr><th>The call</th><th>Whose</th></tr></thead>
+        <tbody>
+          <tr class="hot"><td><b>May the batch identity read sensitive data in the clear?</b> If no, every mechanism that reads and rewrites the data is ruled out &mdash; this one <b>narrows the options before we evaluate them</b> &nbsp;<span class="chip warn">Answer first</span></td><td><span class="chip no">Security</span></td></tr>
+          <tr><td><b>Release of an incomplete cycle.</b> Who may authorise publishing a partial dataset, and what record is kept</td><td><span class="chip warn">Business</span></td></tr>
+          <tr><td><b>The permanent-failure exit.</b> If a job cannot be made to work, does the report stay on yesterday's data, or is partial release invoked &mdash; and after how long</td><td><span class="chip warn">Business</span></td></tr>
+          <tr><td><b>Alerting threshold.</b> How long a report may sit on the previous cycle before someone is told. Without this, the first signal is a user asking why the numbers look stale</td><td><span class="chip part">Ops</span></td></tr>
+          <tr><td><b>Retry window.</b> A job fails, is re-run and succeeds &mdash; may the batch still publish, however late in the day</td><td><span class="chip part">Ops</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal" style="margin-top:12px">The two business calls are one question
+      asked twice: <b>when is yesterday's complete data better than today's partial data?</b>
+      A business judgement, not ours to make.</div>
+    </div>
+    <div>
+      <h3>Next step &mdash; already underway</h3>
+      <ol class="steps teal">
+        <li><b>Assess the options against both parts together</b>, and test the working positions, each option judged on the frozen baseline</li>
+        <li><b>Prove the hard parts.</b> Protection surviving republication, and the at-rest trap, settled by test rather than argument</li>
+        <li><b>Size it against the real estate.</b> How many objects actually need gating &mdash; the effort question turns on that number, and nobody has it yet</li>
+        <li><b>Come back with a recommendation</b>, with the cost of each option stated</li>
+      </ol>
+    </div>
+  </div>
+  <div class="takeaway">The requirement is frozen and the analysis is ours. What we need from you is the security call &mdash; it decides which options are even on the table.</div>
+  <div class="slide-no">7 / 13</div>
+</section>
+
+<!-- ============ 08 WHERE GATING CAN HAPPEN ============ -->
+<section class="slide" id="s8">
+  <h2>Three places the gate could live</h2>
+  <div class="sub">Every candidate sits in one of these layers. Naming the layer first stops us comparing unlike things.</div>
+
+  <div class="hz">
+    <div class="lbl"><div class="h">One cycle</div><div class="x">left to right</div></div>
+    <div class="a on"><div class="h">1 &middot; Refresh</div><div class="x">how new data lands in a physical object</div></div>
+    <div class="a on"><div class="h">2 &middot; Publication</div><div class="x">how a whole group becomes visible at once</div></div>
+    <div class="a"><div class="h">3 &middot; Read time</div><div class="x">deciding visibility on every query instead</div></div>
+  </div>
+
+  <div class="cols c55">
+    <div>
+      <table class="req snug">
+        <thead><tr><th>Layer</th><th>The question it answers</th><th>Candidates</th></tr></thead>
+        <tbody>
+          <tr><td><b>Refresh</b></td><td>How does tonight's data land in a table without losing its tags, masking, grants or owner?</td><td><span class="rtag">O8 CTAS</span><span class="rtag">O9 Clone</span><span class="rtag">O10 Insert overwrite</span></td></tr>
+          <tr><td><b>Publication</b></td><td>How do <i>several</i> tables change visibility together, so no reader sees a mixture?</td><td><span class="rtag">O11 Transaction</span><span class="rtag">O16 Schema swap</span></td></tr>
+          <tr><td><b>Read time</b></td><td>Could we leave the data alone and decide per query what a reader may see?</td><td><span class="rtag">O5 View filter</span><span class="rtag">O12 Row access policy</span></td></tr>
+          <tr class="hot"><td><b>Neither</b></td><td>Mechanisms that merge refresh and publication &mdash; leaving nowhere to put a gate between them</td><td><span class="rtag">O6 Materialized views</span><span class="rtag">O7 Dynamic tables</span></td></tr>
+        </tbody>
+      </table>
+      <p class="src"><b>Why the last row matters.</b> The requirement makes publication a <b>decision</b>. Anything that refreshes and reveals in one managed step turns it back into a consequence.</p>
+    </div>
+    <div>
+      <div class="stmt">We expect to need <b>one refresh mechanism</b> and <b>more than one publication mechanism</b> &mdash; chosen per group by how many objects must agree.</div>
+      <div class="callout" style="margin-top:14px"><b>A view is not a layer.</b> A view holds no data, so it cannot be gated directly &mdash; it is consistent only when the tables beneath it are. That makes the view estate a <i>beneficiary</i> of gating, never a site of it, and it is why the cost question is &ldquo;how many tables&rdquo;, not &ldquo;how many views&rdquo;.</div>
+      <p class="src" style="margin-top:14px"><b>Evidence basis for slides 9&ndash;13:</b> <span class="chip ok">48 verified</span> against Snowflake documentation &nbsp;<span class="chip chk">7 assumed</span> not documented, each with a test case &nbsp;<span class="chip part">3 POC</span> from our own POC02 / POC05 pack.</p>
+    </div>
+  </div>
+  <div class="takeaway">One refresh mechanism, publication chosen by group shape &mdash; and the view estate benefits from gating without ever being gated itself.</div>
+  <div class="slide-no">8 / 13</div>
+</section>
+
+<!-- ============ 09 RULED OUT ============ -->
+<section class="slide" id="s9">
+  <h2>What we have ruled out, and on what evidence</h2>
+  <div class="sub">Each rejection rests on a documented limitation or on a constraint from the frozen requirement &mdash; not on preference.</div>
+
+  <table class="req snug">
+    <thead><tr><th class="id">ID</th><th>Option</th><th>Why it is out</th><th>Basis</th></tr></thead>
+    <tbody>
+      <tr><td class="id">O1</td><td>Per-object load checks <span class="dsc">today</span></td><td>Cannot detect a disagreement <i>between</i> objects &mdash; each one is individually valid, so every check passes</td><td><span class="chip no">Problem</span></td></tr>
+      <tr><td class="id">O2</td><td>Lock readers out</td><td>No window exists. Revoking access mid-session errors rather than serving stale-but-correct data</td><td><span class="chip no">Requirement</span></td></tr>
+      <tr><td class="id">O3</td><td>Shrink the load window</td><td>The requirement says <b>never</b> mixed, not rarely. A one-second window is still a wrong report</td><td><span class="chip no">Requirement</span></td></tr>
+      <tr><td class="id">O4</td><td>Transaction round the whole batch</td><td>Loads run as separate IDMC mappings in separate sessions, so a transaction cannot span them</td><td><span class="chip ok">Verified</span></td></tr>
+      <tr><td class="id">O5</td><td>Filter inside every view</td><td>No reliable universal &ldquo;latest&rdquo; criterion across the tables, and the validation-date concept was removed</td><td><span class="chip part">Meeting</span></td></tr>
+      <tr><td class="id">O6</td><td>Materialized views</td><td><span class="feat">can query only a single table</span>; joins unsupported; cannot be built over a tag-based-masked table</td><td><span class="chip ok">Verified</span></td></tr>
+      <tr class="hot"><td class="id">O7</td><td>Dynamic tables <span class="dsc">the closest call</span></td><td>Incremental refresh over a masked base <b>is</b> now possible (GA Jul 2026), so the old cost objection is obsolete &mdash; but refresh is automatic, so <b>there is nowhere a gate can live</b></td><td><span class="chip ok">Verified</span></td></tr>
+      <tr><td class="id">O13</td><td>Hybrid tables</td><td>2&nbsp;TB per database; explicitly not recommended for analytics; no clustering keys or streams</td><td><span class="chip ok">Verified</span></td></tr>
+      <tr><td class="id">O15</td><td>CREATE TABLE IF NOT EXISTS</td><td>A creation guard, not a refresh. From day two it declines to act, freezing consumers on day-one data silently</td><td><span class="chip chk">Needs test</span></td></tr>
+      <tr><td class="id">O21</td><td>Three-step RENAME TO</td><td>Not atomic, and leaves a window where the name does not exist at all</td><td><span class="chip ok">Verified</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="src" style="margin-top:10px"><b>O7 needs care.</b> POC02 rejected dynamic tables partly on cost; Snowflake changed that in July 2026. The rejection stands, but the <i>reason</i> has moved from cost to the missing gate. &nbsp;&nbsp;<b>O14 Iceberg is absent</b> &mdash; a storage format, not a mechanism; what it lacks is multi-table atomicity.</p>
+  <div class="takeaway">Nine options closed on documented limits. The one that nearly survived &mdash; dynamic tables &mdash; fails on the gate, not on cost.</div>
+  <div class="slide-no">9 / 13</div>
+</section>
+
+<!-- ============ 10 REFRESH ============ -->
+<section class="slide" id="s10">
+  <h2>The refresh question: ownership, not tags</h2>
+  <div class="sub">All three candidates can now keep their tags. Only one keeps its owner &mdash; and that is what decides it.</div>
+
+  <table class="req snug">
+    <thead><tr><th>&nbsp;</th><th>O8 &middot; CTAS</th><th>O9 &middot; Clone</th><th>O10 &middot; Insert overwrite</th></tr></thead>
+    <tbody>
+      <tr><td><b>Statement</b></td>
+          <td><span class="feat">CREATE OR REPLACE TABLE &hellip; COPY GRANTS COPY TAGS AS SELECT</span></td>
+          <td><span class="feat">CREATE OR REPLACE TABLE &hellip; CLONE &hellip; COPY GRANTS</span></td>
+          <td><span class="feat">INSERT OVERWRITE INTO &hellip; SELECT * FROM &lt;existing view&gt;</span></td></tr>
+      <tr><td>Reuses view logic &mdash; no ETL rebuilt</td><td><span class="chip ok">Yes</span></td><td><span class="chip no">No</span> <span class="st">needs a physical source</span></td><td><span class="chip ok">Yes</span></td></tr>
+      <tr><td>Tags survive</td><td><span class="chip ok">Verified</span> <span class="st">COPY TAGS, GA Apr 2026</span></td><td><span class="chip ok">Verified</span></td><td><span class="chip chk">Needs test</span> <span class="st">TC-004</span></td></tr>
+      <tr><td>Grants survive</td><td><span class="chip ok">Verified</span></td><td><span class="chip part">With COPY GRANTS</span></td><td><span class="chip ok">Verified</span></td></tr>
+      <tr class="hot"><td><b>Owner unchanged</b></td><td><span class="chip no">No</span> <span class="st">COPY GRANTS excludes OWNERSHIP</span></td><td><span class="chip no">No</span></td><td><span class="chip ok">Yes</span> <span class="st">object never recreated</span></td></tr>
+      <tr><td>Creates an object at runtime</td><td><span class="chip no">Nightly</span></td><td><span class="chip no">Nightly</span></td><td><span class="chip ok">Never</span></td></tr>
+      <tr><td>Clustering key survives</td><td><span class="chip no">No</span> <span class="st">unless columns restated</span></td><td><span class="chip ok">Yes</span></td><td><span class="chip chk">Needs test</span> <span class="st">TC-030</span></td></tr>
+      <tr><td>Can run inside a transaction</td><td><span class="chip no">No</span> <span class="st">DDL commits</span></td><td><span class="chip no">No</span></td><td><span class="chip ok">Verified</span></td></tr>
+    </tbody>
+  </table>
+
+  <p class="src" style="margin-top:10px"><b>What changed in our own thinking.</b> POC02 captured CTAS losing four tagged columns to zero &mdash; but <span class="feat">COPY TAGS</span> went GA in April 2026 and works with <span class="feat">AS SELECT</span>, so that finding holds only <i>without</i> the clause. Tags are no longer the discriminator. <b>Ownership is:</b> <span class="feat">COPY GRANTS</span> copies every privilege <i>except</i> OWNERSHIP, so CTAS and Clone hand the service account a new object nightly.</p>
+
+  <div class="takeaway">Insert overwrite changes a table's contents, not the table &mdash; so nothing attached to the object is at risk. Two unverified cells stand between that and a recommendation.</div>
+  <div class="slide-no">10 / 13</div>
+</section>
+
+<!-- ============ 11 PUBLICATION ============ -->
+<section class="slide" id="s11">
+  <h2>The publication question: group shape decides</h2>
+  <div class="sub">There is no single answer. How many objects must agree, and where they live, selects the mechanism.</div>
+
+  <div class="cols c55">
+    <div>
+      <h3>Mechanism by group shape</h3>
+      <table class="req snug">
+        <thead><tr><th>Group</th><th>Publication</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><b>One table</b></td><td><span class="chip ok">Nothing extra</span></td><td>Insert overwrite is already atomic and already leaves grants alone</td></tr>
+          <tr class="hot"><td><b>Several,<br>any layout</b></td><td><span class="rtag">O11</span> transaction</td><td>Atomic across any set. <b>The group need not map to a schema.</b> Costs a second write</td></tr>
+          <tr><td><b>Several, large,<br>schema-aligned</b></td><td><span class="rtag">O16</span> schema swap</td><td>A rename, so publish time is milliseconds at any volume</td></tr>
+          <tr><td><b>Nothing fits</b></td><td><span class="rtag">O12</span> row policy</td><td>Works anywhere with no view edits. Costs a permanent read-time tax</td></tr>
+        </tbody>
+      </table>
+      <p class="src"><b>The refresh statement is the same in all four rows.</b> Only publication varies &mdash; which keeps this one design rather than four.</p>
+    </div>
+    <div>
+      <h3>O11 versus O16 &mdash; the live trade</h3>
+      <table class="req snug">
+        <thead><tr><th>&nbsp;</th><th>O11 txn</th><th>O16 swap</th></tr></thead>
+        <tbody>
+          <tr class="hot"><td>Group must equal a schema</td><td><span class="chip ok">No</span></td><td><span class="chip no">Yes</span></td></tr>
+          <tr><td>Privileges needed</td><td><span class="st">INSERT + DELETE</span></td><td><span class="st">OWNERSHIP, both schemas</span></td></tr>
+          <tr><td>Second write of the data</td><td><span class="chip no">Yes</span></td><td><span class="chip ok">No</span></td></tr>
+          <tr><td>Publish duration</td><td><span class="st">minutes, by size</span></td><td><span class="st">milliseconds</span></td></tr>
+          <tr><td>Old version readable elsewhere</td><td><span class="chip ok">No</span></td><td><span class="chip chk">Open &mdash; TC-022</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal" style="margin-top:10px"><b>Why O11 is our current lean.</b> It removes the constraint that was shaping the whole physical layout &mdash; the frozen working position that a report's objects line up with one schema. A transaction has no schema boundary.</div>
+    </div>
+  </div>
+  <p class="src" style="margin-top:10px"><b>Verified:</b> READ COMMITTED; a statement sees only data committed before it began; all statements commit or roll back together; insert overwrite may run inside a transaction; standard tables in one transaction may span databases. &nbsp;<b>Not verified:</b> that a reader spanning the commit never sees a mixed state &mdash; <span class="chip chk">TC-020</span>.</p>
+  <div class="takeaway">Publication is picked per group, not once for the estate &mdash; and the sizing walk, not a preference, assigns each group its mechanism.</div>
+  <div class="slide-no">11 / 13</div>
+</section>
+
+<!-- ============ 12 ARCHITECTURE ============ -->
+<section class="slide" id="s12">
+  <h2>Architecture &mdash; one cycle, end to end</h2>
+  <div class="sub">Everything expensive happens where nobody is looking. Only step 4 changes what a consumer can see.</div>
+
+  <svg class="dg" viewBox="0 0 1164 210" width="1164" height="210" role="img" aria-label="Zone 3 gating cycle architecture">
+    <rect class="box grey" x="0"   y="70" width="104" height="56" rx="2"/>
+    <text class="t"   x="52"  y="94"  text-anchor="middle">Zone 2</text>
+    <text class="t s" x="52"  y="110" text-anchor="middle">untouched</text>
+
+    <rect class="box warnb" x="138" y="56" width="188" height="84" rx="2"/>
+    <text class="t w" x="232" y="78"  text-anchor="middle">Z3_STG_&lt;group&gt;</text>
+    <text class="t s" x="232" y="96"  text-anchor="middle">insert overwrite</text>
+    <text class="t s" x="232" y="112" text-anchor="middle">source = the existing view</text>
+    <text class="t s" x="232" y="128" text-anchor="middle">nobody reads this</text>
+
+    <rect class="box alt" x="360" y="56" width="148" height="84" rx="2"/>
+    <text class="t"   x="434" y="78"  text-anchor="middle">GATE</text>
+    <text class="t s" x="434" y="96"  text-anchor="middle">completeness</text>
+    <text class="t s" x="434" y="112" text-anchor="middle">+ governance diff</text>
+    <text class="t s" x="434" y="128" text-anchor="middle">fail &rarr; publish nothing</text>
+
+    <rect class="box" x="542" y="56" width="166" height="84" rx="2"/>
+    <text class="t"   x="625" y="78"  text-anchor="middle">PUBLISH</text>
+    <text class="t s" x="625" y="96"  text-anchor="middle">O11 one transaction</text>
+    <text class="t s" x="625" y="112" text-anchor="middle">or O16 schema swap</text>
+    <text class="t s" x="625" y="128" text-anchor="middle">or nothing, if one table</text>
+
+    <rect class="box" x="742" y="56" width="166" height="84" rx="2"/>
+    <text class="t"   x="825" y="78"  text-anchor="middle">Z3_PUB_&lt;group&gt;</text>
+    <text class="t s" x="825" y="96"  text-anchor="middle">what consumers read</text>
+    <text class="t s" x="825" y="112" text-anchor="middle">Liquibase-deployed</text>
+    <text class="t s" x="825" y="128" text-anchor="middle">owner never moves</text>
+
+    <rect class="box grey" x="944" y="56" width="218" height="84" rx="2"/>
+    <text class="t"   x="1053" y="78"  text-anchor="middle">Z3_CONSUME views</text>
+    <text class="t s" x="1053" y="96"  text-anchor="middle">text never edited</text>
+    <text class="t s" x="1053" y="112" text-anchor="middle">inherit consistency</text>
+    <text class="t s" x="1053" y="128" text-anchor="middle">&rarr; Power BI</text>
+
+    <rect class="box alt" x="360" y="158" width="348" height="42" rx="2"/>
+    <text class="t"   x="534" y="175" text-anchor="middle">Z3_GOVERNANCE &mdash; tags, policies, declared baseline</text>
+    <text class="t s" x="534" y="191" text-anchor="middle">never swapped; the gate reconciles against it</text>
+    <path class="band" d="M 534 158 L 534 142"/>
+
+    <rect class="box grey" x="742" y="158" width="166" height="42" rx="2"/>
+    <text class="t"   x="825" y="175" text-anchor="middle">Z3_CONTROL</text>
+    <text class="t s" x="825" y="191" text-anchor="middle">gate + publication log</text>
+    <path class="band" d="M 825 158 L 825 142"/>
+
+    <path class="brk" d="M 104 98 L 134 98" marker-end="url(#ar12)"/>
+    <path class="brk" d="M 326 98 L 356 98" marker-end="url(#ar12)"/>
+    <path class="brk" d="M 508 98 L 538 98" marker-end="url(#ar12)"/>
+    <path class="cut" d="M 708 98 L 738 98" marker-end="url(#ar12t)"/>
+    <path class="brk" d="M 908 98 L 940 98" marker-end="url(#ar12)"/>
+    <defs>
+      <marker id="ar12"  markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#75787B"/></marker>
+      <marker id="ar12t" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0097A9"/></marker>
+    </defs>
+
+    <circle class="nb" cx="52"  cy="46" r="10"/><text class="nt" x="52"  y="50" text-anchor="middle">1</text>
+    <circle class="nb" cx="232" cy="46" r="10"/><text class="nt" x="232" y="50" text-anchor="middle">2</text>
+    <circle class="nb" cx="434" cy="46" r="10"/><text class="nt" x="434" y="50" text-anchor="middle">3</text>
+    <circle class="nb" cx="625" cy="46" r="10"/><text class="nt" x="625" y="50" text-anchor="middle">4</text>
+    <circle class="nb" cx="825" cy="46" r="10"/><text class="nt" x="825" y="50" text-anchor="middle">5</text>
+  </svg>
+  <p class="src"><b>Illustrative</b> &mdash; box widths are not to scale. The teal arrow is the only step a consumer can observe.</p>
+
+  <table class="req snug" style="margin-top:6px">
+    <thead><tr><th class="num">#</th><th>Step</th><th>What it does</th><th>Visible?</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Zone 2 completes</td><td>Unchanged by this design. The signal that a Zone 3 cycle may begin</td><td><span class="chip ok">No</span></td></tr>
+      <tr><td class="num">2</td><td>Load into staging</td><td>Insert overwrite, sourced from the existing view or an IDMC mapping retargeted by parameter</td><td><span class="chip ok">No</span></td></tr>
+      <tr><td class="num">3</td><td>Gate</td><td>Completeness checks plus a tag diff against the declared baseline. A failure publishes nothing; an authorised partial release is recorded first</td><td><span class="chip ok">No</span></td></tr>
+      <tr class="hot"><td class="num">4</td><td>Publish</td><td>Per group shape &mdash; one transaction, one schema swap, or nothing for a single-table group. <b>This is the entire visible window</b></td><td><span class="chip warn">Yes</span></td></tr>
+      <tr><td class="num">5</td><td>Verify &amp; hold</td><td>Assertions run, publication record written, previous version held one cycle for rollback</td><td><span class="chip ok">No</span></td></tr>
+    </tbody>
+  </table>
+  <div class="takeaway">Two schema names, one gate, one visible moment &mdash; and the view estate sits outside all of it, untouched by design.</div>
+  <div class="slide-no">12 / 13</div>
+</section>
+
+<!-- ============ 13 WHAT WE MUST PROVE ============ -->
+<section class="slide" id="s13">
+  <h2>What we must prove before concluding this POC</h2>
+  <div class="sub">Nothing here is a decision yet. Four tests can still change the design; the rest confirm documented behaviour on our account.</div>
+
+  <div class="cols c55">
+    <div>
+      <h3>The four that can change the design</h3>
+      <table class="req snug">
+        <thead><tr><th class="id">TC</th><th>Question</th><th>If it fails</th></tr></thead>
+        <tbody>
+          <tr class="hot"><td class="id">004<br>005<br>006</td><td><b>Does insert overwrite preserve tags, masking and OWNER?</b> Grants are documented; these are not</td><td>O10 collapses toward CTAS, and the nightly ownership problem returns</td></tr>
+          <tr class="hot"><td class="id">020</td><td><b>Does a reader spanning the commit ever see a mixed state?</b> It follows from READ COMMITTED, but it is the single most important claim here</td><td>O11 is out, and O16's schema constraint returns</td></tr>
+          <tr class="hot"><td class="id">039</td><td><b>Is a governance-removed tag reinstated by a publish?</b> Part B's non-reinstatement clause</td><td>The gate's governance step becomes mandatory for O16, not advisory</td></tr>
+          <tr class="hot"><td class="id">041</td><td><b>Do consistency groups fit inside one schema?</b> Offline, read-only, runnable today</td><td>O16 cannot publish those groups &mdash; O11 becomes the only option</td></tr>
+        </tbody>
+      </table>
+      <p class="src"><b>Full pack:</b> 21 scenarios, 42 test cases, five copy-and-run SQL scripts, evidence tracker. Each case states whether its expected result is documented or assumed.</p>
+    </div>
+    <div>
+      <h3>Still open &mdash; and not ours to close</h3>
+      <table class="req snug">
+        <tbody>
+          <tr class="hot"><td><b>May the batch identity read sensitive data in the clear?</b> Physicalizing a view means reading it and writing the rows down &mdash; so this decides <b>how much of the view estate can be gated at all</b></td><td><span class="chip no">Security</span></td></tr>
+          <tr><td><b>Is there a declared governance baseline to reconcile against?</b> Without one, &ldquo;never reinstate a removed protection&rdquo; cannot be implemented</td><td><span class="chip no">Security</span></td></tr>
+          <tr><td><b>Can the batch identity publish?</b> O11 needs INSERT and DELETE; O16 needs OWNERSHIP on both schemas</td><td><span class="chip warn">Platform</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:10px"><b>A correction we carry openly.</b> We previously said a &ldquo;no&rdquo; on the security call would constrain only the build step. That understated it &mdash; any physicalization reads the data, so the answer sets the ceiling on scope.</div>
+    </div>
+  </div>
+  <p class="src" style="margin-top:10px"><b>Next step:</b> run the sizing walk now &mdash; TC-040 and TC-041 need no POC environment and answer the effort question nobody has yet. Then the three governance tests, which are cheap and carry the recommendation. A costed recommendation follows the evidence.</p>
+  <div class="takeaway">The options and the reasoning are ready to review. The recommendation waits on four tests and one security answer.</div>
+  <div class="slide-no">13 / 13</div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+
+  var SLIDE_W = 1280, SLIDE_H = 720;
+  var INNER_W = 1164, INNER_TOP = 34, BOTTOM_RESERVE = 86;
+  var MIN_FIT = 0.55, NAV_W = 240;
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 &&
+          (node.classList.contains("takeaway") || node.classList.contains("slide-no"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+  }
+
+  function fitStage() {
+    var z = Math.min((window.innerWidth - NAV_W - 26) / SLIDE_W,
+                     (window.innerHeight - 26) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+    else if (e.key >= "1" && e.key <= "9") { show(parseInt(e.key, 10) - 1); e.preventDefault(); }
+  });
+
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>
