@@ -68,6 +68,7 @@ h2{font-size:30px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6
 h3{font-size:14px;font-weight:700;color:var(--g11);text-transform:uppercase;
    letter-spacing:.09em;margin:0 0 10px;}
 h3.gap{margin-top:16px;}
+h3 .st{text-transform:none;letter-spacing:0;font-weight:400;color:var(--g9);}
 
 /* ---------- cover ---------- */
 .cover .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
@@ -198,7 +199,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">02</span>What goes wrong today</button>
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">03</span>Today vs. what is required</button>
     <div class="navsec">Requirement</div>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">04</span>The requirement, in four parts</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">04</span>The requirement, in two parts</button>
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">05</span>Three units, kept apart</button>
     <div class="navsec">Decisions</div>
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">06</span>Settled, to test, parked</button>
@@ -237,11 +238,11 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
         <div class="item"><span class="k">02</span><span>What a consumer sees today, and why nothing catches it</span></div>
         <div class="item"><span class="k">03</span><span>Today against what is required, on one timeline</span></div>
         <div class="sec">Requirement</div>
-        <div class="item"><span class="k">04</span><span>The requirement consolidated into four parts</span></div>
+        <div class="item"><span class="k">04</span><span>The requirement in two parts, and what binds both</span></div>
         <div class="item"><span class="k">05</span><span>The three units the requirement rests on</span></div>
         <div class="sec">Decisions</div>
         <div class="item"><span class="k">06</span><span>What is settled, what is still to be tested, what is parked</span></div>
-        <div class="item"><span class="k">07</span><span>The four calls we need, and the next step</span></div>
+        <div class="item"><span class="k">07</span><span>The five calls we need, and the next step</span></div>
       </div>
     </div>
   </div>
@@ -372,51 +373,57 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 
 <!-- ============ 04 REQUIREMENT ============ -->
 <section class="slide" id="s4">
-  <h2>The requirement, consolidated into four parts</h2>
-  <div class="sub">Each part is backed by detailed requirements, every one written so a proof of concept can pass or fail it.</div>
+  <h2>The requirement, in two parts</h2>
+  <div class="sub">Two different problems, with opposite failure signatures. Separately specified &mdash; and jointly delivered.</div>
   <div class="cols c60">
     <div>
-      <table class="req">
-        <thead><tr><th>What we are committing to</th></tr></thead>
+      <h3>Part A &mdash; publication gating &nbsp;<span class="st">fails visibly: wrong numbers. Reviewed by the business</span></h3>
+      <table class="req snug">
         <tbody>
-          <tr><td><b>One version, or none.</b> A consumer sees a complete
-            version of the data their report depends on &mdash; never a partial one, never a mixture
-            of two cycles, never a missing object.</td></tr>
-          <tr><td><b>Publication is a decision, not a consequence.</b> New data
-            becomes visible only when publication runs, after every job in the cycle has succeeded.
-            A failed cycle publishes nothing and consumers keep the previous version &mdash; though
-            the business can still authorise release of an incomplete cycle, on the record. When the
-            missing jobs later succeed, or a newer cycle completes, the latest complete data is
-            published as normal.</td></tr>
-          <tr><td><b>Protection travels with the data.</b> A republished object
-            carries the tags, masking and access currently defined for it, including any change
-            governance has made since the last cycle. No sensitive value is exposed unprotected,
-            and no masked value is ever written to disk as though it were real data.</td></tr>
-          <tr><td><b>It has to work on the estate we already have.</b>
-            Repeatable every cycle, executable by the batch identity, and achievable
-            <b>without rewriting existing view logic as new ETL</b>.</td></tr>
+          <tr><td><b>One version, or none.</b> A consumer sees a complete version of the data their
+            report depends on &mdash; never a partial one, never a mixture of two cycles.</td></tr>
+          <tr><td><b>Publication is a decision, not a consequence.</b> New data becomes visible only
+            when publication runs, after every job in the cycle has succeeded. A failed cycle
+            publishes nothing &mdash; though the business can still authorise release, on the
+            record.</td></tr>
+          <tr><td><b>What is published is the real data.</b> No masked value is ever written to disk
+            as though it were genuine. A dataset failing this is <i>wrong</i>, not merely
+            unprotected.</td></tr>
+        </tbody>
+      </table>
+      <h3 class="gap" style="margin-top:14px">Part B &mdash; governance continuity &nbsp;<span class="st">fails silently: no error at all. Reviewed by security</span></h3>
+      <table class="req snug">
+        <tbody>
+          <tr><td><b>Protection travels with the data.</b> A republished object carries the tags,
+            masking and access currently defined for it &mdash; including any change governance has
+            made, and never reinstating one it has removed.</td></tr>
+          <tr><td><b>Protection lands before anyone can read it.</b> The governance step sits inside
+            the publication gate, not after it.</td></tr>
         </tbody>
       </table>
     </div>
     <div>
-      <div class="callout teal"><b>Protection carries a trap worth naming.</b> Physicalising a protected
-      dataset with an identity not approved to see real values does not fail loudly &mdash; it
-      writes the <i>masked</i> values to disk as if they were the data. Restoring the tag afterwards
-      then makes a corrupted dataset look correct.</div>
+      <div class="callout"><b>The two parts are not independent.</b> How much Part B costs is
+      decided by the mechanism chosen for Part A: one that never copies data leaves Part B nearly
+      empty, one that physicalises makes it large.
+      <br><br>Two specifications, <b>not two phases and not two workstreams</b>. Options are scored
+      against both together, and Part A cannot go live ahead of Part B.</div>
+
+      <div class="callout teal" style="margin-top:7px"><b>Binding on both.</b> It has to work on
+      the estate we have: repeatable every cycle, run by the batch identity, and achievable
+      <b>without rewriting existing view logic as new ETL</b>.</div>
 
       <h3 class="gap">What this deliberately does not ask for</h3>
       <table class="req snug">
         <tbody>
-          <tr><td><b>A mechanism</b></td><td>No technology named or ruled out. Options are assessed against these four parts</td></tr>
-          <tr><td><b>History for users</b></td><td>No consumer-facing access to earlier published versions</td></tr>
+          <tr><td><b>A mechanism</b></td><td>No technology named or ruled out</td></tr>
+          <tr><td><b>History for users</b></td><td>No consumer-facing access to earlier versions</td></tr>
           <tr><td><b>Upstream change</b></td><td>How Zone 2 loads work is untouched</td></tr>
         </tbody>
       </table>
-      <p class="also" style="margin-top:7px">Each was a live option, closed deliberately &mdash;
-      recorded so the absence is not read as an oversight.</p>
     </div>
   </div>
-  <div class="takeaway">Working on the existing estate is the part that decides this: the other three can be met several ways, but few of them avoid rebuilding the view estate.</div>
+  <div class="takeaway">Split for review, joined for delivery &mdash; and the Part A mechanism we pick is what sets the size of Part B.</div>
   <div class="slide-no">4 / 7</div>
 </section>
 
@@ -511,34 +518,35 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 <!-- ============ 07 ASKS ============ -->
 <section class="slide" id="s7">
   <h2>What we need from you</h2>
-  <div class="sub">Four calls, none of them technical. All four block build, none blocks the next step.</div>
+  <div class="sub">Five calls, none of them technical. One of them narrows the options before we start; the rest block build.</div>
   <div class="cols">
     <div>
-      <h3>The four calls</h3>
+      <h3>The five calls</h3>
       <table class="req snug">
         <thead><tr><th>The call</th><th>Whose</th></tr></thead>
         <tbody>
+          <tr class="hot"><td><b>May the batch identity read sensitive data in the clear?</b> If no, every mechanism that reads and rewrites the data is ruled out &mdash; this one <b>narrows the options before we evaluate them</b> &nbsp;<span class="chip warn">Answer first</span></td><td><span class="chip no">Security</span></td></tr>
           <tr><td><b>Release of an incomplete cycle.</b> Who may authorise publishing a partial dataset, and what record is kept</td><td><span class="chip warn">Business</span></td></tr>
           <tr><td><b>The permanent-failure exit.</b> If a job cannot be made to work, does the report stay on yesterday's data, or is partial release invoked &mdash; and after how long</td><td><span class="chip warn">Business</span></td></tr>
           <tr><td><b>Alerting threshold.</b> How long a report may sit on the previous cycle before someone is told. Without this, the first signal is a user asking why the numbers look stale</td><td><span class="chip part">Ops</span></td></tr>
           <tr><td><b>Retry window.</b> A job fails, is re-run and succeeds &mdash; may the batch still publish, however late in the day</td><td><span class="chip part">Ops</span></td></tr>
         </tbody>
       </table>
-      <div class="callout teal" style="margin-top:12px">The two business calls are the same question asked twice:
-      <b>when is yesterday's complete data better than today's partial data?</b> That is a business
-      judgement about the reports in question, and it is not ours to make.</div>
+      <div class="callout teal" style="margin-top:12px">The two business calls are one question
+      asked twice: <b>when is yesterday's complete data better than today's partial data?</b>
+      A business judgement, not ours to make.</div>
     </div>
     <div>
       <h3>Next step &mdash; already underway</h3>
       <ol class="steps teal">
-        <li><b>Assess the options against the four parts of the requirement</b>, and test the working positions, each option judged on the frozen baseline</li>
+        <li><b>Assess the options against both parts together</b>, and test the working positions, each option judged on the frozen baseline</li>
         <li><b>Prove the hard parts.</b> Protection surviving republication, and the at-rest trap, settled by test rather than argument</li>
         <li><b>Size it against the real estate.</b> How many objects actually need gating &mdash; the effort question turns on that number, and nobody has it yet</li>
         <li><b>Come back with a recommendation</b>, with the cost of each option stated</li>
       </ol>
     </div>
   </div>
-  <div class="takeaway">The requirement is frozen and the analysis is ours. What we need from you is the business call on releasing incomplete data.</div>
+  <div class="takeaway">The analysis is ours. What we need from you is the security call   <div class="takeaway">The requirement is frozen and the analysis is ours. What we need from you is the business call on releasing incomplete data.</div>mdash; it decides which options are even on the table.</div>
   <div class="slide-no">7 / 7</div>
 </section>
 
