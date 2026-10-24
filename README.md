@@ -292,8 +292,8 @@ explicit, controlled publication event.
 
 | File | What it is |
 |------|-----------|
-| `problem_statement.md` | **The agreed baseline.** Problem statement, scope, model and vocabulary, settled decisions D1-D4, requirements R1-R24, assumptions A1-A4, parked dependencies, open operational policy |
-| `requirement_deck.html` | Leadership deck, 7 slides, built on the `lm-html-deck` deck-1 identity. The baseline consolidated to four themes T1-T4, with a stacked before/after timeline as the central diagram. Derived from `problem_statement.md` — update it there first, then reflect it here |
+| `problem_statement.md` | **The agreed, frozen baseline.** Problem statement, scope, model and vocabulary, settled decisions D1 and D3, requirements R1-R24, parked dependencies, open operational policy. Section 6 carries working positions (D2, D4, A1-A4) that are **outside** the freeze |
+| `requirement_deck.html` | Leadership deck, 7 slides, built on the `lm-html-deck` deck-1 identity. The baseline consolidated to four parts, with a stacked before/after timeline as the central diagram. By direction it carries **no requirement IDs and no source references**, unlike the skill's default. Derived from `problem_statement.md` — update it there first, then reflect it here |
 | `sources/RE Discuss code freeze activities.msg` | The requirement source — a Copilot synthesis of the 24-Oct-2026 design discussion |
 | `sources/POC02_Recommendation_and_Design 1.html` | **Background only.** Earlier clone-and-swap recommendation. Addresses a neighbouring problem and predates this requirement |
 | `sources/POC05 - Same-Name Clone Refresh for Consumption - Deck.html` | **Background only.** Earlier same-name reclone analysis. A component, not a solution |
@@ -304,18 +304,17 @@ above as a basis for analysis. This problem is approached fresh — see the prov
 
 **The four discriminating requirements**, each capable of eliminating an otherwise attractive
 option on its own: **R4** (publishing one consistency group must not make another inconsistent),
-**R14** (publication must not persist masked values as real data), **R20** (no per-object
-redevelopment of existing view logic), **R22** (dependency-graph integrity across
-report → object → job).
+**R15** (publication must not persist masked values as real data), **R20** (no per-object
+redevelopment of existing view logic), **R22** (consistency-group membership known and kept
+current).
 
 **Vocabulary that matters.** The *unit of governance* is the object — tags, masking and grants
 bind there. The *unit of visibility* is the consistency group — the closure of ground objects a
-report depends on. Collapsing those two produces a broken design. Views hold no state and are not
-published; they inherit consistency from their published inputs, which is what keeps the view
-estate tractable.
+report depends on. Collapsing those two produces a broken design. That views inherit consistency
+rather than being published is a working position (D4), not part of the freeze.
 
 **Not W4.** W4 is the generic ETL framework that loads objects. W5 is about when a loaded object
-becomes *visible*. They meet only at the batch-terminal publication step (R8).
+becomes *visible*. They meet only at the publication step (R8).
 
 ---
 
