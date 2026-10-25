@@ -1,5 +1,5 @@
 /* =====================================================================
-   01 — GOVERNANCE SURVIVAL   (TC-001 … TC-015)
+   01 — GOVERNANCE SURVIVAL   (TC-001 … TC-016)
    Scenarios SC-06, SC-07, SC-08, SC-09, SC-14, SC-15
    ---------------------------------------------------------------------
    Question: for each candidate refresh mechanism, do the tag, the
@@ -381,6 +381,51 @@ SELECT 'TC-015 gate diff (expect ZERO rows)' AS tc, * FROM CTRL.V_GATE_TAG_DIFF;
    ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email UNSET TAG GOV.PII_EMAIL;
    SELECT * FROM CTRL.V_GATE_TAG_DIFF;        -- expect one MISSING_TAG row
    ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email SET TAG GOV.PII_EMAIL = 'EMAIL';  */
+
+
+/* =====================================================================
+   TC-016  Is stored data actually plaintext under a masking policy?
+   ---------------------------------------------------------------------
+   This underpins the whole governance argument: if masking were applied
+   on WRITE, losing a tag would be harmless, and R15 (no masked value
+   persisted as real) would be a non-issue. Everything in Part B assumes
+   the opposite — that storage is plaintext and the tag is the only thing
+   standing between a consumer and the real value.
+
+   Snowflake does NOT state this outright. It follows by inference from
+   the documented enforcement model: masking is a query rewrite applied
+   at READ time, so nothing transforms the value on write. Inference is
+   not evidence, and third-party blogs are not a source. Prove it.
+
+   Method: unbind the policy from the tag, read the column back, rebind.
+   Expected: the real value reads back in the clear once the policy is
+             unbound — proving the stored bytes were never masked.
+   If instead it reads back masked or NULL, the storage model is not what
+   this design assumes and Part B needs rethinking from the ground up.
+   ===================================================================== */
+SELECT 'TC-016 with policy bound (POC_ROLE sees clear anyway)' AS tc, email
+FROM PUB.CUSTOMER_360 ORDER BY customer_id LIMIT 3;
+
+/* Unbind, then read as a role the policy would otherwise mask.
+   Run the middle SELECT in a SECOND session as POC_READER_ROLE. */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-016|PLAINTEXT_AT_REST';
+ALTER TAG GOV.PII_EMAIL UNSET MASKING POLICY GOV.MASK_EMAIL;
+
+-- [SESSION B]  USE ROLE POC_READER_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
+--   SELECT 'TC-016 as READER, policy UNBOUND' AS tc, email
+--   FROM PUB.CUSTOMER_360 ORDER BY customer_id LIMIT 3;
+--   -- EXPECTED: cust0@example.invalid etc — the REAL value, in the clear.
+--   -- That is the proof: the stored bytes were never masked, only the
+--   -- read was. Capture this grid; it is the evidence for fact #27.
+
+/* rebind immediately — the window above is exactly the exposure this
+   design exists to prevent, so do not leave it open. */
+ALTER TAG GOV.PII_EMAIL SET MASKING POLICY GOV.MASK_EMAIL;
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-016 policy rebound (confirm before moving on)' AS tc, *
+FROM TABLE(INFORMATION_SCHEMA.POLICY_REFERENCES(
+        REF_ENTITY_NAME => 'PUB.CUSTOMER_360', REF_ENTITY_DOMAIN => 'TABLE'));
 
 
 /* =====================================================================

@@ -7,7 +7,7 @@ two ever disagree, the baseline wins.
 | | |
 |---|---|
 | **Requirement baseline** | [`problem_statement.md`](problem_statement.md) — Part A, Part B, R1-R28. **The source of truth** |
-| Background only | [POC02](sources/POC02_Recommendation_and_Design%201.html), [POC05](sources/POC05%20-%20Same-Name%20Clone%20Refresh%20for%20Consumption%20-%20Deck.html). The baseline excludes both as inputs. Citations to them are flagged where they occur and are pending a decision to lift that exclusion or drop them |
+| Excluded as inputs | The earlier POC02 and POC05 decks. Per the baseline's provenance, **no claim or recommendation here derives from them**. Every Snowflake behaviour below is sourced from current documentation or marked as needing test |
 | Meeting source | "Discuss code freeze activities" — transcript synthesis |
 | Test scripts | [`00_setup.sql`](00_setup.sql) … [`05_sizing_performance.sql`](05_sizing_performance.sql), [`99_teardown.sql`](99_teardown.sql) |
 | Test tracker | [`Zone3_Gating_Test_Tracker.xlsx`](Zone3_Gating_Test_Tracker.xlsx) |
@@ -20,7 +20,7 @@ two ever disagree, the baseline wins.
 |---|---|
 | **✅ Verified** | Quoted from Snowflake documentation. Link given in §11 |
 | **🧪 Needs test** | Not documented. The stated expectation is our assumption and is listed as a test case |
-| **📋 POC evidence** | Proven by our own POC02 / POC05 capture, not by documentation |
+| **🧪 Needs test** | (as above) — this includes anything previously resting on an earlier POC's capture, which is no longer accepted as a source |
 
 ---
 
@@ -73,7 +73,7 @@ A sensitive column gets a **tag**; a **masking policy** attaches to the tag. **�
 
 So the risk is not copying data. **The risk is losing the tag.** Identical data without the tag is exposed, and nothing errors.
 
-**📋 POC evidence:** stored values remain plaintext — POC02 removed the policy binding and the real value read back. The documentation does not state this outright; treat it as proven by our own evidence pack.
+**🧪 Needs test — TC-016.** That stored values remain plaintext is an *inference*, not a documented statement. It follows from the enforcement model: masking is a **query rewrite at read time**, so nothing transforms the value on write. Snowflake does not say outright that storage is unmasked, and third-party write-ups are not a source. Prove it directly — unbind the policy, read the column back, confirm the real value — and record it as TC-016.
 
 ### 2.3 A clone is free — with fine print
 
@@ -158,7 +158,7 @@ Our consumption objects are fact/dimension joins over masked bases. Every one of
 
 ### O7 — Dynamic tables
 **What it is.** Declare the target as a dynamic table on a freshness target; Snowflake refreshes it and makes the result visible atomically. No cutover code.
-**What changed since POC02.** POC02 rejected these partly on cost, citing `091955 Change tracking is not supported on queries using policies that contain subqueries` — full rebuild every cycle over a masked base. **✅ Verified, and this is now partly obsolete:** *"Dynamic tables that have base tables with arbitrary masking or row access policies can now maintain incremental refresh when the policy is pass-through for the role used during refresh (that is, when the refresh role has unrestricted access to all rows and columns regardless of the policy condition). Previously, only policies using allow-listed functions, such as `CURRENT_ROLE()`, `IS_ROLE_IN_SESSION()`, were compatible with incremental refresh."* (GA 2026-07-20.)
+**What has changed recently.** Dynamic tables over a masked base used to force a full rebuild every cycle, which made them expensive here. **✅ Verified, and that cost objection is now partly obsolete:** *"Dynamic tables that have base tables with arbitrary masking or row access policies can now maintain incremental refresh when the policy is pass-through for the role used during refresh (that is, when the refresh role has unrestricted access to all rows and columns regardless of the policy condition). Previously, only policies using allow-listed functions, such as `CURRENT_ROLE()`, `IS_ROLE_IN_SESSION()`, were compatible with incremental refresh."* (GA 2026-07-20.)
 Note what "pass-through" means: **the refresh role sees everything unmasked.** That is the same security question as §8.1, not an escape from it. And **✅ Verified:** *"Subqueries outside of FROM clauses (for example, WHERE EXISTS) are not supported"* for incremental refresh.
 **Why it still fails, and this is decisive.** Refresh is *"automatically and transparently maintained"* — **there is no point between "loaded" and "visible" where a gate can live.** The requirement makes publication a *decision*; a dynamic table makes it a consequence. It is also a second physical copy whose protection must be managed on its own columns.
 **Verdict:** rejected for gated objects — on governance and the missing gate, no longer on cost. Still viable for an unmasked single-SELECT feed where freshness beats control.
@@ -171,7 +171,7 @@ existing view  →  CTAS  →  physical consumption object      ← cheap
 existing view logic  →  new ETL mapping  →  physical table  ← expensive
 ```
 
-**What I had wrong.** I rejected this on tag loss, citing POC02's capture of 4 tagged columns becoming 0. **✅ Verified, and that rejection no longer holds as stated:** `COPY TAGS` for `CREATE OR REPLACE TABLE` reached GA on 2026-04-02; *"tags from the replaced table and its columns are retained on the new table"*; it works with `AS SELECT` — the documentation's own example is `CREATE OR REPLACE TABLE dst1 COPY TAGS AS SELECT b AS a, a AS b FROM src1`; and *"You don't need privileges on the tags to use COPY TAGS."* POC02's finding holds only for CTAS *without* the clause.
+**Tag loss is no longer the objection.** CTAS without the clause does lose column tags. **✅ Verified, and that alone no longer rules CTAS out:** `COPY TAGS` for `CREATE OR REPLACE TABLE` reached GA on 2026-04-02; *"tags from the replaced table and its columns are retained on the new table"*; it works with `AS SELECT` — the documentation's own example is `CREATE OR REPLACE TABLE dst1 COPY TAGS AS SELECT b AS a, a AS b FROM src1`; and *"You don't need privileges on the tags to use COPY TAGS."* Note the documentation confirms the clause for `CREATE OR REPLACE TABLE`; that it also covers the `AS SELECT` form is our reading and is what TC-003 settles.
 
 So the viable form is:
 
@@ -190,13 +190,13 @@ CREATE OR REPLACE TABLE Z3_STG.CUSTOMER_360
 6. N objects = N statements = N commits → **not atomic across a group.**
 **Verdict:** viable fallback. Not preferred, because of (2) and (4).
 
-### O9 — Clone and swap (POC02's recommendation)
+### O9 — Clone and swap
 **What it is.** Clone the live object, load the clone, gate it, swap the names.
-**What it gets right.** Atomic at schema level; tags maintained; policies mapped; zero-copy; never reads column values; a real gate point; rollback is another swap. On Snowflake behaviour alone this is the best-behaved option, and POC02 proved it.
+**What it gets right.** Atomic at schema level; tags maintained; policies mapped; zero-copy; never reads column values; a real gate point; rollback is another swap. On documented Snowflake behaviour alone this is the best-behaved option.
 **Why it cannot be the whole answer.**
 1. **It needs a physical source object.** Nothing to clone for thousands of views — C6. This is the objection raised in the meeting and it is decisive.
 2. A daily `CREATE OR REPLACE … CLONE` **creates an object at runtime** with the same ownership move as O8 — C7.
-3. **✅ Verified:** grants are not copied without `COPY GRANTS`, and on a first creation with it they come from the *clone source*, not the intended consumption object — POC05's Day-1 bootstrap gap.
+3. **✅ Verified:** grants are not copied without `COPY GRANTS`, and on a first creation *with* it they come from the **clone source**, not the intended consumption object. Reporting roles normally hold SELECT on the consumption object rather than on the raw source, so the first creation can grant them nothing — a bootstrap gap on day one that nothing reports.
 4. The §2.3 schema-level tag-based masking trap.
 **Verdict:** its *swap* half is kept (→ O16). Its *clone-as-refresh* half is rejected. Clone is retained only for the cheap carry-forward of objects not refreshed this cycle.
 
@@ -346,7 +346,7 @@ The refresh statement is O10 in every row. **Only publication varies** — which
 | `Z3_CONSUME` | never | The existing view estate — **text unchanged** |
 | `Z3_CONTROL` | never | Publication state, gate results, partial-release authorisations |
 
-Views stay outside the swapped pair because a swap exchanges schema **names** — `Z3_PUB_SALES.CUSTOMER` keeps resolving, now to the other storage — so view SQL is untouched (C1). It also avoids POC02's caveat about a view inside a swapped schema referencing its own fully-qualified path.
+Views stay outside the swapped pair because a swap exchanges schema **names** — `Z3_PUB_SALES.CUSTOMER` keeps resolving, now to the other storage — so view SQL is untouched (C1). It also sidesteps a related hazard: **🧪 TC-029** — a view *inside* a swapped schema that names its own schema by its full path would follow the name to the other storage after a swap. Keeping views out of the swapped pair makes the question moot.
 
 ### 5.3 Bind tags at column level — a rule, not a preference
 
@@ -433,7 +433,7 @@ Stonebranch workflow: Z3_PUBLISH_<group>
 - **No DDL inside the O11 publish transaction.** A stray `CREATE` or `ALTER` silently commits and breaks atomicity.
 - **Set `DATA_RETENTION_TIME_IN_DAYS` explicitly.** Rollback needs one cycle, not the default.
 - **Check for streams** on any published object before go-live — TC-031.
-- **No `USE SECONDARY ROLES ALL`.** POC02's least-privilege open item applies here too.
+- **No `USE SECONDARY ROLES ALL`.** The publish identity runs with one explicit role, so the privileges it actually uses are the ones under review.
 
 ### 7.1 Publication state
 
@@ -459,7 +459,7 @@ Physicalizing a view means **reading its output and writing those rows down** �
 | Publish (O11 copy) | **Yes — it is a second read of staging** |
 | Publish (O16 swap) | No — a rename |
 
-So the open call does not merely tune the build. **It decides how much of the view estate can be gated at all.** If the answer is no: exclude sensitive columns from physicalized objects and accept they are not gated; obtain the exemption POC02 already used; or keep those objects in V-a and gate the tables beneath them.
+So the open call does not merely tune the build. **It decides how much of the view estate can be gated at all.** If the answer is no: exclude sensitive columns from physicalized objects and accept they are not gated; obtain a policy exemption for the batch identity; or keep those objects in V-a and gate the tables beneath them.
 
 *Correction on the record: I earlier stated a "no" would constrain only the build step and not threaten the architecture. That understated it.*
 
@@ -546,7 +546,7 @@ Query 2 **is** the test of whether groups fit schemas: if one consumed view's ba
 | 9 | Without `COPY GRANTS` a replaced table loses explicit grants | *"does not inherit any explicit access privileges granted on the original table, but does inherit any future grants"* | ✅ [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
 | 10 | Without `COPY GRANTS` ownership moves to the executing role | *"the role that runs the statement owns the new table"*; `COPY GRANTS` copies all privileges **except OWNERSHIP** | ✅ [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
 | 11 | `COPY GRANTS` on CTAS copies from the replaced table | *"copies permissions from the table being replaced … not from the source table(s) being queried"* | ✅ [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
-| 12 | `COPY GRANTS` on CLONE falls back to the clone source on first creation | From the replaced table if one exists, else from the source being cloned | ✅ confirms POC05's Day-1 gap — [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
+| 12 | `COPY GRANTS` on CLONE falls back to the clone source on first creation | From the replaced table if one exists, else from the source being cloned | ✅ [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
 | 13 | **CTAS can retain tags** via `COPY TAGS` | GA 2026-04-02; *"tags from the replaced table and its columns are retained on the new table"*; docs example uses `AS SELECT` | ✅ [release note](https://docs.snowflake.com/en/release-notes/2026/other/2026-04-02-create-table-copy-tags-ga) |
 | 14 | A renamed column loses its tag under `COPY TAGS` | Stated in CREATE TABLE usage notes | ✅ [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
 | 15 | CTAS does not carry a clustering key forward | With clustering keys in a CTAS, column definitions *"must be explicitly specified"*; CLONE and LIKE do inherit the key | ✅ [CREATE TABLE](https://docs.snowflake.com/en/sql-reference/sql/create-table) |
@@ -561,7 +561,7 @@ Query 2 **is** the test of whether groups fit schemas: if one consumed view's ba
 | 24 | Tag-based masking protects a tagged column automatically when types match | *"the tagged column is automatically protected by the conditions in the masking policy"* | ✅ [tag-based masking](https://docs.snowflake.com/en/user-guide/tag-based-masking-policies) |
 | 25 | A direct column policy beats a tag-based one | *"the masking policy that is directly assigned to the column takes precedence over the tag-based masking policy"* | ✅ [tag-based masking](https://docs.snowflake.com/en/user-guide/tag-based-masking-policies) |
 | 26 | Masking is enforced by query rewrite at read time | *"Snowflake dynamically rewrites the query applying the masking policy SQL expression to the column"* | ✅ [column-level security](https://docs.snowflake.com/en/user-guide/security-column-ddm-use) |
-| 27 | Stored data remains plaintext | **Not stated in the docs** | 📋 POC02 |
+| 27 | Stored data remains plaintext | **Not stated in the docs.** Follows by inference from #26 — masking is a read-time query rewrite, so nothing transforms the value on write | 🧪 **TC-016** |
 | 28 | Materialized views cannot serve this use case | *"A materialized view can query only a single table"*; *"Joins, including self-joins, are not supported"*; cannot query a non-materialized view; *"automatically and transparently maintained"* | ✅ [materialized views](https://docs.snowflake.com/en/user-guide/views-materialized) |
 | 29 | A materialized view cannot be created over a tag-based-masked table | *"A materialized view cannot be created if the underlying table is protected by a tag-based masking policy"* | ✅ [tag-based masking](https://docs.snowflake.com/en/user-guide/tag-based-masking-policies) |
 | 30 | **Dynamic tables can refresh incrementally over a masked base** | *"…can now maintain incremental refresh when the policy is pass-through for the role used during refresh"* | ✅ [release note](https://docs.snowflake.com/en/release-notes/2026/other/2026-07-20-dynamic-tables-pass-through-policies) |
