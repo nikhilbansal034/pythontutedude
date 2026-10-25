@@ -9,8 +9,8 @@ two ever disagree, the baseline wins.
 | **Requirement baseline** | [`problem_statement.md`](problem_statement.md) — Part A, Part B, R1-R28. **The source of truth** |
 | Excluded as inputs | The earlier POC02 and POC05 decks. Per the baseline's provenance, **no claim or recommendation here derives from them**. Every Snowflake behaviour below is sourced from current documentation or marked as needing test |
 | Meeting source | "Discuss code freeze activities" — transcript synthesis |
-| Test scripts | [`00_setup.sql`](00_setup.sql) … [`05_sizing_performance.sql`](05_sizing_performance.sql), [`99_teardown.sql`](99_teardown.sql) |
-| Test tracker | [`Zone3_Gating_Test_Tracker.xlsx`](Zone3_Gating_Test_Tracker.xlsx) |
+| Test scripts | [`poc/`](poc/) &mdash; `00_setup.sql` … `05_sizing_performance.sql`, `99_teardown.sql` |
+| Test tracker | [`poc/Zone3_Gating_Test_Tracker.xlsx`](poc/Zone3_Gating_Test_Tracker.xlsx) |
 | Deck | [`requirement_deck_v2.html`](requirement_deck_v2.html) — the baseline deck extended with solution slides |
 | Status | **Design proposal. Nothing concluded. Every mechanism needs POC validation before sign-off.** |
 
@@ -480,7 +480,7 @@ O10 is much better — the object is never recreated, so a live governance chang
 
 ## 9. What to measure and prove
 
-Full scenario and test-case breakdown is in [`Zone3_Gating_Test_Tracker.xlsx`](Zone3_Gating_Test_Tracker.xlsx); scripts are the numbered `.sql` files in this folder. The three that can change the design:
+Full scenario and test-case breakdown is in [`poc/Zone3_Gating_Test_Tracker.xlsx`](poc/Zone3_Gating_Test_Tracker.xlsx); scripts are the numbered `.sql` files in [`poc/`](poc/). The three that can change the design:
 
 | Priority | Question | Test |
 |---|---|---|

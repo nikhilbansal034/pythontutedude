@@ -283,58 +283,47 @@ commands.
 
 ## W5 — Zone 3 consumption publication gating *(active)*
 
-Stopping business/reporting users from seeing a partially refreshed, internally inconsistent
+Stopping business and reporting users from reading a partially refreshed, internally inconsistent
 consumption dataset while the upstream batch is still running. The visible state of a consumption
 object changes today as a side effect of upstream loading; it must instead change only as an
 explicit, controlled publication event.
 
-**Status**: requirements phase closed, solution phase not started. The requirement is split into
-**Part A — publication gating** (what a consumer may see, and when) and **Part B — governance
-continuity** (whether what they see is still protected), plus a set of constraints binding on both.
-The two are separately specified and **jointly delivered** — Part B's size is an output of the
-mechanism chosen for Part A, so options are scored against both together.
+**Status**: requirement agreed and split into **Part A — publication gating** and **Part B —
+governance continuity**, jointly delivered. Solution proposed, nothing concluded, POC not yet run.
 
-| File | What it is |
+**[`w5-zone3-consumption-gating/README.md`](w5-zone3-consumption-gating/README.md) is the folder
+index** — it carries the layout, the reading order and the three things that will waste a POC run
+if missed. The essentials:
+
+| Path | What it is |
 |------|-----------|
-| `problem_statement.md` | **The agreed baseline.** Problem statement, scope, model and vocabulary, settled decisions D1 and D3, then Part A (§5), Part B (§6) and shared constraints (§7). Requirements R1-R28, parked dependencies, open operational policy C1-C5. Section 8 carries working positions (D2, D4, A1-A4) that are **outside** the freeze |
-| `requirement_deck.html` | Leadership deck, 7 slides, built on the `lm-html-deck` deck-1 identity. The baseline consolidated to Part A, Part B and what binds both, with a stacked before/after timeline as the central diagram. By direction it carries **no requirement IDs and no source references**, unlike the skill's default. Derived from `problem_statement.md` — update it there first, then reflect it here |
-| `sources/RE Discuss code freeze activities.msg` | The requirement source — a Copilot synthesis of the 24-Oct-2026 design discussion |
-| `sources/POC02_Recommendation_and_Design 1.html` | **Background only.** Earlier clone-and-swap recommendation. Addresses a neighbouring problem and predates this requirement |
-| `sources/POC05 - Same-Name Clone Refresh for Consumption - Deck.html` | **Background only.** Earlier same-name reclone analysis. A component, not a solution |
+| `problem_statement.md` | **The baseline.** Part A, Part B, R1-R29, assumptions, parked items, open policy. Source of truth |
+| `solution_design.md` | The proposal — 22 options, `INSERT OVERWRITE` + transaction recommended, every claim sourced or marked untested |
+| `requirement_deck_v2.html` | Leadership deck, 14 slides, `lm-html-deck` deck-1 identity. No requirement IDs by direction |
+| `poc/` | Test pack — seven SQL scripts, tracker with requirement traceability, `evidence/` |
+| `sources/` | Raw inputs at original filenames |
+| `archive/` | Superseded, history only |
 
-**Deliberately excluded as inputs**: the prior consumption-layer option analysis, and the two decks
-above as a basis for analysis. This problem is approached fresh — see the provenance section of
-`problem_statement.md`.
+**Excluded as inputs**: the POC02 and POC05 decks in `sources/`. Background only — no claim or
+recommendation derives from them, and every Snowflake behaviour is sourced from current
+documentation or carries a test case.
 
-**ID stability.** R1-R24 are unchanged from the pre-split baseline — the restructure regroups
-them, it does not renumber them, so every earlier reference stays valid. R25-R28 are new, from the
-governance analysis. R16 was restated to be testable; its intent is unchanged.
+**The five discriminating requirements**, each able to eliminate an otherwise attractive option:
+**R4** (publishing one group must not make another inconsistent), **R15** (no masked value
+persisted as real data), **R20** (no per-object redevelopment of view logic), **R22**
+(group membership known and current), **R27** (R15 met either by the publication identity passing
+through every masking policy, or by never reading and rewriting the data).
 
-**The five discriminating requirements**, each capable of eliminating an otherwise attractive
-option on its own: **R4** (publishing one consistency group must not make another inconsistent),
-**R15** (publication must not persist masked values as real data), **R20** (no per-object
-redevelopment of existing view logic), **R22** (consistency-group membership known and kept
-current), **R27** (R15 is met either by the publication identity passing through every masking
-policy, or by never reading and rewriting the data — the two routes rule out different mechanisms).
+**C5 first.** May the publication identity read sensitive data in the clear? It selects R27's route
+and narrows the option space *before* evaluation rather than after.
 
-**C5 is the question to answer first.** May the publication identity read sensitive data in the
-clear? It selects R27's route, and so narrows the option space *before* evaluation rather than
-after.
-
-**Vocabulary that matters.** The *unit of governance* is the object — tags, masking and grants
-bind there. The *unit of visibility* is the consistency group — the closure of ground objects a
-report depends on. Collapsing those two produces a broken design. That views inherit consistency
-rather than being published is a working position (D4), not part of the freeze.
-
-**Two ID namespaces, easily confused.** **Part A / Part B** name the halves of the requirement;
-**A1-A4** are the assumptions in §8. Always write "Part A", never a bare "A".
-
-**Why Part B exists at all.** Protection in Snowflake is applied at *read* time, not stored — so a
-view inherits it for free, and a physical copy severs it. Part B exists only because publication
-replaces a physical object. This is a second, independent argument for working position D4.
+**Vocabulary that matters.** The *unit of governance* is the object — tags, masking and grants bind
+there. The *unit of visibility* is the consistency group, **computed as a connected component** of
+the report-to-object graph so that every object lands in exactly one group and overlap cannot
+arise. A *batch* is what runs; a *cycle* is one run of it and the data version it produces.
 
 **Not W4.** W4 is the generic ETL framework that loads objects. W5 is about when a loaded object
-becomes *visible*. They meet only at the publication step (R8).
+becomes *visible*. They meet only at the publication step.
 
 ---
 

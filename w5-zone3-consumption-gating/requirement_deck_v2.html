@@ -230,25 +230,20 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 <section class="slide cover active" id="s1">
   <div class="cols c55">
     <div>
-      <div class="eyebrow">GRS Teradata migration &middot; Requirement &amp; solution options</div>
+      <div class="eyebrow">GRS Teradata migration</div>
       <h1>Zone 3 consumption gating</h1>
       <div class="rule"></div>
       <p class="lede">While a batch is running, a reporting user can read a dataset that was
-      <b>never a valid version</b> &mdash; part of tonight's load against part of last night's.
+      <b>never a valid version</b> &mdash; part of this cycle's load against part of the previous cycle's.
       Every source object is individually correct, so nothing flags it. The requirement is to put a
       boundary between <b>loaded</b> and <b>visible</b>: data becomes visible as a
       <b>controlled publication event</b>, not as a side effect of loading.</p>
-      <div class="meta">
-        <b>Audience</b> &nbsp;Leadership &mdash; decision and direction<br>
-        <b>Status</b> &nbsp;Requirement frozen. Solution options under evaluation &mdash; <b>none chosen</b><br>
-        <b>Evidence</b> &nbsp;Snowflake behaviour verified against documentation
-      </div>
     </div>
     <div>
       <div class="agenda">
         <div class="ttl">Agenda</div>
         <div class="sec">Problem</div>
-        <div class="item"><span class="k">02</span><span>What a consumer sees today, and why nothing catches it</span></div>
+        <div class="item"><span class="k">02</span><span>What a reporting user sees today, and why nothing catches it</span></div>
         <div class="item"><span class="k">03</span><span>Today against what is required, on one timeline</span></div>
         <div class="sec">Requirement</div>
         <div class="item"><span class="k">04</span><span>The requirement in two parts, and what binds both</span></div>
@@ -269,7 +264,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 
 <!-- ============ 02 PROBLEM ============ -->
 <section class="slide" id="s2">
-  <h2>A consumer cannot tell a finished dataset from a half-finished one</h2>
+  <h2>A reporting user cannot tell a finished dataset from a half-finished one</h2>
   <div class="sub">The data is not corrupt. It is incomplete in a way that nothing reports.</div>
   <div class="cols">
     <div>
@@ -287,26 +282,26 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       state of each object belongs to two different cycles.</div>
     </div>
     <div>
-      <h3>Illustrative: one report, read at 04:10, two nights running</h3>
+      <h3>Illustrative: the same report, read at 04:10, on two different cycles</h3>
       <div class="scen">
-        <div class="hd">Night A &mdash; batch finished at 03:50</div>
+        <div class="hd">Cycle A &mdash; batch finished at 03:50</div>
         <div class="nums">
           <div class="nb"><div class="l">Objects refreshed</div><div class="v">12 / 12</div></div>
-          <div class="nb"><div class="l">Cycles on screen</div><div class="v">1</div></div>
+          <div class="nb"><div class="l">Data versions shown</div><div class="v">1</div></div>
         </div>
         <div class="res"><span class="chip ok">Consistent</span> <span>The report is right, and happens to be right.</span></div>
       </div>
       <div class="scen bad">
-        <div class="hd">Night B &mdash; batch still running, two jobs failed</div>
+        <div class="hd">Cycle B &mdash; batch still running, two jobs failed</div>
         <div class="nums">
           <div class="nb"><div class="l">Objects refreshed</div><div class="v hot">7 / 12</div></div>
-          <div class="nb"><div class="l">Cycles on screen</div><div class="v hot">2</div></div>
+          <div class="nb"><div class="l">Data versions shown</div><div class="v hot">2</div></div>
         </div>
         <div class="res"><span class="chip no">Inconsistent</span> <span>The report is wrong, and looks identical.</span></div>
       </div>
       <div class="callout">No error, no warning, no empty cell. The numbers are plausible, they
-      reconcile against their own source objects, and the user has no signal that Night B is
-      different from Night A. <b>They will act on it.</b></div>
+      reconcile against their own source objects, and the user has no signal that cycle B is
+      different from cycle A. <b>They will act on it.</b></div>
     </div>
   </div>
   <div class="takeaway">The exposure is invisible by construction &mdash; every individual object is valid, so every individual check passes.</div>
@@ -315,16 +310,16 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 
 <!-- ============ 03 DIAGRAM ============ -->
 <section class="slide" id="s3">
-  <h2>Today against what is required &mdash; the same night, the same reader</h2>
+  <h2>Today against what is required &mdash; one cycle, one reporting user</h2>
   <div class="sub">Only the middle changes. That gap is the entire requirement.</div>
 
   <svg class="dg" viewBox="0 0 1164 256" width="1164" height="256" role="img"
-       aria-label="Stacked timeline comparing what a consumer sees today against what the requirement specifies">
+       aria-label="Stacked timeline comparing what a reporting user sees today against what the requirement specifies">
     <!-- row labels -->
     <text class="t" x="4" y="44">TODAY</text>
-    <text class="t s" x="4" y="60">what a consumer sees</text>
+    <text class="t s" x="4" y="60">what a reporting user sees</text>
     <text class="t" x="4" y="134">REQUIRED</text>
-    <text class="t s" x="4" y="150">what a consumer must see</text>
+    <text class="t s" x="4" y="150">what they must see</text>
 
     <!-- TODAY bar -->
     <rect class="box grey" x="175" y="28" width="270" height="50"/>
@@ -353,6 +348,10 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
     <!-- the same instant in both rows; drawn only in the gap so it strikes no label -->
     <path class="band" d="M570 82 L570 114"/>
 
+    <!-- which block each read actually hits -->
+    <path class="band" d="M570 170 L570 186"/>
+    <path class="band" d="M1010 170 L1010 186"/>
+
     <!-- axis -->
     <path class="brk" d="M175 193 L1140 193"/>
     <path class="brk" d="M175 188 L175 198 M570 188 L570 198 M755 188 L755 198 M880 188 L880 198"/>
@@ -362,27 +361,29 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
     <circle class="nb" cx="570" cy="193" r="11"/><text class="nt" x="570" y="197" text-anchor="middle">2</text>
     <circle class="nb" cx="755" cy="193" r="11"/><text class="nt" x="755" y="197" text-anchor="middle">3</text>
     <circle class="nb" cx="880" cy="193" r="11"/><text class="nt" x="880" y="197" text-anchor="middle">4</text>
+    <circle class="nb" cx="1010" cy="193" r="11"/><text class="nt" x="1010" y="197" text-anchor="middle">5</text>
 
     <text class="t s" x="175" y="219" text-anchor="middle">batch starts</text>
-    <text class="t s" x="570" y="219" text-anchor="middle">a consumer reads</text>
+    <text class="t s" x="570" y="219" text-anchor="middle">a user reads</text>
     <text class="t s" x="750" y="219" text-anchor="end">last object done</text>
     <text class="t s" x="880" y="219" text-anchor="middle">publication</text>
+    <text class="t s" x="1010" y="219" text-anchor="middle">reads again</text>
 
     <!-- legend -->
     <rect class="box warnb" x="175" y="236" width="13" height="13"/>
-    <text class="t s" x="195" y="246">an inconsistent state is visible to consumers</text>
+    <text class="t s" x="195" y="246">an inconsistent state is visible to reporting users</text>
     <rect class="box alt" x="520" y="236" width="13" height="13"/>
     <text class="t s" x="540" y="246">a complete, published version</text>
   </svg>
-  <p class="src" style="margin-top:4px">Illustrative &mdash; segment widths are not to scale.</p>
 
-  <table class="req snug" style="margin-top:6px">
-    <thead><tr><th class="num">#</th><th>The moment</th><th>Today, a consumer sees</th><th>Under the requirement</th></tr></thead>
+  <table class="req xsnug" style="margin-top:6px">
+    <thead><tr><th class="num">#</th><th>The moment</th><th>Today, a reporting user sees</th><th>Under the requirement</th></tr></thead>
     <tbody>
       <tr><td class="num">1</td><td>Batch starts; objects complete one by one</td><td>The previous version</td><td>The previous published version, unchanged</td></tr>
-      <tr class="hot"><td class="num">2</td><td><b>A consumer reads mid-batch</b> &nbsp;<span class="chip warn">The gap</span></td><td>A <b>mixed state</b>: part this cycle, part last. Plausible, reconcilable, wrong</td><td>Still the previous published version. <b>Nothing has changed for them</b></td></tr>
+      <tr class="hot"><td class="num">2</td><td><b>A reporting user reads mid-batch</b> &nbsp;<span class="chip warn">The gap</span></td><td>A <b>mixed state</b>: part this cycle, part last. Plausible, reconcilable, wrong</td><td>Still the previous published version. <b>Nothing has changed for them</b></td></tr>
       <tr><td class="num">3</td><td>The last object completes</td><td>The new version &mdash; nothing checked that it is complete</td><td>Still the previous version. Loading publishes nothing</td></tr>
       <tr><td class="num">4</td><td>Publication</td><td><i>No such step exists</i></td><td>The new published version becomes visible, in one step</td></tr>
+      <tr><td class="num">5</td><td>A reporting user reads again, after publication</td><td>The new version</td><td>The new published version &mdash; and <b>the only change they have seen all cycle</b></td></tr>
     </tbody>
   </table>
   <div class="takeaway">Rows 1, 3 and 4 already behave acceptably. Row 2 is what we are being asked to fix &mdash; and row 4 is the step that fixes it.</div>
@@ -398,7 +399,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <h3>Part A &mdash; publication gating &nbsp;<span class="st">fails visibly: wrong numbers. Reviewed by the business</span></h3>
       <table class="req snug">
         <tbody>
-          <tr><td><b>One version, or none.</b> A consumer sees a complete version of the data their
+          <tr><td><b>One version, or none.</b> A reporting user sees a complete version of the data their
             report depends on &mdash; never a partial one, never a mixture of two cycles.</td></tr>
           <tr><td><b>Publication is a decision, not a consequence.</b> New data becomes visible only
             when publication runs, after every job in the cycle has succeeded. A failed cycle
@@ -435,7 +436,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <table class="req snug">
         <tbody>
           <tr><td><b>A mechanism</b></td><td>No technology named or ruled out</td></tr>
-          <tr><td><b>History for users</b></td><td>No consumer-facing access to earlier versions</td></tr>
+          <tr><td><b>History for users</b></td><td>No user-facing access to earlier versions</td></tr>
           <tr><td><b>Upstream change</b></td><td>How Zone 2 loads work is untouched</td></tr>
         </tbody>
       </table>
@@ -585,7 +586,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <table class="req snug">
         <thead><tr><th>Layer</th><th>The question it answers</th><th>Candidates</th></tr></thead>
         <tbody>
-          <tr><td><b>Refresh</b></td><td>How does tonight's data land in a table without losing its tags, masking, grants or owner?</td><td><span class="rtag">O8 CTAS</span><span class="rtag">O9 Clone</span><span class="rtag">O10 Insert overwrite</span></td></tr>
+          <tr><td><b>Refresh</b></td><td>How does this cycle's data land in a table without losing its tags, masking, grants or owner?</td><td><span class="rtag">O8 CTAS</span><span class="rtag">O9 Clone</span><span class="rtag">O10 Insert overwrite</span></td></tr>
           <tr><td><b>Publication</b></td><td>How do <i>several</i> tables change visibility together, so no reader sees a mixture?</td><td><span class="rtag">O11 Transaction</span><span class="rtag">O16 Schema swap</span></td></tr>
           <tr><td><b>Read time</b></td><td>Could we leave the data alone and decide per query what a reader may see?</td><td><span class="rtag">O5 View filter</span><span class="rtag">O12 Row access policy</span></td></tr>
           <tr class="hot"><td><b>Neither</b></td><td>Mechanisms that merge refresh and publication &mdash; leaving nowhere to put a gate between them</td><td><span class="rtag">O6 Materialized views</span><span class="rtag">O7 Dynamic tables</span></td></tr>
@@ -619,7 +620,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <tr><td class="id">O6</td><td>Materialized views</td><td><span class="feat">can query only a single table</span>; joins unsupported; cannot be built over a tag-based-masked table</td><td><span class="chip ok">Verified</span></td></tr>
       <tr class="hot"><td class="id">O7</td><td>Dynamic tables <span class="dsc">the closest call</span></td><td>Incremental refresh over a masked base <b>is</b> now possible (GA Jul 2026), so the old cost objection is obsolete &mdash; but refresh is automatic, so <b>there is nowhere a gate can live</b></td><td><span class="chip ok">Verified</span></td></tr>
       <tr><td class="id">O13</td><td>Hybrid tables</td><td>2&nbsp;TB per database; explicitly not recommended for analytics; no clustering keys or streams</td><td><span class="chip ok">Verified</span></td></tr>
-      <tr><td class="id">O15</td><td>CREATE TABLE IF NOT EXISTS</td><td>A creation guard, not a refresh. From day two it declines to act, freezing consumers on day-one data silently</td><td><span class="chip chk">Needs test</span></td></tr>
+      <tr><td class="id">O15</td><td>CREATE TABLE IF NOT EXISTS</td><td>A creation guard, not a refresh. From day two it declines to act, freezing reporting users on day-one data silently</td><td><span class="chip chk">Needs test</span></td></tr>
       <tr><td class="id">O21</td><td>Three-step RENAME TO</td><td>Not atomic, and leaves a window where the name does not exist at all</td><td><span class="chip ok">Verified</span></td></tr>
     </tbody>
   </table>
@@ -645,13 +646,13 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <tr><td>Tags survive</td><td><span class="chip ok">Verified</span> <span class="st">COPY TAGS, GA Apr 2026</span></td><td><span class="chip ok">Verified</span></td><td><span class="chip chk">Needs test</span> <span class="st">TC-004</span></td></tr>
       <tr><td>Grants survive</td><td><span class="chip ok">Verified</span></td><td><span class="chip part">With COPY GRANTS</span></td><td><span class="chip ok">Verified</span></td></tr>
       <tr class="hot"><td><b>Owner unchanged</b></td><td><span class="chip no">No</span> <span class="st">COPY GRANTS excludes OWNERSHIP</span></td><td><span class="chip no">No</span></td><td><span class="chip ok">Yes</span> <span class="st">object never recreated</span></td></tr>
-      <tr><td>Creates an object at runtime</td><td><span class="chip no">Nightly</span></td><td><span class="chip no">Nightly</span></td><td><span class="chip ok">Never</span></td></tr>
+      <tr><td>Creates an object at runtime</td><td><span class="chip no">Every cycle</span></td><td><span class="chip no">Every cycle</span></td><td><span class="chip ok">Never</span></td></tr>
       <tr><td>Clustering key survives</td><td><span class="chip no">No</span> <span class="st">unless columns restated</span></td><td><span class="chip ok">Yes</span></td><td><span class="chip chk">Needs test</span> <span class="st">TC-030</span></td></tr>
       <tr><td>Can run inside a transaction</td><td><span class="chip no">No</span> <span class="st">DDL commits</span></td><td><span class="chip no">No</span></td><td><span class="chip ok">Verified</span></td></tr>
     </tbody>
   </table>
 
-  <p class="src" style="margin-top:10px"><b>Tags are no longer the discriminator.</b> <span class="feat">COPY TAGS</span> went GA April 2026 &mdash; documented for <span class="feat">CREATE OR REPLACE TABLE</span>; that it covers <span class="feat">AS SELECT</span> too is our reading, which TC-003 settles. <b>Ownership is:</b> <span class="feat">COPY GRANTS</span> copies every privilege <i>except</i> OWNERSHIP, so CTAS and Clone hand the service account a new object nightly.</p>
+  <p class="src" style="margin-top:10px"><b>Tags are no longer the discriminator.</b> <span class="feat">COPY TAGS</span> went GA April 2026 &mdash; documented for <span class="feat">CREATE OR REPLACE TABLE</span>; that it covers <span class="feat">AS SELECT</span> too is our reading, which TC-003 settles. <b>Ownership is:</b> <span class="feat">COPY GRANTS</span> copies every privilege <i>except</i> OWNERSHIP, so CTAS and Clone hand the service account a new object every cycle.</p>
 
   <div class="takeaway">Insert overwrite changes a table's contents, not the table &mdash; so nothing attached to the object is at risk. Two unverified cells stand between that and a recommendation.</div>
   <div class="slide-no">10 / 14</div>
@@ -738,7 +739,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 <!-- ============ 12 ARCHITECTURE ============ -->
 <section class="slide" id="s12">
   <h2>Architecture &mdash; one cycle, end to end</h2>
-  <div class="sub">Everything expensive happens where nobody is looking. Only step 4 changes what a consumer can see.</div>
+  <div class="sub">Everything expensive happens where nobody is looking. Only step 4 changes what a reporting user can see.</div>
 
   <svg class="dg" viewBox="0 0 1164 210" width="1164" height="210" role="img" aria-label="Zone 3 gating cycle architecture">
     <rect class="box grey" x="0"   y="70" width="104" height="56" rx="2"/>
@@ -765,7 +766,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
 
     <rect class="box" x="742" y="56" width="166" height="84" rx="2"/>
     <text class="t"   x="825" y="78"  text-anchor="middle">Z3_PUB_&lt;group&gt;</text>
-    <text class="t s" x="825" y="96"  text-anchor="middle">what consumers read</text>
+    <text class="t s" x="825" y="96"  text-anchor="middle">what reporting users read</text>
     <text class="t s" x="825" y="112" text-anchor="middle">Liquibase-deployed</text>
     <text class="t s" x="825" y="128" text-anchor="middle">owner never moves</text>
 
@@ -801,7 +802,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
     <circle class="nb" cx="625" cy="46" r="10"/><text class="nt" x="625" y="50" text-anchor="middle">4</text>
     <circle class="nb" cx="825" cy="46" r="10"/><text class="nt" x="825" y="50" text-anchor="middle">5</text>
   </svg>
-  <p class="src"><b>Illustrative</b> &mdash; box widths are not to scale. The teal arrow is the only step a consumer can observe.</p>
+  <p class="src"><b>Illustrative</b> &mdash; box widths are not to scale. The teal arrow is the only step a reporting user can observe.</p>
 
   <table class="req snug" style="margin-top:6px">
     <thead><tr><th class="num">#</th><th>Step</th><th>What it does</th><th>Visible?</th></tr></thead>
@@ -828,7 +829,7 @@ svg.dg .cut{fill:none;stroke:var(--teal);stroke-width:3}
       <table class="req xsnug">
         <thead><tr><th class="id">TC</th><th>Question</th><th>If it fails</th></tr></thead>
         <tbody>
-          <tr class="hot"><td class="id">004<br>005<br>006</td><td><b>Does insert overwrite preserve tags, masking and OWNER?</b> Grants are documented; these are not</td><td>O10 collapses toward CTAS, and the nightly ownership problem returns</td></tr>
+          <tr class="hot"><td class="id">004<br>005<br>006</td><td><b>Does insert overwrite preserve tags, masking and OWNER?</b> Grants are documented; these are not</td><td>O10 collapses toward CTAS, and the per-cycle ownership problem returns</td></tr>
           <tr class="hot"><td class="id">020</td><td><b>Does a reader spanning the commit ever see a mixed state?</b> Follows from READ COMMITTED, but it is the single most important claim here</td><td>O11 is out, and O16's schema constraint returns</td></tr>
           <tr class="hot"><td class="id">039</td><td><b>Is a governance-removed tag reinstated by a publish?</b> Part B's non-reinstatement clause</td><td>The gate's governance step becomes mandatory for O16, not advisory</td></tr>
           <tr class="hot"><td class="id">016</td><td><b>Is stored data plaintext under a masking policy?</b> Undocumented; inferred from read-time enforcement</td><td>If storage were masked on write, losing a tag would be harmless &mdash; and Part B would not need to exist</td></tr>
