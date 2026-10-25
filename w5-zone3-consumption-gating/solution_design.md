@@ -278,7 +278,7 @@ A consumption layer is bulk-loaded, scanned and aggregated — the opposite of t
 **Verdict:** a storage-format choice, not a publication mechanism. If Zone 3 lands on Iceberg, O11 is still the mechanism, subject to TC-033.
 
 ### O15 — `CREATE TABLE IF NOT EXISTS` as the refresh
-**What it is.** Asked directly: use `IF NOT EXISTS` instead of `OR REPLACE`.
+**What it is.** Use `IF NOT EXISTS` in place of `OR REPLACE` as the refresh statement.
 **✅ Verified:** *"The `OR REPLACE` and `IF NOT EXISTS` clauses are mutually exclusive. They can't both be used in the same statement."*
 **🧪 Not documented:** what happens when the table already exists. The CTAS syntax block does not show the clause at all — TC-013.
 **Why it fails regardless of that detail.** `IF NOT EXISTS` is a **creation guard**. It asks one question — does this object exist? — and if yes, declines to create. It is not a refresh instruction and has no opinion about data.
@@ -460,8 +460,6 @@ Physicalizing a view means **reading its output and writing those rows down** �
 | Publish (O16 swap) | No — a rename |
 
 So the open call does not merely tune the build. **It decides how much of the view estate can be gated at all.** If the answer is no: exclude sensitive columns from physicalized objects and accept they are not gated; obtain a policy exemption for the batch identity; or keep those objects in V-a and gate the tables beneath them.
-
-*Correction on the record: I earlier stated a "no" would constrain only the build step and not threaten the architecture. That understated it.*
 
 ### 8.2 Part B needs something to reconcile against
 

@@ -162,8 +162,9 @@ Each requirement is written to be falsifiable — a proof-of-concept can pass or
 | **R9** | If any job in the group's dependency set fails or does not complete, no publication occurs. Consumers remain on the previously published state until the next publication, however long that takes. There is no timed auto-release of a partial state. |
 | **R10** | A second, explicitly authorised path exists to publish the available state despite incomplete upstream processing. |
 | **R11** | Every publication — normal or override — is attributable: what was published, when, by whom or by what, and under which path. |
-| **R12** | If an override publication (R10) is followed by the outstanding jobs completing successfully, the complete state of the cycle is then published through the normal path. An override does not close the cycle. |
-| **R13** | If a later cycle completes while an earlier one is still held (R9), the later cycle is published. The held cycle is not published separately. |
+| **R12** | If an override publication (R10) is followed by the outstanding jobs completing successfully, the complete state of the cycle is then published through the normal path. An override does not close the cycle. Under A5 this reduces to one property: **the publication step is re-runnable within a cycle.** |
+| **R13** | If a later cycle completes while an earlier one is still held (R9), the later cycle is published. The held cycle is not published separately. **Unreachable under the operating rule in A5** — retained so that the rule's removal re-exposes it rather than hiding it. |
+| **R29** | The immediately preceding published state of a consistency group can be restored as the visible state by an operator action. One step back only; not retained beyond the next cycle; not a consumer-facing capability. |
 
 ### A.3 Correctness of what is published
 
@@ -284,6 +285,7 @@ Load-bearing, and recorded rather than embedded.
 | **A2** | Publication latency for a group is `max(all its jobs)`. A single straggler delays the whole group. | Accepted consequence of R3 and R9, not a defect. Requires alerting. |
 | **A3** | Skew *between* consistency groups is acceptable. Reports in different groups may legitimately show different cycles, subject to R4. | — |
 | **A4** | Reporting consumers read consumption objects through a path that respects the published state and does not bypass it. | A consumer reading ground objects directly defeats every guarantee in Part A. R28 covers the equivalent for Part B. |
+| **A5** | **Batches are strictly serialised.** A batch that fails is fixed and completed; no later batch is triggered until it is, because the same fault would likely affect the next one. | This is an operating rule, not a platform property. It is what makes **R13 unreachable** — a later cycle cannot complete while an earlier is held. If parallel or overlapping batches are ever allowed, R13 becomes live again and the design must answer it. It also raises the stakes on C1 and C3: a batch stuck for days means consumers sit on days-old data with nothing newer able to flow. |
 
 ---
 
