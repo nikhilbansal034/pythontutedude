@@ -18,30 +18,35 @@ USE ROLE POC_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
    to reference (solution_design.md §7).
    --------------------------------------------------------------------- */
 CREATE OR REPLACE VIEW CTRL.V_GATE_CHECKS AS
-SELECT 'G1' AS check_id, 'All group tables populated' AS check_name,
-       CASE WHEN (SELECT COUNT(*) FROM STG.FACT_PREMIUM) > 0
-             AND (SELECT COUNT(*) FROM STG.DIM_POLICY)   > 0
-             AND (SELECT COUNT(*) FROM STG.DIM_BROKER)   > 0
-             AND (SELECT COUNT(*) FROM STG.DIM_DATE)     > 0
+SELECT 'G1' AS check_id, 'Every object DUE this cycle is populated' AS check_name,
+       CASE WHEN (SELECT COUNT(*) FROM CTRL.V_GROUP_STATE
+                  WHERE due_this_cycle AND row_count = 0) = 0
             THEN 'PASS' ELSE 'FAIL' END AS status,
-       'row counts: ' ||
-       (SELECT COUNT(*) FROM STG.FACT_PREMIUM) || '/' ||
-       (SELECT COUNT(*) FROM STG.DIM_POLICY)   || '/' ||
-       (SELECT COUNT(*) FROM STG.DIM_BROKER)   || '/' ||
-       (SELECT COUNT(*) FROM STG.DIM_DATE)     AS detail
+       'due objects still empty: ' ||
+       (SELECT COALESCE(LISTAGG(object_name,', '),'none') FROM CTRL.V_GROUP_STATE
+        WHERE due_this_cycle AND row_count = 0) AS detail
 UNION ALL
-SELECT 'G2', 'Staging group is internally one cycle',
-       CASE WHEN (SELECT COUNT(DISTINCT c) FROM (
-                    SELECT cycle_marker AS c FROM STG.FACT_PREMIUM
-                    UNION ALL SELECT cycle_marker FROM STG.DIM_POLICY
-                    UNION ALL SELECT cycle_marker FROM STG.DIM_BROKER
-                    UNION ALL SELECT cycle_marker FROM STG.DIM_DATE)) = 1
+SELECT 'G2', 'Objects due this cycle all carry the SAME cycle',
+       CASE WHEN (SELECT COUNT(DISTINCT staged_cycle) FROM CTRL.V_GROUP_STATE
+                  WHERE due_this_cycle) <= 1
             THEN 'PASS' ELSE 'FAIL' END,
-       'distinct cycles in staging: ' || (SELECT COUNT(DISTINCT c) FROM (
-                    SELECT cycle_marker AS c FROM STG.FACT_PREMIUM
-                    UNION ALL SELECT cycle_marker FROM STG.DIM_POLICY
-                    UNION ALL SELECT cycle_marker FROM STG.DIM_BROKER
-                    UNION ALL SELECT cycle_marker FROM STG.DIM_DATE))
+       'distinct cycles among due objects: ' ||
+       (SELECT COUNT(DISTINCT staged_cycle) FROM CTRL.V_GROUP_STATE WHERE due_this_cycle)
+UNION ALL
+/* G2b is the carry-forward check. An object NOT due this cycle must
+   still be publishable: its staging copy has to match what is already
+   published for it, or publishing the group would move it backwards.
+   Under O11 this holds for free; under O16 it is what the PREPARE
+   clone exists to guarantee (solution_design.md §5.4).               */
+SELECT 'G2b', 'Objects NOT due still match their published version',
+       CASE WHEN (SELECT COUNT(*) FROM CTRL.V_GROUP_STATE
+                  WHERE NOT due_this_cycle
+                    AND staged_cycle IS DISTINCT FROM published_cycle) = 0
+            THEN 'PASS' ELSE 'FAIL' END,
+       'not-due objects that would regress: ' ||
+       (SELECT COALESCE(LISTAGG(object_name,', '),'none') FROM CTRL.V_GROUP_STATE
+        WHERE NOT due_this_cycle
+          AND staged_cycle IS DISTINCT FROM published_cycle)
 UNION ALL
 SELECT 'G3', 'Referential integrity: no orphan facts',
        CASE WHEN (SELECT COUNT(*) FROM STG.FACT_PREMIUM f
@@ -284,3 +289,100 @@ USE ROLE POC_ROLE;
    ===================================================================== */
 SELECT 'gate results' AS section, * FROM CTRL.GATE_RESULT ORDER BY cycle_id, check_id;
 SELECT 'publication log' AS section, * FROM CTRL.PUBLICATION_LOG ORDER BY cycle_id;
+
+
+/* =====================================================================
+   TC-042  A mixed-cadence group PASSES the gate
+   Scenario SC-22. Requirement R22 (per-cycle refresh expectation).
+
+   DIM_BROKER is weekly and DIM_DATE is yearly, so on an ordinary cycle
+   neither is due. Their staging tables still hold their last-published
+   contents — stale, not empty.
+
+   Expected: G1 PASS, G2 PASS, G2b PASS. The group publishes.
+
+   WHAT A FAILURE INVALIDATES: if this FAILs, the gate blocks every
+   cycle on which some member is not scheduled — six days in seven for
+   a group holding one weekly dimension. The design would then need a
+   per-object completeness rule, not a per-group one.
+   ===================================================================== */
+USE ROLE POC_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
+
+/* publish a known baseline: cycle 20 everywhere */
+INSERT OVERWRITE INTO STG.FACT_PREMIUM SELECT premium_id, policy_id, broker_id, amt, 20 FROM SRC.FACT_PREMIUM;
+INSERT OVERWRITE INTO STG.DIM_POLICY   SELECT policy_id, policy_no, 20   FROM SRC.DIM_POLICY;
+INSERT OVERWRITE INTO STG.DIM_BROKER   SELECT broker_id, broker_cd, 20   FROM SRC.DIM_BROKER;
+INSERT OVERWRITE INTO STG.DIM_DATE     SELECT date_key, cal_date, 20      FROM SRC.DIM_DATE;
+BEGIN;
+  INSERT OVERWRITE INTO PUB.FACT_PREMIUM SELECT * FROM STG.FACT_PREMIUM;
+  INSERT OVERWRITE INTO PUB.DIM_POLICY   SELECT * FROM STG.DIM_POLICY;
+  INSERT OVERWRITE INTO PUB.DIM_BROKER   SELECT * FROM STG.DIM_BROKER;
+  INSERT OVERWRITE INTO PUB.DIM_DATE     SELECT * FROM STG.DIM_DATE;
+COMMIT;
+
+/* cycle 21: only the DAILY objects load. DIM_BROKER and DIM_DATE are
+   left exactly as they are — which is what "not due" looks like.      */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-042|MIXED_CADENCE_GATE';
+INSERT OVERWRITE INTO STG.FACT_PREMIUM SELECT premium_id, policy_id, broker_id, amt, 21 FROM SRC.FACT_PREMIUM;
+INSERT OVERWRITE INTO STG.DIM_POLICY   SELECT policy_id, policy_no, 21   FROM SRC.DIM_POLICY;
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-042 group state' AS tc, * FROM CTRL.V_GROUP_STATE ORDER BY due_this_cycle DESC, object_name;
+SELECT 'TC-042 gate (expect G1/G2/G2b all PASS)' AS tc, * FROM CTRL.V_GATE_CHECKS ORDER BY check_id;
+
+
+/* =====================================================================
+   TC-043  An object that IS due but did not load FAILS the gate
+   Scenario SC-22. Requirements R8, R9, R22.
+
+   Same shape as TC-042, but now a DAILY object is missing. The gate
+   must tell this apart from TC-042 — that distinction is the whole
+   point of the expectation table.
+
+   Expected: G1 FAIL naming DIM_POLICY. Publication does not run.
+   ===================================================================== */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-043|DUE_BUT_MISSING';
+TRUNCATE TABLE STG.DIM_POLICY;              -- the daily job "failed"
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-043 gate (expect G1 FAIL naming DIM_POLICY)' AS tc, * FROM CTRL.V_GATE_CHECKS ORDER BY check_id;
+
+/* restore staging so later tests start from a known state */
+INSERT OVERWRITE INTO STG.DIM_POLICY SELECT policy_id, policy_no, 21 FROM SRC.DIM_POLICY;
+
+
+/* =====================================================================
+   TC-047  Publication is re-runnable within a cycle
+   Scenario SC-23. Requirement R12.
+
+   R12 reduces under assumption A5 to exactly this property: after an
+   authorised partial release, the outstanding jobs complete and the
+   normal publication path runs AGAIN in the same cycle.
+
+   Expected: the second publication succeeds, PUB holds cycle 21 for
+             every object, and two PUBLICATION_LOG rows exist for the
+             same cycle_id — the override and the completion.
+   ===================================================================== */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-047|REPUBLISH_SAME_CYCLE';
+BEGIN;
+  INSERT OVERWRITE INTO PUB.FACT_PREMIUM SELECT * FROM STG.FACT_PREMIUM;
+  INSERT OVERWRITE INTO PUB.DIM_POLICY   SELECT * FROM STG.DIM_POLICY;
+COMMIT;
+INSERT INTO CTRL.PUBLICATION_LOG (group_name, cycle_id, published_at, published_by, gate_result, mechanism)
+VALUES ('PREMIUM','21',CURRENT_TIMESTAMP(),CURRENT_USER(),'AUTHORISED_PARTIAL','O11');
+
+/* the outstanding job now completes, and the normal path runs again */
+BEGIN;
+  INSERT OVERWRITE INTO PUB.FACT_PREMIUM SELECT * FROM STG.FACT_PREMIUM;
+  INSERT OVERWRITE INTO PUB.DIM_POLICY   SELECT * FROM STG.DIM_POLICY;
+  INSERT OVERWRITE INTO PUB.DIM_BROKER   SELECT * FROM STG.DIM_BROKER;
+  INSERT OVERWRITE INTO PUB.DIM_DATE     SELECT * FROM STG.DIM_DATE;
+COMMIT;
+INSERT INTO CTRL.PUBLICATION_LOG (group_name, cycle_id, published_at, published_by, gate_result, mechanism)
+VALUES ('PREMIUM','21',CURRENT_TIMESTAMP(),CURRENT_USER(),'PASS','O11');
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-047 published state (expect every object on cycle 21)' AS tc, * FROM CTRL.V_PUBLISHED_STATE;
+SELECT 'TC-047 log (expect 2 rows for cycle 21: AUTHORISED_PARTIAL then PASS)' AS tc,
+       cycle_id, gate_result, published_at
+FROM CTRL.PUBLICATION_LOG WHERE group_name='PREMIUM' AND cycle_id='21' ORDER BY published_at;

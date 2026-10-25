@@ -82,7 +82,8 @@ h3 .st{text-transform:none;letter-spacing:0;font-weight:400;color:var(--g9);}
 .agenda .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:14px 0 7px;}
 .agenda .item{display:flex;gap:14px;align-items:baseline;font-size:17.5px;font-weight:600;color:var(--navy);margin-bottom:9px;line-height:1.3;}
 .agenda .item .k{font-size:14px;font-weight:700;color:var(--white);background:var(--navy);
-  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;
+  white-space:nowrap;padding:0 5px;flex:0 0 auto;}
 
 /* ---------- tables ---------- */
 table{border-collapse:collapse;width:100%;font-size:16px;}
@@ -268,9 +269,9 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
         <div class="item"><span class="k">05</span><span>What gets gated, and what inherits it for free</span></div>
         <div class="sec">Solution options &mdash; nothing decided yet</div>
         <div class="item"><span class="k">06</span><span>The three layers a gate could sit in</span></div>
-        <div class="item"><span class="k">07</span><span>Refresh and publication &mdash; the two live questions</span></div>
+        <div class="item"><span class="k">07&ndash;08</span><span>Refresh and publication &mdash; the two live questions</span></div>
         <div class="item"><span class="k">09</span><span>How a consistency group is derived, and why it must be computed</span></div>
-        <div class="item"><span class="k">10</span><span>The architecture, and what must be proven before we conclude</span></div>
+        <div class="item"><span class="k">10&ndash;11</span><span>The architecture, and what must be proven before we conclude</span></div>
       </div>
     </div>
   </div>
@@ -401,7 +402,7 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
       <tr><td class="num">5</td><td>A reporting user reads again, after publication</td><td>The new version</td><td>The new published version &mdash; and <b>the only change they have seen all cycle</b></td></tr>
     </tbody>
   </table>
-  <div class="takeaway">Rows 1, 3 and 4 already behave acceptably. Row 2 is what we are being asked to fix &mdash; and row 4 is the step that fixes it.</div>
+  <div class="takeaway">Rows 1, 3 and 5 already behave acceptably. Row 2 is the defect &mdash; and row 4, which does not exist today, is the step that fixes it.</div>
   <div class="slide-no">3 / 11</div>
 </section>
 
@@ -520,7 +521,7 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     <div class="lbl"><div class="h">One cycle</div><div class="x">left to right</div></div>
     <div class="a on"><div class="h">1 &middot; Refresh</div><div class="x">how new data lands in a physical object</div></div>
     <div class="a on"><div class="h">2 &middot; Publication</div><div class="x">how a whole group becomes visible at once</div></div>
-    <div class="a"><div class="h">3 &middot; Read time</div><div class="x">a filter re-decided on every query &mdash; a fallback, not a default</div></div>
+    <div class="a on"><div class="h">3 &middot; Read time</div><div class="x">a filter re-decided on every query &mdash; a fallback, not a default</div></div>
   </div>
 
   <div class="cols c55">
@@ -529,7 +530,8 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
         <thead><tr><th>Layer</th><th>The question it answers</th><th>Candidates</th></tr></thead>
         <tbody>
           <tr><td><b>Refresh</b></td><td>How does this cycle's data land in a table without losing its tags, masking, grants or owner?</td><td><span class="rtag">CTAS</span><span class="rtag">Clone</span><span class="rtag">Insert overwrite</span></td></tr>
-          <tr><td><b>Publication</b></td><td>How do <i>several</i> tables change visibility together, so no reader sees a mixture?</td><td><span class="rtag">One transaction</span><span class="rtag">Schema swap</span><span class="rtag">Row access policy</span></td></tr>
+          <tr><td><b>Publication</b></td><td>How do <i>several</i> tables change visibility together, so no reader sees a mixture?</td><td><span class="rtag">One transaction</span><span class="rtag">Schema swap</span></td></tr>
+          <tr><td><b>Read time</b></td><td>Deliver the same guarantee by <i>filtering</i> on every query instead of publishing</td><td><span class="rtag">Row access policy</span></td></tr>
           <tr class="hot"><td><b>Neither</b></td><td>Anything that merges refresh and publication into one managed step &mdash; leaving nowhere for a gate to sit between them</td><td><span class="rtag">Materialized views</span><span class="rtag">Dynamic tables</span></td></tr>
         </tbody>
       </table>
@@ -724,11 +726,11 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
 <!-- ============ 11 WHAT WE MUST PROVE ============ -->
 <section class="slide" id="s13">
   <h2>What we must prove before concluding this POC</h2>
-  <div class="sub">Nothing here is a decision yet. Five tests can still change the design; the rest confirm documented behaviour on our account.</div>
+  <div class="sub">Nothing here is a decision yet. Six tests can still change the design; the rest confirm documented behaviour on our account.</div>
 
   <div class="cols c55">
     <div>
-      <h3>The five that can change the design</h3>
+      <h3>The six that can change the design</h3>
       <table class="req xsnug">
         <thead><tr><th>Question</th><th>If it fails</th></tr></thead>
         <tbody>
@@ -737,6 +739,7 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
           <tr class="hot"><td><b>Is a governance-removed tag reinstated by a publish?</b> Part B's non-reinstatement clause</td><td>The gate&rsquo;s governance step becomes mandatory, not advisory</td></tr>
           <tr class="hot"><td><b>Is stored data plaintext under a masking policy?</b> Undocumented; inferred from read-time enforcement</td><td>If storage were masked on write, losing a tag would be harmless &mdash; and Part B would not need to exist</td></tr>
           <tr class="hot"><td><b>Do consistency groups fit inside one schema?</b> Offline, read-only, runnable today</td><td>A schema swap cannot publish those groups &mdash; the transaction becomes the only route</td></tr>
+          <tr class="hot"><td><b>Can the gate tell a missed refresh from one not due?</b> Members of one group refresh on different cadences</td><td>The gate blocks six cycles in seven, or passes a genuine failure. Every design needs this</td></tr>
         </tbody>
       </table>
     </div>
@@ -747,13 +750,14 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
           <tr class="hot"><td><b>May the batch identity read sensitive data in the clear?</b> Physicalizing reads the data, so this sets <b>how much can be gated at all</b></td><td><span class="chip no">Security</span></td></tr>
           <tr><td><b>Is there a declared governance baseline?</b> Without one, &ldquo;never reinstate a removed protection&rdquo; cannot be implemented</td><td><span class="chip no">Security</span></td></tr>
           <tr><td><b>Can the batch identity publish?</b> A transaction needs INSERT and DELETE; a schema swap needs OWNERSHIP on both schemas</td><td><span class="chip warn">Platform</span></td></tr>
+          <tr><td><b>Do the load mappings truncate staging at cycle start?</b> If they do, an object not due this cycle is emptied, and the transaction needs a carry-forward step too</td><td><span class="chip warn">ETL</span></td></tr>
         </tbody>
       </table>
       <div class="callout teal" style="margin-top:14px"><b>Next step.</b> Run the sizing walk first &mdash; it needs no POC environment and answers the effort question nobody has yet. Then the governance tests, which are cheap and carry the recommendation.</div>
-      <p class="src" style="margin-top:10px"><b>Full pack:</b> 21 scenarios, 43 test cases, seven copy-and-run SQL scripts and an evidence tracker. Every case states whether its expected result is documented or assumed, <b>and which requirement it covers</b> &mdash; four requirements currently have no test, and the tracker names them.</p>
+      <p class="src" style="margin-top:10px"><b>Full pack:</b> 25 scenarios, 50 test cases, seven copy-and-run SQL scripts and an evidence tracker. Every case states whether its expected result is documented or assumed, <b>and which requirement it covers</b>. One requirement has no test &mdash; R13, which is unreachable while batches stay serialised.</p>
     </div>
   </div>
-  <div class="takeaway">The options and the reasoning are ready to review. The recommendation waits on five tests and one security answer.</div>
+  <div class="takeaway">The options and the reasoning are ready to review. The recommendation waits on six tests and one security answer.</div>
   <div class="slide-no">11 / 11</div>
 </section>
 

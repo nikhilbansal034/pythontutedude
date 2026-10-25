@@ -148,6 +148,108 @@ CREATE OR REPLACE TABLE CTRL.PARTIAL_RELEASE_AUTH (
 );
 
 /* ---------------------------------------------------------------------
+   Group membership WITH a per-cycle refresh expectation (R22).
+
+   Objects in one consistency group refresh on different cadences, so
+   "the group is complete" is NOT "every object loaded this cycle".
+   Without this table the gate cannot tell a job that FAILED from one
+   that was never DUE, and must either block every cycle on which some
+   member is not scheduled, or pass a genuine failure.
+
+   DUE_THIS_CYCLE stands in for what Stonebranch knows about tonight's
+   run. In production it is derived, not typed.
+   --------------------------------------------------------------------- */
+CREATE OR REPLACE TABLE CTRL.GROUP_EXPECTATION (
+    group_name      STRING,
+    object_schema   STRING,
+    object_name     STRING,
+    refresh_cadence STRING,    -- DAILY | WEEKLY | YEARLY
+    due_this_cycle  BOOLEAN
+);
+
+INSERT INTO CTRL.GROUP_EXPECTATION
+  (group_name, object_schema, object_name, refresh_cadence, due_this_cycle)
+VALUES
+  ('PREMIUM','PUB','FACT_PREMIUM','DAILY' , TRUE),
+  ('PREMIUM','PUB','DIM_POLICY'  ,'DAILY' , TRUE),
+  ('PREMIUM','PUB','DIM_BROKER'  ,'WEEKLY', FALSE),   -- deliberately NOT due
+  ('PREMIUM','PUB','DIM_DATE'    ,'YEARLY', FALSE);   -- deliberately NOT due
+
+/* Staging and published state, one row per group object, so the gate
+   can be written against the EXPECTATION rather than against a
+   hardcoded "all four tables". */
+CREATE OR REPLACE VIEW CTRL.V_STAGING_STATE AS
+SELECT 'FACT_PREMIUM' AS object_name, COUNT(*) AS row_count, MAX(cycle_marker) AS staged_cycle FROM STG.FACT_PREMIUM
+UNION ALL SELECT 'DIM_POLICY', COUNT(*), MAX(cycle_marker) FROM STG.DIM_POLICY
+UNION ALL SELECT 'DIM_BROKER', COUNT(*), MAX(cycle_marker) FROM STG.DIM_BROKER
+UNION ALL SELECT 'DIM_DATE'  , COUNT(*), MAX(cycle_marker) FROM STG.DIM_DATE;
+
+CREATE OR REPLACE VIEW CTRL.V_PUBLISHED_STATE AS
+SELECT 'FACT_PREMIUM' AS object_name, MAX(cycle_marker) AS published_cycle FROM PUB.FACT_PREMIUM
+UNION ALL SELECT 'DIM_POLICY', MAX(cycle_marker) FROM PUB.DIM_POLICY
+UNION ALL SELECT 'DIM_BROKER', MAX(cycle_marker) FROM PUB.DIM_BROKER
+UNION ALL SELECT 'DIM_DATE'  , MAX(cycle_marker) FROM PUB.DIM_DATE;
+
+CREATE OR REPLACE VIEW CTRL.V_GROUP_STATE AS
+SELECT e.object_name, e.refresh_cadence, e.due_this_cycle,
+       s.row_count, s.staged_cycle, p.published_cycle
+FROM CTRL.GROUP_EXPECTATION e
+JOIN CTRL.V_STAGING_STATE   s ON s.object_name = e.object_name
+JOIN CTRL.V_PUBLISHED_STATE p ON p.object_name = e.object_name
+WHERE e.group_name = 'PREMIUM';
+
+/* ---------------------------------------------------------------------
+   O12 fixture — publication by row access policy.
+
+   O12 is compared against O11 and O16 in the deck, so it needs evidence
+   like the others. It also supplies the row access policy that R26
+   requires and that the fixture otherwise lacks.
+
+   The mechanism: both cycles' rows live in the table at once, and a row
+   access policy admits only the cycle named in CTRL.PUBLISHED_VERSION.
+   Publication is an UPDATE of that one marker row.
+   --------------------------------------------------------------------- */
+CREATE OR REPLACE TABLE CTRL.PUBLISHED_VERSION (
+    group_name    STRING,
+    visible_cycle NUMBER
+);
+INSERT INTO CTRL.PUBLISHED_VERSION (group_name, visible_cycle) VALUES ('RAP', 1);
+
+CREATE OR REPLACE ROW ACCESS POLICY GOV.RAP_VISIBLE_CYCLE
+  AS (cycle_marker NUMBER) RETURNS BOOLEAN ->
+     cycle_marker = (SELECT visible_cycle
+                     FROM CTRL.PUBLISHED_VERSION
+                     WHERE group_name = 'RAP');
+
+/* Two tables, so "the whole group flips together" is actually testable. */
+CREATE OR REPLACE TABLE PUB.RAP_FACT (
+    fact_id      NUMBER,
+    policy_id    NUMBER,
+    amount       NUMBER(12,2),
+    cycle_marker NUMBER
+);
+CREATE OR REPLACE TABLE PUB.RAP_DIM (
+    policy_id    NUMBER,
+    policy_name  STRING,
+    cycle_marker NUMBER
+);
+
+/* cycle 1 = the published version; cycle 2 = staged, not yet visible */
+INSERT INTO PUB.RAP_FACT SELECT seq4(), MOD(seq4(),10), 100, 1 FROM TABLE(GENERATOR(ROWCOUNT=>100));
+INSERT INTO PUB.RAP_FACT SELECT seq4(), MOD(seq4(),10), 200, 2 FROM TABLE(GENERATOR(ROWCOUNT=>100));
+INSERT INTO PUB.RAP_DIM  SELECT seq4(), 'policy_v1_' || seq4(), 1 FROM TABLE(GENERATOR(ROWCOUNT=>10));
+INSERT INTO PUB.RAP_DIM  SELECT seq4(), 'policy_v2_' || seq4(), 2 FROM TABLE(GENERATOR(ROWCOUNT=>10));
+
+ALTER TABLE PUB.RAP_FACT ADD ROW ACCESS POLICY GOV.RAP_VISIBLE_CYCLE ON (cycle_marker);
+ALTER TABLE PUB.RAP_DIM  ADD ROW ACCESS POLICY GOV.RAP_VISIBLE_CYCLE ON (cycle_marker);
+
+GRANT SELECT ON TABLE PUB.RAP_FACT TO ROLE IDENTIFIER($reader_role);
+GRANT SELECT ON TABLE PUB.RAP_DIM  TO ROLE IDENTIFIER($reader_role);
+/* NOTE: the reader is deliberately NOT granted anything on CTRL.
+   A row access policy body runs with the policy owner's rights, so the
+   reader should still be filtered correctly. TC-045 asserts that. */
+
+/* ---------------------------------------------------------------------
    Synthetic source data
    --------------------------------------------------------------------- */
 CREATE OR REPLACE TABLE SRC.CUSTOMER_SRC AS
