@@ -27,7 +27,8 @@ Three deliberate exclusions, all confirmed:
 **Requirement IDs R1-R24 are unchanged from the pre-split baseline.** The restructure regroups
 them; it does not renumber them. Every earlier reference — in the deck, in review comments, in
 discussion — remains valid. R25-R28 are new, added from the governance analysis. R16 is restated
-to be testable; its intent is unchanged.
+to be testable; its intent is unchanged. R22 is extended, 2026-10-25, to carry a per-cycle refresh
+expectation; the original clause is intact and the addition is stated as an extension of it.
 
 Two ID namespaces coexist and should not be confused: **Part A / Part B** name the two halves of
 the requirement, while **A1-A4** are the assumptions in section 8. Always write "Part A", never a
@@ -181,7 +182,7 @@ protection. See section 2.*
 | # | Requirement |
 |---|---|
 | **R19** | For any consumption object it is determinable which published version consumers are currently seeing, and when it was published. |
-| **R22** | The membership of every consistency group — the objects whose states must agree, and the jobs that refresh them — is known and kept current as reports and objects change. An incorrect membership silently invalidates R1, R2, R3 and R4. |
+| **R22** | The membership of every consistency group — the objects whose states must agree, the jobs that refresh them, and **which of those objects a given cycle is expected to refresh** — is known and kept current as reports and objects change. Objects in one group refresh on different cadences, so *"the group is complete"* is not *"every object loaded tonight"*. Without a per-cycle expectation the completeness check (R8, R9) cannot tell a job that failed from one that was never due, and must either block every cycle on which some member is not scheduled, or pass a genuine failure. An incorrect membership silently invalidates R1, R2, R3 and R4. |
 
 ---
 
