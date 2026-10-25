@@ -17,7 +17,8 @@ The POC has not been run.
 |---|---|
 | [`problem_statement.md`](problem_statement.md) | **The baseline.** Part A, Part B, R1–R29, assumptions, open policy. If anything disagrees with it, it wins |
 | [`solution_design.md`](solution_design.md) | The proposal: 22 options considered, `INSERT OVERWRITE` + transaction recommended, every claim sourced or marked untested |
-| [`requirement_deck_v2.html`](requirement_deck_v2.html) | The leadership deck, 11 slides. Opens in a browser, no build step |
+| [`requirement_deck_v3.html`](requirement_deck_v3.html) | **Candidate deck**, 11 slides. v2 plus the flow corrections — prepare step, per-group gate, two staging sources, the physicalised-view line |
+| [`requirement_deck_v2.html`](requirement_deck_v2.html) | The previous deck, 11 slides. Kept side by side until one is chosen |
 | [`poc/`](poc/) | The test pack — scripts, tracker, evidence |
 
 ## Layout
@@ -25,7 +26,8 @@ The POC has not been run.
 ```
 problem_statement.md        the requirement baseline — source of truth
 solution_design.md          the solution proposal
-requirement_deck_v2.html    leadership deck, 11 slides
+requirement_deck_v3.html    candidate leadership deck, 11 slides
+requirement_deck_v2.html    previous deck, kept for comparison
 
 poc/                        the proof-of-concept pack
 ├── 00_setup.sql            run first; everything else depends on it
