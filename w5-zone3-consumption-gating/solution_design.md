@@ -1,15 +1,17 @@
 # Zone 3 Consumption Gating — Complete Solution Design
 
-**Single source of truth for this workstream.** Supersedes and absorbs the earlier `hld_and_options.md` and the first `solution_design.md`.
+**The solution proposal for this workstream.** The requirement itself lives in
+[`problem_statement.md`](problem_statement.md) — that is the baseline this design answers to, and if the
+two ever disagree, the baseline wins.
 
 | | |
 |---|---|
-| Requirement baseline | [`requirement_deck_v2.html`](../requirement_deck_v2.html) — frozen |
-| Proven inputs | [POC02](../source/POC02_Recommendation_and_Design%201.html) (clone-and-swap), [POC05](../source/POC05%20-%20Same-Name%20Clone%20Refresh%20for%20Consumption%20-%20Deck.html) (same-name reclone) |
+| **Requirement baseline** | [`problem_statement.md`](problem_statement.md) — Part A, Part B, R1-R28. **The source of truth** |
+| Background only | [POC02](sources/POC02_Recommendation_and_Design%201.html), [POC05](sources/POC05%20-%20Same-Name%20Clone%20Refresh%20for%20Consumption%20-%20Deck.html). The baseline excludes both as inputs. Citations to them are flagged where they occur and are pending a decision to lift that exclusion or drop them |
 | Meeting source | "Discuss code freeze activities" — transcript synthesis |
-| Test scripts | [`tests/`](tests/) — copy-paste executable on Snowflake |
+| Test scripts | [`00_setup.sql`](00_setup.sql) … [`05_sizing_performance.sql`](05_sizing_performance.sql), [`99_teardown.sql`](99_teardown.sql) |
 | Test tracker | [`Zone3_Gating_Test_Tracker.xlsx`](Zone3_Gating_Test_Tracker.xlsx) |
-| Deck | [`../requirement_deck_v2.html`](../requirement_deck_v2.html) — extended with solution slides |
+| Deck | [`requirement_deck_v2.html`](requirement_deck_v2.html) — the baseline deck extended with solution slides |
 | Status | **Design proposal. Nothing concluded. Every mechanism needs POC validation before sign-off.** |
 
 **Evidence discipline used throughout.** Every Snowflake behaviour statement carries one of three markers:
@@ -463,7 +465,7 @@ So the open call does not merely tune the build. **It decides how much of the vi
 
 ### 8.2 Part B needs something to reconcile against
 
-C4's non-reinstatement clause is not satisfied by inheritance. A clone carries what the source had *at clone time*, so a publish can silently reinstate a tag governance deleted mid-cycle.
+Part B's non-reinstatement clause (R25) is not satisfied by inheritance. A clone carries what the source had *at clone time*, so a publish can silently reinstate a tag governance deleted mid-cycle.
 
 O10 is much better — the object is never recreated, so a live governance change applies immediately and nothing was lost. But the gate must still **verify** that what is about to be published carries the protection currently declared, and fail if not. That requires a **declared governance baseline** — the configuration-table idea Nidwika raised, formalised. Without one there is nothing authoritative to compare against and the clause is unimplementable. Security's prerequisite, not ours.
 
@@ -480,7 +482,7 @@ O10 is much better — the object is never recreated, so a live governance chang
 
 ## 9. What to measure and prove
 
-Full scenario and test-case breakdown is in [`Zone3_Gating_Test_Tracker.xlsx`](Zone3_Gating_Test_Tracker.xlsx); scripts in [`tests/`](tests/). The three that can change the design:
+Full scenario and test-case breakdown is in [`Zone3_Gating_Test_Tracker.xlsx`](Zone3_Gating_Test_Tracker.xlsx); scripts are the numbered `.sql` files in this folder. The three that can change the design:
 
 | Priority | Question | Test |
 |---|---|---|
