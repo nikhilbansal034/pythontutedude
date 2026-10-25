@@ -299,6 +299,158 @@ SELECT 'TC-023 after swap' AS tc, * FROM CONSUME.V_GROUP_CONSISTENCY;
 
 
 /* =====================================================================
+   TC-044  A schema swap moves an unrefreshed object BACKWARDS
+   Scenario SC-24. Requirements R1, R2, R22.
+
+   A swap exchanges the two storages, so the staging name ends the cycle
+   holding what the published name held before it. An object that is
+   never rewritten in staging therefore flips back one version on every
+   swap and oscillates between two versions indefinitely — and every
+   swap reports success.
+
+   This is why solution_design.md §5.4 keeps a PREPARE clone, and why
+   that step is O16-only: O11 never exchanges storage, so an unrefreshed
+   object's staging copy still matches what was published for it.
+
+   Expected  ARM 1 (no carry-forward): DIM_BROKER REGRESSES after the
+             swap — published cycle goes DOWN. This is the defect.
+   Expected  ARM 2 (clone forward first): DIM_BROKER is unchanged.
+
+   WHAT A FAILURE INVALIDATES: if ARM 1 does NOT regress, the PREPARE
+   step is unnecessary and O16 costs one step less than we claim.
+   ===================================================================== */
+USE ROLE POC_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
+
+/* Baseline both storages on cycle 30, then publish by swap so PUB and
+   STG are in the alternating state a running system would be in.      */
+INSERT OVERWRITE INTO STG.FACT_PREMIUM SELECT premium_id, policy_id, broker_id, amt, 30 FROM SRC.FACT_PREMIUM;
+INSERT OVERWRITE INTO STG.DIM_POLICY   SELECT policy_id, policy_no, 30   FROM SRC.DIM_POLICY;
+INSERT OVERWRITE INTO STG.DIM_BROKER   SELECT broker_id, broker_cd, 30   FROM SRC.DIM_BROKER;
+INSERT OVERWRITE INTO STG.DIM_DATE     SELECT date_key, cal_date, 30      FROM SRC.DIM_DATE;
+ALTER SCHEMA PUB SWAP WITH STG;    -- PUB now holds cycle 30
+
+SELECT 'TC-044 baseline published' AS tc, * FROM CTRL.V_PUBLISHED_STATE;
+
+/* ---- ARM 1: next cycle, only the daily objects load. No carry-forward. */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-044|SWAP_NO_CARRY_FORWARD';
+INSERT OVERWRITE INTO STG.FACT_PREMIUM SELECT premium_id, policy_id, broker_id, amt, 31 FROM SRC.FACT_PREMIUM;
+INSERT OVERWRITE INTO STG.DIM_POLICY   SELECT policy_id, policy_no, 31   FROM SRC.DIM_POLICY;
+/* DIM_BROKER and DIM_DATE deliberately untouched — they are not due */
+
+SELECT 'TC-044 staging before swap (note DIM_BROKER is NOT cycle 30)' AS tc,
+       object_name, staged_cycle FROM CTRL.V_STAGING_STATE ORDER BY object_name;
+
+ALTER SCHEMA PUB SWAP WITH STG;
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-044 ARM 1 after swap (expect DIM_BROKER REGRESSED below 30)' AS tc,
+       * FROM CTRL.V_PUBLISHED_STATE;
+
+/* ---- ARM 2: the same cycle, but carry the not-due objects forward. */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-044|SWAP_WITH_CARRY_FORWARD';
+/* put both storages back on a known footing */
+INSERT OVERWRITE INTO PUB.DIM_BROKER SELECT broker_id, broker_cd, 30 FROM SRC.DIM_BROKER;
+INSERT OVERWRITE INTO PUB.DIM_DATE   SELECT date_key, cal_date, 30    FROM SRC.DIM_DATE;
+INSERT OVERWRITE INTO STG.FACT_PREMIUM SELECT premium_id, policy_id, broker_id, amt, 32 FROM SRC.FACT_PREMIUM;
+INSERT OVERWRITE INTO STG.DIM_POLICY   SELECT policy_id, policy_no, 32   FROM SRC.DIM_POLICY;
+
+/* the PREPARE step: carry the not-due objects forward into staging */
+INSERT OVERWRITE INTO STG.DIM_BROKER SELECT * FROM PUB.DIM_BROKER;
+INSERT OVERWRITE INTO STG.DIM_DATE   SELECT * FROM PUB.DIM_DATE;
+
+/* the G2b carry-forward check, inline — V_GATE_CHECKS lives in 04 */
+SELECT 'TC-044 ARM 2 carry-forward check (expect zero rows)' AS tc,
+       object_name, staged_cycle, published_cycle
+FROM CTRL.V_GROUP_STATE
+WHERE NOT due_this_cycle
+  AND staged_cycle IS DISTINCT FROM published_cycle;
+
+ALTER SCHEMA PUB SWAP WITH STG;
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-044 ARM 2 after swap (expect DIM_BROKER STILL 30, facts 32)' AS tc,
+       * FROM CTRL.V_PUBLISHED_STATE;
+
+/* NOTE: TC-044 leaves PUB and STG swapped an odd number of times. That
+   is harmless — 04 re-establishes a known published state before the
+   gate tests — but do not read the fixture's physical layout between
+   here and there and expect it to match 00_setup.                     */
+
+
+/* =====================================================================
+   TC-045  O12 — the whole group flips in one marker update
+   Scenario SC-25. Requirements R1, R2, R3, R26.
+
+   O12 is compared against O11 and O16 in the deck, so it needs the same
+   evidence they have. Both tables carry cycle 1 and cycle 2 rows; the
+   row access policy admits only the cycle named in the marker table.
+
+   Expected: before the flip the reader sees cycle 1 in BOTH tables;
+             after it, cycle 2 in both. Never a mixture.
+             The reader has no grant on CTRL at all — the policy body
+             runs with the policy owner's rights.
+   ===================================================================== */
+USE ROLE POC_READER_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
+SELECT 'TC-045 reader BEFORE flip (expect only cycle 1, both tables)' AS tc,
+       (SELECT COUNT(DISTINCT cycle_marker) FROM PUB.RAP_FACT) AS fact_cycles,
+       (SELECT MAX(cycle_marker) FROM PUB.RAP_FACT)            AS fact_cycle,
+       (SELECT MAX(cycle_marker) FROM PUB.RAP_DIM)             AS dim_cycle;
+
+USE ROLE POC_ROLE;
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-045|RAP_FLIP';
+UPDATE CTRL.PUBLISHED_VERSION SET visible_cycle = 2 WHERE group_name = 'RAP';
+ALTER SESSION UNSET QUERY_TAG;
+
+USE ROLE POC_READER_ROLE;
+SELECT 'TC-045 reader AFTER flip (expect only cycle 2, both tables)' AS tc,
+       (SELECT COUNT(DISTINCT cycle_marker) FROM PUB.RAP_FACT) AS fact_cycles,
+       (SELECT MAX(cycle_marker) FROM PUB.RAP_FACT)            AS fact_cycle,
+       (SELECT MAX(cycle_marker) FROM PUB.RAP_DIM)             AS dim_cycle;
+
+/* reversibility — R29 for this mechanism is one more UPDATE */
+USE ROLE POC_ROLE;
+UPDATE CTRL.PUBLISHED_VERSION SET visible_cycle = 1 WHERE group_name = 'RAP';
+USE ROLE POC_READER_ROLE;
+SELECT 'TC-045 reader after ROLLBACK (expect cycle 1 again)' AS tc,
+       (SELECT MAX(cycle_marker) FROM PUB.RAP_FACT) AS fact_cycle;
+USE ROLE POC_ROLE;
+
+
+/* =====================================================================
+   TC-046  O12 — a reader spanning the flip sees ONE version
+   Scenario SC-25. Requirements R1, R2, R6, R7.
+
+   The O12 equivalent of TC-020. A row access policy is evaluated per
+   statement, so a single long-running statement should see one marker
+   value throughout — but that is inference, not documentation.
+
+   TWO SESSIONS. Session B must be open before session A runs.
+   ===================================================================== */
+/* ---- SESSION B (reader) — start this FIRST, as POC_READER_ROLE ------
+   USE ROLE POC_READER_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
+   ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-046|RAP_HELD_OPEN_READ';
+   SELECT 'TC-046 reader spanning the flip' AS tc,
+          COUNT(DISTINCT cycle_marker) AS distinct_cycles_seen
+   FROM (
+       SELECT cycle_marker FROM PUB.RAP_FACT
+       UNION ALL SELECT cycle_marker FROM PUB.RAP_DIM
+   ) WHERE SYSTEM$WAIT(60) IS NOT NULL;
+   -- EXPECTED: distinct_cycles_seen = 1
+   -- A result of 2 means O12 does NOT gate a reader spanning the flip,
+   -- and O12 is out as a publication mechanism.
+   --------------------------------------------------------------------- */
+
+/* ---- SESSION A (publisher) — run this while B is waiting ----------- */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-046|RAP_FLIP_UNDER_READER';
+UPDATE CTRL.PUBLISHED_VERSION SET visible_cycle = 2 WHERE group_name = 'RAP';
+ALTER SESSION UNSET QUERY_TAG;
+SELECT 'TC-046 marker flipped — now read session B result' AS tc;
+
+/* reset for re-runs */
+UPDATE CTRL.PUBLISHED_VERSION SET visible_cycle = 1 WHERE group_name = 'RAP';
+
+
+/* =====================================================================
    SUMMARY
    ===================================================================== */
 SELECT SPLIT_PART(query_tag,'|',2) AS tc,

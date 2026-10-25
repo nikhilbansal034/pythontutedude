@@ -298,3 +298,51 @@ GROUP BY warehouse_name;
      - warehouse size
      - CURRENT_VERSION() (the account's Snowflake release)
      - whether the clustering key survived each mechanism            */
+
+
+/* =====================================================================
+   TC-048  How much storage the retained previous version costs
+   Scenario SC-20. Requirement R24.
+
+   R24 asks that the overhead of keeping the published state visible
+   while its replacement is prepared is "bounded and known". TC-052 and
+   TC-053 time the publish; neither sizes the copy that is retained.
+
+   Both designs hold two copies of a group at once: O11 holds PUB plus
+   STG; O16 holds the two swapped schemas. This measures that, plus the
+   Time Travel tail INSERT OVERWRITE leaves behind.
+
+   Expected: a number, not a pass/fail. Record it against the group's
+             own size so the ratio can be applied to the real estate.
+   ===================================================================== */
+SELECT 'TC-048 live bytes by schema (expect PUB ~= STG)' AS tc,
+       table_schema, table_name, row_count, bytes,
+       ROUND(bytes/1024/1024, 2) AS mb
+FROM POC_GATING_DB.INFORMATION_SCHEMA.TABLES
+WHERE table_schema IN ('PUB','STG')
+ORDER BY table_schema, table_name;
+
+SELECT 'TC-048 total overhead ratio (expect ~2x the group)' AS tc,
+       ROUND(SUM(CASE WHEN table_schema='PUB' THEN bytes ELSE 0 END)/1024/1024, 2) AS pub_mb,
+       ROUND(SUM(CASE WHEN table_schema='STG' THEN bytes ELSE 0 END)/1024/1024, 2) AS stg_mb,
+       ROUND(SUM(bytes)/NULLIF(SUM(CASE WHEN table_schema='PUB' THEN bytes ELSE 0 END),0), 2) AS ratio
+FROM POC_GATING_DB.INFORMATION_SCHEMA.TABLES
+WHERE table_schema IN ('PUB','STG');
+
+/* The Time Travel tail. INSERT OVERWRITE retains the previous contents
+   for the table's retention period, so the real overhead is larger than
+   the live bytes above. Run this AFTER several publish cycles.        */
+SELECT 'TC-048 time travel + failsafe bytes' AS tc,
+       table_schema, table_name,
+       ROUND(active_bytes/1024/1024,2)        AS active_mb,
+       ROUND(time_travel_bytes/1024/1024,2)   AS time_travel_mb,
+       ROUND(failsafe_bytes/1024/1024,2)      AS failsafe_mb
+FROM SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS
+WHERE table_catalog = 'POC_GATING_DB'
+  AND table_schema IN ('PUB','STG')
+  AND deleted = FALSE
+ORDER BY table_schema, table_name;
+
+/* RECORD IN THE TRACKER: the ratio, the retention period in force, and
+   the group's live size — those three let R24 be answered for the real
+   estate without re-running anything.                                 */

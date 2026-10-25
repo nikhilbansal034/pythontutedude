@@ -11,7 +11,7 @@ two ever disagree, the baseline wins.
 | Meeting source | "Discuss code freeze activities" — transcript synthesis |
 | Test scripts | [`poc/`](poc/) &mdash; `00_setup.sql` … `05_sizing_performance.sql`, `99_teardown.sql` |
 | Test tracker | [`poc/Zone3_Gating_Test_Tracker.xlsx`](poc/Zone3_Gating_Test_Tracker.xlsx) |
-| Deck | [`requirement_deck_v2.html`](requirement_deck_v2.html) — the baseline deck extended with solution slides |
+| Deck | [`requirement_deck.html`](requirement_deck.html) — the baseline deck extended with solution slides |
 | Status | **Design proposal. Nothing concluded. Every mechanism needs POC validation before sign-off.** |
 
 **Evidence discipline used throughout.** Every Snowflake behaviour statement carries one of three markers:
@@ -373,7 +373,8 @@ Also **✅ Verified** and constraining where `Z3_GOVERNANCE` sits: tag-based mas
  │             the existing view, or an existing IDMC mapping    │
  │             retargeted by parameter (no logic change)         │
  │ 3 GATE      every object the group EXPECTS this cycle is      │
- │             complete + governance reconciliation              │
+ │             complete (R22) + governance reconciliation.       │
+ │             A missed refresh FAILS; one not due does not      │
  │             FAIL → publish nothing; consumers keep previous   │
  │             AUTHORISED PARTIAL → recorded, then proceed       │
  └───────────────────────────────────────────────────────────────┘
