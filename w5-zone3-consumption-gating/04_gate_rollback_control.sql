@@ -203,15 +203,25 @@ SELECT 'TC-037 PUB after rollback' AS tc, * FROM CONSUME.V_GROUP_CONSISTENCY;
    This test is what proves the gate's governance step is mandatory and
    not optional.
    ===================================================================== */
-/* start from a governed state */
+/* start from a governed state.
+   Binding a tag to a PUBLISHED table needs OWNERSHIP on it, which now
+   sits with the deploy role — correctly, since this is a governance
+   act, not a refresh. STG is the batch role's working area, so that
+   half needs no switch. */
+USE ROLE POC_DEPLOY_ROLE;
 ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email SET TAG GOV.PII_EMAIL = 'EMAIL';
+USE ROLE POC_ROLE;
 ALTER TABLE STG.CUSTOMER_360 MODIFY COLUMN email SET TAG GOV.PII_EMAIL = 'EMAIL';
 
 SELECT 'TC-039 tags before' AS tc, 'PUB' AS half, *
 FROM TABLE(INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('PUB.CUSTOMER_360','table'));
 
-/* ---- governance makes a deliberate removal, mid-cycle ---- */
+/* ---- governance makes a deliberate removal, mid-cycle ----
+   Governance acts as the deploy role; the batch identity never gets to
+   change what is protected. That separation is the point of TC-039. */
+USE ROLE POC_DEPLOY_ROLE;
 ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email UNSET TAG GOV.PII_EMAIL;
+USE ROLE POC_ROLE;
 DELETE FROM GOV.GOVERNANCE_BASELINE
 WHERE group_name='PREMIUM' AND object_name='CUSTOMER_360' AND column_name='EMAIL';
 
@@ -264,7 +274,9 @@ ALTER SCHEMA PUB SWAP WITH STG;
 INSERT INTO GOV.GOVERNANCE_BASELINE
   (group_name, object_schema, object_name, column_name, tag_database, tag_schema, tag_name, tag_value)
 SELECT 'PREMIUM','PUB','CUSTOMER_360','EMAIL',CURRENT_DATABASE(),'GOV','PII_EMAIL','EMAIL';
+USE ROLE POC_DEPLOY_ROLE;
 ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email SET TAG GOV.PII_EMAIL = 'EMAIL';
+USE ROLE POC_ROLE;
 
 
 /* =====================================================================

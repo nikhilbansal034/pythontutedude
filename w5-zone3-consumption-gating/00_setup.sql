@@ -10,10 +10,24 @@
 
    PREREQUISITES
      - A role that can CREATE DATABASE, and can CREATE MASKING POLICY /
-       CREATE TAG in a schema it owns.
+       CREATE TAG in a schema it owns. This stands in for the BATCH
+       IDENTITY — the thing that runs the nightly refresh.
      - A second role to stand in for a reporting role. It needs no
        privileges granted up front; the scripts grant what they need.
+     - A THIRD role to stand in for the Liquibase deployment role, which
+       OWNS the published tables. The user running these scripts must be
+       able to USE both this and the batch role.
      - A warehouse. XSMALL is fine for everything except 05.
+
+   WHY A THIRD ROLE — read this before changing it.
+     The recommendation (O10 over O8) rests on ONE claim: that replacing
+     a table's CONTENTS leaves its OWNER alone, where replacing the
+     OBJECT hands ownership to whoever ran the statement.
+     If the same role both owns the table and refreshes it, the owner
+     reads back unchanged either way and TC-003 / TC-006 prove NOTHING.
+     So: the deploy role owns the published tables; the batch role holds
+     only SELECT / INSERT / DELETE / UPDATE on them. That split is the
+     test. Collapse it and the critical test cases become decorative.
 
    HOW TO USE
      Replace the four SET values below, run this whole file, then run
@@ -26,6 +40,8 @@ SET wh          = 'POC_WH';
 SET poc_db      = 'POC_GATING_DB';
 SET exec_role   = 'POC_ROLE';          -- stands in for the batch identity
 SET reader_role = 'POC_READER_ROLE';   -- stands in for a reporting role
+SET deploy_role = 'POC_DEPLOY_ROLE';   -- stands in for the Liquibase deployment role
+                                       -- OWNS the published tables. See PREREQUISITES.
 
 USE ROLE IDENTIFIER($exec_role);
 USE WAREHOUSE IDENTIFIER($wh);
@@ -197,6 +213,59 @@ INSERT INTO PUB.FACT_PREMIUM SELECT * FROM SRC.FACT_PREMIUM;
 INSERT INTO PUB.DIM_POLICY   SELECT * FROM SRC.DIM_POLICY;
 INSERT INTO PUB.DIM_BROKER   SELECT * FROM SRC.DIM_BROKER;
 INSERT INTO PUB.DIM_DATE     SELECT * FROM SRC.DIM_DATE;
+
+/* ---------------------------------------------------------------------
+   HAND THE PUBLISHED TABLES TO THE DEPLOY ROLE.
+
+   Up to this point the batch role created everything, which is the
+   convenient way to write a setup script and the WRONG way to model the
+   design. In the real thing, Liquibase deploys and owns the published
+   tables; the batch identity only ever changes their CONTENTS.
+
+   Order matters. Grant the batch role its DML first, then transfer
+   ownership with COPY CURRENT GRANTS so those grants (and the reader's
+   SELECT) survive the transfer. REVOKE CURRENT GRANTS would strip them
+   and leave the batch role unable to refresh anything.
+   --------------------------------------------------------------------- */
+/* The deploy role needs enough to act as a deployment role: reach the
+   objects, and APPLY the tags it binds at deploy time. It gets no DML
+   on anything — it deploys and governs, it does not load. */
+GRANT USAGE ON DATABASE IDENTIFIER($poc_db) TO ROLE IDENTIFIER($deploy_role);
+GRANT USAGE ON SCHEMA   PUB  TO ROLE IDENTIFIER($deploy_role);
+GRANT USAGE ON SCHEMA   STG  TO ROLE IDENTIFIER($deploy_role);
+GRANT USAGE ON SCHEMA   GOV  TO ROLE IDENTIFIER($deploy_role);
+GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE IDENTIFIER($deploy_role);
+GRANT APPLY ON TAG GOV.PII_EMAIL        TO ROLE IDENTIFIER($deploy_role);
+GRANT APPLY ON TAG GOV.PII_EMAIL_SCHEMA TO ROLE IDENTIFIER($deploy_role);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE PUB.CUSTOMER_360 TO ROLE IDENTIFIER($exec_role);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE PUB.FACT_PREMIUM TO ROLE IDENTIFIER($exec_role);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE PUB.DIM_POLICY   TO ROLE IDENTIFIER($exec_role);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE PUB.DIM_BROKER   TO ROLE IDENTIFIER($exec_role);
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE PUB.DIM_DATE     TO ROLE IDENTIFIER($exec_role);
+
+GRANT OWNERSHIP ON TABLE PUB.CUSTOMER_360 TO ROLE IDENTIFIER($deploy_role) COPY CURRENT GRANTS;
+GRANT OWNERSHIP ON TABLE PUB.FACT_PREMIUM TO ROLE IDENTIFIER($deploy_role) COPY CURRENT GRANTS;
+GRANT OWNERSHIP ON TABLE PUB.DIM_POLICY   TO ROLE IDENTIFIER($deploy_role) COPY CURRENT GRANTS;
+GRANT OWNERSHIP ON TABLE PUB.DIM_BROKER   TO ROLE IDENTIFIER($deploy_role) COPY CURRENT GRANTS;
+GRANT OWNERSHIP ON TABLE PUB.DIM_DATE     TO ROLE IDENTIFIER($deploy_role) COPY CURRENT GRANTS;
+
+/* Staging stays with the batch role. Only PUBLISHED objects are the
+   deploy role's — staging is the batch's working area, and modelling it
+   otherwise would just add role switches that prove nothing. */
+
+/* ---------------------------------------------------------------------
+   SETUP ASSERTION — run this and read it before running 01.
+   Expected: owner = POC_DEPLOY_ROLE on all five published tables.
+   If it says POC_ROLE, the ownership transfer did not happen and
+   TC-003 / TC-006 will produce a false PASS. Stop and fix it.
+   --------------------------------------------------------------------- */
+SHOW TABLES IN SCHEMA PUB;
+SELECT 'SETUP owner check (expect POC_DEPLOY_ROLE on all rows)' AS check_,
+       "name", "owner"
+FROM   TABLE(RESULT_SCAN(LAST_QUERY_ID()))
+WHERE  "name" IN ('CUSTOMER_360','FACT_PREMIUM','DIM_POLICY','DIM_BROKER','DIM_DATE')
+ORDER BY "name";
 
 /* ---------------------------------------------------------------------
    The view estate.

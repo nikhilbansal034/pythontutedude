@@ -102,19 +102,29 @@ SELECT 'TC-020 before' AS tc, * FROM CONSUME.V_GROUP_CONSISTENCY;  -- expect 1 /
 --   SELECT CURRENT_TIMESTAMP() AS t, * FROM CONSUME.V_GROUP_CONSISTENCY;
 --   -- EXPECTED on every single execution: distinct_cycles = 1.
 --   -- If you ever see distinct_cycles = 2, O11 does NOT deliver Part A.
+--   --
+--   -- Poll for the WHOLE 30s and capture at least one grid showing
+--   -- min_cycle = max_cycle = 1 while session A is mid-transaction.
+--   -- Evidence that catches no poll inside the window proves nothing;
+--   -- the timestamps must straddle session A's BEGIN and COMMIT.
 --
--- Then, in session A, run the transaction below. To widen the window so
--- the reader has time to poll mid-transaction, uncomment the CALL
--- SYSTEM$WAIT line between statements.
+-- Then, in session A, run the transaction below.
+--
+-- THE WAITS ARE DELIBERATE — DO NOT REMOVE THEM.
+-- Without them the four statements finish in milliseconds, the reader
+-- never polls inside the open transaction, and this test reports a PASS
+-- having never exercised the window it exists to exercise. The waits
+-- hold the transaction open ~30s so the reader genuinely reads
+-- mid-publish. A green TC-020 with the waits removed is meaningless.
 
 ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-020|O11_TRANSACTION';
 BEGIN;
   INSERT OVERWRITE INTO PUB.FACT_PREMIUM SELECT * FROM STG.FACT_PREMIUM;
-  -- CALL SYSTEM$WAIT(10);
+  CALL SYSTEM$WAIT(10);
   INSERT OVERWRITE INTO PUB.DIM_POLICY   SELECT * FROM STG.DIM_POLICY;
-  -- CALL SYSTEM$WAIT(10);
+  CALL SYSTEM$WAIT(10);
   INSERT OVERWRITE INTO PUB.DIM_BROKER   SELECT * FROM STG.DIM_BROKER;
-  -- CALL SYSTEM$WAIT(10);
+  CALL SYSTEM$WAIT(10);
   INSERT OVERWRITE INTO PUB.DIM_DATE     SELECT * FROM STG.DIM_DATE;
 
   /* Inside the transaction, the WRITER sees its own uncommitted changes.

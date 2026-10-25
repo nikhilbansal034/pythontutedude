@@ -1,5 +1,5 @@
 /* =====================================================================
-   01 — GOVERNANCE SURVIVAL   (TC-001 … TC-015)
+   01 — GOVERNANCE SURVIVAL   (TC-001 … TC-016)
    Scenarios SC-06, SC-07, SC-08, SC-09, SC-14, SC-15
    ---------------------------------------------------------------------
    Question: for each candidate refresh mechanism, do the tag, the
@@ -14,7 +14,8 @@ USE ROLE POC_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
 /* =====================================================================
    TC-001  BASELINE — capture all four controls before anything runs
    Expected: email tagged PII_EMAIL; MASK_EMAIL bound; reader has SELECT;
-             owner = POC_ROLE
+             owner = POC_DEPLOY_ROLE  <-- NOT the batch role. 00_setup
+             transfers ownership so TC-003 and TC-006 mean something.
    ===================================================================== */
 SELECT 'TC-001 tags' AS tc, *
 FROM TABLE(INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('PUB.CUSTOMER_360','table'));
@@ -56,17 +57,34 @@ FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 
 /* =====================================================================
    TC-003  CTAS + COPY GRANTS + COPY TAGS  (option O8 viable form)
-   COPY TAGS for CREATE OR REPLACE TABLE went GA 2026-04-02 and is
-   documented to work with AS SELECT.
+   COPY TAGS for CREATE OR REPLACE TABLE went GA 2026-04-02. Note: the
+   docs confirm the clause for CREATE OR REPLACE TABLE; that it also
+   applies to the AS SELECT form is the design's reading and is exactly
+   what this test settles.
+
+   T003 is deliberately handed to the DEPLOY role first, so this test
+   models the real thing: Liquibase owns the table, the batch identity
+   runs the CTAS. Without that transfer the owner cell reads POC_ROLE
+   before and after and proves nothing.
+
    Expected: tag PRESENT, reader SELECT PRESENT,
-             owner = POC_ROLE  <-- the discriminator. COPY GRANTS
-             explicitly excludes OWNERSHIP, so in a real deployment
-             where Liquibase owned the table, ownership MOVES here.
+             owner = POC_ROLE  <-- OWNERSHIP MOVED off the deploy role.
+             COPY GRANTS explicitly excludes OWNERSHIP. This is the
+             discriminator that rules O8 out, and TC-006 is its mirror.
    ===================================================================== */
 CREATE OR REPLACE TABLE PUB.T003 LIKE PUB.CUSTOMER_360;
 ALTER TABLE PUB.T003 MODIFY COLUMN email SET TAG GOV.PII_EMAIL = 'EMAIL';
 GRANT SELECT ON TABLE PUB.T003 TO ROLE POC_READER_ROLE;
 INSERT INTO PUB.T003 SELECT * FROM SRC.CUSTOMER_SRC;
+
+/* model the deployment: hand it to the deploy role, keep the batch
+   role's DML. Confirm the owner BEFORE the CTAS so the move is visible. */
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE PUB.T003 TO ROLE POC_ROLE;
+GRANT OWNERSHIP ON TABLE PUB.T003 TO ROLE POC_DEPLOY_ROLE COPY CURRENT GRANTS;
+
+SHOW TABLES LIKE 'T003' IN SCHEMA PUB;
+SELECT 'TC-003 owner BEFORE ctas (expect POC_DEPLOY_ROLE)' AS tc, "name", "owner"
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 
 ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-003|CTAS_COPY_TAGS';
 CREATE OR REPLACE TABLE PUB.T003
@@ -82,8 +100,10 @@ SELECT 'TC-003 grants (expect reader SELECT present)' AS tc, "privilege", "grant
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 
 SHOW TABLES LIKE 'T003' IN SCHEMA PUB;
-SELECT 'TC-003 owner (the key cell)' AS tc, "name", "owner"
+SELECT 'TC-003 owner AFTER ctas (the key cell — expect POC_ROLE)' AS tc, "name", "owner"
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+/* If before = POC_DEPLOY_ROLE and after = POC_ROLE, O8 moves ownership
+   every cycle and C7 bites nightly. That is the finding. */
 
 
 /* =====================================================================
@@ -123,12 +143,21 @@ FROM PUB.CUSTOMER_360 ORDER BY customer_id LIMIT 3;
 
 /* =====================================================================
    TC-006  *** CRITICAL *** INSERT OVERWRITE — does OWNER change?
-   This is the whole reason O10 is preferred over O8.
-   Expected: owner UNCHANGED from TC-001.
+   This is the whole reason O10 is preferred over O8, and it is only a
+   real test because the table is owned by POC_DEPLOY_ROLE while the
+   INSERT OVERWRITE in TC-004 was run by POC_ROLE. Two different roles.
+   If both were POC_ROLE this would pass whatever the answer was.
+
+   Expected: owner = POC_DEPLOY_ROLE, i.e. UNCHANGED from TC-001 and
+             still NOT the role that just rewrote every row.
+   Read it against TC-003, where the same two roles produce a move.
    ===================================================================== */
 SHOW TABLES LIKE 'CUSTOMER_360' IN SCHEMA PUB;
-SELECT 'TC-006 owner (expect unchanged)' AS tc, "name", "owner"
+SELECT 'TC-006 owner (expect POC_DEPLOY_ROLE, unchanged)' AS tc, "name", "owner"
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+/* FAILS THE DESIGN if this reads POC_ROLE: INSERT OVERWRITE would be
+   moving ownership too, O10 loses its only advantage over O8, and the
+   recommendation collapses. Record the result either way. */
 
 
 /* =====================================================================
@@ -207,6 +236,11 @@ ALTER SESSION UNSET QUERY_TAG;
    ===================================================================== */
 SELECT 'TC-011 rowcount before' AS tc, COUNT(*) FROM PUB.CUSTOMER_360;
 
+/* CREATE OR ALTER requires OWNERSHIP, which now sits with the deploy
+   role — correctly, because this is a DEPLOYMENT operation, not a
+   refresh. In production Liquibase runs it, never the batch identity.
+   Switch roles for it, then switch back. */
+USE ROLE POC_DEPLOY_ROLE;
 ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-011|CREATE_OR_ALTER';
 CREATE OR ALTER TABLE PUB.CUSTOMER_360 (
     customer_id   NUMBER,
@@ -217,6 +251,7 @@ CREATE OR ALTER TABLE PUB.CUSTOMER_360 (
     new_col       STRING          -- the added column
 );
 ALTER SESSION UNSET QUERY_TAG;
+USE ROLE POC_ROLE;
 
 SELECT 'TC-011 rowcount after (expect unchanged)' AS tc, COUNT(*) FROM PUB.CUSTOMER_360;
 
@@ -231,11 +266,13 @@ FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
    set or unset a tag. The deployment must ALTER it in separately —
    which is exactly where the "new column is unprotected" risk lives. */
 
-/* restore the shape for later scripts */
+/* restore the shape for later scripts — deploy role again */
+USE ROLE POC_DEPLOY_ROLE;
 CREATE OR ALTER TABLE PUB.CUSTOMER_360 (
     customer_id NUMBER, email STRING, customer_name STRING,
     premium_amt NUMBER, cycle_marker NUMBER
 );
+USE ROLE POC_ROLE;   -- back to the batch identity for everything after this
 
 
 /* =====================================================================
@@ -344,6 +381,51 @@ SELECT 'TC-015 gate diff (expect ZERO rows)' AS tc, * FROM CTRL.V_GATE_TAG_DIFF;
    ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email UNSET TAG GOV.PII_EMAIL;
    SELECT * FROM CTRL.V_GATE_TAG_DIFF;        -- expect one MISSING_TAG row
    ALTER TABLE PUB.CUSTOMER_360 MODIFY COLUMN email SET TAG GOV.PII_EMAIL = 'EMAIL';  */
+
+
+/* =====================================================================
+   TC-016  Is stored data actually plaintext under a masking policy?
+   ---------------------------------------------------------------------
+   This underpins the whole governance argument: if masking were applied
+   on WRITE, losing a tag would be harmless, and R15 (no masked value
+   persisted as real) would be a non-issue. Everything in Part B assumes
+   the opposite — that storage is plaintext and the tag is the only thing
+   standing between a consumer and the real value.
+
+   Snowflake does NOT state this outright. It follows by inference from
+   the documented enforcement model: masking is a query rewrite applied
+   at READ time, so nothing transforms the value on write. Inference is
+   not evidence, and third-party blogs are not a source. Prove it.
+
+   Method: unbind the policy from the tag, read the column back, rebind.
+   Expected: the real value reads back in the clear once the policy is
+             unbound — proving the stored bytes were never masked.
+   If instead it reads back masked or NULL, the storage model is not what
+   this design assumes and Part B needs rethinking from the ground up.
+   ===================================================================== */
+SELECT 'TC-016 with policy bound (POC_ROLE sees clear anyway)' AS tc, email
+FROM PUB.CUSTOMER_360 ORDER BY customer_id LIMIT 3;
+
+/* Unbind, then read as a role the policy would otherwise mask.
+   Run the middle SELECT in a SECOND session as POC_READER_ROLE. */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-016|PLAINTEXT_AT_REST';
+ALTER TAG GOV.PII_EMAIL UNSET MASKING POLICY GOV.MASK_EMAIL;
+
+-- [SESSION B]  USE ROLE POC_READER_ROLE; USE DATABASE POC_GATING_DB; USE WAREHOUSE POC_WH;
+--   SELECT 'TC-016 as READER, policy UNBOUND' AS tc, email
+--   FROM PUB.CUSTOMER_360 ORDER BY customer_id LIMIT 3;
+--   -- EXPECTED: cust0@example.invalid etc — the REAL value, in the clear.
+--   -- That is the proof: the stored bytes were never masked, only the
+--   -- read was. Capture this grid; it is the evidence for fact #27.
+
+/* rebind immediately — the window above is exactly the exposure this
+   design exists to prevent, so do not leave it open. */
+ALTER TAG GOV.PII_EMAIL SET MASKING POLICY GOV.MASK_EMAIL;
+ALTER SESSION UNSET QUERY_TAG;
+
+SELECT 'TC-016 policy rebound (confirm before moving on)' AS tc, *
+FROM TABLE(INFORMATION_SCHEMA.POLICY_REFERENCES(
+        REF_ENTITY_NAME => 'PUB.CUSTOMER_360', REF_ENTITY_DOMAIN => 'TABLE'));
 
 
 /* =====================================================================

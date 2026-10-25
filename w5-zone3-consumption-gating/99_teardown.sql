@@ -19,8 +19,11 @@ ALTER TAG POC_GATING_DB.GOV.PII_EMAIL_SCHEMA UNSET MASKING POLICY POC_GATING_DB.
 
 DROP DATABASE IF EXISTS POC_GATING_DB;
 
-/* Optional: revoke what 00_setup granted to the reader role.
-   Dropping the database removes the object-level grants with it. */
+/* Optional: revoke what 00_setup granted to the reader and deploy
+   roles. Dropping the database removes the object-level grants with it,
+   including the published tables the deploy role owned — DROP DATABASE
+   needs ownership of the database, not of every object inside it. */
 REVOKE USAGE ON WAREHOUSE POC_WH FROM ROLE POC_READER_ROLE;
+REVOKE USAGE ON WAREHOUSE POC_WH FROM ROLE POC_DEPLOY_ROLE;
 
 SELECT 'TEARDOWN COMPLETE' AS status;
