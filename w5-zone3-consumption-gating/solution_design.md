@@ -198,7 +198,7 @@ CREATE OR REPLACE TABLE Z3_STG.CUSTOMER_360
 2. A daily `CREATE OR REPLACE … CLONE` **creates an object at runtime** with the same ownership move as O8 — C7.
 3. **✅ Verified:** grants are not copied without `COPY GRANTS`, and on a first creation *with* it they come from the **clone source**, not the intended consumption object. Reporting roles normally hold SELECT on the consumption object rather than on the raw source, so the first creation can grant them nothing — a bootstrap gap on day one that nothing reports.
 4. The §2.3 schema-level tag-based masking trap.
-**Verdict:** its *swap* half is kept (→ O16). Its *clone-as-refresh* half is rejected. Clone is retained only for the cheap carry-forward of objects not refreshed this cycle.
+**Verdict:** its *swap* half is kept (→ O16). Its *clone-as-refresh* half is rejected. Clone is retained only for the cheap carry-forward of objects not refreshed this cycle — and only where publication is by swap; §5.4 explains why O11 needs no such step.
 
 ### O10 — `INSERT OVERWRITE` into a pre-deployed table ← **recommended refresh mechanism**
 **What it is.** Deploy the table once through Liquibase with tags, masking, grants and owner set at deployment. Then every cycle replace its *contents*:
@@ -365,12 +365,15 @@ Also **✅ Verified** and constraining where `Z3_GOVERNANCE` sits: tag-based mas
       │
       ▼
  ┌───────────────────────────────────────────────────────────────┐
- │ 1 PREPARE   carry forward anything not refreshed this cycle   │
- │             (clone, COPY GRANTS — cheap, no data read)        │
- │ 2 LOAD      O10: INSERT OVERWRITE into Z3_STG_<group>.        │
- │             Source = the existing view, or an existing IDMC   │
- │             mapping retargeted by parameter (no logic change) │
- │ 3 GATE      completeness checks + governance reconciliation   │
+ │ 1 PREPARE   O16 ONLY: clone forward anything not refreshed    │
+ │             this cycle (COPY GRANTS — cheap, no data read).   │
+ │             O11 needs no such step — see below                │
+ │ 2 LOAD      O10: INSERT OVERWRITE into Z3_STG_<group>, for    │
+ │             the objects DUE to refresh this cycle. Source =   │
+ │             the existing view, or an existing IDMC mapping    │
+ │             retargeted by parameter (no logic change)         │
+ │ 3 GATE      every object the group EXPECTS this cycle is      │
+ │             complete + governance reconciliation              │
  │             FAIL → publish nothing; consumers keep previous   │
  │             AUTHORISED PARTIAL → recorded, then proceed       │
  └───────────────────────────────────────────────────────────────┘
@@ -388,6 +391,21 @@ Also **✅ Verified** and constraining where `Z3_GOVERNANCE` sits: tag-based mas
 ```
 
 Steps 1–3 are invisible to consumers. Only step 4 changes what anyone can see.
+
+**Why step 1 is O16-only.** A schema swap exchanges the two storages, so after each swap the
+staging name holds what the published name held before it (§5.5). An object that does not refresh
+is therefore never rewritten in staging, and each swap flips it back to the *previous* version — it
+oscillates between two versions indefinitely, and every swap reports success. Cloning it forward
+before the swap makes both storages hold the same version and the swap harmless.
+
+O11 has no equivalent exposure. Staging and published storage are never exchanged, so an unrefreshed
+object's staging table still holds exactly what was published for it; re-publishing it is a no-op,
+and omitting it from the transaction is equally correct. **This is a third independent argument for
+O11 over O16**, alongside §5.5 and the schema-alignment constraint.
+
+**One dependency.** This holds only if the staging load does not truncate staging at cycle start as
+a hygiene step. If the IDMC mappings truncate-then-load, an unrefreshed object's staging table *is*
+emptied, and O11 acquires the same exposure. **🧪 To confirm with the mapping owners.**
 
 ### 5.5 The open consequence of O16 that needs a decision
 
@@ -418,7 +436,7 @@ Orchestration stays in Stonebranch, which already holds the dependency graph and
 ```
 Stonebranch workflow: Z3_PUBLISH_<group>
 ├── 00 wait        Zone 2 completion signal for the group's sources
-├── 10 prepare     SQL: carry-forward clones into staging (COPY GRANTS)
+├── 10 prepare     O16 only: carry-forward clones into staging (COPY GRANTS)
 ├── 20 build       existing IDMC mappings, retargeted to Z3_STG_<group>
 │                  (target schema is a mapping parameter — no logic change)
 ├── 30 gate        SQL: checks + governance reconciliation → Z3_CONTROL
@@ -454,7 +472,7 @@ Physicalizing a view means **reading its output and writing those rows down** �
 
 | Step | Reads sensitive values? |
 |---|---|
-| Prepare (carry-forward clone) | No — metadata and pointers |
+| Prepare (carry-forward clone, O16 only) | No — metadata and pointers |
 | **Load (O10 from a view)** | **Yes** |
 | Gate | No — metadata and counts |
 | Publish (O11 copy) | **Yes — it is a second read of staging** |

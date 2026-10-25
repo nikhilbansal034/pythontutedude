@@ -643,57 +643,56 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
   <h2>Architecture &mdash; one cycle, end to end</h2>
   <div class="sub">Everything expensive happens where nobody is looking. Only step 4 changes what a reporting user can see.</div>
 
-  <svg class="dg" viewBox="0 0 1164 220" width="1164" height="220" role="img" aria-label="Zone 3 gating cycle architecture">
-    <rect class="box grey" x="0"   y="52" width="100" height="100" rx="2"/>
+  <svg class="dg" viewBox="0 0 1164 206" width="1164" height="206" role="img" aria-label="Zone 3 gating cycle architecture">
+    <rect class="box grey" x="0"   y="52" width="100" height="88" rx="2"/>
     <text class="t"   x="50"  y="96"  text-anchor="middle">Zone 2</text>
     <text class="t s" x="50"  y="112" text-anchor="middle">untouched</text>
 
-    <rect class="box warnb" x="130" y="52" width="216" height="100" rx="2"/>
-    <text class="t w" x="238" y="74"  text-anchor="middle">Z3_STG_&lt;group&gt;</text>
-    <text class="t s" x="238" y="90"  text-anchor="middle">Liquibase-deployed &middot; nobody reads it</text>
-    <text class="t s" x="238" y="112" text-anchor="middle">carry forward what did not refresh</text>
-    <text class="t s" x="238" y="128" text-anchor="middle">then insert overwrite the rest</text>
-    <text class="t s" x="238" y="144" text-anchor="middle">source = the view, or the load mapping</text>
+    <rect class="box warnb" x="130" y="52" width="216" height="88" rx="2"/>
+    <text class="t w" x="238" y="78"  text-anchor="middle">Z3_STG_&lt;group&gt;</text>
+    <text class="t s" x="238" y="100" text-anchor="middle">Liquibase-deployed &middot; nobody reads it</text>
+    <text class="t s" x="238" y="116" text-anchor="middle">insert overwrite what refreshed</text>
+    <text class="t s" x="238" y="132" text-anchor="middle">source = the view, or the load mapping</text>
 
-    <rect class="box alt" x="376" y="52" width="172" height="100" rx="2"/>
+    <rect class="box alt" x="376" y="52" width="172" height="88" rx="2"/>
     <text class="t"   x="462" y="78"  text-anchor="middle">GATE</text>
-    <text class="t s" x="462" y="100" text-anchor="middle">every object in the group</text>
+    <text class="t s" x="462" y="100" text-anchor="middle">every object the group expects</text>
     <text class="t s" x="462" y="116" text-anchor="middle">complete + governance diff</text>
     <text class="t s" x="462" y="132" text-anchor="middle">fail &rarr; publish nothing</text>
 
-    <rect class="box" x="578" y="52" width="156" height="100" rx="2"/>
+    <rect class="box" x="578" y="52" width="156" height="88" rx="2"/>
     <text class="t"   x="656" y="78"  text-anchor="middle">PUBLISH</text>
     <text class="t s" x="656" y="100" text-anchor="middle">one transaction</text>
     <text class="t s" x="656" y="116" text-anchor="middle">over the whole group</text>
     <text class="t s" x="656" y="132" text-anchor="middle">commit, or roll back</text>
 
-    <rect class="box" x="764" y="52" width="156" height="100" rx="2"/>
+    <rect class="box" x="764" y="52" width="156" height="88" rx="2"/>
     <text class="t"   x="842" y="78"  text-anchor="middle">Z3_PUB_&lt;group&gt;</text>
     <text class="t s" x="842" y="100" text-anchor="middle">what reporting users read</text>
     <text class="t s" x="842" y="116" text-anchor="middle">Liquibase-deployed</text>
     <text class="t s" x="842" y="132" text-anchor="middle">owner never moves</text>
 
-    <rect class="box grey" x="950" y="52" width="214" height="100" rx="2"/>
+    <rect class="box grey" x="950" y="52" width="214" height="88" rx="2"/>
     <text class="t"   x="1057" y="78"  text-anchor="middle">Z3_CONSUME views</text>
     <text class="t s" x="1057" y="100" text-anchor="middle">text unchanged where they inherit</text>
     <text class="t s" x="1057" y="116" text-anchor="middle">one line changed where physicalised</text>
     <text class="t s" x="1057" y="132" text-anchor="middle">&rarr; Power BI</text>
 
-    <rect class="box alt" x="376" y="166" width="358" height="42" rx="2"/>
-    <text class="t"   x="555" y="183" text-anchor="middle">Z3_GOVERNANCE &mdash; tags, policies, declared baseline</text>
-    <text class="t s" x="555" y="199" text-anchor="middle">never swapped; the gate reconciles against it</text>
-    <path class="band" d="M 555 166 L 555 152"/>
+    <rect class="box alt" x="376" y="154" width="358" height="42" rx="2"/>
+    <text class="t"   x="555" y="171" text-anchor="middle">Z3_GOVERNANCE &mdash; tags, policies, declared baseline</text>
+    <text class="t s" x="555" y="187" text-anchor="middle">never swapped; the gate reconciles against it</text>
+    <path class="band" d="M 555 154 L 555 140"/>
 
-    <rect class="box grey" x="764" y="166" width="156" height="42" rx="2"/>
-    <text class="t"   x="842" y="183" text-anchor="middle">Z3_CONTROL</text>
-    <text class="t s" x="842" y="199" text-anchor="middle">gate + publication log</text>
-    <path class="band" d="M 842 166 L 842 152"/>
+    <rect class="box grey" x="764" y="154" width="156" height="42" rx="2"/>
+    <text class="t"   x="842" y="171" text-anchor="middle">Z3_CONTROL</text>
+    <text class="t s" x="842" y="187" text-anchor="middle">gate + publication log</text>
+    <path class="band" d="M 842 154 L 842 140"/>
 
-    <path class="brk" d="M 100 102 L 126 102" marker-end="url(#ar12)"/>
-    <path class="brk" d="M 346 102 L 372 102" marker-end="url(#ar12)"/>
-    <path class="brk" d="M 548 102 L 574 102" marker-end="url(#ar12)"/>
-    <path class="cut" d="M 734 102 L 760 102" marker-end="url(#ar12t)"/>
-    <path class="brk" d="M 920 102 L 946 102" marker-end="url(#ar12)"/>
+    <path class="brk" d="M 100 96 L 126 96" marker-end="url(#ar12)"/>
+    <path class="brk" d="M 346 96 L 372 96" marker-end="url(#ar12)"/>
+    <path class="brk" d="M 548 96 L 574 96" marker-end="url(#ar12)"/>
+    <path class="cut" d="M 734 96 L 760 96" marker-end="url(#ar12t)"/>
+    <path class="brk" d="M 920 96 L 946 96" marker-end="url(#ar12)"/>
     <defs>
       <marker id="ar12"  markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#75787B"/></marker>
       <marker id="ar12t" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#0097A9"/></marker>
@@ -705,18 +704,19 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     <circle class="nb" cx="656" cy="38" r="10"/><text class="nt" x="656" y="42" text-anchor="middle">4</text>
     <circle class="nb" cx="842" cy="38" r="10"/><text class="nt" x="842" y="42" text-anchor="middle">5</text>
   </svg>
-  <p class="src"><b>Illustrative</b> &mdash; box widths are not to scale. The teal arrow is the only step a reporting user can observe.</p>
+  <p class="src"><b>Illustrative</b> &mdash; the teal arrow is the only step a reporting user can observe.</p>
 
   <table class="req xsnug" style="margin-top:6px">
     <thead><tr><th class="num">#</th><th>Step</th><th>What it does</th><th>Visible?</th></tr></thead>
     <tbody>
       <tr><td class="num">1</td><td>Zone 2 completes</td><td>Unchanged by this design. The signal that a Zone 3 cycle may begin</td><td><span class="chip ok">No</span></td></tr>
-      <tr><td class="num">2</td><td>Prepare &amp; load</td><td><b>Carry forward</b> any object in the group that did not refresh this cycle, then insert overwrite the rest &mdash; sourced from the existing view, or an existing load mapping retargeted by parameter</td><td><span class="chip ok">No</span></td></tr>
-      <tr><td class="num">3</td><td>Gate</td><td><b>Every object in the group</b> complete, plus a tag diff against the declared baseline. A failure publishes nothing and reporting users stay on the previous version</td><td><span class="chip ok">No</span></td></tr>
+      <tr><td class="num">2</td><td>Load into staging</td><td>Insert overwrite the objects <b>due to refresh this cycle</b>, sourced from the existing view or an existing load mapping retargeted by parameter. One not due is simply not loaded</td><td><span class="chip ok">No</span></td></tr>
+      <tr><td class="num">3</td><td>Gate</td><td><b>Every object the group expects this cycle</b> complete &mdash; a missed refresh is a failure, one not due is not &mdash; plus a tag diff against the baseline. A failure publishes nothing and reporting users stay on the previous version</td><td><span class="chip ok">No</span></td></tr>
       <tr class="hot"><td class="num">4</td><td>Publish</td><td>The whole group in one step. <b>This is the entire visible window</b></td><td><span class="chip warn">Yes</span></td></tr>
       <tr><td class="num">5</td><td>Verify &amp; hold</td><td>Assertions run, publication recorded, previous version held one cycle for rollback</td><td><span class="chip ok">No</span></td></tr>
     </tbody>
   </table>
+  <p class="src" style="margin-top:8px"><b>A schema swap needs one step this flow does not show.</b> It exchanges the two storages, so an object that did not refresh must be cloned forward into staging first, or it alternates between two versions. A transaction needs nothing &mdash; staging already holds the published version.</p>
   <div class="takeaway">Two schema names, one gate, one visible moment &mdash; and the view estate is left as it is wherever it can inherit.</div>
   <div class="slide-no">10 / 11</div>
 </section>
