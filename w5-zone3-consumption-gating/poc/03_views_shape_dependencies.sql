@@ -160,6 +160,17 @@ FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 SELECT 'TC-030 clustering depth IO' AS tc,
        SYSTEM$CLUSTERING_INFORMATION('PUB.T030_IO','(policy_id)') AS info;
 
+/* Clone arm. The docs say CLONE inherits the clustering key, but the
+   comparison on the refresh slide claims it for all three mechanisms,
+   so prove it rather than cite it. */
+ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-030|CLUSTER_CLONE';
+CREATE OR REPLACE TABLE PUB.T030_CLONE CLONE PUB.T030_IO COPY GRANTS;
+ALTER SESSION UNSET QUERY_TAG;
+
+SHOW TABLES LIKE 'T030_CLONE' IN SCHEMA PUB;
+SELECT 'TC-030 CLONE (expect cluster_by STILL set)' AS tc, "name","cluster_by"
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+
 
 /* =====================================================================
    TC-031  STREAMS on a published object — state after each mechanism

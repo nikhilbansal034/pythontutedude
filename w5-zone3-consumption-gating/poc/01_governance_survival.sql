@@ -173,7 +173,13 @@ FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 
 /* =====================================================================
    TC-008  CLONE within the same schema, with COPY GRANTS
-   Expected: tag PRESENT, policy PRESENT, reader SELECT PRESENT.
+   PUB.CUSTOMER_360 is owned by POC_DEPLOY_ROLE and this runs as
+   POC_ROLE, so the owner cell is a real test, not a tautology.
+   Expected: tag PRESENT, policy PRESENT, reader SELECT PRESENT,
+             owner = POC_ROLE  <-- OWNERSHIP MOVES. COPY GRANTS copies
+             every privilege EXCEPT ownership, so a clone taken each
+             cycle hands the batch identity a new object every time,
+             exactly as CTAS does in TC-003.
    ===================================================================== */
 ALTER SESSION SET QUERY_TAG = 'GATING_POC|TC-008|CLONE_SAME_SCHEMA';
 CREATE OR REPLACE TABLE PUB.T008 CLONE PUB.CUSTOMER_360 COPY GRANTS;
@@ -184,6 +190,11 @@ FROM TABLE(INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('PUB.T008','table'));
 
 SHOW GRANTS ON TABLE PUB.T008;
 SELECT 'TC-008 grants' AS tc, "privilege", "grantee_name"
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+
+SHOW TABLES LIKE 'T008' IN SCHEMA PUB;
+SELECT 'TC-008 owner (expect POC_ROLE — i.e. MOVED off the deploy role)' AS tc,
+       "name", "owner"
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 
 

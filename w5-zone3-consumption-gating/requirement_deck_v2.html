@@ -147,6 +147,22 @@ ol.steps.teal li::before{background:var(--teal);}
 ol.steps.chk li::before{background:var(--orange);color:#3d2400;}
 ol.steps li b{color:var(--navy);}
 
+/* ---------- guarantee cards ---------- */
+.pband{display:flex;align-items:baseline;gap:11px;margin:0 0 14px;}
+.pband .pk{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#fff;background:var(--navy);padding:5px 11px;white-space:nowrap;}
+.pband.b .pk{background:var(--teal);}
+.pband .pt{font-size:18px;font-weight:700;color:var(--navy);line-height:1.2;}
+.gc{position:relative;border:1px solid var(--g2);border-top:3px solid var(--navy);background:var(--white);
+  padding:14px 18px 16px 56px;margin-bottom:16px;}
+.gc.b{border-top-color:var(--teal);}
+.gc .n{position:absolute;left:16px;top:15px;width:27px;height:27px;background:var(--navy);
+  color:#fff;font-weight:700;font-size:14.5px;display:flex;align-items:center;justify-content:center;}
+.gc.b .n{background:var(--teal);}
+.gc .h{font-size:18.5px;font-weight:700;color:var(--navy);line-height:1.25;}
+.gc .x{font-size:15.5px;color:var(--g11);line-height:1.45;margin-top:5px;}
+.gc .x b{color:var(--g11);}
+
 /* ---------- horizon strip ---------- */
 .hz{display:flex;gap:8px;margin:0 0 16px;}
 .hz .a{flex:1;border:1px solid var(--g2);background:var(--g1);padding:8px 12px;}
@@ -213,12 +229,11 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">05</span>What gets gated</button>
     <div class="navsec">Solution</div>
     <button class="tab" role="tab" aria-selected="false"><span class="tnum">06</span>Three places the gate could live</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">07</span>What we ruled out, and why</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">08</span>Refresh: ownership, not tags</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">09</span>Publication: group shape decides</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">10</span>How a group is derived</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">11</span>Architecture, end to end</button>
-    <button class="tab" role="tab" aria-selected="false"><span class="tnum">12</span>What we must prove</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">07</span>Refresh: ownership, not tags</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">08</span>Publication: one step, three ways</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">09</span>How a group is derived</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">10</span>Architecture, end to end</button>
+    <button class="tab" role="tab" aria-selected="false"><span class="tnum">11</span>What we must prove</button>
   </div>
   <div class="navhint">
     <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
@@ -252,14 +267,14 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
         <div class="item"><span class="k">04</span><span>What the consumption layer must guarantee</span></div>
         <div class="item"><span class="k">05</span><span>What gets gated, and what inherits it for free</span></div>
         <div class="sec">Solution options &mdash; nothing decided yet</div>
-        <div class="item"><span class="k">06</span><span>The three layers a gate could sit in, and what is ruled out</span></div>
-        <div class="item"><span class="k">08</span><span>Refresh and publication &mdash; the two live questions</span></div>
-        <div class="item"><span class="k">10</span><span>How a consistency group is derived, and why it must be computed</span></div>
-        <div class="item"><span class="k">11</span><span>The architecture, and what must be proven before we conclude</span></div>
+        <div class="item"><span class="k">06</span><span>The three layers a gate could sit in</span></div>
+        <div class="item"><span class="k">07</span><span>Refresh and publication &mdash; the two live questions</span></div>
+        <div class="item"><span class="k">09</span><span>How a consistency group is derived, and why it must be computed</span></div>
+        <div class="item"><span class="k">10</span><span>The architecture, and what must be proven before we conclude</span></div>
       </div>
     </div>
   </div>
-  <div class="slide-no">1 / 12</div>
+  <div class="slide-no">1 / 11</div>
 </section>
 
 <!-- ============ 02 PROBLEM ============ -->
@@ -305,7 +320,7 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     </div>
   </div>
   <div class="takeaway">The exposure is invisible by construction &mdash; every individual object is valid, so every individual check passes.</div>
-  <div class="slide-no">2 / 12</div>
+  <div class="slide-no">2 / 11</div>
 </section>
 
 <!-- ============ 03 DIAGRAM ============ -->
@@ -387,7 +402,7 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     </tbody>
   </table>
   <div class="takeaway">Rows 1, 3 and 4 already behave acceptably. Row 2 is what we are being asked to fix &mdash; and row 4 is the step that fixes it.</div>
-  <div class="slide-no">3 / 12</div>
+  <div class="slide-no">3 / 11</div>
 </section>
 
 <!-- ============ 04 REQUIREMENT ============ -->
@@ -395,38 +410,42 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
   <h2>What the consumption layer must guarantee</h2>
   <div class="sub">Two guarantees, delivered together: what a reporting user is shown, and whether it is still protected.</div>
 
-  <h3>Part A &mdash; publication gating</h3>
-  <table class="req snug">
-    <tbody>
-      <tr><td><b>One version, or none.</b> A reporting user sees a complete version of the data their
-        report depends on &mdash; never a partial one, never a mixture of two cycles.</td></tr>
-      <tr><td><b>Publication is a decision, not a consequence.</b> New data becomes visible only
-        when publication runs, after every job in the cycle has succeeded. A failed cycle
-        publishes nothing &mdash; though the business can still authorise release, on the record.</td></tr>
-      <tr><td><b>What is published is the real data.</b> Writing never masks: a masking policy acts
-        on the <i>read</i>, according to the role doing the reading. But publication <b>copies</b>
-        &mdash; it reads a source before it writes. If the identity doing that reading is not
-        approved to see real values, what lands on disk is the masked value, permanently, and
-        indistinguishable from data.</td></tr>
-    </tbody>
-  </table>
+  <div class="cols">
+    <div>
+      <div class="pband"><span class="pk">Part A</span><span class="pt">What a reporting user is shown</span></div>
 
-  <h3 class="gap" style="margin-top:14px">Part B &mdash; governance continuity</h3>
-  <table class="req snug">
-    <tbody>
-      <tr><td><b>Protection travels with the data.</b> A republished object carries the tags,
-        masking and access currently defined for it &mdash; including any change governance has
-        made, and never reinstating one it has removed.</td></tr>
-      <tr><td><b>Protection lands before anyone can read it.</b> The governance step sits inside
-        the publication gate, not after it.</td></tr>
-    </tbody>
-  </table>
+      <div class="gc">
+        <div class="n">1</div><div class="h">One version, or none</div>
+        <div class="x">A report shows a complete version of every object it depends on &mdash; never a partial one, never a mixture of two cycles.</div>
+      </div>
+      <div class="gc">
+        <div class="n">2</div><div class="h">Publication is a decision, not a consequence</div>
+        <div class="x">Data becomes visible only when publication runs, after every job in the cycle has succeeded. A failed cycle publishes nothing &mdash; unless the business authorises release, on the record.</div>
+      </div>
+      <div class="gc">
+        <div class="n">3</div><div class="h">What is published is the real data</div>
+        <div class="x">Masking acts on the <b>read</b>, by role &mdash; storage stays plaintext. But publication <b>copies</b>, and a copy reads before it writes: if the publishing identity may not see real values, masked values land on disk permanently.</div>
+      </div>
+    </div>
 
-  <div class="callout teal" style="margin-top:14px"><b>Binding on both.</b> It has to work on the
-  estate we have: repeatable every cycle, run by the batch identity, and achievable
-  <b>without rewriting existing view logic as new ETL</b>.</div>
+    <div>
+      <div class="pband b"><span class="pk">Part B</span><span class="pt">Whether it is still protected</span></div>
+
+      <div class="gc b">
+        <div class="n">1</div><div class="h">Protection travels with the data</div>
+        <div class="x">A republished object carries the tags, masking and access currently defined for it &mdash; including every change governance has made, and never reinstating one it has removed.</div>
+      </div>
+      <div class="gc b">
+        <div class="n">2</div><div class="h">Protection lands before anyone can read it</div>
+        <div class="x">The governance step sits <b>inside</b> the publication gate, not after it.</div>
+      </div>
+
+      <div class="callout teal" style="margin-top:22px"><b>Binding on both.</b> It has to work on the estate we have: repeatable every cycle, run by the batch identity, and achievable <b>without rewriting existing view logic as new ETL</b>.</div>
+    </div>
+  </div>
+
   <div class="takeaway">Correct data, and protection that survives the publishing of it &mdash; neither guarantee is worth much without the other.</div>
-  <div class="slide-no">4 / 12</div>
+  <div class="slide-no">4 / 11</div>
 </section>
 
 <!-- ============ 05 SCOPE ============ -->
@@ -488,7 +507,7 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
   points at, cannot simply inherit &mdash; it has to become a table of its own. How many fall into
   that category is one of the two things the sizing walk answers.</p>
   <div class="takeaway">Tables hold the version; views inherit it. Gate the tables and most of the view estate is fixed without being opened.</div>
-  <div class="slide-no">5 / 12</div>
+  <div class="slide-no">5 / 11</div>
 </section>
 
 <!-- ============ 06 WHERE GATING CAN HAPPEN ============ -->
@@ -500,134 +519,94 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     <div class="lbl"><div class="h">One cycle</div><div class="x">left to right</div></div>
     <div class="a on"><div class="h">1 &middot; Refresh</div><div class="x">how new data lands in a physical object</div></div>
     <div class="a on"><div class="h">2 &middot; Publication</div><div class="x">how a whole group becomes visible at once</div></div>
-    <div class="a"><div class="h">3 &middot; Read time</div><div class="x">deciding visibility on every query instead</div></div>
+    <div class="a"><div class="h">3 &middot; Read time</div><div class="x">a filter re-decided on every query &mdash; a fallback, not a default</div></div>
   </div>
 
   <div class="cols c55">
     <div>
-      <table class="req snug">
+      <table class="req">
         <thead><tr><th>Layer</th><th>The question it answers</th><th>Candidates</th></tr></thead>
         <tbody>
-          <tr><td><b>Refresh</b></td><td>How does this cycle's data land in a table without losing its tags, masking, grants or owner?</td><td><span class="rtag">O8 CTAS</span><span class="rtag">O9 Clone</span><span class="rtag">O10 Insert overwrite</span></td></tr>
-          <tr><td><b>Publication</b></td><td>How do <i>several</i> tables change visibility together, so no reader sees a mixture?</td><td><span class="rtag">O11 Transaction</span><span class="rtag">O16 Schema swap</span></td></tr>
-          <tr><td><b>Read time</b></td><td>Could we leave the data alone and decide per query what a reader may see?</td><td><span class="rtag">O5 View filter</span><span class="rtag">O12 Row access policy</span></td></tr>
-          <tr class="hot"><td><b>Neither</b></td><td>Mechanisms that merge refresh and publication &mdash; leaving nowhere to put a gate between them</td><td><span class="rtag">O6 Materialized views</span><span class="rtag">O7 Dynamic tables</span></td></tr>
+          <tr><td><b>Refresh</b></td><td>How does this cycle's data land in a table without losing its tags, masking, grants or owner?</td><td><span class="rtag">CTAS</span><span class="rtag">Clone</span><span class="rtag">Insert overwrite</span></td></tr>
+          <tr><td><b>Publication</b></td><td>How do <i>several</i> tables change visibility together, so no reader sees a mixture?</td><td><span class="rtag">One transaction</span><span class="rtag">Schema swap</span><span class="rtag">Row access policy</span></td></tr>
+          <tr class="hot"><td><b>Neither</b></td><td>Anything that merges refresh and publication into one managed step &mdash; leaving nowhere for a gate to sit between them</td><td><span class="rtag">Materialized views</span><span class="rtag">Dynamic tables</span></td></tr>
         </tbody>
       </table>
       <p class="src"><b>Why the last row matters.</b> The requirement makes publication a <b>decision</b>. Anything that refreshes and reveals in one managed step turns it back into a consequence.</p>
     </div>
     <div>
-      <div class="stmt">We expect to need <b>one refresh mechanism</b> and <b>more than one publication mechanism</b> &mdash; chosen per group by how many objects must agree.</div>
+      <div class="stmt">We need <b>one refresh mechanism</b> and <b>one publication mechanism</b>. The next two slides compare the candidates for each and land on one of each.</div>
       <div class="callout" style="margin-top:14px"><b>A view is not a layer.</b> A view holds no data, so it cannot be gated directly &mdash; it is consistent only when the tables beneath it are. That makes the view estate a <i>beneficiary</i> of gating, never a site of it, and it is why the cost question is &ldquo;how many tables&rdquo;, not &ldquo;how many views&rdquo;.</div>
-      <p class="src" style="margin-top:14px"><b>Evidence basis for slides 7&ndash;11:</b> <span class="chip ok">41 verified</span> against current Snowflake documentation &nbsp;<span class="chip chk">7 not documented</span>, each carrying a test case. Nothing rests on an earlier POC &mdash; a claim is documented or it is untested.</p>
     </div>
   </div>
-  <div class="takeaway">One refresh mechanism, publication chosen by group shape &mdash; and the view estate benefits from gating without ever being gated itself.</div>
-  <div class="slide-no">6 / 12</div>
+  <div class="takeaway">Two decisions, not one: how the data lands, and how it becomes visible. Each is settled on its own evidence.</div>
+  <div class="slide-no">6 / 11</div>
 </section>
 
-<!-- ============ 09 RULED OUT ============ -->
-<section class="slide" id="s9">
-  <h2>What we have ruled out, and on what evidence</h2>
-  <div class="sub">Each rejection rests on a documented limitation or on a constraint from the frozen requirement &mdash; not on preference.</div>
-
-  <table class="req snug">
-    <thead><tr><th class="id">ID</th><th>Option</th><th>Why it is out</th><th>Basis</th></tr></thead>
-    <tbody>
-      <tr><td class="id">O1</td><td>Per-object load checks <span class="dsc">today</span></td><td>Cannot detect a disagreement <i>between</i> objects &mdash; each one is individually valid, so every check passes</td><td><span class="chip no">Problem</span></td></tr>
-      <tr><td class="id">O2</td><td>Lock readers out</td><td>No window exists. Revoking access mid-session errors rather than serving stale-but-correct data</td><td><span class="chip no">Requirement</span></td></tr>
-      <tr><td class="id">O3</td><td>Shrink the load window</td><td>The requirement says <b>never</b> mixed, not rarely. A one-second window is still a wrong report</td><td><span class="chip no">Requirement</span></td></tr>
-      <tr><td class="id">O4</td><td>Transaction round the whole batch</td><td>Loads run as separate IDMC mappings in separate sessions, so a transaction cannot span them</td><td><span class="chip ok">Verified</span></td></tr>
-      <tr><td class="id">O5</td><td>Filter inside every view</td><td>No reliable universal &ldquo;latest&rdquo; criterion across the tables, and the validation-date concept was removed</td><td><span class="chip part">Meeting</span></td></tr>
-      <tr><td class="id">O6</td><td>Materialized views</td><td><span class="feat">can query only a single table</span>; joins unsupported; cannot be built over a tag-based-masked table</td><td><span class="chip ok">Verified</span></td></tr>
-      <tr class="hot"><td class="id">O7</td><td>Dynamic tables <span class="dsc">the closest call</span></td><td>Incremental refresh over a masked base <b>is</b> now possible (GA Jul 2026), so the old cost objection is obsolete &mdash; but refresh is automatic, so <b>there is nowhere a gate can live</b></td><td><span class="chip ok">Verified</span></td></tr>
-      <tr><td class="id">O13</td><td>Hybrid tables</td><td>2&nbsp;TB per database; explicitly not recommended for analytics; no clustering keys or streams</td><td><span class="chip ok">Verified</span></td></tr>
-      <tr><td class="id">O15</td><td>CREATE TABLE IF NOT EXISTS</td><td>A creation guard, not a refresh. From day two it declines to act, freezing reporting users on day-one data silently</td><td><span class="chip chk">Needs test</span></td></tr>
-      <tr><td class="id">O21</td><td>Three-step RENAME TO</td><td>Not atomic, and leaves a window where the name does not exist at all</td><td><span class="chip ok">Verified</span></td></tr>
-    </tbody>
-  </table>
-
-  <p class="src" style="margin-top:10px"><b>O7 needs care.</b> Dynamic tables over a masked base used to force a full rebuild every cycle, which made them expensive here; Snowflake changed that in July 2026. The rejection stands, but the <i>reason</i> has moved from cost to the missing gate. &nbsp;&nbsp;<b>O14 Iceberg is absent</b> &mdash; a storage format, not a mechanism; what it lacks is multi-table atomicity.</p>
-  <div class="takeaway">Nine options closed on documented limits. The one that nearly survived &mdash; dynamic tables &mdash; fails on the gate, not on cost.</div>
-  <div class="slide-no">7 / 12</div>
-</section>
-
-<!-- ============ 10 REFRESH ============ -->
+<!-- ============ 07 REFRESH ============ -->
 <section class="slide" id="s10">
   <h2>The refresh question: ownership, not tags</h2>
-  <div class="sub">All three candidates can now keep their tags. Only one keeps its owner &mdash; and that is what decides it.</div>
+  <div class="sub">All three can load the data. What separates them is what survives the load &mdash; and ownership is the cell that decides it.</div>
 
   <table class="req snug">
-    <thead><tr><th>&nbsp;</th><th>O8 &middot; CTAS</th><th>O9 &middot; Clone</th><th>O10 &middot; Insert overwrite</th></tr></thead>
+    <thead><tr><th>&nbsp;</th><th>CTAS</th><th>Clone</th><th>Insert overwrite</th></tr></thead>
     <tbody>
       <tr><td><b>Statement</b></td>
           <td><span class="feat">CREATE OR REPLACE TABLE &hellip; COPY GRANTS COPY TAGS AS SELECT</span></td>
           <td><span class="feat">CREATE OR REPLACE TABLE &hellip; CLONE &hellip; COPY GRANTS</span></td>
           <td><span class="feat">INSERT OVERWRITE INTO &hellip; SELECT * FROM &lt;existing view&gt;</span></td></tr>
       <tr><td>Reuses view logic &mdash; no ETL rebuilt</td><td><span class="chip ok">Yes</span></td><td><span class="chip no">No</span> <span class="st">needs a physical source</span></td><td><span class="chip ok">Yes</span></td></tr>
-      <tr><td>Tags survive</td><td><span class="chip ok">Verified</span> <span class="st">COPY TAGS, GA Apr 2026</span></td><td><span class="chip ok">Verified</span></td><td><span class="chip chk">Needs test</span> <span class="st">TC-004</span></td></tr>
-      <tr><td>Grants survive</td><td><span class="chip ok">Verified</span></td><td><span class="chip part">With COPY GRANTS</span></td><td><span class="chip ok">Verified</span></td></tr>
-      <tr class="hot"><td><b>Owner unchanged</b></td><td><span class="chip no">No</span> <span class="st">COPY GRANTS excludes OWNERSHIP</span></td><td><span class="chip no">No</span></td><td><span class="chip ok">Yes</span> <span class="st">object never recreated</span></td></tr>
+      <tr><td>Tags survive</td><td><span class="chip ok">Yes *</span> <span class="st">with COPY TAGS</span></td><td><span class="chip ok">Yes *</span></td><td><span class="chip chk">To verify</span> <span class="st">not documented either way</span></td></tr>
+      <tr><td>Grants survive</td><td><span class="chip ok">Yes *</span> <span class="st">with COPY GRANTS</span></td><td><span class="chip ok">Yes *</span> <span class="st">with COPY GRANTS</span></td><td><span class="chip ok">Yes *</span></td></tr>
+      <tr class="hot"><td><b>Owner unchanged</b></td><td><span class="chip no">No *</span> <span class="st">COPY GRANTS excludes OWNERSHIP</span></td><td><span class="chip no">No *</span></td><td><span class="chip ok">Yes</span> <span class="st">the object is never recreated</span></td></tr>
       <tr><td>Creates an object at runtime</td><td><span class="chip no">Every cycle</span></td><td><span class="chip no">Every cycle</span></td><td><span class="chip ok">Never</span></td></tr>
-      <tr><td>Clustering key survives</td><td><span class="chip no">No</span> <span class="st">unless columns restated</span></td><td><span class="chip ok">Yes</span></td><td><span class="chip chk">Needs test</span> <span class="st">TC-030</span></td></tr>
-      <tr><td>Can run inside a transaction</td><td><span class="chip no">No</span> <span class="st">DDL commits</span></td><td><span class="chip no">No</span></td><td><span class="chip ok">Verified</span></td></tr>
+      <tr><td>Clustering key survives</td><td><span class="chip no">No *</span> <span class="st">unless columns restated</span></td><td><span class="chip ok">Yes *</span></td><td><span class="chip chk">To verify</span></td></tr>
+      <tr><td>Can run inside a transaction</td><td><span class="chip no">No *</span> <span class="st">DDL commits</span></td><td><span class="chip no">No *</span></td><td><span class="chip ok">Yes *</span></td></tr>
     </tbody>
   </table>
 
-  <p class="src" style="margin-top:10px"><b>Tags are no longer the discriminator.</b> <span class="feat">COPY TAGS</span> went GA April 2026 &mdash; documented for <span class="feat">CREATE OR REPLACE TABLE</span>; that it covers <span class="feat">AS SELECT</span> too is our reading, which TC-003 settles. <b>Ownership is:</b> <span class="feat">COPY GRANTS</span> copies every privilege <i>except</i> OWNERSHIP, so CTAS and Clone hand the service account a new object every cycle.</p>
+  <p class="src" style="margin-top:10px"><b>*</b> &nbsp;Stated in current Snowflake documentation &mdash; and still to be proven on our own account. <b>To verify</b> means the documentation does not answer it at all. <b>Every cell in this table has a test behind it either way</b>; nothing is taken on the documentation alone.</p>
 
-  <div class="takeaway">Insert overwrite changes a table's contents, not the table &mdash; so nothing attached to the object is at risk. Two unverified cells stand between that and a recommendation.</div>
-  <div class="slide-no">8 / 12</div>
+  <div class="takeaway">Insert overwrite changes a table's contents, not the table &mdash; so nothing attached to the object is at risk. The two unproven cells are what stand between that and a recommendation.</div>
+  <div class="slide-no">7 / 11</div>
 </section>
 
-<!-- ============ 11 PUBLICATION ============ -->
+<!-- ============ 08 PUBLICATION ============ -->
 <section class="slide" id="s11">
-  <h2>The publication question: group shape decides</h2>
-  <div class="sub">There is no single answer. How many objects must agree, and where they live, selects the mechanism.</div>
+  <h2>The publication question: one step, three ways to take it</h2>
+  <div class="sub">Each candidate can make a whole refreshed group visible at once. Compared against what the requirement asks of them.</div>
 
-  <div class="cols c55">
-    <div>
-      <h3>Mechanism by group shape</h3>
-      <table class="req xsnug">
-        <thead><tr><th>Group</th><th>Publication</th><th>Why</th></tr></thead>
-        <tbody>
-          <tr><td><b>One table</b></td><td><span class="chip ok">Nothing extra</span></td><td>Insert overwrite is already atomic and already leaves grants alone</td></tr>
-          <tr class="hot"><td><b>Several,<br>any layout</b></td><td><span class="rtag">O11</span> transaction</td><td>Atomic across any set, no schema constraint. Costs a second write</td></tr>
-          <tr><td><b>Several, large,<br>schema-aligned</b></td><td><span class="rtag">O16</span> schema swap</td><td>A rename, so publish time is milliseconds at any volume</td></tr>
-          <tr><td><b>Nothing fits</b></td><td><span class="rtag">O12</span> row policy</td><td>Works anywhere with no view edits. Costs a permanent read-time tax</td></tr>
-        </tbody>
-      </table>
-      <p class="src"><b>The refresh statement is the same in all four rows.</b> Only publication varies &mdash; which keeps this one design rather than four.</p>
-    </div>
-    <div>
-      <h3>O11 versus O16 &mdash; the live trade</h3>
-      <table class="req xsnug">
-        <thead><tr><th>&nbsp;</th><th>O11 txn</th><th>O16 swap</th></tr></thead>
-        <tbody>
-          <tr class="hot"><td>Group must equal a schema</td><td><span class="chip ok">No</span></td><td><span class="chip no">Yes</span></td></tr>
-          <tr><td>Privileges needed</td><td><span class="st">INSERT + DELETE</span></td><td><span class="st">OWNERSHIP, both schemas</span></td></tr>
-          <tr><td>Second write of the data</td><td><span class="chip no">Yes</span></td><td><span class="chip ok">No</span></td></tr>
-          <tr><td>Publish duration</td><td><span class="st">minutes, by size</span></td><td><span class="st">milliseconds</span></td></tr>
-          <tr><td>Old version readable elsewhere</td><td><span class="chip ok">No</span></td><td><span class="chip chk">Open &mdash; TC-022</span></td></tr>
-        </tbody>
-      </table>
-      <div class="callout teal" style="margin-top:10px"><b>Why O11 is our current lean.</b> A transaction has no schema boundary, so it removes the constraint that was shaping the whole physical layout.</div>
+  <table class="req snug">
+    <thead><tr><th>What the requirement asks</th><th>One transaction</th><th>Schema swap</th><th>Row access policy</th></tr></thead>
+    <tbody>
+      <tr><td><b>Statement</b></td>
+          <td><span class="feat">BEGIN; INSERT OVERWRITE &hellip; ; COMMIT;</span></td>
+          <td><span class="feat">ALTER SCHEMA &hellip; SWAP WITH &hellip;</span></td>
+          <td><span class="feat">CREATE ROW ACCESS POLICY</span><span class="st">over a version column</span></td></tr>
+      <tr><td>Whole group becomes visible together, never in part</td><td><span class="chip ok">Yes *</span> <span class="st">one commit</span></td><td><span class="chip ok">Yes *</span> <span class="st">one rename</span></td><td><span class="chip ok">Yes *</span> <span class="st">one marker update</span></td></tr>
+      <tr class="hot"><td><b>A group may be any set of tables</b></td><td><span class="chip ok">Yes *</span> <span class="st">no schema boundary</span></td><td><span class="chip no">No *</span> <span class="st">the group must be exactly one schema</span></td><td><span class="chip ok">Yes *</span></td></tr>
+      <tr><td>A reader spanning the moment of publication sees one version</td><td><span class="chip chk">To verify</span></td><td><span class="chip chk">To verify</span> <span class="st">old schema still exists under a name</span></td><td><span class="chip chk">To verify</span></td></tr>
+      <tr><td>Reversible within the cycle, without a reload</td><td><span class="chip ok">Yes *</span> <span class="st">ROLLBACK</span></td><td><span class="chip ok">Yes *</span> <span class="st">swap back</span></td><td><span class="chip ok">Yes *</span> <span class="st">reset the marker</span></td></tr>
+      <tr><td>No change to consumption views or report queries</td><td><span class="chip ok">Yes</span></td><td><span class="chip part">Qualified names</span> <span class="st">views must name the schema</span></td><td><span class="chip ok">Yes</span></td></tr>
+      <tr><td>Privileges the batch identity needs</td><td><span class="st">INSERT, DELETE</span></td><td><span class="st">OWNERSHIP on both schemas</span></td><td><span class="st">APPLY on the policy</span></td></tr>
+      <tr><td>Publish duration</td><td><span class="st">minutes, grows with volume</span></td><td><span class="st">milliseconds, any volume</span></td><td><span class="st">milliseconds</span></td></tr>
+      <tr><td>Standing cost</td><td><span class="st">the data is written twice</span></td><td><span class="st">a parallel schema per group</span></td><td><span class="chip no">Every read, forever</span></td></tr>
+    </tbody>
+  </table>
 
-      <p class="also" style="margin-top:8px"><b>That freedom has a catch.</b> The schema boundary was also keeping groups <i>separate</i>, and arbitrary sets can overlap &mdash; next slide.</p>
-    </div>
-  </div>
-  <p class="src" style="margin-top:10px"><b>Verified:</b> READ COMMITTED; a statement sees only data committed before it began; all statements commit or roll back together; insert overwrite may run inside a transaction; standard tables in one transaction may span databases. &nbsp;<b>Not verified:</b> that a reader spanning the commit never sees a mixed state &mdash; <span class="chip chk">TC-020</span>.</p>
-  <div class="takeaway">Publication is picked per group, not once for the estate &mdash; and the sizing walk, not a preference, assigns each group its mechanism.</div>
-  <div class="slide-no">9 / 12</div>
+  <p class="src" style="margin-top:10px"><b>*</b> &nbsp;Stated in current Snowflake documentation &mdash; and still to be proven on our own account. <b>To verify</b> means the documentation does not answer it &mdash; and a reader holding a query open across the publication is the one behaviour none of the three documents.</p>
+
+  <div class="takeaway">The transaction is the only candidate that imposes no shape on the estate &mdash; which is why it is our lean, and why its cost is a second write rather than a redesign.</div>
+  <div class="slide-no">8 / 11</div>
 </section>
 
-<!-- ============ 12 GROUP DERIVATION ============ -->
+<!-- ============ 09 GROUP DERIVATION ============ -->
 <section class="slide" id="s12b">
   <h2>How a consistency group is derived</h2>
   <div class="sub">Computed from the dependency graph &mdash; never chosen object by object, which is the only way this holds at estate scale.</div>
   <div class="cols c55">
     <div>
-      <h3>The problem O11's freedom creates</h3>
+      <h3>The problem a transaction&rsquo;s freedom creates</h3>
       <div class="stmt">A transaction can publish any set of tables. So groups need no longer match a schema &mdash; but nothing then stops two groups <b>sharing</b> an object, and a shared object is published once for everyone.</div>
       <table class="req xsnug" style="margin-top:12px">
         <thead><tr><th class="num">#</th><th>If a shared dimension sits in two groups</th></tr></thead>
@@ -655,10 +634,10 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     </div>
   </div>
   <div class="takeaway">Groups are computed, not chosen &mdash; and that is what keeps non-interference true as the estate changes.</div>
-  <div class="slide-no">10 / 12</div>
+  <div class="slide-no">9 / 11</div>
 </section>
 
-<!-- ============ 12 ARCHITECTURE ============ -->
+<!-- ============ 10 ARCHITECTURE ============ -->
 <section class="slide" id="s12">
   <h2>Architecture &mdash; one cycle, end to end</h2>
   <div class="sub">Everything expensive happens where nobody is looking. Only step 4 changes what a reporting user can see.</div>
@@ -682,9 +661,9 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
 
     <rect class="box" x="542" y="56" width="166" height="84" rx="2"/>
     <text class="t"   x="625" y="78"  text-anchor="middle">PUBLISH</text>
-    <text class="t s" x="625" y="96"  text-anchor="middle">O11 one transaction</text>
-    <text class="t s" x="625" y="112" text-anchor="middle">or O16 schema swap</text>
-    <text class="t s" x="625" y="128" text-anchor="middle">or nothing, if one table</text>
+    <text class="t s" x="625" y="96"  text-anchor="middle">one transaction</text>
+    <text class="t s" x="625" y="112" text-anchor="middle">over the whole group</text>
+    <text class="t s" x="625" y="128" text-anchor="middle">commit, or roll back</text>
 
     <rect class="box" x="742" y="56" width="166" height="84" rx="2"/>
     <text class="t"   x="825" y="78"  text-anchor="middle">Z3_PUB_&lt;group&gt;</text>
@@ -726,21 +705,21 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
   </svg>
   <p class="src"><b>Illustrative</b> &mdash; box widths are not to scale. The teal arrow is the only step a reporting user can observe.</p>
 
-  <table class="req snug" style="margin-top:6px">
+  <table class="req xsnug" style="margin-top:6px">
     <thead><tr><th class="num">#</th><th>Step</th><th>What it does</th><th>Visible?</th></tr></thead>
     <tbody>
       <tr><td class="num">1</td><td>Zone 2 completes</td><td>Unchanged by this design. The signal that a Zone 3 cycle may begin</td><td><span class="chip ok">No</span></td></tr>
       <tr><td class="num">2</td><td>Load into staging</td><td>Insert overwrite, sourced from the existing view or an IDMC mapping retargeted by parameter</td><td><span class="chip ok">No</span></td></tr>
-      <tr><td class="num">3</td><td>Gate</td><td>Completeness checks plus a tag diff against the declared baseline. A failure publishes nothing; an authorised partial release is recorded first</td><td><span class="chip ok">No</span></td></tr>
-      <tr class="hot"><td class="num">4</td><td>Publish</td><td>Per group shape &mdash; one transaction, one schema swap, or nothing for a single-table group. <b>This is the entire visible window</b></td><td><span class="chip warn">Yes</span></td></tr>
-      <tr><td class="num">5</td><td>Verify &amp; hold</td><td>Assertions run, publication record written, previous version held one cycle for rollback</td><td><span class="chip ok">No</span></td></tr>
+      <tr><td class="num">3</td><td>Gate</td><td>Completeness checks plus a tag diff against the declared baseline. A failure publishes nothing</td><td><span class="chip ok">No</span></td></tr>
+      <tr class="hot"><td class="num">4</td><td>Publish</td><td>The whole group in one step. <b>This is the entire visible window</b></td><td><span class="chip warn">Yes</span></td></tr>
+      <tr><td class="num">5</td><td>Verify &amp; hold</td><td>Assertions run, publication recorded, previous version held one cycle for rollback</td><td><span class="chip ok">No</span></td></tr>
     </tbody>
   </table>
   <div class="takeaway">Two schema names, one gate, one visible moment &mdash; and the view estate sits outside all of it, untouched by design.</div>
-  <div class="slide-no">11 / 12</div>
+  <div class="slide-no">10 / 11</div>
 </section>
 
-<!-- ============ 13 WHAT WE MUST PROVE ============ -->
+<!-- ============ 11 WHAT WE MUST PROVE ============ -->
 <section class="slide" id="s13">
   <h2>What we must prove before concluding this POC</h2>
   <div class="sub">Nothing here is a decision yet. Five tests can still change the design; the rest confirm documented behaviour on our account.</div>
@@ -749,16 +728,15 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
     <div>
       <h3>The five that can change the design</h3>
       <table class="req xsnug">
-        <thead><tr><th class="id">TC</th><th>Question</th><th>If it fails</th></tr></thead>
+        <thead><tr><th>Question</th><th>If it fails</th></tr></thead>
         <tbody>
-          <tr class="hot"><td class="id">004<br>005<br>006</td><td><b>Does insert overwrite preserve tags, masking and OWNER?</b> Grants are documented; these are not</td><td>O10 collapses toward CTAS, and the per-cycle ownership problem returns</td></tr>
-          <tr class="hot"><td class="id">020</td><td><b>Does a reader spanning the commit ever see a mixed state?</b> Follows from READ COMMITTED, but it is the single most important claim here</td><td>O11 is out, and O16's schema constraint returns</td></tr>
-          <tr class="hot"><td class="id">039</td><td><b>Is a governance-removed tag reinstated by a publish?</b> Part B's non-reinstatement clause</td><td>The gate's governance step becomes mandatory for O16, not advisory</td></tr>
-          <tr class="hot"><td class="id">016</td><td><b>Is stored data plaintext under a masking policy?</b> Undocumented; inferred from read-time enforcement</td><td>If storage were masked on write, losing a tag would be harmless &mdash; and Part B would not need to exist</td></tr>
-          <tr class="hot"><td class="id">041</td><td><b>Do consistency groups fit inside one schema?</b> Offline, read-only, runnable today</td><td>O16 cannot publish those groups &mdash; O11 becomes the only option</td></tr>
+          <tr class="hot"><td><b>Does insert overwrite preserve tags, masking and OWNER?</b> Grants are documented; these are not</td><td>Insert overwrite collapses toward CTAS, and the per-cycle ownership problem returns</td></tr>
+          <tr class="hot"><td><b>Does a reader spanning the commit ever see a mixed state?</b> Follows from READ COMMITTED, but it is the single most important claim here</td><td>The transaction is out, and the schema constraint returns with the swap</td></tr>
+          <tr class="hot"><td><b>Is a governance-removed tag reinstated by a publish?</b> Part B's non-reinstatement clause</td><td>The gate&rsquo;s governance step becomes mandatory, not advisory</td></tr>
+          <tr class="hot"><td><b>Is stored data plaintext under a masking policy?</b> Undocumented; inferred from read-time enforcement</td><td>If storage were masked on write, losing a tag would be harmless &mdash; and Part B would not need to exist</td></tr>
+          <tr class="hot"><td><b>Do consistency groups fit inside one schema?</b> Offline, read-only, runnable today</td><td>A schema swap cannot publish those groups &mdash; the transaction becomes the only route</td></tr>
         </tbody>
       </table>
-      <p class="src"><b>Full pack:</b> 21 scenarios, 43 test cases, seven copy-and-run SQL scripts, evidence tracker. Every case states whether its expected result is documented or assumed, <b>and which requirement it covers</b> &mdash; four requirements currently have no test, and the tracker names them.</p>
     </div>
     <div>
       <h3>Still open &mdash; and not ours to close</h3>
@@ -766,14 +744,15 @@ svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.7;marker-end:url(#ah)}
         <tbody>
           <tr class="hot"><td><b>May the batch identity read sensitive data in the clear?</b> Physicalizing reads the data, so this sets <b>how much can be gated at all</b></td><td><span class="chip no">Security</span></td></tr>
           <tr><td><b>Is there a declared governance baseline?</b> Without one, &ldquo;never reinstate a removed protection&rdquo; cannot be implemented</td><td><span class="chip no">Security</span></td></tr>
-          <tr><td><b>Can the batch identity publish?</b> O11 needs INSERT and DELETE; O16 needs OWNERSHIP on both schemas</td><td><span class="chip warn">Platform</span></td></tr>
+          <tr><td><b>Can the batch identity publish?</b> A transaction needs INSERT and DELETE; a schema swap needs OWNERSHIP on both schemas</td><td><span class="chip warn">Platform</span></td></tr>
         </tbody>
       </table>
+      <div class="callout teal" style="margin-top:14px"><b>Next step.</b> Run the sizing walk first &mdash; it needs no POC environment and answers the effort question nobody has yet. Then the governance tests, which are cheap and carry the recommendation.</div>
+      <p class="src" style="margin-top:10px"><b>Full pack:</b> 21 scenarios, 43 test cases, seven copy-and-run SQL scripts and an evidence tracker. Every case states whether its expected result is documented or assumed, <b>and which requirement it covers</b> &mdash; four requirements currently have no test, and the tracker names them.</p>
     </div>
   </div>
-  <p class="src" style="margin-top:10px"><b>Next step:</b> run the sizing walk now &mdash; TC-040 and TC-041 need no POC environment and answer the effort question nobody has yet. Then the three governance tests, which are cheap and carry the recommendation. A costed recommendation follows the evidence.</p>
-  <div class="takeaway">The options and the reasoning are ready to review. The recommendation waits on four tests and one security answer.</div>
-  <div class="slide-no">12 / 12</div>
+  <div class="takeaway">The options and the reasoning are ready to review. The recommendation waits on five tests and one security answer.</div>
+  <div class="slide-no">11 / 11</div>
 </section>
 
 </main>

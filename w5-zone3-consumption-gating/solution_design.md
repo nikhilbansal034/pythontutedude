@@ -329,12 +329,13 @@ No error. The table never changes again and nobody is told — a *worse* failure
 
 | Group shape | Refresh | Publication | Why |
 |---|---|---|---|
-| **One table** | O10 | **Nothing extra** | `INSERT OVERWRITE` is already atomic and already leaves grants alone. No staging, no swap, no OWNERSHIP question |
 | **Several tables, any layout** | O10 into staging | **O11 — one transaction** | Atomic across the set, no schema-alignment constraint, no OWNERSHIP escalation. Costs a second write |
 | **Several, very large, already schema-aligned** | O10 into staging | **O16 — schema swap** | Avoids the second write. Costs the schema constraint, the C7 question and §5.5 |
 | **Nothing above fits** | O10 | **O12 — row access policy** | Works anywhere. Costs a permanent read-time tax |
 
-The refresh statement is O10 in every row. **Only publication varies** — which keeps this one design, not four.
+The refresh statement is O10 in every row. **Only publication varies** — which keeps this one design, not three.
+
+A consistency group always spans **more than one object**: a group of one would need a report depending on a single table, which does not occur in this estate. Publication therefore always has to be atomic across a set, and "no publication mechanism needed" is not one of the cases.
 
 ### 5.2 Object layout
 
