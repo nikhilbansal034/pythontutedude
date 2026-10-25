@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Batch-Consistent Consumption Layer — CTAS + Swap</title>
+<!--
+  Overview deck: a point of view on CTAS + Swap, with Clone + Swap kept as a parallel thread.
+  13 slides + 1 appendix. No in-slide tabs, no check codes, no owners, plain language.
+  Source of truth for every fact: ../../POC07_POV.md. The deck follows the MD.
+-->
+<style>
+:root{
+  --teal:#0097A9;--teal-dk:#007680;--teal-dp:#004F59;--teal-1:#DDEFE8;--teal-2:#9DD4CF;
+  --navy:#012169;--blue:#00A3E0;--blue-ac:#007CB0;--green:#86BC25;--green-ac:#26890D;
+  --orange:#ED8B00;--red:#DA291C;
+  --g1:#F2F2F2;--g2:#D0D0CE;--g6:#A7A8AA;--g9:#75787B;--g11:#53565A;
+  --white:#FFFFFF;--ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;--mono:Consolas,"Courier New",monospace;
+  --navw:252px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* ---------- left sidebar navigation ---------- */
+.side{background:var(--navy);color:var(--white);}
+body.js .side{position:fixed;left:0;top:0;bottom:0;width:var(--navw);display:flex;flex-direction:column;z-index:50;}
+.brand{padding:20px 20px 16px;font-size:13px;font-weight:700;letter-spacing:.02em;border-bottom:1px solid rgba(255,255,255,.14);line-height:1.35;}
+.brand .dot{color:var(--green);font-size:22px;line-height:0;margin-left:2px;}
+.brand small{display:block;font-size:11.5px;font-weight:600;color:var(--teal-2);margin-top:3px;letter-spacing:0;}
+.tabs{flex:1;overflow-y:auto;padding:8px 0 12px;scrollbar-width:thin;}
+.sec{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--teal-2);padding:12px 20px 4px;}
+.tab{appearance:none;display:block;width:100%;border:0;border-left:4px solid transparent;background:transparent;cursor:pointer;
+  font-family:var(--font);font-size:13px;font-weight:600;color:#D7DEEC;padding:6px 16px 6px 16px;text-align:left;line-height:1.3;}
+.tab .tnum{display:inline-block;width:26px;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--g6);}
+.tab:hover{background:rgba(255,255,255,.07);color:var(--white);}
+.tab[aria-selected="true"]{background:rgba(255,255,255,.10);color:var(--white);font-weight:700;border-left-color:var(--teal);}
+.tab[aria-selected="true"] .tnum{color:var(--teal-2);}
+.tab:focus-visible{outline:2px solid var(--teal-2);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:8px;padding:12px 20px 16px;border-top:1px solid rgba(255,255,255,.14);font-size:11px;color:#B9C3D8;}
+.navbtn{appearance:none;border:1px solid rgba(255,255,255,.35);background:transparent;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:var(--white);width:28px;height:28px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);border-color:var(--teal);}
+.navbtn:disabled{color:rgba(255,255,255,.3);cursor:default;background:transparent;border-color:rgba(255,255,255,.15);}
+
+/* ---------- deck shell (no-JS fallback: plain stacked document) ---------- */
+.deck{max-width:1320px;margin:0 auto;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;margin:0 0 28px;padding:44px 54px 78px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{max-width:none;margin-left:var(--navw);padding:13px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:646px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:12px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+/* ---------- headers ---------- */
+h1{font-size:44px;line-height:1.12;font-weight:700;color:var(--navy);margin:0 0 14px;}
+h2{font-size:27px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 5px;}
+.sub{font-size:15px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 14px;}
+h3{font-size:13px;font-weight:700;color:var(--g11);text-transform:uppercase;letter-spacing:.08em;margin:14px 0 7px;}
+.sectiontag{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin:0 0 3px;}
+
+/* ---------- cover ---------- */
+.cover .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);margin-bottom:20px;}
+.cover h1 .h1sub{display:block;font-size:28px;font-weight:600;color:var(--teal-dk);margin-top:10px;line-height:1.2;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin:2px 0 22px;}
+.cover .lede{font-size:18px;color:var(--g11);max-width:78ch;margin:0 0 22px;line-height:1.5;}
+.cover .meta{font-size:15px;color:var(--g9);line-height:1.8;max-width:108ch;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:13px;margin:4px 0 2px;line-height:1.4;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:6px 9px;font-size:13px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:6px 9px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:38px;text-align:center;color:var(--g9);font-weight:700;}
+th.num{color:var(--white);}
+td.grp{background:var(--teal-1) !important;color:var(--teal-dp);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.05em;vertical-align:middle;width:100px;}
+code,.mono{font-family:var(--mono);font-size:12.5px;background:var(--g1);padding:0 4px;border:1px solid var(--g2);color:var(--teal-dp);}
+tbody tr:nth-child(even) code{background:var(--white);}
+td b{color:var(--navy);}
+table.tight{font-size:12.5px;line-height:1.36;}
+table.tight td{padding:5px 8px;}
+table.tight th{padding:5px 8px;font-size:12.5px;}
+table.cmp td{padding:4px 8px;}
+table.cmp th{padding:5px 8px;}
+table.cmp.dense td{padding:3px 8px;}
+th.o1a{background:#B36800;border-color:#B36800;}
+th.o1b{background:var(--green-ac);border-color:var(--green-ac);}
+th.o2{background:var(--teal-dk);border-color:var(--teal-dk);}
+
+/* ---------- basis chips ---------- */
+.chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:1px 5px;border-radius:2px;white-space:nowrap;text-transform:uppercase;line-height:1.45;vertical-align:1px;}
+.chip.pv{background:var(--green-ac);color:#fff;}
+.chip.dc{background:var(--teal-2);color:var(--teal-dp);}
+.chip.dpart{background:var(--white);color:var(--teal-dp);border:1px solid var(--teal);}
+.chip.dimp{background:var(--white);color:var(--teal-dk);border:1px dashed var(--teal);}
+.chip.ini{background:var(--white);color:var(--navy);border:1px solid var(--navy);}
+.chip.pp{background:var(--g1);color:var(--g11);border:1px solid var(--g6);}
+.chip.rs{background:var(--g2);color:var(--g11);}
+.chip.ck{background:var(--orange);color:#3d2400;}
+.ids{font-size:12px;color:var(--g11);}
+
+/* ---------- takeaway bar ---------- */
+.takeaway{position:absolute;left:62px;right:54px;bottom:34px;background:var(--teal);color:var(--white);font-size:15px;font-weight:700;text-align:center;padding:12px 18px;line-height:1.3;}
+
+/* ---------- text blocks ---------- */
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;padding:9px 14px;font-size:13.5px;margin:10px 0 0;line-height:1.48;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.callout b{color:inherit;}
+.note{font-size:13px;color:var(--g11);margin:8px 0 0;line-height:1.45;}
+p.body{font-size:14.5px;line-height:1.5;margin:0 0 8px;color:var(--ink);}
+.cols{display:flex;gap:22px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.w38>*:first-child{flex:0 0 38%;}
+.cols.w40>*:first-child{flex:0 0 40%;}
+.cols.w58>*:first-child{flex:0 0 58%;}
+.cols.stretch{align-items:stretch;}
+ul.pl{margin:0;padding-left:18px;}
+ul.pl li{margin:0 0 5px;}
+ul.pl li:last-child{margin-bottom:0;}
+
+/* ---------- step flows (chevrons) ---------- */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.flow.f3{grid-template-columns:repeat(3,1fr);}
+.flow.f4{grid-template-columns:repeat(4,1fr);}
+.st{position:relative;background:#E8EEF7;padding:10px 30px 12px 34px;min-height:112px;font-size:13px;line-height:1.35;
+  clip-path:polygon(0 0,calc(100% - 20px) 0,100% 50%,calc(100% - 20px) 100%,0 100%,20px 50%);}
+.st:first-child{padding-left:16px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 50%,calc(100% - 20px) 100%,0 100%);}
+.st .no{display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:22px;margin:0 0 5px;}
+.st b{display:block;font-size:14px;color:var(--navy);line-height:1.25;margin:0 0 4px;}
+.st .d{display:block;color:var(--g11);font-size:12.5px;line-height:1.35;}
+.st.alt{background:var(--teal-1);}
+.st.ctas{background:#FBE3C2;}
+.st.swap{background:var(--teal);}
+.st.commit{background:var(--green-ac);}
+.st.swap b,.st.swap .d,.st.commit b,.st.commit .d{color:#fff;}
+.st .mk{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;padding:0 6px;border-radius:2px;background:#B36800;color:#fff;margin-left:6px;vertical-align:1px;line-height:18px;}
+.st.swap .mk{background:#fff;color:var(--teal-dp);}
+.st.commit .mk{background:#fff;color:var(--green-ac);}
+.flow.sm .st{min-height:0;padding:9px 22px 10px 26px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%,14px 50%);}
+.flow.sm .st:first-child{padding-left:12px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%);}
+.flow.sm .st b{font-size:13px;}
+.tl{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px;font-size:12.5px;font-weight:700;}
+.tl .old{grid-column:1/5;background:var(--g2);color:var(--g11);padding:5px 10px;text-align:center;}
+.tl .new{grid-column:5/6;background:#E3F1DE;color:#1C6A0A;border:1px solid var(--green-ac);padding:4px 10px;text-align:center;}
+.tl .frz{border-top:2px dashed var(--orange);color:#B36800;padding-top:3px;text-align:center;}
+.tl .frz.c1{grid-column:1/6;}
+.tl .frz.c2{grid-column:2/6;}
+
+/* ---------- know-before-you-go and evidence boxes ---------- */
+.kb{background:#FFF8E8;border-left:5px solid var(--orange);padding:10px 14px;font-size:13px;color:#7A4000;line-height:1.42;}
+.ev{background:var(--teal-1);border-left:5px solid var(--teal);padding:10px 14px;font-size:13px;color:var(--teal-dp);line-height:1.42;}
+.kb h4,.ev h4{margin:0 0 6px;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;}
+.ev p{margin:0 0 6px;}
+.ev p:last-child{margin:0;}
+
+/* ---------- panels, cards, glossary, contents ---------- */
+.pan{border:1px solid var(--g2);padding:0 0 10px;}
+.pan .ph{background:var(--navy);color:#fff;font-size:14px;font-weight:700;padding:7px 12px;margin:0 0 10px;}
+.pan .pb{padding:0 12px;}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.opt{border:1px solid var(--g2);border-top:4px solid #B36800;padding:6px 10px;font-size:13px;line-height:1.38;}
+.opt.b{border-top-color:var(--green-ac);}
+.opt.t{border-top-color:var(--teal-dk);}
+.opt b{color:var(--navy);}
+dl.chg{display:grid;grid-template-columns:118px 1fr;gap:3px 10px;margin:9px 0 0;font-size:13px;line-height:1.38;}
+dl.chg dt{font-weight:700;color:var(--g11);}
+dl.chg dd{margin:0;}
+.cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.cards.c4{grid-template-columns:repeat(4,1fr);}
+.cards.c2{grid-template-columns:1fr 1fr;}
+.card{border:1px solid var(--g2);border-top:4px solid var(--teal);padding:9px 12px;background:var(--white);font-size:13px;line-height:1.42;}
+.card.a{border-top-color:#B36800;}
+.card.b{border-top-color:var(--green-ac);}
+.card.t{border-top-color:var(--teal-dk);}
+.card .lbl{font-size:14px;font-weight:700;color:var(--navy);margin:0 0 5px;line-height:1.25;}
+.card .big{font-size:30px;font-weight:700;color:var(--navy);line-height:1;margin:0 0 4px;}
+.gloss{display:grid;grid-template-columns:1fr 1fr;gap:5px 24px;font-size:13px;line-height:1.4;}
+.gloss b{color:var(--navy);}
+.toc{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.tocbtn{appearance:none;text-align:left;cursor:pointer;font-family:var(--font);border:1px solid var(--g2);border-left:5px solid var(--teal);background:var(--white);padding:6px 12px;}
+.tocbtn:hover{background:var(--teal-1);}
+.tocbtn .n{display:block;font-size:11px;font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;}
+.tocbtn .t{display:block;font-size:14px;font-weight:700;color:var(--navy);margin:1px 0 1px;}
+.tocbtn .d{display:block;font-size:12.5px;color:var(--g11);line-height:1.35;}
+.legendgrid{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;font-size:12.5px;color:var(--g11);margin-top:10px;align-items:center;}
+a{color:var(--blue-ac);}
+.figure svg{width:100%;height:auto;display:block;}
+
+/* ---------- diagram classes (slide 3) ---------- */
+svg.dg .box{fill:#fff;stroke:var(--teal);stroke-width:1.6;}
+svg.dg .box.alt{fill:var(--teal-1);}
+svg.dg .box.ok{fill:#E3F1DE;stroke:var(--green-ac);}
+svg.dg .box.warnb{fill:#FFF8E8;stroke:var(--orange);}
+svg.dg .box.bad{fill:#FBE2E0;stroke:var(--red);}
+svg.dg .t{font-family:var(--font);font-size:12.5px;font-weight:700;fill:var(--navy);}
+svg.dg .t.s{font-size:11.5px;font-weight:600;fill:var(--g11);}
+svg.dg .arw{fill:none;stroke:var(--navy);stroke-width:1.8;marker-end:url(#ah);}
+svg.dg .ln{fill:none;stroke:var(--g9);stroke-width:1.4;}
+svg.dg .nb{fill:var(--orange);}
+svg.dg .nt{font-family:var(--font);font-size:11px;font-weight:700;fill:#fff;}
+
+/* ---------- print: every slide on its own page ---------- */
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .side{display:none !important;}
+  .deck,body.js .deck{max-width:none;margin:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;height:auto;min-height:0;width:auto;border:none;margin:0;page-break-after:always;break-after:page;}
+  .slide-inner{position:static !important;transform:none !important;width:auto !important;padding:24px 34px 8px 44px;}
+  .takeaway{position:static;margin:10px 34px 18px 44px;}
+  .slide-no{display:none;}
+  .st{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+<style>
+.chip.an{background:var(--white);color:var(--g11);border:1px solid var(--g6);}
+.chip.tp{background:var(--orange);color:#3d2400;}
+.chip.tc{background:#FFF8E8;color:#7A4000;border:1px solid var(--orange);}
+.hd{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-dk);margin:0 0 6px;}
+.bx{border:1px solid var(--g2);border-top:4px solid var(--teal);padding:9px 12px;font-size:13px;line-height:1.42;background:var(--white);}
+.bx.a{border-top-color:#B36800;}
+.bx.n{border-top-color:var(--navy);}
+.bx.g{border-top-color:var(--g6);}
+.bx h4{margin:0 0 6px;font-size:13.5px;color:var(--navy);}
+.bx ul.pl li{margin:0 0 4px;}
+td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
+.slide-no.ap{color:var(--teal-dk);font-weight:700;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#012169"/></marker>
+</defs></svg>
+
+<nav class="side" aria-label="Slide navigation">
+  <div class="brand">Batch-Consistent Consumption Layer<span class="dot">.</span><small>Point of view on CTAS + Swap &middot; for review</small></div>
+  <div class="tabs" role="tablist" aria-orientation="vertical">
+    <button class="tab" role="tab" data-target="s1" aria-selected="true" aria-controls="s1"><span class="tnum">01</span>Cover</button>
+    <button class="tab" role="tab" data-target="s2" aria-selected="false" aria-controls="s2"><span class="tnum">02</span>In brief</button>
+    <div class="sec">1 &middot; The problem</div>
+    <button class="tab" role="tab" data-target="s3" aria-selected="false" aria-controls="s3"><span class="tnum">03</span>Problem and requirements</button>
+    <div class="sec">2 &middot; CTAS + Swap</div>
+    <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>How it works</button>
+    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>The safety checks</button>
+    <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>Our proven tagging model</button>
+    <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>Tagging in CTAS + Swap</button>
+    <button class="tab" role="tab" data-target="s8" aria-selected="false" aria-controls="s8"><span class="tnum">08</span>What to keep in mind</button>
+    <button class="tab" role="tab" data-target="s9" aria-selected="false" aria-controls="s9"><span class="tnum">09</span>Requirements</button>
+    <div class="sec">3 &middot; Proof and decisions</div>
+    <button class="tab" role="tab" data-target="s10" aria-selected="false" aria-controls="s10"><span class="tnum">10</span>Proven, and still to prove</button>
+    <button class="tab" role="tab" data-target="s11" aria-selected="false" aria-controls="s11"><span class="tnum">11</span>Decisions and open questions</button>
+    <div class="sec">4 &middot; The parallel thread</div>
+    <button class="tab" role="tab" data-target="s12" aria-selected="false" aria-controls="s12"><span class="tnum">12</span>Clone + Swap</button>
+    <button class="tab" role="tab" data-target="s13" aria-selected="false" aria-controls="s13"><span class="tnum">13</span>When it comes forward</button>
+    <div class="sec">Appendix</div>
+    <button class="tab" role="tab" data-target="a1" aria-selected="false" aria-controls="a1"><span class="tnum">A1</span>The two approaches compared</button>
+  </div>
+  <div class="navhint">
+    <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>&larr; &rarr; to move between slides</span>
+  </div>
+</nav>
+
+<div class="deck">
+
+<!-- ===================== SLIDE 1 — COVER ===================== -->
+<section class="slide cover active" id="s1" role="tabpanel">
+  <div class="eyebrow">Point of view &middot; Batch-consistent consumption layer</div>
+  <h1>Publishing each domain only when its batch is complete<span class="h1sub">A point of view on CTAS + Swap &mdash; what to keep in mind, what is proven, what the POC must prove</span></h1>
+  <div class="rule"></div>
+  <p class="lede">While the nightly batch runs, reports can show a mix of today&rsquo;s and yesterday&rsquo;s data.
+    This deck sets out how CTAS + Swap would publish each domain in one step, only when its batch is complete,
+    with its tags, masking and access rights intact &mdash; what is already proven, what the POC must still prove,
+    and what to keep in mind. Clone + Swap is kept as a parallel thread.</p>
+  <div class="meta">
+    <b>Focus &mdash; CTAS + Swap</b> &nbsp;each view&rsquo;s result is saved as a published table in a staging area, the tags are re-applied, then staging is swapped with live<br>
+    <b>Parallel thread &mdash; Clone + Swap</b> &nbsp;ETL loads a clone of the base tables in a staging area, then staging is swapped with live<br>
+    <b>Status</b> &nbsp;For review. Nothing run on Snowflake yet<br>
+    <b>Basis</b> &nbsp;Earlier proof-of-concept tests on our account &middot; the design meeting summary &middot; Snowflake documentation &middot; 25 October 2026
+  </div>
+  <div class="slide-no">1 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 2 — IN BRIEF ===================== -->
+<section class="slide" id="s2" role="tabpanel">
+  <h2>CTAS + Swap: build with CTAS, publish everything with one swap</h2>
+  <p class="sub">The point of view in brief, how claims are labelled, and what this deck covers</p>
+  <div class="cols w40">
+    <div>
+      <div class="toc">
+        <button class="tocbtn" data-goto="s3"><span class="n">1 &middot; Slide 3</span><span class="t">The problem</span><span class="d">What goes wrong mid-batch, and what we need</span></button>
+        <button class="tocbtn" data-goto="s4"><span class="n">2 &middot; Slides 4&ndash;9</span><span class="t">CTAS + Swap</span><span class="d">How it works, checks, tagging, what to keep in mind, requirements</span></button>
+        <button class="tocbtn" data-goto="s10"><span class="n">3 &middot; Slides 10&ndash;11</span><span class="t">Proof and decisions</span><span class="d">What is proven, what the POC must prove, what needs a decision</span></button>
+        <button class="tocbtn" data-goto="s12"><span class="n">4 &middot; Slides 12&ndash;13</span><span class="t">The parallel thread</span><span class="d">Clone + Swap, and when it comes forward</span></button>
+      </div>
+      <h3>How claims are labelled</h3>
+      <div class="legendgrid" style="margin-top:0;">
+        <span class="chip pv">Proven</span><span>tested and passed on our account</span>
+        <span class="chip dc">Snowflake docs</span><span>stated in Snowflake documentation</span>
+        <span class="chip ini">Initial inputs</span><span>from the design meeting summary and the team</span>
+        <span class="chip an">This analysis</span><span>our own reasoning or proposal, for agreement</span>
+        <span class="chip tp">To prove</span><span>a test to run in the POC</span>
+        <span class="chip tc">To confirm</span><span>a fact the team must confirm</span>
+      </div>
+    </div>
+    <div>
+      <table>
+        <thead><tr><th class="num">#</th><th>In brief</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td><b>The problem.</b> While the nightly batch runs, reports can mix today&rsquo;s and yesterday&rsquo;s data. Each domain must switch to new data in one step, only when it is complete, with its tags, masking and access rights intact &mdash; without rewriting thousands of existing views</td></tr>
+          <tr><td class="num">2</td><td><b>The focus: CTAS + Swap.</b> Each batch, each view&rsquo;s result is saved as a new <b>published table</b> in staging; the tags are re-applied; the checks run; then staging and live are swapped in one step. Reports read the published tables through thin reader views</td></tr>
+          <tr><td class="num">3</td><td><b>Why this focus.</b> The design meeting brought CTAS back to avoid turning thousands of views into new ETL jobs, and saw the swap as attractive for publishing all at once. CTAS + Swap uses both <span class="chip ini">Initial inputs</span></td></tr>
+          <tr><td class="num">4</td><td><b>Already proven on our account:</b> the swap switches a set of tables at once; a plain CTAS loses the tags; the check before the swap refuses a bad load; setting tags needs only the right to apply them <span class="chip pv">Proven</span></td></tr>
+          <tr><td class="num">5</td><td><b>Tags &mdash; working recommendation:</b> re-apply them from the tag config table after each rebuild, to be confirmed by testing. The idea was raised in the meeting</td></tr>
+          <tr><td class="num">6</td><td><b>Still to prove:</b> gating, effort, tags, masking, access rights, automation, running under the batch account, and rebuild time (slide 10)</td></tr>
+          <tr><td class="num">7</td><td><b>Parallel thread:</b> Clone + Swap is taken further if CTAS + Swap fails a must-pass test (slide 13)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="takeaway">CTAS to build, the swap to publish &mdash; what is left is to prove it on our account</div>
+  <div class="slide-no">2 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 3 — PROBLEM AND REQUIREMENTS ===================== -->
+<section class="slide" id="s3" role="tabpanel">
+  <div class="sectiontag">1 &middot; The problem</div>
+  <h2>Mid-batch, reports mix today&rsquo;s and yesterday&rsquo;s data</h2>
+  <p class="sub">What goes wrong, the fifteen requirements, and our initial understanding</p>
+  <div class="cols w38">
+    <div>
+      <p class="body">Each night a batch loads many related tables. Partway through, some hold today&rsquo;s data and others
+        still hold yesterday&rsquo;s, or have failed. Reports read them through views, so a user can see numbers that
+        don&rsquo;t add up &mdash; even though each table on its own is valid.</p>
+      <div class="figure">
+        <svg class="dg" viewBox="0 0 440 198" role="img" aria-label="Four tables in one domain: two finished today, one still loading, one failed and still holding yesterday. A reporting view reads all four as they are now, so the report shows part today, part yesterday.">
+          <rect class="box ok" x="6" y="6" width="98" height="48"/>
+          <text class="t" x="55" y="26" text-anchor="middle">Fact A</text>
+          <text class="t s" x="55" y="43" text-anchor="middle">today &#10003;</text>
+          <rect class="box ok" x="116" y="6" width="98" height="48"/>
+          <text class="t" x="165" y="26" text-anchor="middle">Dim B</text>
+          <text class="t s" x="165" y="43" text-anchor="middle">today &#10003;</text>
+          <rect class="box warnb" x="226" y="6" width="98" height="48"/>
+          <text class="t" x="275" y="26" text-anchor="middle">Dim C</text>
+          <text class="t s" x="275" y="43" text-anchor="middle">still loading</text>
+          <rect class="box bad" x="336" y="6" width="98" height="48"/>
+          <text class="t" x="385" y="26" text-anchor="middle">Fact D</text>
+          <text class="t s" x="385" y="43" text-anchor="middle">failed: yesterday</text>
+          <path class="ln" d="M55,54 L55,70 M165,54 L165,70 M275,54 L275,70 M385,54 L385,70 M55,70 L385,70"/>
+          <path class="ln" d="M220,70 L220,98 M220,140 L220,162"/>
+          <rect class="box alt" x="126" y="98" width="188" height="42"/>
+          <text class="t" x="220" y="116" text-anchor="middle">Reporting view</text>
+          <text class="t s" x="220" y="132" text-anchor="middle">reads tables as they are now</text>
+          <rect class="box bad" x="86" y="162" width="268" height="32"/>
+          <text class="t" x="220" y="183" text-anchor="middle">Report: part today, part yesterday</text>
+        </svg>
+      </div>
+      <div class="callout teal"><b>Initial understanding &mdash; to be confirmed</b> <span class="chip ini">Initial inputs</span><br>
+        1. <b>Domain:</b> the set of related tables that must switch to new data together. What exactly a domain maps to, and its list of tables, is still to be confirmed.<br>
+        2. <b>Loads:</b> all domains are loaded incrementally. To be confirmed in writing.</div>
+    </div>
+    <div>
+      <table class="tight">
+        <thead><tr><th>Group</th><th class="num">#</th><th>Requirement</th></tr></thead>
+        <tbody>
+          <tr><td class="grp" rowspan="6">Publishing</td><td class="num">R1</td><td>Users keep seeing the last complete data while a refresh runs</td></tr>
+          <tr><td class="num">R2</td><td>New data becomes visible only when <b>all</b> the tables it depends on have finished loading</td></tr>
+          <tr><td class="num">R3</td><td>The whole domain (facts and dimensions together) is consistent &mdash; never part old, part new. Across domains: out of scope unless stated</td></tr>
+          <tr><td class="num">R4</td><td>A batch that fails partway is <b>not</b> released to users</td></tr>
+          <tr><td class="num">R5</td><td>The business can still release a partial load, by a deliberate manual step</td></tr>
+          <tr><td class="num">R6</td><td>Publishing is one controlled event, not something each view works out for itself</td></tr>
+          <tr><td class="grp">Effort</td><td class="num">R7</td><td>No rebuilding of thousands of existing views as new ETL jobs &mdash; reuse the view logic</td></tr>
+          <tr><td class="grp" rowspan="5">Security</td><td class="num">R8</td><td>Every refreshed table gets back its tags, including privacy tags on sensitive columns</td></tr>
+          <tr><td class="num">R9</td><td>Every refreshed table has the correct masking on sensitive data</td></tr>
+          <tr><td class="num">R10</td><td>Access rights are kept or re-applied after every refresh</td></tr>
+          <tr><td class="num">R11</td><td>Nothing is opened to users until its security is back in place</td></tr>
+          <tr><td class="num">R12</td><td>Batch service accounts may read real values; users see only what masking allows</td></tr>
+          <tr><td class="grp" rowspan="2">Operations</td><td class="num">R13</td><td>Re-applying security is automatic, not done by hand each refresh</td></tr>
+          <tr><td class="num">R14</td><td>The whole refresh, security steps included, runs under the batch service account</td></tr>
+          <tr><td class="grp">Governance</td><td class="num">R15</td><td>Tables the service account creates aren&rsquo;t treated as orphans and deleted</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="takeaway">Publish each domain as one switch &mdash; only when it is complete and secure</div>
+  <div class="slide-no">3 / 13</div>
+</section>
+
+
+<!-- ===================== SLIDE 4 — HOW CTAS + SWAP WORKS ===================== -->
+<section class="slide" id="s4" role="tabpanel">
+  <div class="sectiontag">2 &middot; CTAS + Swap</div>
+  <h2>CTAS + Swap: rebuild every published table in staging, then swap</h2>
+  <p class="sub">The steps each batch, and which tables reports read</p>
+  <div class="flow">
+    <div class="st"><span class="no">1</span><b>Check every load finished</b><span class="d">every required load has succeeded &mdash; before anything is built</span></div>
+    <div class="st ctas"><span class="no">2</span><b>Rebuild each published table <span class="mk">CTAS</span></b><span class="d">one per view, from the view&rsquo;s result; a view can read many base tables</span></div>
+    <div class="st alt"><span class="no">3</span><b>Re-apply the tags</b><span class="d">from the tag config table &mdash; working recommendation; no clone needed</span></div>
+    <div class="st"><span class="no">4</span><b>Check security in staging</b><span class="d">tags match the config, masking works, nothing stored as hashes</span></div>
+    <div class="st swap"><span class="no">5</span><b>Swap staging and live <span class="mk">SWAP</span></b><span class="d">in one step &mdash; reports now see today&rsquo;s data</span></div>
+  </div>
+  <div class="tl">
+    <div class="old">Reports keep seeing yesterday&rsquo;s data</div>
+    <div class="new">Today&rsquo;s data</div>
+    <div class="frz c2">Live is frozen from the rebuild to the swap &mdash; no data, tag or access changes</div>
+  </div>
+  <h3>How data reaches a report</h3>
+  <div class="flow sm">
+    <div class="st"><b>Base tables</b><span class="d">loaded by ETL, as today</span></div>
+    <div class="st"><b>Original view</b><span class="d">reads one or many base tables</span></div>
+    <div class="st ctas"><b>Published table in staging</b><span class="d">the view&rsquo;s result, by CTAS</span></div>
+    <div class="st swap"><b>Published table in live</b><span class="d">after the swap</span></div>
+    <div class="st alt"><b>Thin reader view</b><span class="d">what reports query &mdash; never staging</span></div>
+  </div>
+  <h3>Words used</h3>
+  <div class="gloss">
+    <div><b>Base table</b> &mdash; a table ETL loads each night; views read base tables</div>
+    <div><b>Published table</b> &mdash; a new table holding one view&rsquo;s result, rebuilt each batch</div>
+    <div><b>Thin reader view</b> &mdash; a view that reads one published table; reports query these</div>
+    <div><b>Live / staging</b> &mdash; the area reports read / a private area where the next batch is built</div>
+    <div><b>Schema swap</b> &mdash; Snowflake switches the two areas in one step, with their tables and access rights</div>
+    <div><b>Tag config table</b> &mdash; lists the expected tag for every sensitive column and table</div>
+  </div>
+  <div class="takeaway">CTAS builds the published tables; the swap makes them all visible at once</div>
+  <div class="slide-no">4 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 5 — THE SAFETY CHECKS ===================== -->
+<section class="slide" id="s5" role="tabpanel">
+  <div class="sectiontag">2 &middot; CTAS + Swap</div>
+  <h2>Two checks guard every publish &mdash; completeness first, security always</h2>
+  <p class="sub">The checks before the swap, the business override, and the shared rules</p>
+  <div class="flow f4">
+    <div class="st"><span class="no">1</span><b>Completeness check</b><span class="d">every load on the domain&rsquo;s required list has succeeded for this batch; a missing load fails it</span></div>
+    <div class="st alt"><span class="no">2</span><b>Security check &mdash; never skipped</b><span class="d">a test row reads as real, nothing stored as hashes, tags and scope as in the tag config table, widths fit the masked value</span></div>
+    <div class="st swap"><span class="no">3</span><b>Publish &mdash; the swap</b><span class="d">staging and live switched in one step</span></div>
+    <div class="st"><span class="no">4</span><b>Log every attempt</b><span class="d">published, refused or overridden &mdash; who, when, approver, reason</span></div>
+  </div>
+  <p class="note"><b>Business override:</b> an approved person can skip check 1 to release a partial load &mdash; never check 2. The skip is logged. That the business may choose to publish a partial load comes from the design meeting.</p>
+  <div class="cards" style="margin-top:10px;">
+    <div class="card"><div class="lbl">One tag config table</div>Lists the expected tag for every sensitive column and the expected scope for every table. Check 2 compares against it, and the recommended tag method re-applies the tags from it.</div>
+    <div class="card"><div class="lbl">The batch account&rsquo;s approval row</div>The service account that writes the data has an all-access approval row; without it, it stores masked values, with no error <span class="chip pv">Proven</span></div>
+    <div class="card"><div class="lbl">Timings with masking on</div>Every timing is taken as the batch account with masking active, because masking adds a lookup for each value.</div>
+  </div>
+  <p class="note">Straight after the swap, could a report see one table new and another old? That is a test for the POC (slide 10).</p>
+  <div class="takeaway">Nothing becomes visible until the security check passes; an override can skip only the completeness check</div>
+  <div class="slide-no">5 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 6 — OUR PROVEN TAGGING MODEL ===================== -->
+<section class="slide" id="s6" role="tabpanel">
+  <div class="sectiontag">2 &middot; CTAS + Swap</div>
+  <h2>Our proven tagging model masks by tag, scope and a per-user approval</h2>
+  <p class="sub">How the model proven earlier on our account decides what each reader sees <span class="chip pv">Proven</span></p>
+  <h3 style="margin-top:4px;">How a value gets masked</h3>
+  <div class="flow f4 sm">
+    <div class="st"><span class="no">1</span><b>A report reads a column</b></div>
+    <div class="st alt"><span class="no">2</span><b>The column&rsquo;s tag names what it holds</b><span class="d">for example <code>EMAIL</code></span></div>
+    <div class="st alt"><span class="no">3</span><b>The masking rule looks up the approval table</b><span class="d">this user, this attribute, this table&rsquo;s scope</span></div>
+    <div class="st swap"><span class="no">4</span><b>Match: real value &middot; no match: masked</b></div>
+  </div>
+  <div class="cards c4" style="margin-top:10px;">
+    <div class="card"><div class="lbl">Tag on columns</div>Names what the column holds (<code>SSN</code>, <code>EMAIL</code> &hellip;). Only on columns.</div>
+    <div class="card"><div class="lbl">Tag on schemas (scope)</div>Set on a database, schema or table and passed down; the nearest wins. A new table in a tagged schema is protected without its own tag.</div>
+    <div class="card"><div class="lbl">Masking on the tag</div>Tag a column and its masking comes with it. The rule runs with its owner&rsquo;s rights, so the approvals stay hidden from the people they govern.</div>
+    <div class="card"><div class="lbl">Approval table</div>One row = one user, one attribute, one scope. Approval is per user, not per role. Service accounts get one all-access row.</div>
+  </div>
+  <div class="cols stretch" style="margin-top:10px;">
+    <div class="kb">
+      <h4>What we learned to watch</h4>
+      <ul class="pl">
+        <li>A writer that sees masked values stores the masks, with no error &mdash; hence the batch account&rsquo;s all-access row</li>
+        <li>Removing a table-level scope can open access</li>
+        <li>Masked text can come back longer than its column; a masked number that doesn&rsquo;t fit fails</li>
+      </ul>
+    </div>
+    <div class="ev">
+      <h4>Controls carried forward</h4>
+      <ul class="pl">
+        <li>No role unmasks anything; the account administrator role isn&rsquo;t used</li>
+        <li>A scheduled check compares tagged columns with protected columns</li>
+        <li>An alert fires if a scope value is removed; new scope values are added, never overwritten</li>
+      </ul>
+    </div>
+  </div>
+  <div class="takeaway">Approval is per user, attribute and scope &mdash; and the model is already proven on our account</div>
+  <div class="slide-no">6 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 7 — TAGGING IN CTAS + SWAP ===================== -->
+<section class="slide" id="s7" role="tabpanel">
+  <div class="sectiontag">2 &middot; CTAS + Swap</div>
+  <h2>A plain CTAS drops the tags &mdash; three ways bring them back</h2>
+  <p class="sub">The options, the working recommendation, and what must be tested before it is final</p>
+  <table class="tight">
+    <thead><tr><th class="num">#</th><th style="width:200px;">Option</th><th>How</th><th style="width:150px;">Needs a clone?</th><th style="width:170px;">A newly tagged base column</th><th style="width:150px;">Reach</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Re-apply from the tag config table</b><br><span class="chip pp">Working recommendation</span></td><td>After each rebuild, set each tag from the config table</td><td>No</td><td>Picked up once the config is updated</td><td>This step only</td></tr>
+      <tr><td class="num">2</td><td><b><code>COPY TAGS</code></b></td><td>Each rebuild keeps the tags of the table it replaces</td><td>Yes &mdash; live is cloned first, only to carry the tags</td><td>Not picked up</td><td>This rebuild only</td></tr>
+      <tr><td class="num">3</td><td><b>Automatic tag propagation</b></td><td>One setting on the tag; Snowflake copies tags as data moves</td><td>No</td><td>Taken from the source columns</td><td>Whole account &mdash; affects other loads too</td></tr>
+    </tbody>
+  </table>
+  <div class="cols stretch" style="margin-top:6px;">
+    <div class="ev">
+      <h4>Why option 1 &mdash; working recommendation, to be confirmed by testing</h4>
+      <ul class="pl">
+        <li>The tag config table has to be kept up to date anyway, for the security check &mdash; one source of truth</li>
+        <li>It handles a newly tagged column, which <code>COPY TAGS</code> can&rsquo;t do on its own</li>
+        <li>No clone, so live is frozen for a shorter time</li>
+        <li>No account-wide setting; needs only the right to apply the two tags, already proven on our account</li>
+        <li>Re-applying from a configuration table was an idea raised in the design meeting</li>
+      </ul>
+    </div>
+    <div class="kb">
+      <h4>To prove before it is final</h4>
+      <ul class="pl">
+        <li>The publishing role can set the tags with only the right to apply them</li>
+        <li>After re-tagging, approved readers see real values and others see masked ones</li>
+        <li>A newly tagged base column is tagged on the next rebuild once the config is updated, and the publish is refused until then</li>
+        <li>How long the re-tag step takes for the largest domain</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout teal" style="margin-top:6px;"><b>Note on an earlier finding.</b> Our findings register says &ldquo;a refresh must clone, never rebuild with CTAS&rdquo; &mdash; written because a plain CTAS loses the tags. CTAS + Swap holds only if the tags are put back before anything is visible: re-applied in step 3, then verified by the security check. That is exactly what the tests above must prove.</div>
+  <div class="takeaway">Working recommendation: re-apply the tags from the tag config table &mdash; to be proven before it is final</div>
+  <div class="slide-no">7 / 13</div>
+</section>
+
+
+<!-- ===================== SLIDE 8 — WHAT TO KEEP IN MIND ===================== -->
+<section class="slide" id="s8" role="tabpanel">
+  <div class="sectiontag">2 &middot; CTAS + Swap</div>
+  <h2>What CTAS + Swap needs to work</h2>
+  <p class="sub">Rules to follow and limits to know before choosing it &mdash; each with where it comes from</p>
+  <table class="tight cmp">
+    <thead><tr><th class="num">#</th><th style="width:250px;">Rule or limit</th><th>Why, in plain words</th><th style="width:170px;">Comes from</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Live stays frozen during the rebuild</b></td><td>From the start of the rebuild until the swap, nobody changes the live tables &mdash; no data, tag or access changes, no deployments. Anything changed in between is lost at the swap</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
+      <tr><td class="num">2</td><td><b>Publish once per batch</b></td><td>A second swap brings yesterday&rsquo;s tables back, so a repeat publish must be refused</td><td class="src">This analysis</td></tr>
+      <tr><td class="num">3</td><td><b>All tables from one moment</b></td><td>If base tables are still loading while the tables are rebuilt, the tables can end up from different moments. Pause loads during the rebuild, or rebuild every view &ldquo;as of&rdquo; one moment</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
+      <tr><td class="num">4</td><td><b>Full rebuild every batch</b></td><td>Every published table is rebuilt in full each night, so time and storage grow with the data</td><td class="src">This analysis</td></tr>
+      <tr><td class="num">5</td><td><b>Report names</b></td><td>Reports move to thin reader views. One schema can&rsquo;t hold a table and a view with the same name, so names must be planned &mdash; without editing each report</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
+      <tr><td class="num">6</td><td><b>Change feeds break</b></td><td>Any process that tracks changes on the published tables (Snowflake &ldquo;streams&rdquo;) stops working at each rebuild</td><td class="src">Snowflake docs</td></tr>
+      <tr><td class="num">7</td><td><b>Only whole-schema swaps</b></td><td>Swapping single tables loses the automatic access rights; sequences, stages, pipes and tasks stay outside the swapped schemas</td><td class="src">Snowflake docs</td></tr>
+      <tr><td class="num">8</td><td><b>Tables created by the batch account</b></td><td>They need an exception so they aren&rsquo;t treated as orphans and deleted</td><td class="src">Design meeting</td></tr>
+      <tr><td class="num">9</td><td><b>Not yet worked through</b></td><td>Views that read other views (which get a published table, and in what order); views that read tables from two domains</td><td class="src">This analysis</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>Still to check.</b> To prove in the POC: a repeat publish is refused; rebuilding &ldquo;as of&rdquo; one moment works while a load runs. To confirm with the team: whether loads overlap the rebuild; data volumes; report names and where the views sit.</div>
+  <div class="takeaway">Freeze live, publish once, rebuild from one moment &mdash; and plan the report names</div>
+  <div class="slide-no">8 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 9 — REQUIREMENTS ===================== -->
+<section class="slide" id="s9" role="tabpanel">
+  <div class="sectiontag">2 &middot; CTAS + Swap</div>
+  <h2>How CTAS + Swap meets the fifteen requirements</h2>
+  <p class="sub">Met by design, met if something is proven or confirmed, or open</p>
+  <div class="callout teal" style="margin-top:0;"><b>Met by design:</b> last complete data stays visible (the swap, proven) &middot; visible only when all loads finish &middot; a failed batch is not released &middot; manual business release &middot; one controlled publish &middot; nothing visible until secure</div>
+  <table class="tight cmp" style="margin-top:10px;">
+    <thead><tr><th class="num">#</th><th style="width:230px;">Requirement</th><th>Met if &hellip;</th><th style="width:150px;">Confirmed by</th></tr></thead>
+    <tbody>
+      <tr><td class="num">R3</td><td>Whole domain consistent</td><td>No base loads run during the rebuild, or Snowflake can rebuild every view &ldquo;as of&rdquo; one moment; and a report straight after the swap sees all tables new</td><td><span class="chip tc">To confirm</span> <span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R7</td><td>No mass rewrite of views</td><td>Reports can move to the thin reader views without editing each report</td><td><span class="chip tc">To confirm</span></td></tr>
+      <tr><td class="num">R8</td><td>Tags restored</td><td>The tags are re-applied from the config table after each rebuild, and a newly tagged base column is caught</td><td><span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R9</td><td>Masking correct</td><td>Masking works through the thin reader views for approved and unapproved readers</td><td><span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R10</td><td>Access rights kept</td><td>Readers reach only the thin reader views, never live or staging, and rights stay as set over many publishes</td><td><span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R12</td><td>Batch account real, users masked</td><td>Inside the publishing procedure, Snowflake sees the batch account, so its all-access row applies &mdash; otherwise the rebuild would store masked values</td><td><span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R13</td><td>Security re-applied automatically</td><td>The re-tag step runs inside the procedure with no manual step</td><td><span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R14</td><td>Runs under the batch account</td><td>The publishing role owns both schemas, and a full run works under the batch account with the fewest rights</td><td><span class="chip tp">To prove</span></td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Open:</b> R15, not swept as orphans &mdash; tables created at run time need a platform exception (slide 11).</p>
+  <div class="takeaway">Six requirements are met by design; eight depend on a POC test or a fact the team confirms</div>
+  <div class="slide-no">9 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 10 — PROVEN, AND STILL TO PROVE ===================== -->
+<section class="slide" id="s10" role="tabpanel">
+  <div class="sectiontag">3 &middot; Proof and decisions</div>
+  <h2>What is proven, and what the POC must still prove</h2>
+  <p class="sub">Proven on our account, with its source, beside the tests &mdash; grouped by the areas the design meeting named</p>
+  <div class="cols">
+    <div>
+      <div class="hd">Proven on our account <span class="chip pv">Proven</span></div>
+      <table class="tight cmp">
+        <thead><tr><th class="num">#</th><th>Finding</th><th style="width:95px;">Source</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>A swap switches a set of tables at once; a running query sees all-old, then all-new</td><td><a href="../../../../POC02_zero_downtime_refresh/2_Deliverables/POC/_common/03_evidence/LM_PII_Masking_Evidence_POC02.html">Refresh POC</a></td></tr>
+          <tr><td class="num">2</td><td>The scope tag follows the schema through a swap; masking still works</td><td><a href="../../../../POC02_zero_downtime_refresh/2_Deliverables/POC/_common/03_evidence/LM_PII_Masking_Evidence_POC02.html">Refresh POC</a></td></tr>
+          <tr><td class="num">3</td><td>A swap needs ownership of both schemas</td><td><a href="../../../../POC02_zero_downtime_refresh/2_Deliverables/POC/_common/03_evidence/poc02_test_results_20260817T075652Z.md">Refresh POC</a></td></tr>
+          <tr><td class="num">4</td><td>A plain CTAS loses the column tags</td><td><a href="../../../../POC02_zero_downtime_refresh/2_Deliverables/POC/_common/03_evidence/poc02_test_results_20260817T075652Z.md">Refresh POC</a></td></tr>
+          <tr><td class="num">5</td><td>The check before the swap refuses a corrupted load</td><td><a href="../../../../POC02_zero_downtime_refresh/2_Deliverables/POC/_common/03_evidence/LM_PII_Masking_Evidence_POC02.html">Refresh POC</a></td></tr>
+          <tr><td class="num">6</td><td>Setting tags needs only the right to apply the two tags, nothing account-wide</td><td><a href="../../../../POC01_pii_masking_policies/2_Deliverables/POC/S2_masking_above_table/03_evidence/LM_PII_Masking_Evidence_S2_area_above_table.html">Masking POC</a></td></tr>
+          <tr><td class="num">7</td><td>A writer that sees masked values stores them; an all-access approval row prevents it</td><td><a href="../../../../POC01_pii_masking_policies/2_Deliverables/POC/S3v2_complete_proof/03_evidence/LM_PII_Masking_Evidence_S3_complete.html">Masking POC</a></td></tr>
+          <tr><td class="num">8</td><td>A new table in a tagged schema is protected without its own tag</td><td><a href="../../../../POC01_pii_masking_policies/2_Deliverables/POC/S2_masking_above_table/03_evidence/LM_PII_Masking_Evidence_S2_area_above_table.html">Masking POC</a></td></tr>
+          <tr><td class="num">9</td><td>Masked text can overflow its column; a masked number that doesn&rsquo;t fit fails</td><td><a href="../../../../POC01_pii_masking_policies/2_Deliverables/POC/S3v2_complete_proof/03_evidence/LM_PII_Masking_Evidence_S3_complete.html">Masking POC</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="hd">Still to prove in the POC <span class="chip tp">To prove</span></div>
+      <table class="tight cmp">
+        <thead><tr><th style="width:120px;">Area</th><th>Test</th></tr></thead>
+        <tbody>
+          <tr><td><b>Gating</b></td><td>Reports keep yesterday&rsquo;s data until the swap; straight after it, a report joining two tables sees both new. A repeat publish is refused</td></tr>
+          <tr><td><b>Effort</b></td><td>Build published tables from three real views and record the hand work</td></tr>
+          <tr><td><b>Tags</b></td><td>Re-applying from the config table works with only the right to apply the tags; a newly tagged base column is handled</td></tr>
+          <tr><td><b>Masking</b></td><td>Approved and unapproved readers get real and masked values through the thin reader views</td></tr>
+          <tr><td><b>Access rights</b></td><td>Readers reach only the views; rights stay as set over many publishes</td></tr>
+          <tr><td><b>Automation</b></td><td>The whole publish runs with no manual step; a failed run releases its lock</td></tr>
+          <tr><td><b>Batch account</b></td><td>Inside the procedure Snowflake sees the batch account; who owns the new tables</td></tr>
+          <tr><td><b>Rebuild time</b></td><td>A full rebuild of the largest domain fits the batch window &mdash; needs real data volumes (raised by this analysis)</td></tr>
+          <tr><td><b>Ownership</b></td><td>Not a POC test &mdash; a platform decision (slide 11)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="note">Every test runs with only the role being tested switched on, and each result is kept as evidence. CoCo can write and run most of these tests in our account once the test users are set up.</p>
+  <div class="takeaway">The swap and the checks are proven &mdash; tags, the batch account, gating and rebuild time are what the POC must prove</div>
+  <div class="slide-no">10 / 13</div>
+</section>
+
+
+<!-- ===================== SLIDE 11 — DECISIONS AND OPEN QUESTIONS ===================== -->
+<section class="slide" id="s11" role="tabpanel">
+  <div class="sectiontag">3 &middot; Proof and decisions</div>
+  <h2>Decisions and open questions outside the POC</h2>
+  <p class="sub">What needs a decision or an answer, grouped by where it came from</p>
+  <div class="cols stretch">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="bx n">
+        <h4>From the design meeting</h4>
+        <ul class="pl">
+          <li>An exception so tables created by the batch account aren&rsquo;t treated as orphans and deleted</li>
+          <li>Who in the business may approve a partial release</li>
+          <li>The earlier options analysis (pages 37&ndash;45) &mdash; not yet received</li>
+          <li>The approach decision and its timing &mdash; a viewpoint to be shared before the next discussion</li>
+        </ul>
+      </div>
+      <div class="bx">
+        <h4>Facts the team must confirm</h4>
+        <ul class="pl">
+          <li>What a domain is, and its list of tables</li>
+          <li>Which schemas the tables sit in; which are shared with other domains; whether loads can overlap the rebuild</li>
+          <li>Where the views sit; which names reports use today; views that read other views or two domains</li>
+          <li>Data volumes, and the batch window</li>
+          <li>That every domain is loaded incrementally</li>
+          <li>For the parallel thread: whether every ETL job can point to staging</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bx g">
+      <h4>Raised by this analysis</h4>
+      <ul class="pl">
+        <li>Ownership of the live and staging schemas by the publishing role</li>
+        <li>The frozen window: no deployments, tag or access changes to live between the rebuild and the swap</li>
+        <li>Whether to use the account-wide setting that lets readers see a publish straight away (adds a small delay to every query)</li>
+        <li>The batch account&rsquo;s session settings, such as time-outs, and the scheduler&rsquo;s settings when it starts the run</li>
+        <li>Who keeps the tag config table up to date</li>
+        <li>Whether to adopt the working tag recommendation once its tests pass</li>
+        <li>Account-level tag rights &mdash; only if automatic tag propagation were chosen</li>
+        <li>Which reports join more than one domain</li>
+        <li>The list of required loads for each domain</li>
+      </ul>
+    </div>
+  </div>
+  <div class="takeaway">Four items came from the design meeting; the rest were raised by this analysis</div>
+  <div class="slide-no">11 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 12 — PARALLEL THREAD: CLONE + SWAP ===================== -->
+<section class="slide" id="s12" role="tabpanel">
+  <div class="sectiontag">4 &middot; The parallel thread</div>
+  <h2>The parallel thread: Clone + Swap</h2>
+  <p class="sub">What it is, how it differs from the meeting&rsquo;s idea, and what it would need</p>
+  <div class="flow">
+    <div class="st alt"><span class="no">1</span><b>Clone every base table to staging</b><span class="d">the clone is the new data; it keeps the tags</span></div>
+    <div class="st alt"><span class="no">2</span><b>ETL loads staging, not live</b><span class="d">every read and every write &mdash; the normal incremental load</span></div>
+    <div class="st"><span class="no">3</span><b>Check every load finished</b><span class="d">the same completeness check</span></div>
+    <div class="st"><span class="no">4</span><b>Check security in staging</b><span class="d">the same security check</span></div>
+    <div class="st swap"><span class="no">5</span><b>Swap staging and live <span class="mk">SWAP</span></b><span class="d">the existing views now read today&rsquo;s data</span></div>
+  </div>
+  <div class="cols stretch" style="margin-top:12px;">
+    <div class="ev">
+      <h4>How it differs from the meeting&rsquo;s idea</h4>
+      <p>In the meeting, Clone/Swap meant cloning physical consumption tables &mdash; which would mean turning many existing views into ETL-built tables.</p>
+      <p>This analysis&rsquo;s version clones the <b>base tables</b> instead: ETL loads the clone, and the existing views stay exactly as they are.</p>
+    </div>
+    <div class="kb">
+      <h4>What it needs to work</h4>
+      <ul class="pl">
+        <li>Every ETL read and write points to staging, including lookups and jobs that read their own table &mdash; a job still reading live gets yesterday&rsquo;s data, and the checks would not catch it</li>
+        <li>No job drops and re-creates its table: the new table has no tags (proven)</li>
+        <li>The domain&rsquo;s tables sit in one schema, not shared; views sit outside it and name their tables in full</li>
+        <li>Live stays frozen from the clone to the swap; change feeds on base tables break at each clone</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note"><b>Still to check:</b> to confirm with the team &mdash; whether every job can point to staging, and today&rsquo;s table layout and view names. To prove in the POC &mdash; a job that reads its own table reads staging, not live.</p>
+  <div class="takeaway">Clone + Swap keeps the views and the tags &mdash; but every ETL read and write must move to staging</div>
+  <div class="slide-no">12 / 13</div>
+</section>
+
+<!-- ===================== SLIDE 13 — WHEN THE PARALLEL THREAD COMES FORWARD ===================== -->
+<section class="slide" id="s13" role="tabpanel">
+  <div class="sectiontag">4 &middot; The parallel thread</div>
+  <h2>When Clone + Swap comes forward</h2>
+  <p class="sub">A proposal, for agreement &mdash; this analysis&rsquo;s suggestion, not from the meeting <span class="chip an">This analysis</span></p>
+  <div style="display:grid;grid-template-columns:3fr 1.35fr;gap:8px;align-items:stretch;">
+    <div class="flow f3">
+      <div class="st"><span class="no">1</span><b>Run the CTAS + Swap POC</b><span class="d">the tests on slide 10</span></div>
+      <div class="st alt"><span class="no">2</span><b>Check the must-pass tests</b><span class="d">listed below</span></div>
+      <div class="st swap"><span class="no">3</span><b>Decide</b><span class="d">on measured results, not estimates</span></div>
+    </div>
+    <div style="display:grid;grid-template-rows:1fr 1fr;gap:6px;">
+      <div class="card" style="padding:6px 10px;"><b style="color:var(--navy);">All pass:</b> CTAS + Swap goes forward</div>
+      <div class="card a" style="padding:6px 10px;"><b style="color:var(--navy);">One fails:</b> Clone + Swap is taken further</div>
+    </div>
+  </div>
+  <h3>The must-pass tests</h3>
+  <div class="cards">
+    <div class="card a"><div class="lbl">Tags come back reliably</div>On tables built from views, by an option governance accepts</div>
+    <div class="card a"><div class="lbl">The rebuild fits the window</div>A full rebuild of the largest domain fits the nightly batch window</div>
+    <div class="card a"><div class="lbl">Reports move without rework</div>Reports can move to the thin reader views without editing each one</div>
+  </div>
+  <div class="callout teal"><b>Also proposed.</b> A single domain that can&rsquo;t meet CTAS + Swap&rsquo;s conditions is flagged as an exception for decision &mdash; the approach is not chosen domain by domain. If neither approach works, the consumption layer stays as it is today (ungated) and this is escalated with the failed tests.</div>
+  <div class="takeaway">Proposed: Clone + Swap is taken further only if CTAS + Swap fails a must-pass test</div>
+  <div class="slide-no">13 / 13</div>
+</section>
+
+<!-- ===================== APPENDIX A1 — THE TWO APPROACHES COMPARED ===================== -->
+<section class="slide" id="a1" role="tabpanel">
+  <div class="sectiontag">Appendix</div>
+  <h2>The two approaches compared</h2>
+  <p class="sub">CTAS + Swap, the focus, beside Clone + Swap, the parallel thread &mdash; facts only</p>
+  <table class="tight cmp dense">
+    <thead><tr><th class="num">#</th><th style="width:220px;">Criterion</th><th class="o1a">CTAS + Swap &mdash; the focus</th><th class="o2">Clone + Swap &mdash; the parallel thread</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><b>Changes to ETL jobs</b></td><td>None</td><td>Every read and write in the batch points to staging</td></tr>
+      <tr><td class="num">2</td><td><b>Set-up per view</b></td><td>None &mdash; each published table is built from its view; a view can read many base tables</td><td>None, if views sit outside the swapped schema with full table names</td></tr>
+      <tr><td class="num">3</td><td><b>What reports query</b></td><td>Thin reader views over the published tables</td><td>The existing views, unchanged</td></tr>
+      <tr><td class="num">4</td><td><b>Work each batch</b></td><td>Every published table rebuilt in full from its view</td><td>ETL&rsquo;s normal incremental load</td></tr>
+      <tr><td class="num">5</td><td><b>What the clone is for</b></td><td>No clone with the recommended tag method; needed only if <code>COPY TAGS</code> is chosen</td><td>It is the new data &mdash; ETL loads it</td></tr>
+      <tr><td class="num">6</td><td><b>How tags come back</b></td><td>Re-applied from the tag config table (working recommendation)</td><td>Kept by the clone (proven)</td></tr>
+      <tr><td class="num">7</td><td><b>Live frozen</b></td><td>From the start of the rebuild to the swap</td><td>From the clone to the swap</td></tr>
+      <tr><td class="num">8</td><td><b>Extra storage</b></td><td>Published tables in live and staging, plus history of each replaced table</td><td>Clones of the base tables share storage at first, then store only what changes</td></tr>
+      <tr><td class="num">9</td><td><b>Created at each run</b></td><td>Published tables in staging</td><td>Clones of the base tables in staging</td></tr>
+      <tr><td class="num">10</td><td><b>Access rights after publishing</b></td><td>Move with the swap; same automatic rights on both schemas</td><td>Move with the swap; same automatic rights on both schemas</td></tr>
+      <tr><td class="num">11</td><td><b>Change feeds (streams)</b></td><td>Break at every rebuild of the published tables</td><td>Break at every clone of the base tables</td></tr>
+      <tr><td class="num">12</td><td><b>If a step fails &middot; undo after publishing</b></td><td>No swap &middot; swap back until the next batch starts</td><td>No swap &middot; swap back until the next batch starts</td></tr>
+      <tr><td class="num">13</td><td><b>Rights the publishing role needs</b></td><td>Owns both schemas; the right to apply the two tags</td><td>Owns both schemas</td></tr>
+      <tr><td class="num">14</td><td><b>Already proven on our account</b></td><td>Swap, security check, setting tags with only the right to apply them</td><td>Clone keeps tags, swap, security check</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b>Same for both, not yet worked through:</b> views that read other views; views that read tables from two domains. <b>Still to check:</b> every job can point to staging (Clone + Swap); data volumes and rebuild time (CTAS + Swap).</p>
+  <div class="takeaway">Same swap, different first steps &mdash; CTAS + Swap is the focus, Clone + Swap the parallel thread</div>
+  <div class="slide-no ap">A1</div>
+</section>
+
+</div><!-- /.deck -->
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+
+  var SLIDE_W = 1280, SLIDE_H = 720;
+  var INNER_W = 1164;
+  var INNER_TOP = 34;
+  var BOTTOM_RESERVE = 86;          // space kept for the takeaway bar
+  var MIN_FIT = 0.55;               // never shrink below this - split the slide instead
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".side .tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var side   = document.querySelector(".side");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+
+  /* wrap each slide's content so it can shrink independently of the stage */
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 &&
+          (node.classList.contains("takeaway") || node.classList.contains("slide-no"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+    sl.setAttribute("data-fit", s.toFixed(3));
+  }
+
+  function fitStage() {
+    var navW = side ? side.offsetWidth : 0;
+    var z = Math.min((window.innerWidth - navW - 26) / SLIDE_W,
+                     (window.innerHeight - 26) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+  function goTo(id) {
+    var n = slides.map(function (s) { return s.id; }).indexOf(id);
+    if (n > -1) { show(n); }
+  }
+
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+  Array.prototype.slice.call(document.querySelectorAll("[data-goto]")).forEach(function (b) {
+    b.addEventListener("click", function () { goTo(b.getAttribute("data-goto")); });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+  });
+
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("hashchange", function () { goTo(window.location.hash.slice(1)); });
+
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>
