@@ -277,11 +277,11 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <h1>Publishing each domain only when its batch is complete<span class="h1sub">A point of view on CTAS + Swap &mdash; what to keep in mind, what is proven, what the POC must prove</span></h1>
   <div class="rule"></div>
   <p class="lede">While the nightly batch runs, reports can show a mix of today&rsquo;s and yesterday&rsquo;s data.
-    This deck sets out how CTAS + Swap would publish each domain in one step, only when its batch is complete,
+    This deck sets out CTAS + Swap as a controlled publishing pattern &mdash; build in staging, check, then publish each domain in one step &mdash; only when its batch is complete,
     with its tags, masking and access rights intact &mdash; what is already proven, what the POC must still prove,
     and what to keep in mind. Clone + Swap is kept as a parallel thread.</p>
   <div class="meta">
-    <b>Focus &mdash; CTAS + Swap</b> &nbsp;each view&rsquo;s result is saved as a published table in a staging area, the tags are re-applied, then staging is swapped with live<br>
+    <b>Focus &mdash; CTAS + Swap</b> &nbsp;each reporting object&rsquo;s result is saved as a published table in a staging area, the tags are re-applied, a readiness gate checks the batch, then staging is swapped with live<br>
     <b>Parallel thread &mdash; Clone + Swap</b> &nbsp;ETL loads a clone of the base tables in a staging area, then staging is swapped with live<br>
     <b>Status</b> &nbsp;For review. Nothing run on Snowflake yet<br>
     <b>Basis</b> &nbsp;Earlier proof-of-concept tests on our account &middot; the design meeting summary &middot; Snowflake documentation &middot; 25 October 2026
@@ -316,12 +316,13 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
         <thead><tr><th class="num">#</th><th>In brief</th></tr></thead>
         <tbody>
           <tr><td class="num">1</td><td><b>The problem.</b> While the nightly batch runs, reports can mix today&rsquo;s and yesterday&rsquo;s data. Each domain must switch to new data in one step, only when it is complete, with its tags, masking and access rights intact &mdash; without rewriting thousands of existing views</td></tr>
-          <tr><td class="num">2</td><td><b>The focus: CTAS + Swap.</b> Each batch, each view&rsquo;s result is saved as a new <b>published table</b> in staging; the tags are re-applied; the checks run; then staging and live are swapped in one step. Reports read the published tables through thin reader views</td></tr>
-          <tr><td class="num">3</td><td><b>Why this focus.</b> The design meeting brought CTAS back to avoid turning thousands of views into new ETL jobs, and saw the swap as attractive for publishing all at once. CTAS + Swap uses both <span class="chip ini">Initial inputs</span></td></tr>
-          <tr><td class="num">4</td><td><b>Already proven on our account:</b> the swap switches a set of tables at once; a plain CTAS loses the tags; the check before the swap refuses a bad load; setting tags needs only the right to apply them <span class="chip pv">Proven</span></td></tr>
-          <tr><td class="num">5</td><td><b>Tags &mdash; working recommendation:</b> re-apply them from the tag config table after each rebuild, to be confirmed by testing. The idea was raised in the meeting</td></tr>
-          <tr><td class="num">6</td><td><b>Still to prove:</b> gating, effort, tags, masking, access rights, automation, running under the batch account, and rebuild time (slide 10)</td></tr>
-          <tr><td class="num">7</td><td><b>Parallel thread:</b> Clone + Swap is taken further if CTAS + Swap fails a must-pass test (slide 13)</td></tr>
+          <tr><td class="num">2</td><td><b>The focus: CTAS + Swap.</b> Each batch, each reporting object&rsquo;s result &mdash; built from one or more views &mdash; is saved as a new <b>published table</b> in staging; the tags are re-applied; a readiness gate and the security check run; then staging and live are swapped in one step. Reports read the published tables through thin reader views</td></tr>
+          <tr><td class="num">3</td><td><b>A controlled publishing pattern.</b> Nothing rebuilt is visible until every required table is ready and secure; the previous state stays in staging to fall back to</td></tr>
+          <tr><td class="num">4</td><td><b>Why this focus.</b> The design meeting brought CTAS back to avoid turning thousands of views into new ETL jobs, and saw the swap as attractive for publishing all at once. CTAS + Swap uses both <span class="chip ini">Initial inputs</span></td></tr>
+          <tr><td class="num">5</td><td><b>Already proven on our account:</b> the swap switches a set of tables at once; a plain CTAS loses the tags; the check before the swap refuses a bad load; setting tags needs only the right to apply them <span class="chip pv">Proven</span></td></tr>
+          <tr><td class="num">6</td><td><b>Tags &mdash; working recommendation:</b> re-apply them from the tag config table after each rebuild, to be confirmed by testing. The idea was raised in the meeting</td></tr>
+          <tr><td class="num">7</td><td><b>Still to prove:</b> gating, effort, tags, masking, access rights, automation, running under the batch account, rebuild time, restart and partial release (slide 10)</td></tr>
+          <tr><td class="num">8</td><td><b>Parallel thread:</b> Clone + Swap is taken further if CTAS + Swap fails a must-pass test (slide 13)</td></tr>
         </tbody>
       </table>
     </div>
@@ -364,7 +365,7 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
         </svg>
       </div>
       <div class="callout teal"><b>Initial understanding &mdash; to be confirmed</b> <span class="chip ini">Initial inputs</span><br>
-        1. <b>Domain:</b> the set of related tables that must switch to new data together. What exactly a domain maps to, and its list of tables, is still to be confirmed.<br>
+        1. <b>Domain:</b> the set of related tables that must switch to new data together &mdash; the team also calls it a data product or grouping. What exactly it maps to, and its list of tables, is still to be confirmed.<br>
         2. <b>Loads:</b> all domains are loaded incrementally. To be confirmed in writing.</div>
     </div>
     <div>
@@ -402,9 +403,9 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <p class="sub">The steps each batch, and which tables reports read</p>
   <div class="flow">
     <div class="st"><span class="no">1</span><b>Check every load finished</b><span class="d">every required load has succeeded &mdash; before anything is built</span></div>
-    <div class="st ctas"><span class="no">2</span><b>Rebuild each published table <span class="mk">CTAS</span></b><span class="d">one per view, from the view&rsquo;s result; a view can read many base tables</span></div>
+    <div class="st ctas"><span class="no">2</span><b>Rebuild each published table <span class="mk">CTAS</span></b><span class="d">one per reporting object, from one or more views; a restart rebuilds only what is missing</span></div>
     <div class="st alt"><span class="no">3</span><b>Re-apply the tags</b><span class="d">from the tag config table &mdash; working recommendation; no clone needed</span></div>
-    <div class="st"><span class="no">4</span><b>Check security in staging</b><span class="d">tags match the config, masking works, nothing stored as hashes</span></div>
+    <div class="st"><span class="no">4</span><b>Readiness gate, then security check</b><span class="d">every required table rebuilt or carried forward; tags match the config, masking works</span></div>
     <div class="st swap"><span class="no">5</span><b>Swap staging and live <span class="mk">SWAP</span></b><span class="d">in one step &mdash; reports now see today&rsquo;s data</span></div>
   </div>
   <div class="tl">
@@ -415,7 +416,7 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <h3>How data reaches a report</h3>
   <div class="flow sm">
     <div class="st"><b>Base tables</b><span class="d">loaded by ETL, as today</span></div>
-    <div class="st"><b>Original view</b><span class="d">reads one or many base tables</span></div>
+    <div class="st"><b>View(s)</b><span class="d">one or more views per published table</span></div>
     <div class="st ctas"><b>Published table in staging</b><span class="d">the view&rsquo;s result, by CTAS</span></div>
     <div class="st swap"><b>Published table in live</b><span class="d">after the swap</span></div>
     <div class="st alt"><b>Thin reader view</b><span class="d">what reports query &mdash; never staging</span></div>
@@ -423,9 +424,9 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <h3>Words used</h3>
   <div class="gloss">
     <div><b>Base table</b> &mdash; a table ETL loads each night; views read base tables</div>
-    <div><b>Published table</b> &mdash; a new table holding one view&rsquo;s result, rebuilt each batch</div>
+    <div><b>Published table</b> &mdash; a new table holding one reporting object&rsquo;s result, from one or more views, rebuilt each batch</div>
     <div><b>Thin reader view</b> &mdash; a view that reads one published table; reports query these</div>
-    <div><b>Live / staging</b> &mdash; the area reports read / a private area where the next batch is built</div>
+    <div><b>Live / staging</b> &mdash; the area reports read / a private area where the next batch is built; both hold permanent tables</div>
     <div><b>Schema swap</b> &mdash; Snowflake switches the two areas in one step, with their tables and access rights</div>
     <div><b>Tag config table</b> &mdash; lists the expected tag for every sensitive column and table</div>
   </div>
@@ -436,22 +437,23 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
 <!-- ===================== SLIDE 5 — THE SAFETY CHECKS ===================== -->
 <section class="slide" id="s5" role="tabpanel">
   <div class="sectiontag">2 &middot; CTAS + Swap</div>
-  <h2>Two checks guard every publish &mdash; completeness first, security always</h2>
-  <p class="sub">The checks before the swap, the business override, and the shared rules</p>
-  <div class="flow f4">
-    <div class="st"><span class="no">1</span><b>Completeness check</b><span class="d">every load on the domain&rsquo;s required list has succeeded for this batch; a missing load fails it</span></div>
-    <div class="st alt"><span class="no">2</span><b>Security check &mdash; never skipped</b><span class="d">a test row reads as real, nothing stored as hashes, tags and scope as in the tag config table, widths fit the masked value</span></div>
-    <div class="st swap"><span class="no">3</span><b>Publish &mdash; the swap</b><span class="d">staging and live switched in one step</span></div>
-    <div class="st"><span class="no">4</span><b>Log every attempt</b><span class="d">published, refused or overridden &mdash; who, when, approver, reason</span></div>
+  <h2>Three checks guard every publish &mdash; nothing is visible until all pass</h2>
+  <p class="sub">The checks before the swap, business exceptions for a partial release, and the shared rules</p>
+  <div class="flow">
+    <div class="st"><span class="no">1</span><b>Completeness check</b><span class="d">every load on the domain&rsquo;s required list has succeeded for this batch</span></div>
+    <div class="st alt"><span class="no">2</span><b>Readiness gate</b><span class="d">every required table rebuilt this batch, or carried forward under an approved exception</span></div>
+    <div class="st alt"><span class="no">3</span><b>Security check &mdash; never skipped</b><span class="d">real test row, no hashes, tags and scope as in the config, widths fit</span></div>
+    <div class="st swap"><span class="no">4</span><b>Publish &mdash; the swap</b><span class="d">staging and live switched in one step</span></div>
+    <div class="st"><span class="no">5</span><b>Log every attempt</b><span class="d">who, when, exceptions, approver, reason, each table&rsquo;s status</span></div>
   </div>
-  <p class="note"><b>Business override:</b> an approved person can skip check 1 to release a partial load &mdash; never check 2. The skip is logged. That the business may choose to publish a partial load comes from the design meeting.</p>
+  <p class="note"><b>Business exception approval:</b> to release a partial load, an approved person names the tables that didn&rsquo;t refresh, for this batch only. Each is copied from live into staging, so yesterday&rsquo;s version is republished for it; the approval lapses with the batch, so nothing needs resetting. The security check always runs.</p>
   <div class="cards" style="margin-top:10px;">
     <div class="card"><div class="lbl">One tag config table</div>Lists the expected tag for every sensitive column and the expected scope for every table. Check 2 compares against it, and the recommended tag method re-applies the tags from it.</div>
     <div class="card"><div class="lbl">The batch account&rsquo;s approval row</div>The service account that writes the data has an all-access approval row; without it, it stores masked values, with no error <span class="chip pv">Proven</span></div>
     <div class="card"><div class="lbl">Timings with masking on</div>Every timing is taken as the batch account with masking active, because masking adds a lookup for each value.</div>
   </div>
   <p class="note">Straight after the swap, could a report see one table new and another old? That is a test for the POC (slide 10).</p>
-  <div class="takeaway">Nothing becomes visible until the security check passes; an override can skip only the completeness check</div>
+  <div class="takeaway">Nothing becomes visible until every check passes; an exception can excuse a table, never the security check</div>
   <div class="slide-no">5 / 13</div>
 </section>
 
@@ -540,22 +542,24 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <div class="sectiontag">2 &middot; CTAS + Swap</div>
   <h2>What CTAS + Swap needs to work</h2>
   <p class="sub">Rules to follow and limits to know before choosing it &mdash; each with where it comes from</p>
-  <table class="tight cmp">
+  <table class="tight cmp dense">
     <thead><tr><th class="num">#</th><th style="width:250px;">Rule or limit</th><th>Why, in plain words</th><th style="width:170px;">Comes from</th></tr></thead>
     <tbody>
       <tr><td class="num">1</td><td><b>Live stays frozen during the rebuild</b></td><td>From the start of the rebuild until the swap, nobody changes the live tables &mdash; no data, tag or access changes, no deployments. Anything changed in between is lost at the swap</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
-      <tr><td class="num">2</td><td><b>Publish once per batch</b></td><td>A second swap brings yesterday&rsquo;s tables back, so a repeat publish must be refused</td><td class="src">This analysis</td></tr>
-      <tr><td class="num">3</td><td><b>All tables from one moment</b></td><td>If base tables are still loading while the tables are rebuilt, the tables can end up from different moments. Pause loads during the rebuild, or rebuild every view &ldquo;as of&rdquo; one moment</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
-      <tr><td class="num">4</td><td><b>Full rebuild every batch</b></td><td>Every published table is rebuilt in full each night, so time and storage grow with the data</td><td class="src">This analysis</td></tr>
-      <tr><td class="num">5</td><td><b>Report names</b></td><td>Reports move to thin reader views. One schema can&rsquo;t hold a table and a view with the same name, so names must be planned &mdash; without editing each report</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
-      <tr><td class="num">6</td><td><b>Change feeds break</b></td><td>Any process that tracks changes on the published tables (Snowflake &ldquo;streams&rdquo;) stops working at each rebuild</td><td class="src">Snowflake docs</td></tr>
-      <tr><td class="num">7</td><td><b>Only whole-schema swaps</b></td><td>Swapping single tables loses the automatic access rights; sequences, stages, pipes and tasks stay outside the swapped schemas</td><td class="src">Snowflake docs</td></tr>
-      <tr><td class="num">8</td><td><b>Tables created by the batch account</b></td><td>They need an exception so they aren&rsquo;t treated as orphans and deleted</td><td class="src">Design meeting</td></tr>
-      <tr><td class="num">9</td><td><b>Not yet worked through</b></td><td>Views that read other views (which get a published table, and in what order); views that read tables from two domains</td><td class="src">This analysis</td></tr>
+      <tr><td class="num">2</td><td><b>Publish once &mdash; the swap can&rsquo;t stop partway</b></td><td>The swap switches every table in one operation, so it can&rsquo;t half-succeed. But a second swap would bring yesterday&rsquo;s tables back, so a repeat is refused</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
+      <tr><td class="num">3</td><td><b>Restart and partial release</b></td><td>A failed rebuild leaves staging partly done, unseen by reports; the restart rebuilds only what&rsquo;s missing. A table not rebuilt tonight is copied from live first, or the swap would publish older data</td><td class="src">Design discussions &middot; this analysis</td></tr>
+      <tr><td class="num">4</td><td><b>All tables from one moment</b></td><td>If base tables are still loading while the tables are rebuilt, the tables can end up from different moments. Pause loads during the rebuild, or rebuild every view &ldquo;as of&rdquo; one moment</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
+      <tr><td class="num">5</td><td><b>Full rebuild every batch</b></td><td>Every published table is rebuilt in full each night, so time and storage grow with the data</td><td class="src">This analysis</td></tr>
+      <tr><td class="num">6</td><td><b>Staging must be permanent</b></td><td>Staging tables become the live tables at the swap; transient tables keep at most 1 day of Time Travel, have no Fail-safe, and can&rsquo;t be converted later</td><td class="src">Snowflake docs &middot; design discussions</td></tr>
+      <tr><td class="num">7</td><td><b>The swap doesn&rsquo;t restore tags</b></td><td>Tags are re-applied in staging before the swap; the swap keeps the tables hidden until every check passes</td><td class="src">Proven &middot; this analysis</td></tr>
+      <tr><td class="num">8</td><td><b>Report names</b></td><td>Reports move to thin reader views. One schema can&rsquo;t hold a table and a view with the same name, so names must be planned &mdash; without editing each report</td><td class="src">Snowflake docs &middot; this analysis</td></tr>
+      <tr><td class="num">9</td><td><b>Change feeds and single-table swaps</b></td><td>Any process tracking changes on the published tables (Snowflake &ldquo;streams&rdquo;) stops working at each rebuild. Never swap single tables: that loses the automatic access rights</td><td class="src">Snowflake docs</td></tr>
+      <tr><td class="num">10</td><td><b>Tables created by the batch account</b></td><td>They need an exception so they aren&rsquo;t treated as orphans; each rebuild makes the role that runs it the owner</td><td class="src">Design discussions &middot; Snowflake docs</td></tr>
+      <tr><td class="num">11</td><td><b>Not yet worked through</b></td><td>Views that read other views, and views that read tables from two domains; a table built from several views is rebuilt after its sources</td><td class="src">This analysis &middot; design discussions</td></tr>
     </tbody>
   </table>
-  <div class="callout"><b>Still to check.</b> To prove in the POC: a repeat publish is refused; rebuilding &ldquo;as of&rdquo; one moment works while a load runs. To confirm with the team: whether loads overlap the rebuild; data volumes; report names and where the views sit.</div>
-  <div class="takeaway">Freeze live, publish once, rebuild from one moment &mdash; and plan the report names</div>
+  <div class="callout"><b>Still to check.</b> To prove in the POC: a repeat publish is refused; restart and partial release work; rebuilding &ldquo;as of&rdquo; one moment works while a load runs. To confirm with the team: whether loads overlap the rebuild; data volumes; report names and where the views sit.</div>
+  <div class="takeaway">Freeze live, publish once, restart only what&rsquo;s missing &mdash; and keep staging permanent</div>
   <div class="slide-no">8 / 13</div>
 </section>
 
@@ -564,11 +568,12 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <div class="sectiontag">2 &middot; CTAS + Swap</div>
   <h2>How CTAS + Swap meets the fifteen requirements</h2>
   <p class="sub">Met by design, met if something is proven or confirmed, or open</p>
-  <div class="callout teal" style="margin-top:0;"><b>Met by design:</b> last complete data stays visible (the swap, proven) &middot; visible only when all loads finish &middot; a failed batch is not released &middot; manual business release &middot; one controlled publish &middot; nothing visible until secure</div>
+  <div class="callout teal" style="margin-top:0;"><b>Met by design:</b> last complete data stays visible (the swap, proven) &middot; visible only when all loads finish &middot; a failed batch is not released &middot; one controlled publish &middot; nothing visible until secure</div>
   <table class="tight cmp" style="margin-top:10px;">
     <thead><tr><th class="num">#</th><th style="width:230px;">Requirement</th><th>Met if &hellip;</th><th style="width:150px;">Confirmed by</th></tr></thead>
     <tbody>
       <tr><td class="num">R3</td><td>Whole domain consistent</td><td>No base loads run during the rebuild, or Snowflake can rebuild every view &ldquo;as of&rdquo; one moment; and a report straight after the swap sees all tables new</td><td><span class="chip tc">To confirm</span> <span class="chip tp">To prove</span></td></tr>
+      <tr><td class="num">R5</td><td>Manual business release, including part of a domain</td><td>An approved exception for this batch copies each unrefreshed table forward from live; the readiness gate accepts it; the security check still runs</td><td><span class="chip tp">To prove</span></td></tr>
       <tr><td class="num">R7</td><td>No mass rewrite of views</td><td>Reports can move to the thin reader views without editing each report</td><td><span class="chip tc">To confirm</span></td></tr>
       <tr><td class="num">R8</td><td>Tags restored</td><td>The tags are re-applied from the config table after each rebuild, and a newly tagged base column is caught</td><td><span class="chip tp">To prove</span></td></tr>
       <tr><td class="num">R9</td><td>Masking correct</td><td>Masking works through the thin reader views for approved and unapproved readers</td><td><span class="chip tp">To prove</span></td></tr>
@@ -578,8 +583,8 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
       <tr><td class="num">R14</td><td>Runs under the batch account</td><td>The publishing role owns both schemas, and a full run works under the batch account with the fewest rights</td><td><span class="chip tp">To prove</span></td></tr>
     </tbody>
   </table>
-  <p class="note"><b>Open:</b> R15, not swept as orphans &mdash; tables created at run time need a platform exception (slide 11).</p>
-  <div class="takeaway">Six requirements are met by design; eight depend on a POC test or a fact the team confirms</div>
+  <p class="note"><b>Open:</b> R15, not swept as orphans &mdash; tables created at run time need a platform exception, and each rebuild makes the role that runs it the owner (slide 11).</p>
+  <div class="takeaway">Five requirements are met by design; nine depend on a POC test or a fact the team confirms</div>
   <div class="slide-no">9 / 13</div>
 </section>
 
@@ -611,13 +616,14 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
       <table class="tight cmp">
         <thead><tr><th style="width:120px;">Area</th><th>Test</th></tr></thead>
         <tbody>
-          <tr><td><b>Gating</b></td><td>Reports keep yesterday&rsquo;s data until the swap; straight after it, a report joining two tables sees both new. A repeat publish is refused</td></tr>
+          <tr><td><b>Gating</b></td><td>Reports keep yesterday&rsquo;s data until the swap; straight after it, a report joining two tables sees both new. A repeat publish is refused; the readiness gate refuses a missing table</td></tr>
           <tr><td><b>Effort</b></td><td>Build published tables from three real views and record the hand work</td></tr>
           <tr><td><b>Tags</b></td><td>Re-applying from the config table works with only the right to apply the tags; a newly tagged base column is handled</td></tr>
           <tr><td><b>Masking</b></td><td>Approved and unapproved readers get real and masked values through the thin reader views</td></tr>
           <tr><td><b>Access rights</b></td><td>Readers reach only the views; rights stay as set over many publishes</td></tr>
-          <tr><td><b>Automation</b></td><td>The whole publish runs with no manual step; a failed run releases its lock</td></tr>
-          <tr><td><b>Batch account</b></td><td>Inside the procedure Snowflake sees the batch account; who owns the new tables</td></tr>
+          <tr><td><b>Automation</b></td><td>The whole publish runs with no manual step; after a failed rebuild, only the missing tables are rebuilt; a failed run releases its lock</td></tr>
+          <tr><td><b>Partial release</b></td><td>An approved exception republishes yesterday&rsquo;s version of that table, tags intact; the approval lapses with the batch</td></tr>
+          <tr><td><b>Batch account</b></td><td>Inside the procedure Snowflake sees the batch account; who owns each rebuilt table</td></tr>
           <tr><td><b>Rebuild time</b></td><td>A full rebuild of the largest domain fits the batch window &mdash; needs real data volumes (raised by this analysis)</td></tr>
           <tr><td><b>Ownership</b></td><td>Not a POC test &mdash; a platform decision (slide 11)</td></tr>
         </tbody>
@@ -636,28 +642,30 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
   <h2>Decisions and open questions outside the POC</h2>
   <p class="sub">What needs a decision or an answer, grouped by where it came from</p>
   <div class="cols stretch">
-    <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="bx n">
-        <h4>From the design meeting</h4>
+        <h4>From the design discussions</h4>
         <ul class="pl">
-          <li>An exception so tables created by the batch account aren&rsquo;t treated as orphans and deleted</li>
-          <li>Who in the business may approve a partial release</li>
+          <li>An exception so tables created by the batch account aren&rsquo;t treated as orphans and deleted &mdash; and who owns each rebuilt table</li>
+          <li>Who in the business may approve a partial release, and how an approval is recorded &mdash; a flag in the metadata framework or a control table &mdash; for named tables and one batch</li>
+          <li>Whether the metadata or audit framework can drive the completeness check and the readiness gate, given publishing runs only in Snowflake</li>
+          <li>Staging: permanent or transient &mdash; transient would make every published table transient</li>
+          <li>Whether &ldquo;data product / grouping&rdquo; and &ldquo;domain&rdquo; are the same unit</li>
           <li>The earlier options analysis (pages 37&ndash;45) &mdash; not yet received</li>
-          <li>The approach decision and its timing &mdash; a viewpoint to be shared before the next discussion</li>
+          <li>The approach decision and its timing</li>
         </ul>
       </div>
       <div class="bx">
         <h4>Facts the team must confirm</h4>
         <ul class="pl">
-          <li>What a domain is, and its list of tables</li>
+          <li>What a domain (data product) is, and its list of tables</li>
           <li>Which schemas the tables sit in; which are shared with other domains; whether loads can overlap the rebuild</li>
-          <li>Where the views sit; which names reports use today; views that read other views or two domains</li>
+          <li>Where the views sit; which names reports use today; views that read other views or two domains; which reporting objects combine views</li>
+          <li>Where the batch-completion status comes from, and how Snowflake reads it</li>
           <li>Data volumes, and the batch window</li>
           <li>That every domain is loaded incrementally</li>
           <li>For the parallel thread: whether every ETL job can point to staging</li>
         </ul>
       </div>
-    </div>
     <div class="bx g">
       <h4>Raised by this analysis</h4>
       <ul class="pl">
@@ -673,7 +681,7 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
       </ul>
     </div>
   </div>
-  <div class="takeaway">Four items came from the design meeting; the rest were raised by this analysis</div>
+  <div class="takeaway">Seven items came from the design discussions; the rest were raised by this analysis</div>
   <div class="slide-no">11 / 13</div>
 </section>
 
@@ -694,6 +702,7 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
       <h4>How it differs from the meeting&rsquo;s idea</h4>
       <p>In the meeting, Clone/Swap meant cloning physical consumption tables &mdash; which would mean turning many existing views into ETL-built tables.</p>
       <p>This analysis&rsquo;s version clones the <b>base tables</b> instead: ETL loads the clone, and the existing views stay exactly as they are.</p>
+      <p>A partial release is simpler here: tables ETL didn&rsquo;t refresh are already yesterday&rsquo;s clones. Grants come from the same automatic grants on both schemas.</p>
     </div>
     <div class="kb">
       <h4>What it needs to work</h4>
@@ -746,7 +755,7 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
     <thead><tr><th class="num">#</th><th style="width:220px;">Criterion</th><th class="o1a">CTAS + Swap &mdash; the focus</th><th class="o2">Clone + Swap &mdash; the parallel thread</th></tr></thead>
     <tbody>
       <tr><td class="num">1</td><td><b>Changes to ETL jobs</b></td><td>None</td><td>Every read and write in the batch points to staging</td></tr>
-      <tr><td class="num">2</td><td><b>Set-up per view</b></td><td>None &mdash; each published table is built from its view; a view can read many base tables</td><td>None, if views sit outside the swapped schema with full table names</td></tr>
+      <tr><td class="num">2</td><td><b>Set-up per view</b></td><td>None &mdash; each published table is built from its view or views; a view can read many base tables</td><td>None, if views sit outside the swapped schema with full table names</td></tr>
       <tr><td class="num">3</td><td><b>What reports query</b></td><td>Thin reader views over the published tables</td><td>The existing views, unchanged</td></tr>
       <tr><td class="num">4</td><td><b>Work each batch</b></td><td>Every published table rebuilt in full from its view</td><td>ETL&rsquo;s normal incremental load</td></tr>
       <tr><td class="num">5</td><td><b>What the clone is for</b></td><td>No clone with the recommended tag method; needed only if <code>COPY TAGS</code> is chosen</td><td>It is the new data &mdash; ETL loads it</td></tr>
@@ -757,8 +766,9 @@ td.src{font-size:12px;color:var(--g11);white-space:nowrap;}
       <tr><td class="num">10</td><td><b>Access rights after publishing</b></td><td>Move with the swap; same automatic rights on both schemas</td><td>Move with the swap; same automatic rights on both schemas</td></tr>
       <tr><td class="num">11</td><td><b>Change feeds (streams)</b></td><td>Break at every rebuild of the published tables</td><td>Break at every clone of the base tables</td></tr>
       <tr><td class="num">12</td><td><b>If a step fails &middot; undo after publishing</b></td><td>No swap &middot; swap back until the next batch starts</td><td>No swap &middot; swap back until the next batch starts</td></tr>
-      <tr><td class="num">13</td><td><b>Rights the publishing role needs</b></td><td>Owns both schemas; the right to apply the two tags</td><td>Owns both schemas</td></tr>
-      <tr><td class="num">14</td><td><b>Already proven on our account</b></td><td>Swap, security check, setting tags with only the right to apply them</td><td>Clone keeps tags, swap, security check</td></tr>
+      <tr><td class="num">13</td><td><b>Partial release</b></td><td>Tables not refreshed are copied from live into staging before the swap</td><td>Tables not refreshed are already yesterday&rsquo;s clones</td></tr>
+      <tr><td class="num">14</td><td><b>Rights the publishing role needs</b></td><td>Owns both schemas; the right to apply the two tags</td><td>Owns both schemas</td></tr>
+      <tr><td class="num">15</td><td><b>Already proven on our account</b></td><td>Swap, security check, setting tags with only the right to apply them</td><td>Clone keeps tags, swap, security check</td></tr>
     </tbody>
   </table>
   <p class="note"><b>Same for both, not yet worked through:</b> views that read other views; views that read tables from two domains. <b>Still to check:</b> every job can point to staging (Clone + Swap); data volumes and rebuild time (CTAS + Swap).</p>
