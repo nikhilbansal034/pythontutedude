@@ -1,0 +1,595 @@
+Saha, Soumyajit
+0 minutes 3 seconds0:03
+Saha, Soumyajit 0 minutes 3 seconds
+Data migration, the CDF files are getting generated, and from there the CDF files are getting placed as a in a bucket of AWS, and from there we are ingesting the data into the raw layer, okay? And to do that, we have the...
+
+Bansal, Nikhil
+0 minutes 20 seconds0:20
+Bansal, Nikhil 0 minutes 20 seconds
+Okay.
+
+Saha, Soumyajit
+0 minutes 22 seconds0:22
+Saha, Soumyajit 0 minutes 22 seconds
+ingestion process where we have to read the folder, okay, each folder of Snowflake, and then identify the particular files and those kind of activities we are doing. So the problem here we are facing when we have to read a folder name.
+
+Yaseswi, Suda
+0 minutes 34 seconds0:34
+Yaseswi, Suda 0 minutes 34 seconds
+Yeah.
+
+Saha, Soumyajit
+0 minutes 42 seconds0:42
+Saha, Soumyajit 0 minutes 42 seconds
+Instead of reading only the folder name, it is just going inside the folder and it is also reading the file content. Say if one folder has 30 files, it is going inside the files and reading each file's content. Okay, and we have used...
+
+Bansal, Nikhil
+1 minute1:00
+Bansal, Nikhil 1 minute
+No.
+
+Saha, Soumyajit
+1 minute 3 seconds1:03
+Saha, Soumyajit 1 minute 3 seconds
+We have used the metadata approach of the file reading previously. And then also we got another workaround where we are reading the directory using the directory function we are using the file. So in both of the cases we saw it is going inside the folder and reading the file content.
+
+Bansal, Nikhil
+1 minute 17 seconds1:17
+Bansal, Nikhil 1 minute 17 seconds
+Mhm.
+
+Saha, Soumyajit
+1 minute 22 seconds1:22
+Saha, Soumyajit 1 minute 22 seconds
+So because of that, the computation cost is very high and it is very slow. And as you know, right, Snowflake, each call you are making, it some cost involved in it, right? So now client has reported and saying that.
+
+Bansal, Nikhil
+1 minute 36 seconds1:36
+Bansal, Nikhil 1 minute 36 seconds
+Correct.
+
+Saha, Soumyajit
+1 minute 41 seconds1:41
+Saha, Soumyajit 1 minute 41 seconds
+your this particular job is taking a lot of cost for the computation point of view. So just wanted to check with you if there is any other like convenient way of doing it. So Yaseswi can talk about more in the.
+Saha, Soumyajit 2 minutes
+technical term and show us what exactly we are doing. I'm just setting up the context here. Yaseswi, if you want to share your screen and show us what exactly we are doing. And from there, if Nikhil has anything to suggest.
+
+Yaseswi, Suda
+2 minutes 5 seconds2:05
+Yaseswi, Suda 2 minutes 5 seconds
+Yeah.
+Yaseswi, Suda 2 minutes 11 seconds
+Yes.
+Yaseswi, Suda 2 minutes 19 seconds
+Yeah.
+Yaseswi, Suda 2 minutes 21 seconds
+Ah, so basically this is the S3 browser we were referring to, Nikhil, while we say that Parikh files are getting generated and all.
+
+Bansal, Nikhil
+2 minutes 31 seconds2:31
+Bansal, Nikhil 2 minutes 31 seconds
+Okay.
+
+Yaseswi, Suda
+2 minutes 31 seconds2:31
+Yaseswi, Suda 2 minutes 31 seconds
+In order to identify the delta, what we are doing is we are scanning the entire folder list and from there, using the latest, I mean using the timestamp, we are fetching the folders which got generated data than that and all. That kind of approach we are using to identify the delta. But what's happening?
+Yaseswi, Suda 2 minutes 50 seconds
+The lot of time is being involved in identifying the entire scan of folder list. OK, just a second, yeah.
+Yaseswi, Suda 3 minutes 3 seconds
+So currently we are using this function to identify the entire folder list. We are going inside the file into the file level and reading the content and from there we are fetching the folder name.
+Yaseswi, Suda 3 minutes 20 seconds
+So this is, I mean, the one which is showing up here, this folder list we need. But in order to get this, what the function we are using is inside the each folder, sorry, file level, it is going and fetching the folder name. So we need to know, like, is there any approach without going into the file level, we can directly get all the folder lists present under this particular table load.
+Yaseswi, Suda 3 minutes 44 seconds
+So?
+Yaseswi, Suda 3 minutes 47 seconds
+Because this metadata file name, this one which we are using, it is going into file level content. And that's where it is scanning entire the files and taking a lot of time over here.
+
+Bansal, Nikhil
+3 minutes 58 seconds3:58
+Bansal, Nikhil 3 minutes 58 seconds
+Okay, so basically you want that you should not get the file level details, you only want the folder level names.
+
+Yaseswi, Suda
+4 minutes 4 seconds4:04
+Yaseswi, Suda 4 minutes 4 seconds
+Perdict, yeah.
+
+Bansal, Nikhil
+4 minutes 7 seconds4:07
+Bansal, Nikhil 4 minutes 7 seconds
+OK, but without identifying like which files are part of your latest data, like how we will extract the folder.
+
+Yaseswi, Suda
+4 minutes 17 seconds4:17
+Yaseswi, Suda 4 minutes 17 seconds
+I mean, in order to identify that, we need the entire folder list to compare, to identify that delta.
+Yaseswi, Suda 4 minutes 24 seconds
+So, this step is prior that, like, in order to identify the delta, we need the list of all the folders, so that we are making note of the previous loaded folder, and we can compare which is greater than that and all, but you know.
+
+Saha, Soumyajit
+4 minutes 37 seconds4:37
+Saha, Soumyajit 4 minutes 37 seconds
+Yeah, so basically, if any file is there, which is in a folder which is previously there, we are not looking for that file. We are not looking for that file. You understood? But we don't need the content of that particular file. What we need here is like...
+Saha, Soumyajit 4 minutes 57 seconds
+If we see any new folder gets generated and whatever we have inside that particular folder, that only we need. So basically, we don't have to read the file content for each folder. We just have to read the file content of the latest folder.
+Saha, Soumyajit 5 minutes 17 seconds
+which was not there previously. That's the requirement. But instead of doing that, what it is doing is like, it is reading each folder and file for each folder, and it is reading everything. That's the problem statement here.
+
+Bansal, Nikhil
+5 minutes 36 seconds5:36
+Bansal, Nikhil 5 minutes 36 seconds
+Understood. So basically, whatever new folders are getting introduced, we want the list for those folders only, right?
+
+Saha, Soumyajit
+5 minutes 44 seconds5:44
+Saha, Soumyajit 5 minutes 44 seconds
+Correct, yes. So to do that, we just need to know which folder is the delta folder, which is just got generated, was not there previously.
+
+Bansal, Nikhil
+5 minutes 58 seconds5:58
+Bansal, Nikhil 5 minutes 58 seconds
+I need to check from Amit on that. I got your problem statement, but I need to check, like, is there any way we can do that or not?
+
+Saha, Soumyajit
+5 minutes 59 seconds5:59
+Saha, Soumyajit 5 minutes 59 seconds
+So...
+Saha, Soumyajit 6 minutes 6 seconds
+So, Usi, have you shown that what exactly we are doing now?
+
+Yaseswi, Suda
+6 minutes 12 seconds6:12
+Yaseswi, Suda 6 minutes 12 seconds
+Ohh, yes, yeah, this is...
+
+Saha, Soumyajit
+6 minutes 12 seconds6:12
+Saha, Soumyajit 6 minutes 12 seconds
+From the code.
+
+Yaseswi, Suda
+6 minutes 14 seconds6:14
+Yaseswi, Suda 6 minutes 14 seconds
+This is the query which we were using to get all the folder list for that particular Tableau entity.
+Yaseswi, Suda 6 minutes 22 seconds
+Once we get all the folder lists, we are comparing based on the timestamp, which got generated greater than that, and from there we are identifying the delta folders.
+
+Saha, Soumyajit
+6 minutes 34 seconds6:34
+Saha, Soumyajit 6 minutes 34 seconds
+OK, so this timestamp was the timestamp when we last time taken the data, right?
+
+Yaseswi, Suda
+6 minutes 41 seconds6:41
+Yaseswi, Suda 6 minutes 41 seconds
+Data.
+Yaseswi, Suda 6 minutes 42 seconds
+Which one?
+
+Saha, Soumyajit
+6 minutes 45 seconds6:45
+Saha, Soumyajit 6 minutes 45 seconds
+So you are saying that you are computing the time stamp?
+
+Yaseswi, Suda
+6 minutes 48 seconds6:48
+Yaseswi, Suda 6 minutes 48 seconds
+Oh, yeah, correct. The Pos this.
+
+Saha, Soumyajit
+6 minutes 49 seconds6:49
+Saha, Soumyajit 6 minutes 49 seconds
+So this time stamp, you are saving it somewhere, right? When you are reading it, okay.
+
+Yaseswi, Suda
+6 minutes 52 seconds6:52
+Yaseswi, Suda 6 minutes 52 seconds
+Correct, yeah, we are saving it in config tables in Snowflake.
+Yaseswi, Suda 6 minutes 56 seconds
+But our optimization comes here like we need to get the folder list without going into the file level detail.
+
+Saha, Soumyajit
+6 minutes 57 seconds6:57
+Saha, Soumyajit 6 minutes 57 seconds
+Last time.
+Saha, Soumyajit 7 minutes 6 seconds
+And, and what was the workaround? This is 1, this was being used previously.
+
+Yaseswi, Suda
+7 minutes 9 seconds7:09
+Yaseswi, Suda 7 minutes 9 seconds
+This is 1, and we have, yeah, one approach we, I mean, one analysis we did is like Nikhil. We have enabled directory on that external stage and use the same approach, like the relative path. Using the relative path, we try to fetch the folder list, even though it is.
+Yaseswi, Suda 7 minutes 28 seconds
+The computation.
+Yaseswi, Suda 7 minutes 30 seconds
+Is very less, but still it is going inside the file level.
+
+Saha, Soumyajit
+7 minutes 35 seconds7:35
+Saha, Soumyajit 7 minutes 35 seconds
+And how you know that that is going inside the file level?
+
+Yaseswi, Suda
+7 minutes 37 seconds7:37
+Yaseswi, Suda 7 minutes 37 seconds
+Play Suda.
+Yaseswi, Suda 7 minutes 39 seconds
+Because it's the similar kind of query which we have used here. If you see this, the highlighted one, we are here, we are using the relative path. This relative path is nothing but the entire file name as previous I mentioned.
+Yaseswi, Suda 7 minutes 52 seconds
+But the computation time is less when compared to the previous query, but it's doing the same job actually.
+
+Saha, Soumyajit
+8 minutes8:00
+Saha, Soumyajit 8 minutes
+You.
+
+Yaseswi, Suda
+8 minutes8:00
+Yaseswi, Suda 8 minutes
+if we enable the directory on the stage.
+
+Saha, Soumyajit
+8 minutes 4 seconds8:04
+Saha, Soumyajit 8 minutes 4 seconds
+I think you should share this code snippet with Nikhil. And Nikhil, you can just let us know if there is any other way of doing it, in a much convenient way of doing it, where we don't want to read the file content.
+
+Yaseswi, Suda
+8 minutes 9 seconds8:09
+Yaseswi, Suda 8 minutes 9 seconds
+MM.
+
+Bansal, Nikhil
+8 minutes 17 seconds8:17
+Bansal, Nikhil 8 minutes 17 seconds
+Sure.
+Bansal, Nikhil 8 minutes 21 seconds
+Core.
+Bansal, Nikhil 8 minutes 26 seconds
+Got it.
+
+Yaseswi, Suda
+8 minutes 28 seconds8:28
+Yaseswi, Suda 8 minutes 28 seconds
+Yeah.
+
+Bansal, Nikhil
+8 minutes 31 seconds8:31
+Bansal, Nikhil 8 minutes 31 seconds
+Give me some time, Soumyajit, like, but before the end of the day today, let me have something for you.
+
+Saha, Soumyajit
+8 minutes 31 seconds8:31
+Saha, Soumyajit 8 minutes 31 seconds
+Okay.
+Saha, Soumyajit 8 minutes 37 seconds
+Sure. So was there any other thing, Yaseswi, that March thing? Or is it we are good for that? We are just asking someone to work on that.
+
+Yaseswi, Suda
+8 minutes 48 seconds8:48
+Yaseswi, Suda 8 minutes 48 seconds
+Uh, yes, I'm in, uh...
+Yaseswi, Suda 8 minutes 50 seconds
+As of now, no, Soumyajit, like first, we can do that, do our analysis if it's not showing any further improvement and all, we can, but as of now, we didn't have any analysis with our hand.
+
+Saha, Soumyajit
+9 minutes 3 seconds9:03
+Saha, Soumyajit 9 minutes 3 seconds
+Okay, so Nikhil, you are in Liberty Mutual. Who is the manager there in Liberty Mutual?
+
+Bansal, Nikhil
+9 minutes 9 seconds9:09
+Bansal, Nikhil 9 minutes 9 seconds
+Prateek Singh.
+
+Saha, Soumyajit
+9 minutes 12 seconds9:12
+Saha, Soumyajit 9 minutes 12 seconds
+Prateek Singh from which city?
+
+Bansal, Nikhil
+9 minutes 12 seconds9:12
+Bansal, Nikhil 9 minutes 12 seconds
+Let me, let me share the e-mail ID.
+
+Saha, Soumyajit
+9 minutes 17 seconds9:17
+Saha, Soumyajit 9 minutes 17 seconds
+He is from Gurgaon.
+
+Bansal, Nikhil
+9 minutes 19 seconds9:19
+Bansal, Nikhil 9 minutes 19 seconds
+Yeah, hold on, ping the e-mail ID over there.
+
+Saha, Soumyajit
+9 minutes 21 seconds9:21
+Saha, Soumyajit 9 minutes 21 seconds
+Prateek Singh, OK.
+Saha, Soumyajit 9 minutes 25 seconds
+Shilpa Zinnia Mangal.
+
+Bansal, Nikhil
+9 minutes 27 seconds9:27
+Bansal, Nikhil 9 minutes 27 seconds
+Yes.
+
+Saha, Soumyajit
+9 minutes 29 seconds9:29
+Saha, Soumyajit 9 minutes 29 seconds
+And MD is Cindy.
+
+Bansal, Nikhil
+9 minutes 31 seconds9:31
+Bansal, Nikhil 9 minutes 31 seconds
+All correct.
+
+Saha, Soumyajit
+9 minutes 34 seconds9:34
+Saha, Soumyajit 9 minutes 34 seconds
+And how much expense you have?
+
+Bansal, Nikhil
+9 minutes 37 seconds9:37
+Bansal, Nikhil 9 minutes 37 seconds
+Like I joined Deloitte like 3 years back, but overall is like 10 years.
+
+Saha, Soumyajit
+9 minutes 40 seconds9:40
+Saha, Soumyajit 9 minutes 40 seconds
+Okay, okay.
+Saha, Soumyajit 9 minutes 42 seconds
+Hey, hi Ravi. So Ravi, we already discussed with Nikhil. We showed him the problem statement and he will check offline and he will get back. We'll share the code snippet also with him.
+
+Srivastava, Ravi
+9 minutes 45 seconds9:45
+Srivastava, Ravi 9 minutes 45 seconds
+Hey.
+
+Saha, Soumyajit
+9 minutes 56 seconds9:56
+Saha, Soumyajit 9 minutes 56 seconds
+And then, from there, we can...
+Saha, Soumyajit 9 minutes 59 seconds
+Go forward.
+
+Srivastava, Ravi
+9 minutes 59 seconds9:59
+Srivastava, Ravi 9 minutes 59 seconds
+Okay.
+Srivastava, Ravi 10 minutes 1 second
+Okay, fine.
+
+Yaseswi, Suda
+10 minutes 3 seconds10:03
+Yaseswi, Suda 10 minutes 3 seconds
+Nikhil, I have one more query. Like, do you know like what impact it will have if we create directory on the external stage regarding costing wise or maintenance wise? If you have some details.
+
+Saha, Soumyajit
+10 minutes 3 seconds10:03
+Saha, Soumyajit 10 minutes 3 seconds
+Okay.
+
+Bansal, Nikhil
+10 minutes 17 seconds10:17
+Bansal, Nikhil 10 minutes 17 seconds
+I don't think there's like creating a folder should have any impact.
+Bansal, Nikhil 10 minutes 23 seconds
+Was it just a, yeah, yeah.
+
+Yaseswi, Suda
+10 minutes 23 seconds10:23
+Yaseswi, Suda 10 minutes 23 seconds
+Are you meant directly enabling it directly on stage? OK.
+
+Saha, Soumyajit
+10 minutes 28 seconds10:28
+Saha, Soumyajit 10 minutes 28 seconds
+But I think you see this thing we should check with Vijay also, because we are enabling directory, maybe some physical computation cost will be there.
+
+Yaseswi, Suda
+10 minutes 33 seconds10:33
+Yaseswi, Suda 10 minutes 33 seconds
+Mm.
+Yaseswi, Suda 10 minutes 37 seconds
+Storage cost and AIM.
+
+Saha, Soumyajit
+10 minutes 41 seconds10:41
+Saha, Soumyajit 10 minutes 41 seconds
+We should check with them. They should not come back and say, you guys didn't inform, you are changing the structure. So put it there in e-mail and let's talk about it. And we'll wait for Nikhil. Nikhil just let us know if you get anything today.
+
+Yaseswi, Suda
+10 minutes 47 seconds10:47
+Yaseswi, Suda 10 minutes 47 seconds
+Yeah.
+
+Saha, Soumyajit
+10 minutes 59 seconds10:59
+Saha, Soumyajit 10 minutes 59 seconds
+Yeah.
+
+Bansal, Nikhil
+10 minutes 59 seconds10:59
+Bansal, Nikhil 10 minutes 59 seconds
+Archana, sure.
+
+Saha, Soumyajit
+11 minutes 2 seconds11:02
+Saha, Soumyajit 11 minutes 2 seconds
+So, Ravi Nikhil is in Liberty Mutual, so...
+Saha, Soumyajit 11 minutes 7 seconds
+Shilpa project.
+
+Srivastava, Ravi
+11 minutes 9 seconds11:09
+Srivastava, Ravi 11 minutes 9 seconds
+Ai.
+Srivastava, Ravi 11 minutes 11 seconds
+Hey, Nikhil, good to meet you.
+
+Bansal, Nikhil
+11 minutes 12 seconds11:12
+Bansal, Nikhil 11 minutes 12 seconds
+Have you?
+
+Srivastava, Ravi
+11 minutes 15 seconds11:15
+Srivastava, Ravi 11 minutes 15 seconds
+OK, so I think we are sorted for this. I believe you guys were like discussing the like solutions which we are proposing, right? And you are saying that Nikhil is aligned with that.
+
+Saha, Soumyajit
+11 minutes 23 seconds11:23
+Saha, Soumyajit 11 minutes 23 seconds
+No, no, Nikhil will come back. We have one solution, which is workaround, which is giving me considerable amount of improvement, but we still want to leverage some other options if we have any.
+
+Srivastava, Ravi
+11 minutes 27 seconds11:27
+Srivastava, Ravi 11 minutes 27 seconds
+OK.
+Srivastava, Ravi 11 minutes 37 seconds
+Okay.
+
+Saha, Soumyajit
+11 minutes 38 seconds11:38
+Saha, Soumyajit 11 minutes 38 seconds
+Because the workaround we have that is still reading the file content, even though it's faster, but still going inside the folder and reading each file's content.
+
+Srivastava, Ravi
+11 minutes 45 seconds11:45
+Srivastava, Ravi 11 minutes 45 seconds
+Ahh.
+Srivastava, Ravi 11 minutes 50 seconds
+Okay, but then how much time is it taking there? How much the result is coming in? How much time?
+
+Saha, Soumyajit
+11 minutes 53 seconds11:53
+Saha, Soumyajit 11 minutes 53 seconds
+So that testing we did for 1000 records in one of the entity. Previously it was taking 20 seconds and now it is taking 10 seconds.
+Saha, Soumyajit 12 minutes 3 seconds
+Sorry, 200 seconds. Now it is 10 seconds, right?
+
+Srivastava, Ravi
+12 minutes 4 seconds12:04
+Srivastava, Ravi 12 minutes 4 seconds
+Okay.
+
+Yaseswi, Suda
+12 minutes 5 seconds12:05
+Yaseswi, Suda 12 minutes 5 seconds
+Yeah, good. Yes.
+
+Saha, Soumyajit
+12 minutes 8 seconds12:08
+Saha, Soumyajit 12 minutes 8 seconds
+Two 100 seconds to 10 seconds, which is like 90% of improvement, but we did it with 1000 records only when we...
+
+Srivastava, Ravi
+12 minutes 15 seconds12:15
+Srivastava, Ravi 12 minutes 15 seconds
+No, yeah, that will be able to check in the whole set of data, not like where it was taking hours and how much time it is taking now, right, right?
+
+Yaseswi, Suda
+12 minutes 18 seconds12:18
+Yaseswi, Suda 12 minutes 18 seconds
+Right, we need to replicate that production.
+
+Saha, Soumyajit
+12 minutes 18 seconds12:18
+Saha, Soumyajit 12 minutes 18 seconds
+Mm.
+
+Srivastava, Ravi
+12 minutes 24 seconds12:24
+Srivastava, Ravi 12 minutes 24 seconds
+Okay.
+
+Yaseswi, Suda
+12 minutes 26 seconds12:26
+Yaseswi, Suda 12 minutes 26 seconds
+Yeah.
+
+Srivastava, Ravi
+12 minutes 28 seconds12:28
+Srivastava, Ravi 12 minutes 28 seconds
+Okay, I think then we are good for this call. So Nikhil, let us know.
+
+Saha, Soumyajit
+12 minutes 30 seconds12:30
+Saha, Soumyajit 12 minutes 30 seconds
+Yeah, yeah.
+
+Bansal, Nikhil
+12 minutes 32 seconds12:32
+Bansal, Nikhil 12 minutes 32 seconds
+Sure, Ravi, sure.
+
+Srivastava, Ravi
+12 minutes 33 seconds12:33
+Srivastava, Ravi 12 minutes 33 seconds
+Yeah, okay, yeah. Thank you. Thank you.
+
+Saha, Soumyajit
+12 minutes 35 seconds12:35
+Saha, Soumyajit 12 minutes 35 seconds
+Thanks for joining Weekday.
+
+Bansal, Nikhil
+12 minutes 35 seconds12:35
+Bansal, Nikhil 12 minutes 35 seconds
+Thank you.
+
+Yaseswi, Suda
+12 minutes 36 seconds12:36
+Yaseswi, Suda 12 minutes 36 seconds
+Thank you, Nikhil. Thank you, sir.
+
+Bansal, Nikhil
+12 minutes 38 seconds12:38
+Bansal, Nikhil 12 minutes 38 seconds
+OK, Suda, just give me the access for this recording, please.
+
+Yaseswi, Suda
+12 minutes 42 seconds12:42
+Yaseswi, Suda 12 minutes 42 seconds
+Ohh, sure, sure, yeah, OK, and I'll change the code as well, like which we are using the queries.
+
+Bansal, Nikhil
+12 minutes 42 seconds12:42
+Bansal, Nikhil 12 minutes 42 seconds
+Thank you, sir.
+Bansal, Nikhil 12 minutes 46 seconds
+Ha, sure.
+
+Saha, Soumyajit
+12 minutes 47 seconds12:47
+Saha, Soumyajit 12 minutes 47 seconds
+Yeah, yeah.
+
+Srivastava, Ravi
+12 minutes 48 seconds12:48
+Srivastava, Ravi 12 minutes 48 seconds
+Yeah, and also like if you have, okay, yeah, recording, so we'll have transcript also, right? So you can just send a summary also from that, Ashish Ashvin.
+Srivastava, Ravi 12 minutes 56 seconds
+Okay, yeah, thank you.
+
+Yaseswi, Suda
+12 minutes 57 seconds12:57
+Yaseswi, Suda 12 minutes 57 seconds
+Sure.
+
+Bansal, Nikhil
+12 minutes 58 seconds12:58
+Bansal, Nikhil 12 minutes 58 seconds
+Thank you.
+
+Yaseswi, Suda
+12 minutes 59 seconds12:59
+Yaseswi, Suda 12 minutes 59 seconds
+Thank you all.
+
+Saha, Soumyajit
+12 minutes 59 seconds12:59
+Saha, Soumyajit 12 minutes 59 seconds
+So, by.
