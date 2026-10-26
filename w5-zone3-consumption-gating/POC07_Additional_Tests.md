@@ -7,7 +7,7 @@
 |---|-------|-------|
 | 1 | Status | **Draft, for review. Nothing built or run.** |
 | 2 | Date | 26 October 2026 |
-| 3 | Scope | CTAS + Swap, with `COPY TAGS` as the tag method and **no `TAG_CONFIG` table**. Section 1 covers tags, Section 2 grants |
+| 3 | Scope | CTAS + Swap, with `COPY TAGS` as the tag method and **no `TAG_CONFIG` table**. Section 1 tags · Section 2 grants · Section 3 the POC control tables · Section 4 exceptions and restart |
 | 4 | Relationship to the main design | **Additive.** These tests slot into the existing groups; they do not replace or re-test anything in draft v2 |
 | 5 | Why it exists | Draft v2 assumes a tag method that re-applies tags from a config table each batch. With `COPY TAGS` and no config table, tags enter the published tables by a different route — and there is a case where they do not enter at all. Section 2 re-validates the grant behaviour the design depends on, at the team's request |
 
@@ -92,24 +92,6 @@ evidence pack whether or not it matches the expectation.
 
 ---
 
-## 2 — Reporting requirement
-
-> **The results of Sections 1 and 2 must appear in the testing summary whatever the outcome** —
-> including if everything passes. It is not a pass/fail line item; it determines a **deployment rule** that has to
-> be carried into the real build and into whatever process adds a reporting object later.
->
-> The summary should state, in plain words: *whether a published table built with `COPY TAGS`
-> carries its tags on the first build, what has to be deployed for it to do so, and in which schemas.*
-
-The reason for naming this explicitly: the finding is easy to lose. If A4 passes, it is tempting to
-record "tags work" and move on — which drops the precondition that made them work. Six months later a
-new reporting object is added to one schema, publishes unmasked on alternate batches, and nothing in
-the evidence pack explains why.
-
----
-
----
-
 ## Section 2 — Do grants really survive the swap, and the rebuild?
 
 ### 2.1 Why this is being re-validated
@@ -169,7 +151,177 @@ publishes and the wrong-way case. They cover what sits around it.
 
 ---
 
-## 3 — Out of POC scope, but needed for the real build
+---
+
+## Section 3 — Control tables for the POC
+
+Draft v2 proposes nine control tables. That is a production control plane; this is what the POC
+actually needs. Agreed with the team, 26 October 2026.
+
+### 3.1 Conventions
+
+| # | Convention | Note |
+|---|------------|------|
+| 1 | **A published table is built from the view of the same name prefixed `V_`** — `V_CUSTOMER_360` builds `CUSTOMER_360` | So the build source is derived, not stored. It holds only while one published table comes from exactly one view; the moment one needs two, `build_source` has to come back as a column |
+| 2 | **Zone 2 objects are not tracked.** Dependencies are recorded against Zone 3 objects only | A Zone 3 object reporting `COMPLETED` already implies its Zone 2 sources landed. Revisit only if a view reads Zone 2 directly, skipping the Zone 3 layer |
+| 3 | **No lock table.** The POC is run by hand, so two concurrent publishes cannot occur | A production build needs one |
+
+### 3.2 Structure
+
+```sql
+-- DEFINITION — static, deployed once, one row per object
+CREATE TABLE CTRL.OBJECT_REGISTRY (
+    object_name     STRING,        -- CUSTOMER_360  (built from V_CUSTOMER_360)
+    object_type     STRING,        -- SOURCE | PUBLISHED
+    is_required     STRING DEFAULT 'Y',   -- does its failure block the publish?
+    live_schema     STRING,        -- D_LIVE
+    stage_schema    STRING         -- D_STAGE
+);
+
+-- DEFINITION — the dependency edge list
+CREATE TABLE CTRL.OBJECT_DEPENDENCY (
+    object_name       STRING,
+    depends_on_object STRING       -- Zone 3 objects only
+);
+
+-- STATE — one row per object per batch. Covers BOTH source loads and rebuilds
+CREATE TABLE CTRL.BATCH_STATUS (
+    batch_id        STRING,
+    object_name     STRING,
+    status          STRING,        -- COMPLETED | FAILED | PENDING
+    status_at       TIMESTAMP_NTZ,
+    exception_flag  STRING DEFAULT 'N',
+    approved_by     STRING,
+    approved_at     TIMESTAMP_NTZ,
+    reason          STRING
+);
+
+-- EVIDENCE — one row per publish attempt
+CREATE TABLE CTRL.PUBLISH_LOG (
+    batch_id        STRING,
+    attempted_at    TIMESTAMP_NTZ,
+    outcome         STRING,        -- PUBLISHED | REFUSED
+    refused_reason  STRING,
+    exceptions_used STRING,
+    run_by          STRING
+);
+```
+
+`BATCH_STATUS` carries rows of both types: `SOURCE` rows say whether a Zone 3 load finished, and
+`PUBLISHED` rows say whether a CTAS rebuild finished. The second kind is what makes restart possible
+(Section 4).
+
+### 3.3 The dependency gate, in one query
+
+```sql
+-- Can batch :B publish?  Any row returned = no.
+SELECT r.object_name       AS published_table,
+       d.depends_on_object AS blocked_by,
+       s.status
+FROM      CTRL.OBJECT_REGISTRY   r
+JOIN      CTRL.OBJECT_DEPENDENCY d ON d.object_name = r.object_name
+LEFT JOIN CTRL.BATCH_STATUS      s ON s.object_name = d.depends_on_object
+                                  AND s.batch_id    = :B
+WHERE r.object_type = 'PUBLISHED'
+  AND r.is_required = 'Y'
+  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )
+  AND NVL(s.exception_flag,'N') <> 'Y';
+```
+
+`s.status IS NULL` is deliberate: it catches a load that never reported at all, which is otherwise the
+failure mode that passes silently.
+
+### 3.4 One column worth adding to the data, not the control tables
+
+Stamp `BATCH_ID` on every Zone 3 row and carry it through the views into every published table. Then
+*"did the whole domain publish together?"* is one query against the reader views rather than an
+inference from timestamps:
+
+```sql
+SELECT COUNT(DISTINCT batch_id) FROM (
+    SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360
+    UNION ALL SELECT batch_id FROM D_VIEWS.V_PREMIUM_SUMMARY
+);   -- must be 1
+```
+
+It is the cheapest piece of evidence in the pack.
+
+---
+
+## Section 4 — Exception lifecycle and restart
+
+### 4.1 How the exception is reset — a choice to make explicitly
+
+The team's requirement: once an exception has let a batch through, the next batch must not inherit
+it. There are two ways to get there, and they fail differently.
+
+| | **A — batch-scoped (recommended)** | **B — persistent flag, explicit reset** |
+|---|---|---|
+| Shape | `exception_flag` sits on a row keyed by `(object_name, batch_id)` | One row per object; the flag is reset to `'N'` after the publish |
+| Reset | **Automatic.** Batch B6 inserts fresh rows defaulting to `'N'`; B5's `'Y'` stays as the audit record | A step at the end of the run sets it back |
+| Failure mode | None — a new batch cannot see an old batch's flag | **If the run dies between the swap and the reset, the flag survives into the next batch** and silently excuses a genuine failure |
+| Audit | The `'Y'`, approver and reason are preserved per batch | Overwritten each time it is reset |
+
+The structure in §3.2 implements **A**, so no reset step is needed. The test below is still worth
+running either way — under A it proves the keying works, under B it proves the reset step ran.
+
+### 4.2 Fault injection for the restart tests
+
+No `FAULT_SWITCH` table. To make one rebuild fail, rename its source view immediately before the run
+and rename it back for the restart:
+
+```sql
+ALTER VIEW Z3_CONSUME.V_PREMIUM_SUMMARY RENAME TO V_PREMIUM_SUMMARY_BROKEN;  -- CTAS now fails
+-- … run the publish, which refuses …
+ALTER VIEW Z3_CONSUME.V_PREMIUM_SUMMARY_BROKEN RENAME TO V_PREMIUM_SUMMARY;  -- restart
+```
+
+No extra objects, and it produces a real failure rather than a simulated one.
+
+### 4.3 Tests
+
+| # | Test | Pass / record | Sessions | Basis |
+|---|------|---------------|----------|-------|
+| **C1** | A required dependency reports `FAILED` for batch B2. Publish | **Refused.** `PUBLISH_LOG` records the refusal and names the blocking object. Live still shows B1 | Publish role | Design |
+| **C2** | Set `exception_flag = 'Y'` for that object in B2, with approver and reason. Publish again | **Publishes.** `PUBLISH_LOG` records which exceptions were used, who approved and why | Approver + publish role | Design |
+| **C3** | **The reset.** Run batch B3 with the same object `FAILED` again and **no new exception** | **Refused.** Confirms B2's exception did not carry into B3. *This is the test the team asked for* — under the batch-scoped design it should pass by construction | Publish role | Team request, 26 October 2026 |
+| **C4** | **Restart, part 1.** Rename one source view so its CTAS fails. Run batch B4 | That table's `BATCH_STATUS` row is `FAILED`; the others are `COMPLETED`; **no swap**; live unchanged on B3; the refusal is logged | Publish role + reader | Design |
+| **C5** | **Restart, part 2.** Rename the view back. Re-run batch B4 with the **same batch id** | Only the failed table is rebuilt — the already-`COMPLETED` tables are skipped, verified by their unchanged `status_at` — then the swap runs **once** and every published table shows `BATCH_ID = B4` | Publish role + reader | Design |
+| **C6** | **Restart after a security failure.** Make one table fail the security check. Run, then restart with the same batch id | The failing table's status is cleared or set `FAILED` so the restart rebuilds it; the others are not rebuilt; the second run publishes | Publish role | Draft v2 §3.3 step 10 |
+| **C7** | **A new batch id does not resume.** After the refused run in C4, re-run with batch id **B5** instead of B4 | Records what happens: everything rebuilds from scratch, and B4 is left permanently incomplete in `BATCH_STATUS`. Confirms the batch id is the restart key, and that the scheduler must reuse it on a retry | Publish role | Reasoning |
+
+### 4.4 What each outcome means
+
+| If | Then |
+|----|------|
+| C3 passes | The exception cannot leak between batches. No reset step is needed, and none should be added |
+| C3 fails | The flag is not batch-scoped in practice. **Fix before anything else** — a stuck `'Y'` means a failed load publishes silently, forever |
+| C5 shows all tables rebuilt | Restart is not selective; `BATCH_STATUS` is not being read, or not keyed as expected. Costly rather than wrong, but it defeats the point of restart |
+| C7 shows a clean rebuild | Expected. It confirms the scheduler must pass the **same** batch id on a retry — which is an operational requirement, not a code one, and needs writing down |
+
+---
+
+## Section 5 — Reporting requirement
+
+> **The results of Sections 1, 2 and 4 must appear in the testing summary whatever the outcome** —
+> including if everything passes. It is not a pass/fail line item; it determines a **deployment rule** that has to
+> be carried into the real build and into whatever process adds a reporting object later.
+>
+> The summary should state, in plain words: *whether a published table built with `COPY TAGS`
+> carries its tags on the first build, what has to be deployed for it to do so, and in which schemas.*
+
+The reason for naming this explicitly: the finding is easy to lose. If A4 passes, it is tempting to
+record "tags work" and move on — which drops the precondition that made them work. Six months later a
+new reporting object is added to one schema, publishes unmasked on alternate batches, and nothing in
+the evidence pack explains why.
+
+---
+
+---
+
+---
+
+## Section 6 — Out of POC scope, but needed for the real build
 
 | # | Item | Status |
 |---|------|--------|
@@ -177,7 +329,7 @@ publishes and the wrong-way case. They cover what sits around it.
 
 ---
 
-## 4 — Sources
+## Section 7 — Sources
 
 | # | Source | Used for |
 |---|--------|----------|
