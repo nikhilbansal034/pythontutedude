@@ -4,7 +4,8 @@
 Advisory ask raised with Nikhil on a call; source transcript and screenshots in `sources/`.
 
 **Status**: requirement captured, key layout confirmed against a real path, four gating questions
-outstanding. No solution proposed yet.
+outstanding. Solution analysis is in `solution.md`; the email to the requesting team is in
+`email-draft.md`.
 
 ---
 

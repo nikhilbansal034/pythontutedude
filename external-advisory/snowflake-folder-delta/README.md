@@ -46,6 +46,8 @@ A way to enumerate **only the folder prefixes** under a stage path, without read
 | File | What it is |
 |------|-----------|
 | `requirement.md` | **Start here.** Full requirement capture — pipeline, key layout, both queries in full, why both approaches fail the requirement, constraints, and the four gating questions |
+| `solution.md` | Solution analysis — why no SQL query can do this, the S3 `Delimiter` mechanism that can, the two viable designs, and why only one of them fully solves the problem |
+| `email-draft.md` | Ready-to-send email to the requesting team, Outlook-safe, with the two editorial calls flagged |
 
 ## Sources
 
