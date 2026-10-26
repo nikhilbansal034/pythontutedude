@@ -163,10 +163,19 @@ actually needs. Agreed with the team, 26 October 2026.
 | # | Convention | Note |
 |---|------------|------|
 | 1 | **A published table is built from the view of the same name prefixed `V_`** — `V_CUSTOMER_360` builds `CUSTOMER_360` | So the build source is derived, not stored. It holds only while one published table comes from exactly one view; the moment one needs two, `build_source` has to come back as a column |
+| 1a | **The thin reader view keeps the `V_` name** — `D_VIEWS.V_CUSTOMER_360` reads `D_LIVE.CUSTOMER_360` | Reports keep the object name they already use and change **schema only**, which is materially less rework than renaming every report's object. The source view and the thin view share a name in different schemas, which is intentional: `Z3_CONSUME.V_CUSTOMER_360` → `D_VIEWS.V_CUSTOMER_360` |
 | 2 | **Zone 2 objects are not tracked.** Dependencies are recorded against Zone 3 objects only | A Zone 3 object reporting `COMPLETED` already implies its Zone 2 sources landed. Revisit only if a view reads Zone 2 directly, skipping the Zone 3 layer |
 | 3 | **No lock table.** The POC is run by hand, so two concurrent publishes cannot occur | A production build needs one |
 
 ### 3.2 Structure
+
+**The three objects and their names:**
+
+```
+Z3_CONSUME.V_CUSTOMER_360   source view, complex logic   ← build time only
+D_LIVE.CUSTOMER_360         published table              ← the CTAS target
+D_VIEWS.V_CUSTOMER_360      thin reader view             ← what Power BI reads
+```
 
 ```sql
 -- DEFINITION — static, deployed once, one row per object
