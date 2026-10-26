@@ -12,11 +12,16 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
 ├── w4-generic-etl-framework/     Generic config-driven ETL framework   — ACTIVE
 ├── w5-zone3-consumption-gating/  Zone 3 consumption publication gating — ACTIVE
-└── datacamp project/             DataCamp DS practical exam            — ACTIVE
+├── datacamp project/             DataCamp DS practical exam            — ACTIVE
+└── external-advisory/            Work for another client, not GRS      — see below
+    └── snowflake-folder-delta/   Snowflake stage folder-delta listing  — ACTIVE
 ```
 
 Each workstream folder keeps its raw inputs — transcripts, screenshots, email exports — in its own
 `sources/` subfolder, separate from the analysis derived from them.
+
+`external-advisory/` is **a different client from everything above it.** Nothing in it belongs to the
+GRS engagement, and nothing above it should be cited from inside it.
 
 ---
 
@@ -327,10 +332,38 @@ becomes *visible*. They meet only at the publication step.
 
 ---
 
+## External advisory — Snowflake stage folder-delta listing *(active)*
+
+**A separate client.** Not GRS, not Liberty Mutual. Raised with Nikhil directly on a call by
+Soumyajit Saha, Yaseswi Suda and Ravi Srivastava.
+
+Their ingestion job detects new load folders under an S3-backed Snowflake external stage
+(`@GWCC_S3_STG_DEV2`, one fingerprint folder per load, snappy parquet) by listing every folder name
+and comparing against a last-loaded timestamp in a Snowflake config table. Both known ways of
+getting that list make Snowflake descend to **file** level and read file content, so a 30-file
+folder costs 30 reads just to learn the folder's name — slow, and billed per call.
+
+The ask is a way to enumerate **only folder prefixes** under a stage path, without reading file
+content.
+
+| File | What it is |
+|------|-----------|
+| `README.md` | Problem statement, the two queries tried, and the open questions |
+| `sources/requirement.vtt` | Transcript of the requirement call |
+| `sources/query1.png` | The `METADATA$FILENAME` query — the original approach |
+| `sources/query2.png` | The `DIRECTORY()` / `RELATIVE_PATH` workaround — ~200 s → ~10 s on a 1 000-record test, still file-level |
+
+**Status**: active — a recommendation is owed back to them. Open: the cost and maintenance impact of
+enabling `DIRECTORY` on the external stage, and a re-run of the timing comparison at production volume.
+
+---
+
 ## Conventions
 
 - **One folder per workstream**, named `w<n>-<short-topic>`. Add it to the tree at the top of this file and
   give it a section here, in the same commit that creates it.
+- **Work for another client goes under `external-advisory/<topic>/`**, not in the `w<n>-` series, which is
+  GRS only. Same rules inside it: own `sources/`, own section here, no cross-references to GRS folders.
 - **Raw inputs go in that workstream's `sources/`** and keep their original filenames — do not rename them,
   so they stay traceable to the meeting or thread they came from. Everything else is derived analysis and
   gets a short descriptive name.
