@@ -3,7 +3,8 @@
 **Separate engagement.** Not part of the GRS Zone1→Zone2 (Liberty Mutual) work in `w1`–`w5`.
 Advisory ask raised with Nikhil on a call; source transcript and screenshots in `sources/`.
 
-**Status**: requirement captured, four gating questions outstanding. No solution proposed yet.
+**Status**: requirement captured, key layout confirmed against a real path, four gating questions
+outstanding. No solution proposed yet.
 
 ---
 
@@ -50,27 +51,46 @@ read the file content of the latest folder, which was not there previously."*
 
 ## 4. Key layout
 
-Derived from the `split_part` positions in the two queries, cross-checked against their `FROM`
-clauses. **Needs confirming against one real S3 key** — see question 1 in §8.
+Confirmed against a real path supplied by the team:
 
 ```
-s3://<bucket>/<a>/<b>/<c>/cc_inboundrecord/<fingerprint>/<epoch>/<file>.snappy.parquet
-                 1   2   3        4              5          6        7     ← METADATA$FILENAME
+s3://epsilon-3-us-east-1-arch-archpre-cda-0aece/gwdryrun/cc/1758950910989/cc_activity/48b93605f5894d69830b1ee611d60316/1787934690000/part-00008-…-c000.snappy.parquet
 ```
 
-`METADATA$FILENAME` is bucket-relative and carries the stage URL's own prefix. In query 1 the entity
-folder sits directly under the `@GWCC_S3_STG` root (it is appended straight after the stage name in
-the `FROM`), yet reads at position 4 — so that stage's URL contributes three leading segments.
+| Pos | Segment | What it is |
+|----:|---------|------------|
+| — | `epsilon-3-us-east-1-arch-archpre-cda-0aece` | Bucket |
+| 1 | `gwdryrun` | Guidewire dry-run root |
+| 2 | `cc` | ClaimCenter |
+| 3 | `1758950910989` | **Run/batch id** — epoch ms, `2025-09-27 05:28:30 UTC` |
+| 4 | `cc_activity` | Entity — matches `split_part(…,4)` in query 5a |
+| 5 | `48b93605f5894d69830b1ee611d60316` | Fingerprint folder |
+| 6 | `1787934690000` | **Epoch folder** — epoch ms, `2026-08-28 16:31:30 UTC` — matches `split_part(…,6)` |
+| 7 | `part-00008-…-c000.snappy.parquet` | File |
 
-`RELATIVE_PATH` is stage-root-relative, and in `@GWCC_S3_STG_DEV2` the entity reads at position 2:
+This confirms `METADATA$FILENAME` is **bucket-relative** (it excludes `s3://<bucket>/` and carries
+everything after it), and it reconciles the two stages:
 
-```
-<seg1>/cc_activity/<fingerprint>/<epoch>/<file>.snappy.parquet
-   1         2           3           4        5                ← RELATIVE_PATH in DEV2
-```
+| Stage | Root | Entity sits at |
+|-------|------|----------------|
+| `@GWCC_S3_STG` | `…/gwdryrun/cc/<run_id>/` | relative position 1 — matches query 5a's `FROM @GWCC_S3_STG/cc_inboundrecord/…` |
+| `@GWCC_S3_STG_DEV2` | `…/gwdryrun/cc/` | `RELATIVE_PATH` position 2 — matches query 5b |
 
-**The two stages therefore have roots at different depths**, and the `split_part` indices are not
-comparable between the queries.
+So the two stages point into the same layout at **different depths**, one level apart, and the
+`split_part` indices are not comparable between the queries.
+
+### Three things this surfaced
+
+1. **There are two epoch-millisecond levels, not one** — the run id at position 3 and the epoch
+   folder at position 6. "New folder appears" is therefore ambiguous across three candidate levels
+   (run id, fingerprint, epoch folder), which sharpens §8 question 1 rather than settling it.
+2. **`@GWCC_S3_STG` appears pinned to a single run id** inside its stage URL. If each migration run
+   creates a new `<run_id>` folder, that stage definition goes stale on the next run and has to be
+   redefined; `@GWCC_S3_STG_DEV2`, sitting one level above, spans all runs. Worth confirming before
+   any mechanism is built on top of either.
+3. **The epoch folder is 11 months later than the run id it sits under** — `2026-08-28` inside
+   `2025-09-27`. Whatever the epoch folder measures, it is not the time the run executed. If the
+   delta comparison sorts on it, what it actually represents matters.
 
 ---
 
@@ -160,11 +180,11 @@ do not state the negative outright, so this is inferred from the column contract
 
 ## 8. Open questions — gating
 
-Four. Everything else can wait.
+Four. The layout half of question 1 is now answered in §4; the rest stands.
 
-1. **Which level is the CDC folder?** One complete real S3 key, bucket through filename. In that
-   path, which segment's *appearance* means "new data to load" — the fingerprint folder, or the epoch
-   folder inside it?
+1. **Which of the three levels is the CDC folder?** Whose *appearance* means "new data to load" —
+   the run id (pos 3), the fingerprint (pos 5), or the epoch folder (pos 6)? And does a new run id
+   folder appear per migration run, which would make `@GWCC_S3_STG`'s pinned root go stale (§4)?
 2. **Is that level already known before the query runs?** Both queries receive the fingerprint as a
    literal, so something upstream identifies it. If it is already known by other means, is the list
    actually needed only at *epoch* level — and is fingerprint-level listing not required at all?
@@ -190,6 +210,7 @@ numbers. None affects whether a folder-level listing mechanism exists.
 | `sources/requirement.vtt` | Transcript of the requirement call, 594 lines, 4 speakers |
 | `sources/query1.png` | Screenshot of the `METADATA$FILENAME` query (mid-edit; §5a is the full version supplied later) |
 | `sources/query2.png` | Screenshot of the directory-table query (mid-edit; §5b is the full version supplied later) |
+| — | One real file path supplied by the team on request; recorded in §4 |
 
 Both screenshots were taken mid-edit and disagree with the supplied text in places — §5a and §5b are
 authoritative.
