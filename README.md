@@ -351,10 +351,12 @@ content.
 | `README.md` | Problem statement, the two queries tried, and the open questions |
 | `sources/requirement.vtt` | Transcript of the requirement call |
 | `sources/query1.png` | The `METADATA$FILENAME` query — the original approach |
-| `sources/query2.png` | The `DIRECTORY()` / `RELATIVE_PATH` workaround — ~200 s → ~10 s on a 1 000-record test, still file-level |
+| `sources/query2.png` | The `RELATIVE_PATH` workaround — ~200 s → ~10 s on a 1 000-record test, still file-level |
 
-**Status**: active — a recommendation is owed back to them. Open: the cost and maintenance impact of
-enabling `DIRECTORY` on the external stage, and a re-run of the timing comparison at production volume.
+**Status**: active — a recommendation is owed back to them. Open: whether query2 really reads a
+directory table or a plain stage reference, and a re-run of the timing comparison at production
+volume. The cost question is answered in the folder README — a directory table's automatic refresh
+bills as Snowpipe overhead, so enabling it is not free.
 
 ---
 

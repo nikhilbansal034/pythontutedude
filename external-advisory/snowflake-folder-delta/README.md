@@ -17,7 +17,7 @@ folder's name.
 | Input | Approach |
 |-------|----------|
 | `sources/query1.png` | `split_part(METADATA$FILENAME, '/', n)` over the stage — the original approach |
-| `sources/query2.png` | `DIRECTORY()`-enabled stage, `split_part(RELATIVE_PATH, '/', n)` — the workaround |
+| `sources/query2.png` | `SPLIT_PART(RELATIVE_PATH, '/', n)` — the workaround |
 
 The workaround is far faster (≈200 s → ≈10 s on a 1 000-record test) but still file-level, and it
 has only been measured on that small sample, not on production volumes.
@@ -26,11 +26,20 @@ has only been measured on that small sample, not on production volumes.
 
 A way to enumerate **only the folder prefixes** under a stage path, without reading file content.
 
-## Open questions raised on the call
+## Open questions
 
-- Cost and maintenance impact of enabling `DIRECTORY` on the external stage (storage, refresh) —
-  to be checked with the platform team before the stage definition is changed.
-- Re-run the timing comparison at production volume.
+- **Does query2 actually read the directory table?** On the call they describe enabling `DIRECTORY`
+  on the stage, but the query in the screenshot selects `RELATIVE_PATH` with a plain stage reference
+  (`FROM @GWCC_S3_STG_DEV2/cc_claim/…`) rather than `FROM DIRECTORY(@GWCC_S3_STG_DEV2)`. Worth
+  confirming against the real script before drawing conclusions from its timing — the screenshot may
+  be cropped.
+- **Enabling a directory table is not free.** Automatic refresh is billed through event-notification
+  overhead that appears as *Snowpipe* charges (estimable via `PIPE_USAGE_HISTORY`); a manual
+  `ALTER STAGE … REFRESH` is billed as cloud-services overhead. See
+  [Snowflake — Directory tables](https://docs.snowflake.com/en/user-guide/data-load-dirtables-intro).
+  This answers the cost question raised on the call, and should go back to the platform team before
+  the stage definition is changed.
+- Re-run the timing comparison at production volume — ≈200 s → ≈10 s was measured on 1 000 records.
 
 ## Sources
 
