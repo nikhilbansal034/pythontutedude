@@ -7,9 +7,9 @@
 |---|-------|-------|
 | 1 | Status | **Draft, for review. Nothing built or run.** |
 | 2 | Date | 26 October 2026 |
-| 3 | Scope | CTAS + Swap, with `COPY TAGS` as the tag method and **no `TAG_CONFIG` table** |
+| 3 | Scope | CTAS + Swap, with `COPY TAGS` as the tag method and **no `TAG_CONFIG` table**. Section 1 covers tags, Section 2 grants |
 | 4 | Relationship to the main design | **Additive.** These tests slot into the existing groups; they do not replace or re-test anything in draft v2 |
-| 5 | Why it exists | Draft v2 assumes a tag method that re-applies tags from a config table each batch. With `COPY TAGS` and no config table, tags enter the published tables by a different route — and there is a case where they do not enter at all |
+| 5 | Why it exists | Draft v2 assumes a tag method that re-applies tags from a config table each batch. With `COPY TAGS` and no config table, tags enter the published tables by a different route — and there is a case where they do not enter at all. Section 2 re-validates the grant behaviour the design depends on, at the team's request |
 
 ---
 
@@ -51,9 +51,13 @@ batch 4     build into P   P.X exists (batch 2) →  copies batch-2 tags
 So the **first two batches** publish untagged tables, and from batch 3 the tags travel down two
 separate chains.
 
-**The proposed fix**, which these tests also validate: create the table in **both** schemas at
-deployment, with its tags, before the first batch. Every subsequent `COPY TAGS` then has a tagged
-predecessor whichever storage it lands on.
+**The proposed fix**, which these tests also validate: create the table in **both** schemas, with its
+tags, before the first batch. Every subsequent `COPY TAGS` then has a tagged predecessor whichever
+storage it lands on.
+
+In the POC the tags are applied directly by the setup role. **How this is deployed in production —
+Liquibase or otherwise — is out of POC scope** (§3); what the POC establishes is only *that it must
+happen, in both schemas, before the first build.*
 
 ### 1.2 Why it matters beyond the first run
 
@@ -90,8 +94,8 @@ evidence pack whether or not it matches the expectation.
 
 ## 2 — Reporting requirement
 
-> **This section's result must appear in the testing summary whatever the outcome** — including if
-> everything passes. It is not a pass/fail line item; it determines a **deployment rule** that has to
+> **The results of Sections 1 and 2 must appear in the testing summary whatever the outcome** —
+> including if everything passes. It is not a pass/fail line item; it determines a **deployment rule** that has to
 > be carried into the real build and into whatever process adds a reporting object later.
 >
 > The summary should state, in plain words: *whether a published table built with `COPY TAGS`
@@ -104,16 +108,72 @@ the evidence pack explains why.
 
 ---
 
-## 3 — Open question this raises
+---
 
-**Can the Liquibase deployment set tags?**
+## Section 2 — Do grants really survive the swap, and the rebuild?
 
-The fix in A4 depends on it. If Liquibase can apply `ALTER TABLE … MODIFY COLUMN … SET TAG` as part
-of deploying a published table, the rule is simply part of the object's deployment script. If it
-cannot, tagging is a manual step at every object's first deployment, in two schemas — and that needs
-an owner and a checklist, or it will be missed.
+### 2.1 Why this is being re-validated
 
-This is a question for the team, not a POC test.
+The design relies on *"a swap switches all access control privileges granted on the schemas and the
+objects they contain"*, so the reader's access does not have to be re-granted after every publish.
+That is documented and was proven on the account in POC02 — **it is re-validated here at the team's
+request**, because it is load-bearing: if it does not hold, every publish silently removes the
+reporting estate's access.
+
+There is also a second mechanism in play that the swap does not cover. **`CREATE OR REPLACE TABLE`
+replaces the object, so grants on the old table go with it.** The CTAS therefore destroys the table's
+grants every batch, before the swap ever runs. Draft v2 handles this with *future grants on both
+swapped schemas plus a grant on all existing tables* (test 18).
+
+What draft v2 does **not** test is the obvious companion to the tag method already chosen:
+
+```sql
+CREATE OR REPLACE TABLE D_STAGE.X COPY GRANTS COPY TAGS AS SELECT … FROM <view>;
+                                  └────┬────┘
+                     carries the replaced table's privileges forward,
+                     by the same mechanism COPY TAGS uses for tags
+```
+
+If `COPY GRANTS` works here, the future-grant machinery on both schemas becomes unnecessary and the
+grant story collapses into the same one clause as tags. If it does not, the future-grant rule stands
+and must be followed exactly. Either way it is worth one test, because the two options differ a lot
+in how easy they are to get wrong.
+
+**Note:** `COPY GRANTS` does **not** copy `OWNERSHIP`, and it has the **same bootstrap gap as
+`COPY TAGS`** — no predecessor, nothing copied. B4 below is the grant equivalent of A1.
+
+### 2.2 Tests
+
+These do not duplicate draft v2 test 18, which already covers the future-grant rule over five
+publishes and the wrong-way case. They cover what sits around it.
+
+| # | Test | Pass / record | Sessions | Basis |
+|---|------|---------------|----------|-------|
+| **B1** | **Re-validate the swap itself.** Grant `SELECT` on a published table to the probe role. Record the grants. Swap. Record them again | The grant is still on the table under its new schema name, unchanged. Confirms the documented behaviour on the current account | Publish role + `SECURITYADMIN` | Docs — stated · Proven P2 (re-validated at the team's request) |
+| **B2** | **Does the CTAS drop grants?** Grant `SELECT` to the probe role on `D_STAGE.X`, then rebuild `X` with a plain `CREATE OR REPLACE … AS SELECT` (no `COPY GRANTS`, future grants removed for this test). List the grants after | **Expected: the grant is gone.** Establishes directly that the rebuild, not the swap, is what loses grants — the reason the future-grant rule exists at all | Publish role + `SECURITYADMIN` | Docs — stated · Reasoning |
+| **B3** | **`COPY GRANTS` as the alternative.** With no future grants in place, grant `SELECT` to the probe role, then rebuild with `CREATE OR REPLACE TABLE … COPY GRANTS COPY TAGS AS SELECT …`. Repeat over four batches and both storages | The grant survives every rebuild and every swap, with no future grants anywhere. If it does, the design can drop the two-schema future-grant rule | Publish role + `SECURITYADMIN` | Docs — stated, to confirm on the account |
+| **B4** | **The grant bootstrap.** First build into an empty staging schema using `COPY GRANTS` | **Expected: no grants** — same gap as A1, for the same reason. Records whether the first build needs grants deployed as well as tags | Publish role | Reasoning |
+| **B5** | **Ownership.** After a `COPY GRANTS` rebuild, record the table's owner | `COPY GRANTS` does not carry `OWNERSHIP`; records who owns the rebuilt table and whether the publishing role can still swap the schemas | Publish role | Docs — stated |
+| **B6** | **Can the view owner read staging?** The view owner holds future `SELECT` on **both** swapped schemas, so it can read staging. Read a sensitive column in `D_STAGE` as the view owner, after the rebuild and before the swap | Records whether the view owner can read staging data. This is the same exposure as draft v2 test 11 approached from the grants side — and it is the direct cost of the future-grant rule, which `COPY GRANTS` (B3) would remove | View owner | Reasoning · relates to draft v2 test 11 |
+
+### 2.3 What each outcome means
+
+| If | Then |
+|----|------|
+| B1 holds | The swap's grant behaviour is confirmed on the current account. Nothing changes |
+| B1 fails | **Stop.** Every publish silently removes reporting access, and the design needs a re-grant step after every swap |
+| B2 shows grants dropped | Confirms the rebuild is the thing that loses them — the future-grant rule is doing real work and must be followed exactly, in both schemas |
+| B3 passes | The design can use one clause for both tags and grants and drop the two-schema future-grant rule. **This would also close B6**, because staging would no longer need future grants for the view owner |
+| B3 fails | The future-grant rule stands as draft v2 writes it, and B6's exposure is a cost of the design, not an oversight |
+| B4 shows no grants | Grants must be deployed up front in both schemas, exactly like tags. The deployment rule from Section 1 widens to cover grants |
+
+---
+
+## 3 — Out of POC scope, but needed for the real build
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | **How tags (and possibly grants) get deployed to both schemas** — Liquibase or another route | **Out of POC scope**, confirmed 26 October 2026. The POC applies them directly with the setup role. What the POC does establish is that *something* must apply them, in **both** schemas, before an object's first build — and again for every reporting object added later. That needs an owner |
 
 ---
 
@@ -126,6 +186,7 @@ This is a question for the team, not a POC test.
 | 3 | Snowflake, [`CREATE TABLE`](https://docs.snowflake.com/en/sql-reference/sql/create-table) — `COPY TAGS` usage notes | *"tags from the replaced table and its columns are retained on the new table"*; a renamed column loses its tag |
 | 4 | Snowflake, [`CREATE TABLE … COPY TAGS` GA release note](https://docs.snowflake.com/en/release-notes/2026/other/2026-04-02-create-table-copy-tags-ga), 2 April 2026 | GA date; the documented example uses `AS SELECT` |
 | 5 | Snowflake, [`TAG_REFERENCES_ALL_COLUMNS`](https://docs.snowflake.com/en/sql-reference/functions/tag_references_all_columns) | How the tests read back the tags |
+| 5b | Snowflake, [`CREATE TABLE`](https://docs.snowflake.com/en/sql-reference/sql/create-table) — `COPY GRANTS` usage notes · [`ALTER SCHEMA … SWAP WITH`](https://docs.snowflake.com/en/sql-reference/sql/alter-schema) | Section 2: what `COPY GRANTS` carries and what it does not (`OWNERSHIP`); what the swap moves |
 | 6 | Design walkthrough, 26 October 2026 | The alternation behaviour and the deployment fix |
 
 ---
