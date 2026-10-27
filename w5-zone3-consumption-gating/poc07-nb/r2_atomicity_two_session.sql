@@ -221,17 +221,25 @@ SELECT 'R2 4b — verdict' AS check_name,
        COUNT(*)                          AS readings,
        COUNT_IF(distinct_batches > 1)    AS mixed_readings,
        COUNT_IF(distinct_batches = 1)    AS clean_readings,
-       CASE WHEN COUNT_IF(distinct_batches > 1) > 0
-            THEN 'R2 FAILS — a reader saw two batches at once'
-            ELSE 'no mixture in these readings' END AS verdict
+       CASE WHEN COUNT_IF(distinct_batches > 1) = 0 THEN 'no mixture in these readings'
+            WHEN probe = 'one-object'
+                 THEN 'R2 FAILS — one object showed two batches in a single read'
+            ELSE 'R3 FAILS — the group did not flip together; one object was on the old batch and one on the new'
+       END AS verdict
 FROM NB_CTRL.R2_READINGS
 WHERE run_id = 'R2' AND probe <> 'swap'
 GROUP BY probe ORDER BY probe;
 /* EXPECT  mixed_readings = 0 for BOTH probes.
-   Any non-zero value is a failure of the design and the single most
-   important result in the POC. Quote readings and swaps alongside it —
-   "0 mixed in 600 readings across 40 swaps" is evidence; "it works"
-   is not.                                                             */
+   THE TWO PROBES TEST DIFFERENT REQUIREMENTS. Do not report them as one:
+     one-object   > 0  =>  R2 fails. The swap is not atomic for a single
+                           table. This would sink the design outright.
+     both-objects > 0  =>  R3 fails. Each table flipped atomically, but
+                           not together — a reader saw one object on the
+                           old batch and the other on the new. The design
+                           survives; the group guarantee does not hold as
+                           built, and PART 5 tests the likeliest cause.
+   Quote readings and swaps alongside the counts: "1 mixed in 300 readings
+   across 40 swaps" is evidence; "it works" or "it fails" is not.       */
 
 /* 4c. Every mixed reading, if there are any. Empty is the good case.  */
 SELECT 'R2 4c — the mixed readings' AS check_name,
@@ -250,3 +258,70 @@ WHERE run_id = 'R2' AND probe = 'both-objects'
 ORDER BY seq LIMIT 60;
 /* RECORD  the alternation. If batch_seen never changes, the windows did
    not overlap and 4a will already have said VOID.                     */
+
+
+/* =====================================================================
+   PART 5 — FOLLOW-UP.  Only if the both-objects probe found a mixture.
+   ---------------------------------------------------------------------
+   A mixture on both-objects, with none on one-object, says each table
+   flipped atomically but the two did not flip together FOR A READER IN
+   ANOTHER SESSION. The leading explanation is the account's read
+   consistency mode.
+
+   Snowflake documents READ_CONSISTENCY_MODE as: SESSION (the default)
+   gives consistency within a session, but a concurrent session may not
+   see another session's changes straight away; GLOBAL makes changes
+   immediately visible across concurrent sessions, at a cost of
+   milliseconds. Our swap runs in session A and our read in session B,
+   which is exactly that case.
+
+   The docs do NOT state how this interacts with ALTER SCHEMA ... SWAP,
+   so this is a hypothesis, and PART 5 is the test that settles it.
+
+   ---------------------------------------------------------------------
+   BEFORE YOU RUN THIS — it is an ACCOUNT-LEVEL change
+   ---------------------------------------------------------------------
+   READ_CONSISTENCY_MODE can only be set on the whole account, and only
+   by ACCOUNTADMIN. It will affect every other workload on
+   LM_POC_DB and every other POC on this account for as long as it is
+   set. Agree it first, keep the window short, and run 5c to put it back.
+   ===================================================================== */
+
+/* 5a. Keep the SESSION-mode evidence, then switch the account to GLOBAL. */
+USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB; USE WAREHOUSE POC_WH;
+UPDATE NB_CTRL.R2_READINGS SET run_id = 'R2-SESSION' WHERE run_id = 'R2';
+
+USE ROLE ACCOUNTADMIN;
+ALTER ACCOUNT SET READ_CONSISTENCY_MODE = GLOBAL;
+SHOW PARAMETERS LIKE 'READ_CONSISTENCY_MODE' IN ACCOUNT;
+SELECT 'R2 5a — mode now in force' AS check_name, "key" AS parameter_name, "value" AS value_in_force
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+/* EXPECT  GLOBAL */
+
+/* 5b. Re-run PART 2 and PART 3 exactly as before, in the same two
+       worksheets, same order. They write run_id 'R2' again, so the
+       SESSION run is preserved under 'R2-SESSION'. Then run this: */
+USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB; USE WAREHOUSE POC_WH;
+SELECT 'R2 5b — SESSION vs GLOBAL' AS check_name,
+       CASE run_id WHEN 'R2-SESSION' THEN 'SESSION mode' ELSE 'GLOBAL mode' END AS mode,
+       probe,
+       COUNT(*)                       AS readings,
+       COUNT_IF(distinct_batches > 1) AS mixed_readings
+FROM NB_CTRL.R2_READINGS
+WHERE run_id IN ('R2','R2-SESSION') AND probe <> 'swap'
+GROUP BY run_id, probe ORDER BY mode DESC, probe;
+/* EXPECT, if the hypothesis holds:
+     SESSION mode · both-objects  -> mixed_readings > 0
+     GLOBAL  mode · both-objects  -> mixed_readings = 0
+   If GLOBAL is also non-zero, the cause is NOT the consistency mode and
+   the finding is a property of the swap itself. Either way, RECORD IT —
+   this is the result that decides whether the group guarantee is
+   reachable with a configuration change or needs a design change.     */
+
+/* 5c. PUT THE ACCOUNT BACK. Do not skip this. */
+USE ROLE ACCOUNTADMIN;
+ALTER ACCOUNT SET READ_CONSISTENCY_MODE = SESSION;
+SHOW PARAMETERS LIKE 'READ_CONSISTENCY_MODE' IN ACCOUNT;
+SELECT 'R2 5c — mode restored' AS check_name, "key" AS parameter_name, "value" AS value_in_force
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+/* EXPECT  SESSION */

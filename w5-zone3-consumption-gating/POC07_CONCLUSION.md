@@ -22,9 +22,14 @@ a bug to fix in the scripts; it is the mechanism doing what it is documented to 
 
 **So: adopt the swap, and do not adopt `COPY TAGS` as the protection mechanism.**
 
-One further thing must be said plainly: **the single requirement this POC was created to
-settle — R2, that no reader can observe a mixture of the old and new state — has not been
-tested by anyone.** See section 3.
+**R2 is now settled, and it passed.** 300 reads of a single object taken while 40 swaps
+were in flight produced zero mixtures. The mechanism does what it was chosen to do.
+
+**R3 did not.** One reading in 300 saw both objects on different batches at the same
+instant. Each table flips atomically; the two do not reliably flip *together* for a reader
+in another session. The likeliest cause is the account's `READ_CONSISTENCY_MODE`, and
+`PART 5` of the test settles whether a configuration change closes it. That is now the
+most important open question in the POC.
 
 ---
 
@@ -33,7 +38,7 @@ tested by anyone.** See section 3.
 | Req | Statement | Evidence |
 |---|---|---|
 | **R1** | Consumers see the previous state while inputs refresh | Every scenario. Readers hold at the previous `batch_id` until the swap |
-| **R3** | Group members become visible together | `batch ids across the thin views` unions both objects and returns `distinct_batches = 1` in all ten scenarios, both runs. One schema swap moves both tables |
+| **R2** | **No reader observes a mixture of the old and new state of the same object** | **300 readings of one object taken while 40 swaps were in flight: zero mixtures.** The swap is atomic for a single table. See §1a |
 | **R7** | Visible state changes only on publication | S05 TC-05.2: upstream `CUSTOMER` COMPLETED, `POLICY` FAILED, no swap, views unchanged |
 | **R8** | Publication only after every job completed | S05 TC-05.1 gate empty → publish |
 | **R9** | Any failure or non-completion blocks publication, no auto-release | S05 TC-05.2 (FAILED) and TC-05.3 (**no status row at all**) both refused; views stayed at B1 |
@@ -44,6 +49,22 @@ tested by anyone.** See section 3.
 | **R19** | Determinable which version consumers see | `batch_id` in the data plus `PUBLISH_LOG.attempted_at` |
 | **R28** | Consumer-side protection unchanged across publication | S08 TC-08.1/08.2 through the thin views; S10 TC-10.3 after rollback |
 | **R29** | One-step rollback by operator action | S10 TC-10.3: swap back, `batch_seen` returns to B1, tags and grants return with the storage |
+
+### 1a. R2 — settled, 27 October
+
+The two-session test (`poc07-nb/r2_atomicity_two_session.sql`) finally ran. The validity
+gate passed first: **600 readings, 40 swaps, 40 of them inside the reading window**, and
+the reader observed the batch id alternate — so it genuinely was reading across swaps,
+which is what the earlier attempt could not establish.
+
+| Probe | Readings | Mixed | Result |
+|---|---|---|---|
+| one object, one statement | 300 | **0** | **R2 HOLDS** |
+| both objects, one statement | 300 | **1** | **R3 FAILS** — see §2 |
+
+**R2 is answered, and the answer is yes.** A single published table flips atomically; no
+reader ever saw part of one batch and part of another in the same object. That is the
+guarantee the mechanism was chosen for, and it holds.
 
 ---
 
@@ -62,6 +83,34 @@ tested by anyone.** See section 3.
 
 R25 requires protection to come from live governance state, "not a snapshot". `COPY TAGS`
 is definitionally a snapshot. **This cannot be fixed by tightening the scripts.**
+
+### R3 — the two objects did not flip together
+
+**One reading in 300 saw `RA` and `RB` at the same instant** — seq 131,
+`2026-10-27 01:17:38.175`, `distinct_batches = 2`. One published object was still on the
+previous batch while the other had already moved to the new one. Over 40 swaps that is
+roughly one mixed read per publication for a reader querying continuously.
+
+R3 requires that all objects in a consistency group become visible together or not at
+all. They did not. **This is the mixed-batch read the whole requirement exists to
+prevent — at group level rather than object level.**
+
+The swap itself is a single metadata operation and each table moved atomically (§1a). So
+the failure is not in the swap; it is in **cross-session visibility of it**. Snowflake
+documents `READ_CONSISTENCY_MODE`: the default `SESSION` gives consistency within a
+session but *"a concurrent session may not see another session's changes straight away"*;
+`GLOBAL` makes them immediately visible across sessions for a cost of milliseconds. Our
+swap runs in one session and our read in another, which is exactly that case.
+
+**The docs do not state how this interacts with `ALTER SCHEMA … SWAP`, so that is a
+hypothesis, not a conclusion.** `PART 5` of the test file settles it: archive the
+SESSION-mode evidence, set the account to `GLOBAL`, re-run, compare. If GLOBAL closes the
+window, the group guarantee is reachable by configuration. If it does not, it needs a
+design change. **This is now the single most important open item in the POC.**
+
+Note the operational cost either way: `READ_CONSISTENCY_MODE` is **account-level only and
+ACCOUNTADMIN-only**, so turning it on affects every workload on the account, not just
+this one.
 
 ### R10 — the override cannot be granted in the case that needs it most
 
@@ -90,15 +139,14 @@ merely beside it.
 
 | Req | Why it matters | Status |
 |---|---|---|
-| **R2** | *"No reader can observe a mixture of the previous and the new state"* — **the reason this POC exists** | **No evidence.** S09 TC-09.2 returned `READER_READINGS = 0`: the publisher ran 25 swaps and logged 25 rows, all publisher markers with `distinct_batches` null. No read was taken while a swap was in flight. TC-09.3 recorded only the same-session row; the cross-session row is absent |
-| **R6** | Publication must not cancel, error or block in-flight consumer queries | **No evidence.** Same gap — no concurrent reader ever ran |
+| **R6** | Publication must not cancel, error or block in-flight consumer queries | **Out of scope** — Nikhil's call, 27 October. The R2 run would answer it as a by-product, since all 600 reader statements returned, but nothing has been built or claimed for it |
 | **R4** | Publishing one group must not make another inconsistent | **Never tested.** Only one consistency group exists in the suite |
 | **R26** | Row access policies subject to R14/R16/R17 | **Never tested.** No row access policy anywhere in either pack |
 | **R22** | Per-cycle refresh expectation for mixed cadences | **Partial.** `is_required` is a static flag on the object, not a per-batch expectation. R22 explicitly calls out objects on different cadences |
 
-A single-threaded harness cannot produce R2 or R6. Two genuine concurrent sessions are
-required, and the account is on `READ_CONSISTENCY_MODE = SESSION` (verified), which is the
-condition under which the question is interesting.
+R2 is no longer on this list — see §1a. The remaining four need either a second
+consistency group, a row access policy, or a change to how `is_required` is modelled;
+none of them needs the two-session apparatus.
 
 ---
 
@@ -118,10 +166,11 @@ be entitled to see every protected value in the domain it publishes.**
 
 Ordered by what blocks a conclusion.
 
-1. **Test R2 and R6 properly.** Two concurrent Snowsight sessions: one looping reads
-   across the union of the published objects, one looping swaps. Count readings where
-   `distinct_batches > 1`. Until this returns a number, the POC has not answered its own
-   question.
+1. **Run `PART 5` — does `GLOBAL` consistency mode close the R3 window?** Archive the
+   SESSION evidence, set the account to `GLOBAL`, re-run the two blocks, compare. A clean
+   GLOBAL run means the group guarantee costs a configuration change and milliseconds of
+   latency. A dirty one means it needs a design change. Everything else in this list is
+   cheaper than this question is important. *(R2 itself is done — §1a.)*
 2. **Replace `COPY TAGS` with re-applying tags from live governance** after each build,
    and re-run S01, S03 and S07. This is the design change the evidence demands. Note that
    the original `INSERT OVERWRITE` proposal sidesteps R14/R17/R25 entirely, because the
