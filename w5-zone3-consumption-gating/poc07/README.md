@@ -3,6 +3,10 @@
 Runnable Snowflake SQL for the ten scenarios in
 [`../POC07_CTAS_Swap_Test_Tracker.xlsx`](../POC07_CTAS_Swap_Test_Tracker.xlsx).
 
+> There is a parallel **NB_ copy** of this pack in [`../poc07-nb/`](../poc07-nb/), for running on the
+> same account at the same time without collision. It uses the shared `LM_POC_DB` and `NB_` names.
+> This folder is unchanged — keep using it.
+
 `00_setup.sql` has been run on the real account. The scenario scripts have been reviewed and
 corrected against the errors setup raised, but **not yet executed**.
 
