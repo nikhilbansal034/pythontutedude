@@ -13,10 +13,25 @@
 SET wh = 'POC_WH';
 USE SECONDARY ROLES NONE;
 
-/* A masking policy cannot be dropped while attached to a tag.
-   ON A SECOND RUN of this file the P8_ roles are already gone, so the
-   next line fails on USE ROLE. That is harmless - skip to the DROP
-   SCHEMA block below, which removes tag and policy together.         */
+/* ---------------------------------------------------------------------
+   A masking policy cannot be dropped while attached to a tag, so the
+   policy is detached first.
+
+   THE GRANT BELOW IS DELIBERATE, AND TEARDOWN ISSUES IT ITSELF.
+   Detaching a policy from a tag needs APPLY MASKING POLICY on the
+   ACCOUNT, exactly as attaching it does. 00_setup.sql grants that - but
+   teardown must also work when SETUP NEVER FINISHED, which is the
+   common case: setup failed partway and you are here to clean up. So
+   teardown does not assume the grant exists. It is idempotent, and
+   dropping P8_GOV_ROLE below takes it away again.
+
+   ON A SECOND RUN of this file the P8_ roles are already gone and the
+   next two statements fail on the missing role. That is harmless -
+   skip to the DROP SCHEMA block, which removes tag and policy together.
+   --------------------------------------------------------------------- */
+USE ROLE SECURITYADMIN;
+GRANT APPLY MASKING POLICY ON ACCOUNT TO ROLE P8_GOV_ROLE;
+
 USE ROLE P8_GOV_ROLE; USE DATABASE LM_POC_DB; USE WAREHOUSE IDENTIFIER($wh);
 ALTER TAG IF EXISTS P8_GOV.P8_PII UNSET MASKING POLICY P8_GOV.P8_MASK;
 
