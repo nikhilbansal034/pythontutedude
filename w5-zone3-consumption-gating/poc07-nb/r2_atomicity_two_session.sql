@@ -287,22 +287,68 @@ ORDER BY seq LIMIT 60;
    set. Agree it first, keep the window short, and run 5c to put it back.
    ===================================================================== */
 
-/* 5a. Keep the SESSION-mode evidence, then switch the account to GLOBAL. */
+/* ---------------------------------------------------------------------
+   RUN THESE IN ORDER. 5c IS NOT SQL — it is a step you perform.
+   Skipping it leaves the comparison with nothing to compare, which is
+   exactly what happened on the first attempt.
+   --------------------------------------------------------------------- */
+
+/* 5a. What is already stored? Read this before changing anything.     */
+USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB; USE WAREHOUSE POC_WH;
+SELECT 'R2 5a — what is stored now' AS check_name,
+       run_id, COUNT(*) AS readings, COUNT_IF(distinct_batches > 1) AS mixed_readings
+FROM NB_CTRL.R2_READINGS WHERE probe <> 'swap'
+GROUP BY run_id ORDER BY run_id;
+/* EXPECT  one row, run_id = R2, from the SESSION-mode run.
+   If you already see R2-SESSION here, 5b has been run before — do NOT
+   run it again or it will relabel your GLOBAL run as the SESSION one.
+   Skip to 5c.                                                         */
+
+/* 5b. Archive the SESSION evidence, then switch the account to GLOBAL. */
 USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB; USE WAREHOUSE POC_WH;
 UPDATE NB_CTRL.R2_READINGS SET run_id = 'R2-SESSION' WHERE run_id = 'R2';
 
 USE ROLE ACCOUNTADMIN;
 ALTER ACCOUNT SET READ_CONSISTENCY_MODE = GLOBAL;
 SHOW PARAMETERS LIKE 'READ_CONSISTENCY_MODE' IN ACCOUNT;
-SELECT 'R2 5a — mode now in force' AS check_name, "key" AS parameter_name, "value" AS value_in_force
+SELECT 'R2 5b — mode now in force' AS check_name, "key" AS parameter_name, "value" AS value_in_force
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 /* EXPECT  GLOBAL */
 
-/* 5b. Re-run PART 2 and PART 3 exactly as before, in the same two
-       worksheets, same order. They write run_id 'R2' again, so the
-       SESSION run is preserved under 'R2-SESSION'. Then run this: */
+
+/* =====================================================================
+   5c.  >>>  STOP. GO AND RUN PART 2 AND PART 3 AGAIN.  <<<
+   =====================================================================
+   This is the actual experiment. Nothing below measures anything until
+   it is done.
+
+     - Worksheet B: run PART 3 (the reader).      START FIRST.
+     - Worksheet A: run PART 2 (the publisher).   START SECOND.
+
+   Same blocks, unchanged. They write run_id 'R2' again; your SESSION
+   evidence is already safe under 'R2-SESSION'.
+
+   Only when BOTH blocks have returned, come back and run 5d.
+   ===================================================================== */
+
+
+/* 5d. Did the GLOBAL run actually happen? Read this BEFORE 5e.        */
 USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB; USE WAREHOUSE POC_WH;
-SELECT 'R2 5b — SESSION vs GLOBAL' AS check_name,
+SELECT 'R2 5d — is the comparison valid?' AS check_name,
+       COUNT_IF(run_id = 'R2')         AS global_readings,
+       COUNT_IF(run_id = 'R2-SESSION') AS session_readings,
+       CASE
+         WHEN COUNT_IF(run_id = 'R2') = 0
+              THEN 'GLOBAL RUN MISSING — 5c was skipped. Go back, re-run PART 2 and PART 3, then return here. 5e means nothing until this says VALID'
+         WHEN COUNT_IF(run_id = 'R2-SESSION') = 0
+              THEN 'SESSION RUN MISSING — nothing to compare against'
+         ELSE 'VALID — both runs present'
+       END AS comparison_validity
+FROM NB_CTRL.R2_READINGS WHERE probe <> 'swap';
+/* EXPECT  global_readings = 600, session_readings = 600, VALID.       */
+
+/* 5e. The comparison.                                                 */
+SELECT 'R2 5e — SESSION vs GLOBAL' AS check_name,
        CASE run_id WHEN 'R2-SESSION' THEN 'SESSION mode' ELSE 'GLOBAL mode' END AS mode,
        probe,
        COUNT(*)                       AS readings,
@@ -310,18 +356,19 @@ SELECT 'R2 5b — SESSION vs GLOBAL' AS check_name,
 FROM NB_CTRL.R2_READINGS
 WHERE run_id IN ('R2','R2-SESSION') AND probe <> 'swap'
 GROUP BY run_id, probe ORDER BY mode DESC, probe;
-/* EXPECT, if the hypothesis holds:
+/* EXPECT FOUR ROWS. Two means 5c was skipped — see 5d.
+   If the hypothesis holds:
      SESSION mode · both-objects  -> mixed_readings > 0
      GLOBAL  mode · both-objects  -> mixed_readings = 0
    If GLOBAL is also non-zero, the cause is NOT the consistency mode and
-   the finding is a property of the swap itself. Either way, RECORD IT —
-   this is the result that decides whether the group guarantee is
-   reachable with a configuration change or needs a design change.     */
+   R3 needs a design change rather than a setting. Either way, RECORD IT.
+   One mixed reading in 300 is a thin signal: if GLOBAL comes back clean,
+   run 5c once more and confirm it stays clean before concluding.      */
 
-/* 5c. PUT THE ACCOUNT BACK. Do not skip this. */
+/* 5f. PUT THE ACCOUNT BACK. Do not skip this. */
 USE ROLE ACCOUNTADMIN;
 ALTER ACCOUNT SET READ_CONSISTENCY_MODE = SESSION;
 SHOW PARAMETERS LIKE 'READ_CONSISTENCY_MODE' IN ACCOUNT;
-SELECT 'R2 5c — mode restored' AS check_name, "key" AS parameter_name, "value" AS value_in_force
+SELECT 'R2 5f — mode restored' AS check_name, "key" AS parameter_name, "value" AS value_in_force
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
 /* EXPECT  SESSION */
