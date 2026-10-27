@@ -41,6 +41,22 @@ ALTER SCHEMA D_STAGE SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN';
 TRUNCATE TABLE CTRL.BATCH_STATUS;
 TRUNCATE TABLE CTRL.PUBLISH_LOG;
 
+/* OBJECT_REGISTRY and OBJECT_DEPENDENCY describe the graph, not the run.
+   S05 mutates both and restores them at the end, but a run that stops part
+   way would leave them changed and silently weaken every later scenario.
+   Rebuilding them here makes each scenario independent of that.        */
+DELETE FROM CTRL.OBJECT_DEPENDENCY;
+DELETE FROM CTRL.OBJECT_REGISTRY;
+INSERT INTO CTRL.OBJECT_REGISTRY (object_name, object_type, is_required, live_schema, stage_schema) VALUES
+  ('CUSTOMER'      ,'SOURCE'   ,'Y','',''),
+  ('POLICY'        ,'SOURCE'   ,'Y','',''),
+  ('CUSTOMER_360'  ,'PUBLISHED','Y','D_LIVE','D_STAGE'),
+  ('POLICY_SUMMARY','PUBLISHED','Y','D_LIVE','D_STAGE');
+INSERT INTO CTRL.OBJECT_DEPENDENCY (object_name, depends_on_object) VALUES
+  ('CUSTOMER_360'  ,'CUSTOMER'),
+  ('CUSTOMER_360'  ,'POLICY'),
+  ('POLICY_SUMMARY','POLICY');
+
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;

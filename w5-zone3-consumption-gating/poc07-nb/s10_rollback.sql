@@ -41,6 +41,22 @@ ALTER SCHEMA NB_D_STAGE SET TAG LM_POC_DB.NB_GOV.PII_SCOPE = 'NB_DOMAIN';
 TRUNCATE TABLE NB_CTRL.BATCH_STATUS;
 TRUNCATE TABLE NB_CTRL.PUBLISH_LOG;
 
+/* OBJECT_REGISTRY and OBJECT_DEPENDENCY describe the graph, not the run.
+   S05 mutates both and restores them at the end, but a run that stops part
+   way would leave them changed and silently weaken every later scenario.
+   Rebuilding them here makes each scenario independent of that.        */
+DELETE FROM NB_CTRL.OBJECT_DEPENDENCY;
+DELETE FROM NB_CTRL.OBJECT_REGISTRY;
+INSERT INTO NB_CTRL.OBJECT_REGISTRY (object_name, object_type, is_required, live_schema, stage_schema) VALUES
+  ('CUSTOMER'      ,'SOURCE'   ,'Y','',''),
+  ('POLICY'        ,'SOURCE'   ,'Y','',''),
+  ('CUSTOMER_360'  ,'PUBLISHED','Y','NB_D_LIVE','NB_D_STAGE'),
+  ('POLICY_SUMMARY','PUBLISHED','Y','NB_D_LIVE','NB_D_STAGE');
+INSERT INTO NB_CTRL.OBJECT_DEPENDENCY (object_name, depends_on_object) VALUES
+  ('CUSTOMER_360'  ,'CUSTOMER'),
+  ('CUSTOMER_360'  ,'POLICY'),
+  ('POLICY_SUMMARY','POLICY');
+
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.NB_D_LIVE  TO ROLE NB_VIEW_OWNER;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.NB_D_STAGE TO ROLE NB_VIEW_OWNER;
@@ -200,7 +216,6 @@ SELECT 'batch ids across the thin views' AS check_name,
 FROM ( SELECT batch_id FROM NB_D_VIEWS.V_CUSTOMER_360
        UNION ALL SELECT batch_id FROM NB_D_VIEWS.V_POLICY_SUMMARY );
 /* EXPECT  distinct_batches = 1,  batch_seen = B2 */
-/* EXPECT  batch_seen = B2 */
 
 /* =====================================================================
    TC-10.3   A problem is found — roll back
@@ -220,8 +235,7 @@ SELECT 'batch ids across the thin views' AS check_name,
        COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen
 FROM ( SELECT batch_id FROM NB_D_VIEWS.V_CUSTOMER_360
        UNION ALL SELECT batch_id FROM NB_D_VIEWS.V_POLICY_SUMMARY );
-/* EXPECT  distinct_batches = 1,  batch_seen = B1 */
-/* EXPECT  batch_seen = B1. The rollback worked. */
+/* EXPECT  distinct_batches = 1,  batch_seen = B1 — the rollback worked. */
 
 /* These read object metadata, so they need a role with privileges ON the
    object and a warehouse. A reader role has neither on NB_D_LIVE, and would
