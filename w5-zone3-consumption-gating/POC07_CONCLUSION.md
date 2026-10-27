@@ -1,209 +1,196 @@
-# POC07 — what the testing concluded
+# POC07 — where we stand, and what CTAS + Swap actually proved
 
-Two independent runs of the same suite: ours in `LM_POC_DB` captured as screenshots, the
-colleague's in `P7_POC` captured as 1,674 statements of JSON. Same defect list, same two
-failures. This is the combined verdict against the 29 requirements in
-[`problem_statement.md`](problem_statement.md).
+One document. It replaces the earlier version, which grew by accretion as results came in.
 
 ---
 
-## The short answer
+## 1. What this POC was asked to settle
 
-**The swap works. The rebuild is what breaks governance.**
+From [`problem_statement.md`](problem_statement.md). The requirement is deliberately stated
+as **observable behaviour, naming no mechanism** — section 11: *"It names no mechanism.
+Every requirement is stated in terms of observable behaviour so that the option space can
+be evaluated against it without prejudice."*
 
-`ALTER SCHEMA … SWAP` delivers the consistency requirement cleanly — every gating,
-override, rollback and attribution requirement that was tested, passed. Nothing in two
-runs suggests the publication mechanism is wrong.
+So the question is not "does CTAS + Swap work". It is **"which of the 29 requirements does
+CTAS + Swap satisfy, and which does it not"**.
 
-But `CREATE OR REPLACE TABLE … COPY TAGS` is a **snapshot of the table it replaces**, not
-a read of live governance. Three requirements depend on protection reflecting current
-governance at publication time, and all three fail by design, not by defect. That is not
-a bug to fix in the scripts; it is the mechanism doing what it is documented to do.
+The requirement splits in two, and section 2 says the two are *not separable in delivery*:
 
-**So: adopt the swap, and do not adopt `COPY TAGS` as the protection mechanism.**
-
-**R2 is now settled, and it passed.** 300 reads of a single object taken while 40 swaps
-were in flight produced zero mixtures. The mechanism does what it was chosen to do.
-
-**R3 did not.** One reading in 300 saw both objects on different batches at the same
-instant. Each table flips atomically; the two do not reliably flip *together* for a reader
-in another session. The likeliest cause is the account's `READ_CONSISTENCY_MODE`, and
-`PART 5` of the test settles whether a configuration change closes it. That is now the
-most important open question in the POC.
-
----
-
-## 1. What is proven
-
-| Req | Statement | Evidence |
+| | **Part A — publication gating** | **Part B — governance continuity** |
 |---|---|---|
-| **R1** | Consumers see the previous state while inputs refresh | Every scenario. Readers hold at the previous `batch_id` until the swap |
-| **R2** | **No reader observes a mixture of the old and new state of the same object** | **300 readings of one object taken while 40 swaps were in flight: zero mixtures.** The swap is atomic for a single table. See §1a |
-| **R7** | Visible state changes only on publication | S05 TC-05.2: upstream `CUSTOMER` COMPLETED, `POLICY` FAILED, no swap, views unchanged |
-| **R8** | Publication only after every job completed | S05 TC-05.1 gate empty → publish |
-| **R9** | Any failure or non-completion blocks publication, no auto-release | S05 TC-05.2 (FAILED) and TC-05.3 (**no status row at all**) both refused; views stayed at B1 |
-| **R10** | An authorised override path exists | S06 TC-06.3: B2 REFUSED, then B2 PUBLISHED with `exceptions_used` naming the approver — **for the FAILED case only, see §2** |
-| **R11** | Every publication attributable | `PUBLISH_LOG` carries batch, time, outcome, reason, exception, identity |
-| **R12** | An override does not leak into the next cycle | S06 TC-06.4: B2 → `Y` with approver, B3 → `N` with none |
-| **R15** | No masked value persisted as real | Proven **both ways**: S08 TC-08.4 an unentitled writer stored `***MASKED***` to disk; TC-08.5 an entitled one stored real values |
-| **R19** | Determinable which version consumers see | `batch_id` in the data plus `PUBLISH_LOG.attempted_at` |
-| **R28** | Consumer-side protection unchanged across publication | S08 TC-08.1/08.2 through the thin views; S10 TC-10.3 after rollback |
-| **R29** | One-step rollback by operator action | S10 TC-10.3: swap back, `batch_seen` returns to B1, tags and grants return with the storage |
+| Failure mode | **Visibly** — wrong numbers on a report | **Silently** — exposed data, no error |
+| Requirements | R1–R13, R15, R19, R22, R29 | R14, R16, R17, R18, R25–R28 |
 
-### 1a. R2 — settled, 27 October
+**In scope:** consumption-layer objects, what consumers may observe and when, the
+governance posture across a publication, the identity that publishes.
+**Out of scope:** how Zone 2 works, as-of access to prior states, and — explicitly — any
+particular platform mechanism.
 
-The two-session test (`poc07-nb/r2_atomicity_two_session.sql`) finally ran. The validity
-gate passed first: **600 readings, 40 swaps, 40 of them inside the reading window**, and
-the reader observed the batch id alternate — so it genuinely was reading across swaps,
-which is what the earlier attempt could not establish.
+Two assumptions bound the answer: **A5**, batches are strictly serialised; **A4**,
+consumers read through the published path and do not bypass it.
 
-| Probe | Readings | Mixed | Result |
+---
+
+## 2. Where the evidence came from
+
+| | Our run | The colleague's run |
+|---|---|---|
+| Objects | `LM_POC_DB`, `NB_` roles | `P7_POC`, `P7_` roles |
+| Method | Snowsight, 75 screenshots | Python harness, 1,674 statements captured |
+| Coverage | S01–S05, plus the R2 two-session test | S01–S10, 50 cases |
+| Result | 23 pass · 1 fail · 2 inconclusive | 33 pass · 2 fail · 0 error · 12 need reading |
+
+Same suite, corrected independently on both sides. **They hit ten of the same defects we
+did, and the same two failures.** Where the two runs agree, the finding is solid.
+
+---
+
+## 3. The question that matters: are these real, or are they our scripts?
+
+Roughly **thirty distinct defects** were found across both reviews. They are not all the
+same kind of thing, and lumping them together is what makes the picture confusing. Sorted
+by what they actually tell us:
+
+### Bucket 1 — genuine properties of CTAS + Swap · **5 findings**
+
+These cannot be fixed by writing better SQL. They are what the mechanism does.
+
+| # | Property | Evidence | Consequence |
 |---|---|---|---|
-| one object, one statement | 300 | **0** | **R2 HOLDS** |
-| both objects, one statement | 300 | **1** | **R3 FAILS** — see §2 |
+| 1 | **`COPY TAGS` copies from the table it replaces, not from live governance** | `TC-01.1` first build publishes untagged · `TC-03.1` **0,2,0,2** across four batches, reproduced in both runs · `TC-03.4` a newly tagged base column arrives unprotected and reads back as real phone numbers · `TC-04.3` + `TC-07.4` once tags are lost a rebuild cannot restore them | **Fails R14, R17, R25.** The disqualifying one |
+| 2 | **The swap pair alternates between two physical storages** | `TC-03.1`, `TC-01.5` | Anything deployed to one schema only is missing on **every other batch, forever**. Makes #1 twice as damaging |
+| 3 | **`COPY GRANTS` has the same bootstrap gap** | `TC-04.5` — no predecessor, nothing copied | Real, but future grants cover it |
+| 4 | **CTAS replaces the table, so OWNERSHIP moves to whoever ran it** | `TC-08.4` | Per-cycle ownership churn; the publishing role can lose its own table |
+| 5 | **CTAS reads and rewrites the data** | `TC-08.4` unentitled writer persists `***MASKED***` · `TC-08.5` entitled writer persists real values | **Closes R27 route (b).** The batch identity *must* be entitled to see all PII in the domain |
 
-**R2 is answered, and the answer is yes.** A single published table flips atomically; no
-reader ever saw part of one batch and part of another in the same object. That is the
-guarantee the mechanism was chosen for, and it holds.
+### Bucket 2 — genuine properties, and they are the good news · **3 findings**
 
----
-
-## 2. What fails
-
-### R14, R17, R25 — protection does not follow live governance
-
-`COPY TAGS` copies a table's tags **from the table it replaces**. Four independent results:
-
-| Evidence | Result |
-|---|---|
-| S01 TC-01.1 | First build: no predecessor, table published **untagged**; an unentitled reader saw real e-mail and SSN |
-| S03 TC-03.1 | Tags seeded in one schema only → **0, 2, 0, 2** across four batches. Reproduced identically in both runs. The swap pair alternates between two storages, so the loss repeats on every other batch **forever** |
-| S03 TC-03.4 | A column newly tagged in the Zone 3 base table arrives **untagged** on the published table and reads back as real phone numbers — **a direct R17 violation** |
-| S04 TC-04.3 / S07 TC-07.4 | Once tags are lost, a rebuild **cannot** restore them — it copies the now-untagged predecessor. TC-07.4 proves it with two refusals either side of a full rebuild |
-
-R25 requires protection to come from live governance state, "not a snapshot". `COPY TAGS`
-is definitionally a snapshot. **This cannot be fixed by tightening the scripts.**
-
-### R3 — the two objects did not flip together
-
-**One reading in 300 saw `RA` and `RB` at the same instant** — seq 131,
-`2026-10-27 01:17:38.175`, `distinct_batches = 2`. One published object was still on the
-previous batch while the other had already moved to the new one. Over 40 swaps that is
-roughly one mixed read per publication for a reader querying continuously.
-
-R3 requires that all objects in a consistency group become visible together or not at
-all. They did not. **This is the mixed-batch read the whole requirement exists to
-prevent — at group level rather than object level.**
-
-The swap itself is a single metadata operation and each table moved atomically (§1a). So
-the failure is not in the swap; it is in **cross-session visibility of it**. Snowflake
-documents `READ_CONSISTENCY_MODE`: the default `SESSION` gives consistency within a
-session but *"a concurrent session may not see another session's changes straight away"*;
-`GLOBAL` makes them immediately visible across sessions for a cost of milliseconds. Our
-swap runs in one session and our read in another, which is exactly that case.
-
-**The docs do not state how this interacts with `ALTER SCHEMA … SWAP`, so that is a
-hypothesis, not a conclusion.** `PART 5` of the test file settles it: archive the
-SESSION-mode evidence, set the account to `GLOBAL`, re-run, compare. If GLOBAL closes the
-window, the group guarantee is reachable by configuration. If it does not, it needs a
-design change. **This is now the single most important open item in the POC.**
-
-Note the operational cost either way: `READ_CONSISTENCY_MODE` is **account-level only and
-ACCOUNTADMIN-only**, so turning it on affects every workload on the account, not just
-this one.
-
-### R10 — the override cannot be granted in the case that needs it most
-
-Their TC-05.3b. The gate reads `exception_flag` from the dependency's own `BATCH_STATUS`
-row. A dependency that **never reported** has no row, so there is nothing to flag: the
-approving `UPDATE` matches zero rows and **reports success**. `rows_updated = 0`, proven.
-The approver believes the block is cleared; it is not. The domain stays stuck until
-someone writes a status the ETL never reported — putting a fiction in the control table.
-
-Their TC-05.3c shows the fix: approvals in their own table keyed on
-`(batch_id, object_name)`, one extra `LEFT JOIN` in the gate, and the reset property
-preserved.
-
-### R16 — satisfiable, but nothing enforces it
-
-The security gate works: it refused correctly every time it was run. But the publish steps
-are plain SQL, so **nothing stops an operator reading "2 rows returned" and swapping
-anyway.** S03 TC-03.1 is the demonstration — four batches published with no security
-check, two of them carrying unprotected PII, every one logged `PUBLISHED`. R16 requires
-the governance step to be *inside* the gate; without an owner's-rights procedure it is
-merely beside it.
-
----
-
-## 3. What has not been tested at all
-
-| Req | Why it matters | Status |
+| # | Property | Evidence |
 |---|---|---|
-| **R6** | Publication must not cancel, error or block in-flight consumer queries | **Out of scope** — Nikhil's call, 27 October. The R2 run would answer it as a by-product, since all 600 reader statements returned, but nothing has been built or claimed for it |
-| **R4** | Publishing one group must not make another inconsistent | **Never tested.** Only one consistency group exists in the suite |
-| **R26** | Row access policies subject to R14/R16/R17 | **Never tested.** No row access policy anywhere in either pack |
-| **R22** | Per-cycle refresh expectation for mixed cadences | **Partial.** `is_required` is a static flag on the object, not a per-batch expectation. R22 explicitly calls out objects on different cadences |
+| 6 | **A single published table flips atomically** | **300 reads taken mid-swap, 0 mixed.** R2 holds |
+| 7 | **Grants travel with the storage across a swap** | `TC-04.1` |
+| 8 | **Rollback by swapping back works, and tags and grants come back with it** | `TC-10.3` |
 
-R2 is no longer on this list — see §1a. The remaining four need either a second
-consistency group, a row access policy, or a change to how `is_required` is modelled;
-none of them needs the two-session apparatus.
+### Bucket 3 — open, and possibly not the mechanism at all · **1 finding**
 
----
+| # | Finding | Status |
+|---|---|---|
+| 9 | **Two objects did not flip together for a reader in another session** — 1 mixed read in 300, `RA` and `RB` at the same instant | **Unresolved.** R3. Each table flipped atomically (#6), so the swap is not at fault. Snowflake's `READ_CONSISTENCY_MODE` default of `SESSION` does not guarantee a concurrent session sees another session's change immediately, which is exactly our case — but the docs do not say how this interacts with `ALTER SCHEMA … SWAP`. **Could be a one-line account setting; could be a design problem. Not yet known** |
 
-## 4. One decision the POC has settled
+### Bucket 4 — our control-table design, not CTAS + Swap · **4 findings**
 
-**R27 is now forced.** It permits R15 to be satisfied either by (a) the publication
-identity passing through every masking policy, or (b) a mechanism that does not read and
-rewrite the data. CTAS **is** read-and-rewrite, so route (b) is closed. S08 proves both
-halves of (a): an unentitled writer persists masks, an entitled one does not.
+**These would be identical under INSERT OVERWRITE, or any other publication mechanism.**
 
-The consequence is an operating decision, not a technical one: **the batch identity must
-be entitled to see every protected value in the domain it publishes.**
+| # | Finding | Why it is not about CTAS |
+|---|---|---|
+| 10 | A dependency that never reported has no `BATCH_STATUS` row, so `exception_flag` has nothing to attach to and the approving `UPDATE` is a **silent no-op** (`rows_updated = 0`, proven) | Fails **R10**. It is a flaw in where we chose to put the flag |
+| 11 | A rollback logged as `REFUSED` states the batch never reached readers — the opposite of the truth | Fails **R11**. A logging choice |
+| 12 | No stored procedure, so the gate is advisory — `TC-03.1` published four batches, two unprotected, with no check at all | Fails **R16** enforcement. A deliberate POC simplification |
+| 13 | `is_required` is a static flag on the object, not a per-cycle expectation | Partial **R22**. A modelling choice |
 
----
+### Bucket 5 — defects in our test scripts · **~20 findings**
 
-## 5. What is needed before this can be called done
+Unqualified grants after `USE ROLE SECURITYADMIN`; tag checks not filtered to `PII`;
+`distinct_batches = 1` over an empty view; doubled contradictory `EXPECT` lines;
+`RESULT_SCAN` under a role with no warehouse; drift fingerprints running as the reader;
+a probe selecting a column the view had just renamed; `s09` not executable; `TC-07.4`
+proving nothing; wrong batch ranges in headers.
 
-Ordered by what blocks a conclusion.
-
-1. **Run `PART 5` — does `GLOBAL` consistency mode close the R3 window?** Archive the
-   SESSION evidence, set the account to `GLOBAL`, re-run the two blocks, compare. A clean
-   GLOBAL run means the group guarantee costs a configuration change and milliseconds of
-   latency. A dirty one means it needs a design change. Everything else in this list is
-   cheaper than this question is important. *(R2 itself is done — §1a.)*
-2. **Replace `COPY TAGS` with re-applying tags from live governance** after each build,
-   and re-run S01, S03 and S07. This is the design change the evidence demands. Note that
-   the original `INSERT OVERWRITE` proposal sidesteps R14/R17/R25 entirely, because the
-   table object is never replaced and its tags and grants are never disturbed — worth
-   re-examining with this evidence in hand, as an input to the decision rather than a
-   reversal of it.
-3. **Move exception approval into its own table** keyed on `(batch_id, object_name)`
-   (their TC-05.3c) so R10 is satisfiable for a dependency that never reported.
-4. **Wrap publication in one owner's-rights stored procedure** so R16 is enforced rather
-   than merely available, and so R18 can be answered.
-5. **Add a second consistency group** and test R4.
-6. **Add a row access policy** and test R26.
-7. **Adopt `ROLLED_BACK`** as a `PUBLISH_LOG` outcome. Logging a rollback as `REFUSED`
-   states that the batch never reached readers, which is the opposite of the truth and
-   the one fact an incident review needs.
-8. **Decide future grants vs `COPY GRANTS`.** Both work. Future grants also cover the day-1
-   bootstrap; `COPY GRANTS` does not. But S04 TC-04.7 shows the cost of the future-grant
-   route — the view owner can read **unpublished staging data** precisely because of it.
-
-Items 1 and 2 are blocking. Items 3 to 8 are scope and design decisions that do not need
-more Snowflake testing to settle.
+**Every one of these is a bug in how we tested, and tells us nothing about the approach.**
+They are worth recording only because they explain why earlier runs looked worse than the
+mechanism deserved.
 
 ---
 
-## 6. So, does CTAS + Swap work?
+## 4. So: is CTAS + Swap the wrong approach?
 
-**As a publication mechanism — yes, subject to R2 being proven.** It is atomic at the
-object and group level, it gates correctly, it refuses correctly, it rolls back, and it
-is auditable. Two independent runs agree.
+**No — and that is a precise answer, not a hedge.**
 
-**As a governance mechanism — no.** `COPY TAGS` carries yesterday's protection, not
-today's, and three requirements turn on that distinction. The swap is not the problem;
-the rebuild is.
+- Its **publication semantics are right.** Atomic per object (proven), gates correctly,
+  refuses correctly, rolls back, auditable. Bucket 2, and most of §5 below.
+- Its **governance semantics are wrong**, and the fault is narrow enough to name: **one
+  clause, `COPY TAGS`.** It carries yesterday's protection forward instead of reading
+  today's. Three requirements turn on that distinction and all three fail.
+- **Nothing in Buckets 4 or 5 — 24 of the ~30 findings — argues against CTAS + Swap at
+  all.** Four are our control-table design and would survive a change of mechanism.
+  Twenty were our own test bugs.
 
-The recommendation that follows is narrow: **keep the swap, change how protection is
-applied to the rebuilt table, and prove R2 before anything is signed off.**
+The honest headline is: **keep the swap, replace `COPY TAGS`.**
+
+What replaces it is a design choice, not a test result. Two candidates:
+
+| Option | How it addresses R14/R17/R25 | Cost |
+|---|---|---|
+| **Re-apply tags from live governance after each build** | Reads current governance every cycle, so a changed or newly added tag lands | An extra governance step inside the gate; needs `APPLY` on the tags; needs a source of truth for "what tags should this object have" |
+| **`INSERT OVERWRITE` instead of CTAS** | The table object is never replaced, so its tags, grants and ownership are never disturbed — R14/R17/R25 stop being questions | Loses the free multi-object atomicity the schema swap gives; needs its own grouping mechanism. This was our original proposal, set aside before this evidence existed |
+
+---
+
+## 5. Requirement-by-requirement
+
+| Req | Verdict | Basis |
+|---|---|---|
+| R1 | **PASS** | Readers hold at the previous batch until the swap, every scenario |
+| **R2** | **PASS** | **300 single-object reads mid-swap, 0 mixed** |
+| **R3** | **OPEN** | 1 mixed read in 300 across objects. Bucket 3 |
+| R4 | **UNTESTED** | Only one consistency group exists |
+| R5 | PASS (partial) | Thin views sit outside the swap and always resolve |
+| R6 | **OUT OF SCOPE** | Nikhil's call, 27 Oct |
+| R7 | **PASS** | Upstream completion alone changed nothing visible |
+| R8 | **PASS** | Gate empty → publish |
+| R9 | **PASS** | FAILED *and* missing-row both refused; views held |
+| R10 | **PARTIAL** | Works for FAILED; **cannot be granted** for a never-reported dependency. Bucket 4 |
+| R11 | **PARTIAL** | Attributable, but a rollback is logged as a refusal. Bucket 4 |
+| R12 | PARTIAL | Reset proven; the "publish the completed cycle through the normal path" leg is untested |
+| R13 | N/A | Unreachable under A5 |
+| **R14** | **FAIL** | Bucket 1 #1 |
+| R15 | **PASS** | Proven both ways — `TC-08.4` / `TC-08.5` |
+| R16 | **PARTIAL** | Gate works; nothing enforces it. Bucket 4 |
+| **R17** | **FAIL** | `TC-03.4` — new tagged column published unprotected |
+| R18 | **OPEN** | Steady-state publish is fine; setup and recovery needed `MANAGE GRANTS` / `SECURITYADMIN` / `ACCOUNTADMIN` |
+| R19 | **PASS** | `batch_id` + `PUBLISH_LOG` |
+| R22 | PARTIAL | Static `is_required`, not per-cycle |
+| **R25** | **FAIL** | Bucket 1 #1 — `COPY TAGS` is definitionally a snapshot |
+| R26 | **UNTESTED** | No row access policy exists anywhere |
+| R27 | **SETTLED** | Route (b) closed by Bucket 1 #5. Route (a) works and is now mandatory |
+| R28 | **PASS** | Entitled sees real, unentitled sees masked, through the views, before and after |
+| R29 | **PASS** | `TC-10.3` |
+
+---
+
+## 6. What still needs testing — one session, not a drip
+
+Six things remain. They can be designed as **one test pack and run in a single sitting**,
+which is how it should have been done from the start.
+
+| | Test | Requirement | Why it matters — what a failure would mean |
+|---|---|---|---|
+| **T-A** | Re-run the two-session reader/publisher with the account on `READ_CONSISTENCY_MODE = GLOBAL`, twice | **R3** | The only open question about the mechanism itself. Clean → the group guarantee costs an account setting and milliseconds. Dirty → the swap does not give group atomicity across sessions and the design needs rework. **Run it twice: one mixed read in 300 is a thin signal, and a single clean run is also what "got lucky" looks like** |
+| **T-B** | A second consistency group, published while the first is mid-publication | **R4** | Untested entirely. A failure means publishing one report's data can corrupt another's — the blast radius of the whole design |
+| **T-C** | A row access policy on a published object, through a rebuild | **R26** | Untested entirely. Row policies may behave differently from masking policies across `CREATE OR REPLACE`. If they do not survive, rows leak rather than columns |
+| **T-D** | Whichever replacement for `COPY TAGS` is chosen (§4), re-running S01, S03 and S07 | **R14, R17, R25** | This is the fix for the one disqualifying finding. Until it is tested, the POC has no answer for Part B |
+| **T-E** | An exception approval in its own table, keyed on `(batch_id, object_name)` | **R10** | Closes the silent no-op. Design is already proven by the colleague's `TC-05.3c`; it needs porting and re-running |
+| **T-F** | An override, then the late job completes, then the cycle publishes complete through the normal path | **R12** | The leg nobody has run. A failure means an overridden cycle never gets corrected |
+
+**Not tests — decisions that need no Snowflake time:**
+adopt `ROLLED_BACK` (R11) · wrap publication in an owner's-rights procedure (R16, R18) ·
+model `is_required` per cycle (R22) · settle future grants vs `COPY GRANTS` · decide who
+owns deploying tags to **both** schemas, which is the fix for Bucket 1 #2 and currently has
+no owner.
+
+---
+
+## 7. Bottom line
+
+CTAS + Swap satisfies Part A. On the evidence of two independent runs it gates, refuses,
+publishes atomically per object, rolls back and audits correctly, and R2 — the requirement
+the POC was created to settle — passed.
+
+It does not satisfy Part B as built, for one reason: `COPY TAGS` carries forward the
+protection of the table it replaces rather than reading live governance. Since section 2
+of the problem statement says the two parts are not separable in delivery, **the POC
+cannot be signed off until that is replaced and re-tested, and until R3 is resolved one
+way or the other.**
+
+Everything else found — twenty-four of roughly thirty findings — is either our own test
+code or our own control-table design, and none of it is an argument against the mechanism.
