@@ -43,8 +43,8 @@ One row per published object. `column_tags` holds the column-to-tag map:
 
 ```json
 {
-  "EMAIL": { "tag": "GOV.PII", "value": "EMAIL" },
-  "SSN":   { "tag": "GOV.PII", "value": "SSN"   }
+  "EMAIL": { "tag": "LM_POC_DB.P8_GOV.P8_PII", "value": "EMAIL" },
+  "SSN":   { "tag": "LM_POC_DB.P8_GOV.P8_PII", "value": "SSN"   }
 }
 ```
 
