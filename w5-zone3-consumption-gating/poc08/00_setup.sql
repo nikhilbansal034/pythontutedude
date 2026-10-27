@@ -137,10 +137,23 @@ GRANT SELECT ON FUTURE VIEWS IN SCHEMA LM_POC_DB.P8_VIEWS TO ROLE P8_READER_NO;
    table with. P8_READER_NO doubles as that, to keep the POC to four
    roles. NOTE for production: this gives a report role standing read
    access to unpublished data. Use a dedicated probe identity instead. */
-GRANT USAGE ON SCHEMA LM_POC_DB.P8_STG TO ROLE P8_READER_NO;
-GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.P8_STG TO ROLE P8_READER_NO;
+/* BOTH HALVES OF THE SWAP PAIR, and this is not belt-and-braces.
+   ALTER SCHEMA P8_STG SWAP WITH P8_LIVE exchanges the two schemas
+   TOGETHER WITH THEIR GRANTS. A grant issued against the name P8_STG
+   follows the object, which after one swap is called P8_LIVE - so a
+   one-sided grant works on day 1 and is GONE on day 2, with the
+   privilege sitting on the wrong schema.
 
-/* P8_GOV_ROLE reads the staging table to verify tags independently. */
+   Every schema-level grant in a swap-pair design must therefore be
+   applied to BOTH schemas. Then the pair is symmetric and no swap can
+   move anything out from under a role.                                */
+GRANT USAGE ON SCHEMA LM_POC_DB.P8_STG  TO ROLE P8_READER_NO;
+GRANT USAGE ON SCHEMA LM_POC_DB.P8_LIVE TO ROLE P8_READER_NO;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.P8_STG  TO ROLE P8_READER_NO;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.P8_LIVE TO ROLE P8_READER_NO;
+
+/* P8_GOV_ROLE reads the staging table to verify tags independently.
+   Both halves, for the reason above. */
 GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.P8_STG  TO ROLE P8_GOV_ROLE;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA LM_POC_DB.P8_LIVE TO ROLE P8_GOV_ROLE;
 

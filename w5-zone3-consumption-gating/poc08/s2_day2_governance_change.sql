@@ -129,6 +129,10 @@ FROM declared d LEFT JOIN actual a ON a.column_name = d.col_name
 WHERE a.column_name IS NULL;
 /* EXPECT  ZERO ROWS. The gate reads today's declaration, not day 1's. */
 
+/* This probe reads the OTHER schema of the swap pair than TC-1.4 did,
+   because day 1's swap exchanged them. It only works because setup
+   grants USAGE and future-table SELECT on BOTH halves - a grant on one
+   half alone travels with the swap and is on the wrong schema by now. */
 USE ROLE P8_READER_NO; USE DATABASE LM_POC_DB; USE WAREHOUSE IDENTIFIER($wh);
 SELECT 'TC-2.4 unentitled read of staging' AS check_name,
        customer_id, email, ssn, phone
