@@ -1,0 +1,126 @@
+Subject: POC08 - control-table driven tags: design change, results and precautions
+
+Hi all,
+
+Short summary of POC08, which we ran this week as a separate, self-contained
+POC. It shares no object, script or result with the earlier CTAS + Swap POC.
+
+
+THE CHANGE WE TESTED
+--------------------
+Previously the published table was built with CTAS ... COPY TAGS, so each
+build inherited its column tags from the table it replaced.
+
+That carries one structural limit: inheritance can ADD a tag and CHANGE a
+tag, but it can never REMOVE one - the build keeps re-applying whatever it
+was handed. It also means a build landing on a storage nobody has tagged yet
+publishes unprotected.
+
+POC08 changes three things:
+
+  1. A control table (one row per published object, a VARIANT of column ->
+     tag) becomes the single source of truth for what is protected.
+  2. The build drops COPY TAGS entirely. Every build starts untagged.
+  3. Tags are applied from the control row after the build, and the gate
+     asserts the built table against that same row before the swap.
+
+Governance edits one row. No pipeline change, no deployment.
+
+
+DAY 1 AND DAY 2 - THE FLOW
+--------------------------
+Day 0 deploys the tag, the masking policy, the control row and the source
+view. NO published table is created - no placeholder, nothing pre-tagged.
+
+Day 1, the build lands on storage A:
+   CTAS from the Zone 3 view, with COPY GRANTS and NO COPY TAGS
+   -> the table is untagged
+   read the control row, apply each tag it declares
+   -> GATE 1: every declared column must now be tagged
+   -> GATE 2: an unentitled identity must read masks
+   swap STAGE with LIVE, then stand up the thin reader view
+
+Day 2, governance edits the control row - in our test one UPDATE did all
+three at once: ADD phone, CHANGE the value on email, REMOVE ssn. The build
+then lands on storage B, the one that was live yesterday and that nobody has
+ever tagged:
+   CTAS again, still no COPY TAGS -> untagged, as it must be
+   apply the NEW control row
+   gate against TODAY'S declaration, then swap
+
+Every day after is identical to day 2. There is no day-N special case,
+because neither storage is ever trusted to carry tags. The two storages
+simply alternate.
+
+
+RESULTS
+-------
+19 test cases across 4 scenarios, run on Snowflake. 18 pass; 1 passes but
+its screenshot crops the value and needs re-taking.
+
+The two that carry the POC:
+
+  - After the governance edit, the published table carried email with its
+    new value and phone newly protected, and NO ssn tag at all. One edit
+    delivered an add, a change and a removal.
+
+  - The unentitled reader then saw ssn in the clear and phone masked -
+    the exact inverse of day 1. The removal is ENFORCED, not just reflected
+    in metadata. This is the result worth showing.
+
+All five fail-closed cases refused as intended: no control row, a tag that
+does not exist, a column the view does not return, the pipeline losing
+APPLY, and the pipeline attempting to edit the control table.
+
+
+OBSERVATIONS
+------------
+1. Attaching a masking policy to a TAG requires APPLY MASKING POLICY on the
+   ACCOUNT. Owning the tag and the policy is not enough. Whoever does this
+   therefore holds an account-wide privilege - that is a decision to make
+   deliberately, not a setup detail. The pipeline does not need it.
+
+2. ALTER SCHEMA ... SWAP WITH exchanges the two schemas TOGETHER WITH THEIR
+   GRANTS. A grant applied to one half only works on day 1 and is gone on
+   day 2, sitting on the wrong schema. Every schema-level grant, FUTURE
+   grants included, must go on BOTH halves of the pair.
+
+3. The pipeline can read the tag list holding only APPLY on the tag, so the
+   gate can validate its own declarations without a further grant.
+
+
+PRECAUTIONS
+-----------
+- The control table's keys must be UPPERCASE. Snowflake uppercases unquoted
+  identifiers, and a lowercase key matches no column - that column would
+  publish untagged, silently.
+
+- The pipeline must hold SELECT, and only SELECT, on the control table.
+  Write access to it is the power to unprotect a column: empty the row and
+  the next batch publishes everything in the clear, with the gate passing
+  because the gate checks that same row.
+
+- We store the tag fully qualified (DB.schema.tag). Promoting a control row
+  between environments with different database names means rewriting it.
+  Worth settling before this goes beyond one environment.
+
+- Teardown must not assume setup succeeded. A setup that fails partway is
+  usually why you are running teardown, so it has to stand on its own.
+
+- The gate's unentitled probe should use a dedicated identity in production.
+  We reused a report role to keep the POC small, which gives that role
+  standing read access to unpublished data.
+
+
+NOT COVERED
+-----------
+One table, one tag, one policy. Concurrency and reader isolation during the
+swap are out of scope here - that is the earlier POC's question. Grants are
+not in the control table; only tags are.
+
+
+Scripts, evidence and the test tracker are in the repo under
+w5-zone3-consumption-gating/poc08.
+
+Thanks,
+Nikhil
