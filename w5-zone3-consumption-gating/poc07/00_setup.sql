@@ -28,6 +28,11 @@
    3. Nothing here touches POC01 or POC02 objects. Every name starts
       P7_ and everything lives in one database, so 99_teardown.sql
       removes exactly what this created.
+   4. This file is re-runnable from the top. If a run stops part way,
+      fix the cause and run it again from line 1 - every statement is
+      IF NOT EXISTS, OR REPLACE or otherwise idempotent. The one thing
+      it will NOT do is pick up an edit to the masking policy body;
+      for that, run 99_teardown.sql first.
 
    ---------------------------------------------------------------------
    TWO DELIBERATE SIMPLIFICATIONS, recorded so nobody reads more into
@@ -187,7 +192,11 @@ INSERT INTO ENTITLEMENT (role_name, can_see_pii, note) VALUES
 
 /* the masking rule. Attached to the PII tag below, so tagging a column
    is what protects it - and losing the tag is what exposes it.        */
-CREATE OR REPLACE MASKING POLICY MASK_PII AS (val STRING) RETURNS STRING ->
+/* IF NOT EXISTS, not OR REPLACE: a masking policy CANNOT be dropped
+   while it is attached to a tag, so OR REPLACE fails on any re-run of
+   this file. To change the policy body, run 99_teardown.sql and start
+   clean - that is the supported path, not editing in place.          */
+CREATE MASKING POLICY IF NOT EXISTS MASK_PII AS (val STRING) RETURNS STRING ->
   CASE
     WHEN EXISTS ( SELECT 1
                   FROM P7_POC.GOV.ENTITLEMENT e
@@ -197,7 +206,10 @@ CREATE OR REPLACE MASKING POLICY MASK_PII AS (val STRING) RETURNS STRING ->
     ELSE '***MASKED***'
   END;
 
-ALTER TAG PII SET MASKING POLICY MASK_PII;
+/* FORCE makes this idempotent: it replaces a policy already set on the
+   tag, and has no effect when none is set. Without it, a re-run fails
+   because a tag may hold only one policy per data type.              */
+ALTER TAG PII SET MASKING POLICY MASK_PII FORCE;
 
 GRANT APPLY ON TAG P7_POC.GOV.PII       TO ROLE P7_PUBLISH_ROLE;
 GRANT APPLY ON TAG P7_POC.GOV.PII_SCOPE TO ROLE P7_PUBLISH_ROLE;
