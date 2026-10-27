@@ -143,9 +143,9 @@ SELECT 'batch ids across the thin views' AS check_name,
        COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen
 FROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360
        UNION ALL SELECT batch_id FROM D_VIEWS.V_POLICY_SUMMARY );
-/* EXPECT  distinct_batches = 1,  batch_seen = B1 */
-/* EXPECT  distinct_batches = 1 and batch_seen = NULL — D_LIVE is still empty.
-   Nothing was published. */
+/* EXPECT  distinct_batches = 0,  batch_seen = NULL — the publish was REFUSED, so
+   no swap happened and D_LIVE still holds the empty tables the reset created.
+   COUNT(DISTINCT batch_id) over zero rows is 0, not 1. */
 
 /* =====================================================================
    TC-01.3   The fix — tag the table in BOTH schemas, then rebuild
