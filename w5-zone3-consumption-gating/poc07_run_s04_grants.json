@@ -1,0 +1,4918 @@
+{
+  "file": "s04_grants",
+  "started": "2026-10-27T06:28:59.938466+00:00",
+  "finished": "2026-10-27T06:36:03.293625+00:00",
+  "account": "pn56976-deloittena",
+  "warehouse": "LM_PII_POC_WH",
+  "statements": 143,
+  "cases_found": 7,
+  "cases_expected": 7,
+  "case_list": [
+    {
+      "tc_id": "TC-04.1",
+      "title": "Re-validate: does the swap carry grants?",
+      "line": 66
+    },
+    {
+      "tc_id": "TC-04.2",
+      "title": "Does a plain CTAS drop the grants?",
+      "line": 128
+    },
+    {
+      "tc_id": "TC-04.3",
+      "title": "Does COPY GRANTS keep them?",
+      "line": 189
+    },
+    {
+      "tc_id": "TC-04.4",
+      "title": "Stable across a further batch and the other storage",
+      "line": 252
+    },
+    {
+      "tc_id": "TC-04.5",
+      "title": "The grant bootstrap",
+      "line": 310
+    },
+    {
+      "tc_id": "TC-04.6",
+      "title": "Who owns the rebuilt table?",
+      "line": 328
+    },
+    {
+      "tc_id": "TC-04.7",
+      "title": "Can the view owner read staging?",
+      "line": 339
+    }
+  ],
+  "harness_injected_statements": 63,
+  "warehouse_problems": [],
+  "aborted": null,
+  "captures": [
+    {
+      "seq": 1,
+      "line": 15,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "USE SECONDARY ROLES NONE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 323,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 2,
+      "line": 16,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 346,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 3,
+      "line": 22,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 348,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 4,
+      "line": 23,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 333,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 5,
+      "line": 25,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_LIVE.CUSTOMER_360 (\n    customer_id NUMBER, full_name STRING, email STRING, ssn STRING,\n    policy_count NUMBER, batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 587,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 6,
+      "line": 28,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_LIVE.POLICY_SUMMARY (\n    policy_id NUMBER, customer_id NUMBER, premium NUMBER(12,2), batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 569,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 7,
+      "line": 30,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 (\n    customer_id NUMBER, full_name STRING, email STRING, ssn STRING,\n    policy_count NUMBER, batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 677,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 8,
+      "line": 33,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY (\n    policy_id NUMBER, customer_id NUMBER, premium NUMBER(12,2), batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 673,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 9,
+      "line": 36,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_LIVE.CUSTOMER_360 MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1037,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 10,
+      "line": 37,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_LIVE.CUSTOMER_360 MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 462,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 11,
+      "line": 38,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 401,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 12,
+      "line": 39,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 584,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 13,
+      "line": 41,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_LIVE  SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 454,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 14,
+      "line": 42,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 405,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 15,
+      "line": 44,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "TRUNCATE TABLE CTRL.BATCH_STATUS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 767,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 16,
+      "line": 45,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "TRUNCATE TABLE CTRL.PUBLISH_LOG",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 929,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 17,
+      "line": 47,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 18,
+      "line": 50,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 399,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 19,
+      "line": 51,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 394,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 20,
+      "line": 55,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 21,
+      "line": 56,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 332,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 22,
+      "line": 57,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE VIEW D_VIEWS.V_CUSTOMER_360   AS SELECT * FROM D_LIVE.CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "View V_CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 671,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 23,
+      "line": 58,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE VIEW D_VIEWS.V_POLICY_SUMMARY AS SELECT * FROM D_LIVE.POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "View V_POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 688,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 24,
+      "line": 59,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL VIEWS IN SCHEMA P7_POC.D_VIEWS TO ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 382,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 25,
+      "line": 60,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL VIEWS IN SCHEMA P7_POC.D_VIEWS TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 395,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 26,
+      "line": 62,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'RESET COMPLETE \u2014 environment is at day 1' AS status",
+      "cols": [
+        "STATUS"
+      ],
+      "rows": [
+        [
+          "RESET COMPLETE \u2014 environment is at day 1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 318,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 27,
+      "line": 72,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 360,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 28,
+      "line": 72,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 335,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 29,
+      "line": 73,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 732,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 30,
+      "line": 74,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B1'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 784,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 31,
+      "line": 79,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 576,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 32,
+      "line": 80,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B1'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 645,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 33,
+      "line": 84,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 351,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 34,
+      "line": 84,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 334,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 35,
+      "line": 85,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B1','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B1','POLICY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 697,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 36,
+      "line": 89,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 323,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 37,
+      "line": 89,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 38,
+      "line": 90,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1632,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 39,
+      "line": 92,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 40,
+      "line": 95,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 336,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 41,
+      "line": 96,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B1' AND object_name IN ('CUSTOMER_360','POLICY_SUMMARY')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 543,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 42,
+      "line": 97,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B1','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B1','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 692,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 43,
+      "line": 100,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 44,
+      "line": 101,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_PROBE_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 392,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 45,
+      "line": 107,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 351,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 46,
+      "line": 107,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 381,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 47,
+      "line": 108,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_STAGE.CUSTOMER_360",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:29:32.769000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PROBE_ROLE",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:26.246000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:26.295000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 408,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 48,
+      "line": 109,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": "TC-04.1 grants BEFORE the swap",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.1 grants BEFORE the swap' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.1 grants BEFORE the swap",
+          "SELECT",
+          "P7_PROBE_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.1 grants BEFORE the swap",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.1 grants BEFORE the swap",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "/* EXPECT  P7_PROBE_ROLE holds SELECT */",
+      "status": "PASS",
+      "detail": "P7_PROBE_ROLE holds ['SELECT']",
+      "error": null,
+      "elapsed_ms": 709,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 49,
+      "line": 116,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 335,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 50,
+      "line": 116,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 371,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 51,
+      "line": 117,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SWAP WITH D_LIVE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 358,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 52,
+      "line": 118,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B1',CURRENT_TIMESTAMP(),'PUBLISHED',NULL,NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 707,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 53,
+      "line": 120,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_LIVE.CUSTOMER_360",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:29:32.769000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_LIVE.CUSTOMER_360",
+          "ROLE",
+          "P7_PROBE_ROLE",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:26.246000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_LIVE.CUSTOMER_360",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:26.295000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_LIVE.CUSTOMER_360",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 388,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 54,
+      "line": 121,
+      "tc_id": "TC-04.1",
+      "tc_title": "Re-validate: does the swap carry grants?",
+      "label": "TC-04.1 grants AFTER the swap (same storage, new name)",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.1 grants AFTER the swap (same storage, new name)' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.1 grants AFTER the swap (same storage, new name)",
+          "SELECT",
+          "P7_PROBE_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.1 grants AFTER the swap (same storage, new name)",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.1 grants AFTER the swap (same storage, new name)",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "/* EXPECT  P7_PROBE_ROLE still holds SELECT. The swap moved it. */",
+      "status": "PASS",
+      "detail": "P7_PROBE_ROLE holds ['SELECT']",
+      "error": null,
+      "elapsed_ms": 877,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 55,
+      "line": 135,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 340,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 56,
+      "line": 135,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 323,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 57,
+      "line": 136,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 692,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 58,
+      "line": 137,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B2'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 800,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 59,
+      "line": 142,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 590,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 60,
+      "line": 143,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B2'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 617,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 61,
+      "line": 147,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 344,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 62,
+      "line": 147,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 343,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 63,
+      "line": 148,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B2','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B2','POLICY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 626,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 64,
+      "line": 151,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 339,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 65,
+      "line": 152,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_PROBE_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 411,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 66,
+      "line": 158,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 408,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 67,
+      "line": 158,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 339,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 68,
+      "line": 159,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_STAGE.CUSTOMER_360",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:29:48.121000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PROBE_ROLE",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:02.461000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:02.502000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 453,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 69,
+      "line": 160,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": "TC-04.2 grants before the plain rebuild",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.2 grants before the plain rebuild' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.2 grants before the plain rebuild",
+          "SELECT",
+          "P7_PROBE_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.2 grants before the plain rebuild",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.2 grants before the plain rebuild",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 599,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 70,
+      "line": 166,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 330,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 71,
+      "line": 166,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 328,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 72,
+      "line": 167,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 \n  AS SELECT * FROM SRC_VIEWS.V_CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1578,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 73,
+      "line": 170,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 404,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 74,
+      "line": 171,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B2' AND object_name IN ('CUSTOMER_360')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 646,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 75,
+      "line": 172,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B2','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 668,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 76,
+      "line": 174,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_STAGE.CUSTOMER_360",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:29:53.450000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:29:53.476000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 385,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 77,
+      "line": 175,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": "TC-04.2 grants AFTER the plain rebuild",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.2 grants AFTER the plain rebuild' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.2 grants AFTER the plain rebuild",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.2 grants AFTER the plain rebuild",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "/* EXPECT  P7_PROBE_ROLE's SELECT is GONE. CREATE OR REPLACE replaced\n   the object and its grants went with it. */",
+      "status": "PASS",
+      "detail": "P7_PROBE_ROLE holds nothing",
+      "error": null,
+      "elapsed_ms": 853,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 78,
+      "line": 185,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 346,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 79,
+      "line": 186,
+      "tc_id": "TC-04.2",
+      "tc_title": "Does a plain CTAS drop the grants?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 372,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 80,
+      "line": 194,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 358,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 81,
+      "line": 195,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_PROBE_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 396,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 82,
+      "line": 198,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 406,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 83,
+      "line": 198,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 502,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 84,
+      "line": 199,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1760,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 85,
+      "line": 202,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 86,
+      "line": 203,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B2' AND object_name IN ('CUSTOMER_360')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1286,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 87,
+      "line": 204,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B2','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 727,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 88,
+      "line": 206,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_STAGE.CUSTOMER_360",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:30:04.945000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PROBE_ROLE",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:30:04.897000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:30:04.941000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.CUSTOMER_360",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 436,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 89,
+      "line": 207,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": "TC-04.3 grants after a COPY GRANTS rebuild",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.3 grants after a COPY GRANTS rebuild' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.3 grants after a COPY GRANTS rebuild",
+          "SELECT",
+          "P7_PROBE_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.3 grants after a COPY GRANTS rebuild",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.3 grants after a COPY GRANTS rebuild",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "/* EXPECT  P7_PROBE_ROLE still holds SELECT, with NO future grants in\n   place anywhere. */",
+      "status": "PASS",
+      "detail": "P7_PROBE_ROLE holds ['SELECT']",
+      "error": null,
+      "elapsed_ms": 968,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 90,
+      "line": 215,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 455,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 91,
+      "line": 215,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 391,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 92,
+      "line": 216,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1492,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 93,
+      "line": 219,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 330,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 94,
+      "line": 220,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B2' AND object_name IN ('POLICY_SUMMARY')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 676,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 95,
+      "line": 221,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B2','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 683,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 96,
+      "line": 228,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 328,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 97,
+      "line": 228,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 445,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 98,
+      "line": 229,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": "sec-1 tags on D_STAGE.CUSTOMER_360",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,\n       column_name, tag_name, tag_value\nFROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))\nWHERE TAG_NAME = 'PII'   \nORDER BY column_name",
+      "cols": [
+        "CHECK_NAME",
+        "COLUMN_NAME",
+        "TAG_NAME",
+        "TAG_VALUE"
+      ],
+      "rows": [],
+      "expect_text": "/* EXPECT  2 rows \u2014 email=EMAIL and ssn=SSN */",
+      "status": "FAIL",
+      "detail": "0 rows, expected 2",
+      "error": null,
+      "elapsed_ms": 672,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 99,
+      "line": 236,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 361,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 100,
+      "line": 236,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 347,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 101,
+      "line": 237,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SWAP WITH D_LIVE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 380,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 102,
+      "line": 238,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B2',CURRENT_TIMESTAMP(),'PUBLISHED',NULL,NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 663,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 103,
+      "line": 244,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 104,
+      "line": 244,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 366,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 105,
+      "line": 245,
+      "tc_id": "TC-04.3",
+      "tc_title": "Does COPY GRANTS keep them?",
+      "label": "batch ids across the thin views",
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'batch ids across the thin views' AS check_name,\n       COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen\nFROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360\n       UNION ALL SELECT batch_id FROM D_VIEWS.V_POLICY_SUMMARY )",
+      "cols": [
+        "CHECK_NAME",
+        "DISTINCT_BATCHES",
+        "BATCH_SEEN"
+      ],
+      "rows": [
+        [
+          "batch ids across the thin views",
+          "1",
+          "B2"
+        ]
+      ],
+      "expect_text": "/* EXPECT  distinct_batches = 1,  batch_seen = B2 */",
+      "status": "PASS",
+      "detail": "distinct_batches=1; batch_seen=B2",
+      "error": null,
+      "elapsed_ms": 306105,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 106,
+      "line": 257,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 433,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 107,
+      "line": 257,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 349,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 108,
+      "line": 258,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1755,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 109,
+      "line": 259,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B3'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 637,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 110,
+      "line": 264,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 702,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 111,
+      "line": 265,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B3'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 634,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 112,
+      "line": 269,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 367,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 113,
+      "line": 269,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 114,
+      "line": 270,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B3','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B3','POLICY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 807,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 115,
+      "line": 274,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 357,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 116,
+      "line": 274,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 117,
+      "line": 275,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1563,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 118,
+      "line": 277,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1311,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 119,
+      "line": 280,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 349,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 120,
+      "line": 281,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B3' AND object_name IN ('CUSTOMER_360','POLICY_SUMMARY')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 710,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 121,
+      "line": 282,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B3','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B3','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1179,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 122,
+      "line": 290,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 361,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 123,
+      "line": 290,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 350,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 124,
+      "line": 291,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": "sec-1 tags on D_STAGE.CUSTOMER_360",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,\n       column_name, tag_name, tag_value\nFROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))\nWHERE TAG_NAME = 'PII'   \nORDER BY column_name",
+      "cols": [
+        "CHECK_NAME",
+        "COLUMN_NAME",
+        "TAG_NAME",
+        "TAG_VALUE"
+      ],
+      "rows": [
+        [
+          "sec-1 tags on D_STAGE.CUSTOMER_360",
+          "EMAIL",
+          "PII",
+          "EMAIL"
+        ],
+        [
+          "sec-1 tags on D_STAGE.CUSTOMER_360",
+          "SSN",
+          "PII",
+          "SSN"
+        ]
+      ],
+      "expect_text": "/* EXPECT  2 rows \u2014 email=EMAIL and ssn=SSN */",
+      "status": "PASS",
+      "detail": "2 rows, as expected",
+      "error": null,
+      "elapsed_ms": 1165,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 125,
+      "line": 298,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 388,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 126,
+      "line": 298,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 127,
+      "line": 299,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SWAP WITH D_LIVE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 386,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 128,
+      "line": 300,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B3',CURRENT_TIMESTAMP(),'PUBLISHED',NULL,NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 775,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 129,
+      "line": 302,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_LIVE.CUSTOMER_360",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:35:40.759000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_LIVE.CUSTOMER_360",
+          "ROLE",
+          "P7_PROBE_ROLE",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:35:40.720000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_LIVE.CUSTOMER_360",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:35:40.757000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_LIVE.CUSTOMER_360",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 130,
+      "line": 303,
+      "tc_id": "TC-04.4",
+      "tc_title": "Stable across a further batch and the other storage",
+      "label": "TC-04.4 grants after B3",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.4 grants after B3' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.4 grants after B3",
+          "SELECT",
+          "P7_PROBE_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.4 grants after B3",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.4 grants after B3",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "/* EXPECT  unchanged. If so, record that future grants are unnecessary. */",
+      "status": "REVIEW",
+      "detail": "compare against the preceding capture; cross-capture check",
+      "error": null,
+      "elapsed_ms": 725,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 131,
+      "line": 314,
+      "tc_id": "TC-04.5",
+      "tc_title": "The grant bootstrap",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 132,
+      "line": 314,
+      "tc_id": "TC-04.5",
+      "tc_title": "The grant bootstrap",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 355,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 133,
+      "line": 315,
+      "tc_id": "TC-04.5",
+      "tc_title": "The grant bootstrap",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DROP TABLE IF EXISTS D_STAGE.POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "POLICY_SUMMARY successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 463,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 134,
+      "line": 316,
+      "tc_id": "TC-04.5",
+      "tc_title": "The grant bootstrap",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY COPY GRANTS\n  AS SELECT * FROM SRC_VIEWS.V_POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1192,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 135,
+      "line": 319,
+      "tc_id": "TC-04.5",
+      "tc_title": "The grant bootstrap",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW GRANTS ON TABLE P7_POC.D_STAGE.POLICY_SUMMARY",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:35:55.825000-07:00",
+          "OWNERSHIP",
+          "TABLE",
+          "P7_POC.D_STAGE.POLICY_SUMMARY",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "true",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:35:55.853000-07:00",
+          "SELECT",
+          "TABLE",
+          "P7_POC.D_STAGE.POLICY_SUMMARY",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "P7_PUBLISH_ROLE",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 445,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 136,
+      "line": 320,
+      "tc_id": "TC-04.5",
+      "tc_title": "The grant bootstrap",
+      "label": "TC-04.5 grants on a first build with COPY GRANTS",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.5 grants on a first build with COPY GRANTS' AS check_name,\n       \"privilege\", \"grantee_name\", \"granted_on\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"grantee_name\" LIKE 'P7_%' ORDER BY \"grantee_name\",\"privilege\"",
+      "cols": [
+        "CHECK_NAME",
+        "privilege",
+        "grantee_name",
+        "granted_on"
+      ],
+      "rows": [
+        [
+          "TC-04.5 grants on a first build with COPY GRANTS",
+          "OWNERSHIP",
+          "P7_PUBLISH_ROLE",
+          "TABLE"
+        ],
+        [
+          "TC-04.5 grants on a first build with COPY GRANTS",
+          "SELECT",
+          "P7_VIEW_OWNER",
+          "TABLE"
+        ]
+      ],
+      "expect_text": "/* EXPECT  no P7_ grants \u2014 there was no predecessor to copy from.\n   The same bootstrap gap as tags, so grants must be deployed too. */",
+      "status": "FAIL",
+      "detail": "2 P7_ grants present: ['P7_PUBLISH_ROLE', 'P7_VIEW_OWNER']",
+      "error": null,
+      "elapsed_ms": 707,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 137,
+      "line": 332,
+      "tc_id": "TC-04.6",
+      "tc_title": "Who owns the rebuilt table?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 340,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 138,
+      "line": 332,
+      "tc_id": "TC-04.6",
+      "tc_title": "Who owns the rebuilt table?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 346,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 139,
+      "line": 333,
+      "tc_id": "TC-04.6",
+      "tc_title": "Who owns the rebuilt table?",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SHOW TABLES LIKE 'CUSTOMER_360' IN SCHEMA D_LIVE",
+      "cols": [
+        "created_on",
+        "name",
+        "database_name",
+        "schema_name",
+        "kind",
+        "comment",
+        "cluster_by",
+        "rows",
+        "bytes",
+        "owner",
+        "retention_time",
+        "automatic_clustering",
+        "change_tracking",
+        "search_optimization",
+        "search_optimization_progress",
+        "search_optimization_bytes",
+        "is_external",
+        "enable_schema_evolution",
+        "owner_role_type",
+        "is_event",
+        "is_hybrid",
+        "is_iceberg",
+        "is_dynamic",
+        "is_immutable",
+        "is_interactive",
+        "row_timestamp",
+        "error_logging"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:35:40.257000-07:00",
+          "CUSTOMER_360",
+          "P7_POC",
+          "D_LIVE",
+          "TABLE",
+          "",
+          "",
+          "20",
+          "1536",
+          "P7_PUBLISH_ROLE",
+          "1",
+          "OFF",
+          "OFF",
+          "OFF",
+          null,
+          null,
+          "N",
+          "N",
+          "ROLE",
+          "N",
+          "N",
+          "N",
+          "N",
+          "N",
+          "N",
+          "OFF",
+          "OFF"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 396,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 140,
+      "line": 334,
+      "tc_id": "TC-04.6",
+      "tc_title": "Who owns the rebuilt table?",
+      "label": "TC-04.6 owner of the published table",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.6 owner of the published table' AS check_name, \"name\", \"owner\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))",
+      "cols": [
+        "CHECK_NAME",
+        "name",
+        "owner"
+      ],
+      "rows": [
+        [
+          "TC-04.6 owner of the published table",
+          "CUSTOMER_360",
+          "P7_PUBLISH_ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 758,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 141,
+      "line": 344,
+      "tc_id": "TC-04.7",
+      "tc_title": "Can the view owner read staging?",
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 363,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 142,
+      "line": 344,
+      "tc_id": "TC-04.7",
+      "tc_title": "Can the view owner read staging?",
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 361,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 143,
+      "line": 345,
+      "tc_id": "TC-04.7",
+      "tc_title": "Can the view owner read staging?",
+      "label": "TC-04.7 view owner reading staging",
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-04.7 view owner reading staging' AS check_name, customer_id, email, ssn\nFROM D_STAGE.CUSTOMER_360 ORDER BY customer_id LIMIT 3",
+      "cols": [
+        "CHECK_NAME",
+        "CUSTOMER_ID",
+        "EMAIL",
+        "SSN"
+      ],
+      "rows": [
+        [
+          "TC-04.7 view owner reading staging",
+          "1",
+          "cust1@example.invalid",
+          "001-00-0000"
+        ],
+        [
+          "TC-04.7 view owner reading staging",
+          "2",
+          "cust2@example.invalid",
+          "002-00-0000"
+        ],
+        [
+          "TC-04.7 view owner reading staging",
+          "3",
+          "cust3@example.invalid",
+          "003-00-0000"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 607,
+      "injected_by_harness": false
+    }
+  ]
+}

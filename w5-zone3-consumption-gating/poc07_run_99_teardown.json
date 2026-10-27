@@ -1,0 +1,576 @@
+{
+  "file": "99_teardown",
+  "started": "2026-10-27T06:20:34.809862+00:00",
+  "finished": "2026-10-27T06:20:54.164639+00:00",
+  "account": "pn56976-deloittena",
+  "warehouse": "LM_PII_POC_WH",
+  "statements": 18,
+  "cases_found": 0,
+  "cases_expected": null,
+  "case_list": [],
+  "harness_injected_statements": 5,
+  "warehouse_problems": [],
+  "aborted": null,
+  "captures": [
+    {
+      "seq": 1,
+      "line": 9,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "USE SECONDARY ROLES NONE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 354,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 2,
+      "line": 11,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "USE ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 356,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 3,
+      "line": 12,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "DROP DATABASE IF EXISTS P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_POC successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1716,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 4,
+      "line": 14,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 342,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 5,
+      "line": 15,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_BASE_OWNER successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 761,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 6,
+      "line": 16,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_PUBLISH_ROLE successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 3836,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 7,
+      "line": 17,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_VIEW_OWNER successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1790,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 8,
+      "line": 18,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_READER_OK successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 609,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 9,
+      "line": 19,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_READER_NO successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 575,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 10,
+      "line": 20,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_PROBE_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_PROBE_ROLE successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 524,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 11,
+      "line": 21,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "DROP ROLE IF EXISTS P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "P7_BATCH_NOENT successfully dropped."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 583,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 12,
+      "line": 31,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "USE ROLE ACCOUNTADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 484,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 13,
+      "line": 32,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "USE WAREHOUSE LM_PII_POC_WH",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 332,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 14,
+      "line": 34,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "SHOW ROLES LIKE 'P7_%'",
+      "cols": [
+        "created_on",
+        "name",
+        "is_default",
+        "is_current",
+        "is_inherited",
+        "assigned_to_users",
+        "granted_to_roles",
+        "granted_roles",
+        "owner",
+        "comment",
+        "is_from_organization_user_group"
+      ],
+      "rows": [],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 634,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 15,
+      "line": 35,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "roles remaining (expect zero rows)",
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "SELECT 'roles remaining (expect zero rows)' AS check_name, \"name\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))",
+      "cols": [
+        "CHECK_NAME",
+        "name"
+      ],
+      "rows": [],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1609,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 16,
+      "line": 38,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "SHOW DATABASES LIKE 'P7_POC'",
+      "cols": [
+        "created_on",
+        "name",
+        "is_default",
+        "is_current",
+        "origin",
+        "owner",
+        "comment",
+        "options",
+        "retention_time",
+        "kind",
+        "owner_role_type",
+        "object_visibility",
+        "data_quality_monitoring_settings",
+        "resharing_settings"
+      ],
+      "rows": [],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 378,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 17,
+      "line": 39,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "databases remaining (expect zero rows)",
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "SELECT 'databases remaining (expect zero rows)' AS check_name, \"name\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))",
+      "cols": [
+        "CHECK_NAME",
+        "name"
+      ],
+      "rows": [],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 533,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 18,
+      "line": 42,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "SELECT 'TEARDOWN COMPLETE' AS status",
+      "cols": [
+        "STATUS"
+      ],
+      "rows": [
+        [
+          "TEARDOWN COMPLETE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 339,
+      "injected_by_harness": false
+    }
+  ]
+}

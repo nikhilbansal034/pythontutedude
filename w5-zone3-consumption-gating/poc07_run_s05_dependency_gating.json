@@ -1,0 +1,4997 @@
+{
+  "file": "s05_dependency_gating",
+  "started": "2026-10-27T06:36:03.345058+00:00",
+  "finished": "2026-10-27T06:38:10.433656+00:00",
+  "account": "pn56976-deloittena",
+  "warehouse": "LM_PII_POC_WH",
+  "statements": 156,
+  "cases_found": 6,
+  "cases_expected": 6,
+  "case_list": [
+    {
+      "tc_id": "TC-05.1",
+      "title": "All dependencies COMPLETED \u2014 publishes",
+      "line": 63
+    },
+    {
+      "tc_id": "TC-05.2",
+      "title": "A required dependency FAILED \u2014 refused",
+      "line": 142
+    },
+    {
+      "tc_id": "TC-05.3",
+      "title": "A dependency with NO status row at all \u2014 refused",
+      "line": 189
+    },
+    {
+      "tc_id": "TC-05.3b",
+      "title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "line": 237
+    },
+    {
+      "tc_id": "TC-05.3c",
+      "title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "line": 277
+    },
+    {
+      "tc_id": "TC-05.4",
+      "title": "A NON-required dependency FAILED \u2014 publishes",
+      "line": 330
+    }
+  ],
+  "harness_injected_statements": 77,
+  "warehouse_problems": [],
+  "aborted": null,
+  "captures": [
+    {
+      "seq": 1,
+      "line": 12,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "USE SECONDARY ROLES NONE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 2,
+      "line": 13,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 354,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 3,
+      "line": 19,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 364,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 4,
+      "line": 20,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 360,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 5,
+      "line": 22,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_LIVE.CUSTOMER_360 (\n    customer_id NUMBER, full_name STRING, email STRING, ssn STRING,\n    policy_count NUMBER, batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 678,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 6,
+      "line": 25,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_LIVE.POLICY_SUMMARY (\n    policy_id NUMBER, customer_id NUMBER, premium NUMBER(12,2), batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 614,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 7,
+      "line": 27,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 (\n    customer_id NUMBER, full_name STRING, email STRING, ssn STRING,\n    policy_count NUMBER, batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 641,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 8,
+      "line": 30,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY (\n    policy_id NUMBER, customer_id NUMBER, premium NUMBER(12,2), batch_id STRING)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 668,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 9,
+      "line": 33,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_LIVE.CUSTOMER_360 MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 420,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 10,
+      "line": 34,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_LIVE.CUSTOMER_360 MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 446,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 11,
+      "line": 35,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 479,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 12,
+      "line": 36,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 435,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 13,
+      "line": 38,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_LIVE  SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 401,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 14,
+      "line": 39,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 388,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 15,
+      "line": 41,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "TRUNCATE TABLE CTRL.BATCH_STATUS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 579,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 16,
+      "line": 42,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "TRUNCATE TABLE CTRL.PUBLISH_LOG",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 976,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 17,
+      "line": 44,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 365,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 18,
+      "line": 45,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 409,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 19,
+      "line": 46,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 381,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 20,
+      "line": 47,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL    TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 388,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 21,
+      "line": 48,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL    TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 365,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 22,
+      "line": 52,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 686,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 23,
+      "line": 53,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 366,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 24,
+      "line": 54,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE VIEW D_VIEWS.V_CUSTOMER_360   AS SELECT * FROM D_LIVE.CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "View V_CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 768,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 25,
+      "line": 55,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE VIEW D_VIEWS.V_POLICY_SUMMARY AS SELECT * FROM D_LIVE.POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "View V_POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 653,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 26,
+      "line": 56,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL VIEWS IN SCHEMA P7_POC.D_VIEWS TO ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 430,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 27,
+      "line": 57,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON ALL VIEWS IN SCHEMA P7_POC.D_VIEWS TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 423,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 28,
+      "line": 59,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'RESET COMPLETE \u2014 environment is at day 1' AS status",
+      "cols": [
+        "STATUS"
+      ],
+      "rows": [
+        [
+          "RESET COMPLETE \u2014 environment is at day 1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 330,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 29,
+      "line": 68,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 389,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 30,
+      "line": 68,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 342,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 31,
+      "line": 69,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 658,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 32,
+      "line": 70,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B1'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 700,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 33,
+      "line": 75,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 675,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 34,
+      "line": 76,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B1'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 858,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 35,
+      "line": 80,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 371,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 36,
+      "line": 80,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 365,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 37,
+      "line": 81,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B1','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B1','POLICY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 719,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 38,
+      "line": 85,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 347,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 39,
+      "line": 85,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 344,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 40,
+      "line": 86,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT r.object_name AS published_table, d.depends_on_object AS blocked_by,\n       NVL(s.status,'NO STATUS ROW') AS status, NVL(s.exception_flag,'N') AS exception_flag\nFROM      CTRL.OBJECT_REGISTRY   r\nJOIN      CTRL.OBJECT_DEPENDENCY d ON d.object_name = r.object_name\nLEFT JOIN CTRL.BATCH_STATUS      s ON s.object_name = d.depends_on_object\n                                  AND s.batch_id    = 'B1'\nWHERE r.object_type = 'PUBLISHED'\n  AND r.is_required = 'Y'\n  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )\n  AND NVL(s.exception_flag,'N') <> 'Y'",
+      "cols": [
+        "PUBLISHED_TABLE",
+        "BLOCKED_BY",
+        "STATUS",
+        "EXCEPTION_FLAG"
+      ],
+      "rows": [],
+      "expect_text": "/* EXPECT  ZERO ROWS */",
+      "status": "PASS",
+      "detail": "0 rows, as expected",
+      "error": null,
+      "elapsed_ms": 798,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 41,
+      "line": 98,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 380,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 42,
+      "line": 98,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 43,
+      "line": 99,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1850,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 44,
+      "line": 101,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1654,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 45,
+      "line": 104,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 342,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 46,
+      "line": 105,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B1' AND object_name IN ('CUSTOMER_360','POLICY_SUMMARY')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 750,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 47,
+      "line": 106,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B1','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B1','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 667,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 48,
+      "line": 111,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 49,
+      "line": 111,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 355,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 50,
+      "line": 112,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": "sec-1 tags on D_STAGE.CUSTOMER_360",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,\n       column_name, tag_name, tag_value\nFROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))\nWHERE TAG_NAME = 'PII'   \nORDER BY column_name",
+      "cols": [
+        "CHECK_NAME",
+        "COLUMN_NAME",
+        "TAG_NAME",
+        "TAG_VALUE"
+      ],
+      "rows": [
+        [
+          "sec-1 tags on D_STAGE.CUSTOMER_360",
+          "EMAIL",
+          "PII",
+          "EMAIL"
+        ],
+        [
+          "sec-1 tags on D_STAGE.CUSTOMER_360",
+          "SSN",
+          "PII",
+          "SSN"
+        ]
+      ],
+      "expect_text": "/* EXPECT  2 rows \u2014 email=EMAIL and ssn=SSN\n   ZERO ROWS  =  REFUSE THE PUBLISH                                    */",
+      "status": "PASS",
+      "detail": "2 rows, as expected",
+      "error": null,
+      "elapsed_ms": 788,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 51,
+      "line": 123,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 359,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 52,
+      "line": 123,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 377,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 53,
+      "line": 124,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": "sec-2 unentitled read of staging",
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'sec-2 unentitled read of staging' AS check_name, customer_id, email, ssn\nFROM D_STAGE.CUSTOMER_360 ORDER BY customer_id LIMIT 3",
+      "cols": [
+        "CHECK_NAME",
+        "CUSTOMER_ID",
+        "EMAIL",
+        "SSN"
+      ],
+      "rows": [
+        [
+          "sec-2 unentitled read of staging",
+          "1",
+          "***MASKED***",
+          "***MASKED***"
+        ],
+        [
+          "sec-2 unentitled read of staging",
+          "2",
+          "***MASKED***",
+          "***MASKED***"
+        ],
+        [
+          "sec-2 unentitled read of staging",
+          "3",
+          "***MASKED***",
+          "***MASKED***"
+        ]
+      ],
+      "expect_text": "/* EXPECT  ***MASKED***\n   Real values here mean the data is unprotected \u2014 REFUSE THE PUBLISH  */",
+      "status": "PASS",
+      "detail": "all 6 tagged cells masked",
+      "error": null,
+      "elapsed_ms": 586,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 54,
+      "line": 129,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 372,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 55,
+      "line": 129,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 56,
+      "line": 130,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SWAP WITH D_LIVE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 406,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 57,
+      "line": 131,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B1',CURRENT_TIMESTAMP(),'PUBLISHED',NULL,NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 756,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 58,
+      "line": 134,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 366,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 59,
+      "line": 134,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 370,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 60,
+      "line": 135,
+      "tc_id": "TC-05.1",
+      "tc_title": "All dependencies COMPLETED \u2014 publishes",
+      "label": "batch ids across the thin views",
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'batch ids across the thin views' AS check_name,\n       COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen\nFROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360\n       UNION ALL SELECT batch_id FROM D_VIEWS.V_POLICY_SUMMARY )",
+      "cols": [
+        "CHECK_NAME",
+        "DISTINCT_BATCHES",
+        "BATCH_SEEN"
+      ],
+      "rows": [
+        [
+          "batch ids across the thin views",
+          "1",
+          "B1"
+        ]
+      ],
+      "expect_text": "/* EXPECT  distinct_batches = 1,  batch_seen = B1 */",
+      "status": "PASS",
+      "detail": "distinct_batches=1; batch_seen=B1",
+      "error": null,
+      "elapsed_ms": 692,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 61,
+      "line": 147,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 62,
+      "line": 147,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 379,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 63,
+      "line": 148,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 634,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 64,
+      "line": 149,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B2'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 685,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 65,
+      "line": 154,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 613,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 66,
+      "line": 155,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B2'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 668,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 67,
+      "line": 159,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 381,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 68,
+      "line": 159,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 380,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 69,
+      "line": 160,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B2','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B2','POLICY','FAILED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 769,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 70,
+      "line": 164,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 387,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 71,
+      "line": 164,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 72,
+      "line": 165,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT r.object_name AS published_table, d.depends_on_object AS blocked_by,\n       NVL(s.status,'NO STATUS ROW') AS status, NVL(s.exception_flag,'N') AS exception_flag\nFROM      CTRL.OBJECT_REGISTRY   r\nJOIN      CTRL.OBJECT_DEPENDENCY d ON d.object_name = r.object_name\nLEFT JOIN CTRL.BATCH_STATUS      s ON s.object_name = d.depends_on_object\n                                  AND s.batch_id    = 'B2'\nWHERE r.object_type = 'PUBLISHED'\n  AND r.is_required = 'Y'\n  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )\n  AND NVL(s.exception_flag,'N') <> 'Y'",
+      "cols": [
+        "PUBLISHED_TABLE",
+        "BLOCKED_BY",
+        "STATUS",
+        "EXCEPTION_FLAG"
+      ],
+      "rows": [
+        [
+          "CUSTOMER_360",
+          "POLICY",
+          "FAILED",
+          "N"
+        ],
+        [
+          "POLICY_SUMMARY",
+          "POLICY",
+          "FAILED",
+          "N"
+        ]
+      ],
+      "expect_text": "/* EXPECT  2 ROWS \u2014 CUSTOMER_360 and POLICY_SUMMARY, both blocked by POLICY */",
+      "status": "PASS",
+      "detail": "2 rows, as expected",
+      "error": null,
+      "elapsed_ms": 776,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 73,
+      "line": 177,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 344,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 74,
+      "line": 177,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 343,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 75,
+      "line": 178,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B2',CURRENT_TIMESTAMP(),'REFUSED','gate: POLICY reported FAILED for B2',NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 694,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 76,
+      "line": 181,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 377,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 77,
+      "line": 181,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 357,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 78,
+      "line": 182,
+      "tc_id": "TC-05.2",
+      "tc_title": "A required dependency FAILED \u2014 refused",
+      "label": "batch ids across the thin views",
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'batch ids across the thin views' AS check_name,\n       COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen\nFROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360\n       UNION ALL SELECT batch_id FROM D_VIEWS.V_POLICY_SUMMARY )",
+      "cols": [
+        "CHECK_NAME",
+        "DISTINCT_BATCHES",
+        "BATCH_SEEN"
+      ],
+      "rows": [
+        [
+          "batch ids across the thin views",
+          "1",
+          "B1"
+        ]
+      ],
+      "expect_text": "/* EXPECT  batch_seen = B1. The failed batch published nothing. */",
+      "status": "PASS",
+      "detail": "batch_seen=B1",
+      "error": null,
+      "elapsed_ms": 812,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 79,
+      "line": 195,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 361,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 80,
+      "line": 195,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 381,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 81,
+      "line": 196,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 587,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 82,
+      "line": 197,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B3'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 671,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 83,
+      "line": 202,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 579,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 84,
+      "line": 203,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B3'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 670,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 85,
+      "line": 208,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 372,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 86,
+      "line": 208,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 349,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 87,
+      "line": 209,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B3','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 642,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 88,
+      "line": 212,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 367,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 89,
+      "line": 212,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 360,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 90,
+      "line": 213,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT r.object_name AS published_table, d.depends_on_object AS blocked_by,\n       NVL(s.status,'NO STATUS ROW') AS status, NVL(s.exception_flag,'N') AS exception_flag\nFROM      CTRL.OBJECT_REGISTRY   r\nJOIN      CTRL.OBJECT_DEPENDENCY d ON d.object_name = r.object_name\nLEFT JOIN CTRL.BATCH_STATUS      s ON s.object_name = d.depends_on_object\n                                  AND s.batch_id    = 'B3'\nWHERE r.object_type = 'PUBLISHED'\n  AND r.is_required = 'Y'\n  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )\n  AND NVL(s.exception_flag,'N') <> 'Y'",
+      "cols": [
+        "PUBLISHED_TABLE",
+        "BLOCKED_BY",
+        "STATUS",
+        "EXCEPTION_FLAG"
+      ],
+      "rows": [
+        [
+          "CUSTOMER_360",
+          "POLICY",
+          "NO STATUS ROW",
+          "N"
+        ],
+        [
+          "POLICY_SUMMARY",
+          "POLICY",
+          "NO STATUS ROW",
+          "N"
+        ]
+      ],
+      "expect_text": "/* EXPECT  2 ROWS \u2014 status shows NO STATUS ROW */",
+      "status": "PASS",
+      "detail": "2 rows, as expected",
+      "error": null,
+      "elapsed_ms": 699,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 91,
+      "line": 225,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 383,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 92,
+      "line": 225,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 372,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 93,
+      "line": 226,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B3',CURRENT_TIMESTAMP(),'REFUSED','gate: POLICY reported no status at all for B3',NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 733,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 94,
+      "line": 229,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 697,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 95,
+      "line": 229,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 96,
+      "line": 230,
+      "tc_id": "TC-05.3",
+      "tc_title": "A dependency with NO status row at all \u2014 refused",
+      "label": "batch ids across the thin views",
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'batch ids across the thin views' AS check_name,\n       COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen\nFROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360\n       UNION ALL SELECT batch_id FROM D_VIEWS.V_POLICY_SUMMARY )",
+      "cols": [
+        "CHECK_NAME",
+        "DISTINCT_BATCHES",
+        "BATCH_SEEN"
+      ],
+      "rows": [
+        [
+          "batch ids across the thin views",
+          "1",
+          "B1"
+        ]
+      ],
+      "expect_text": "/* EXPECT  batch_seen = B1 still. */",
+      "status": "PASS",
+      "detail": "batch_seen=B1",
+      "error": null,
+      "elapsed_ms": 602,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 97,
+      "line": 252,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 372,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 98,
+      "line": 252,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 350,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 99,
+      "line": 253,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "UPDATE CTRL.BATCH_STATUS SET exception_flag='Y'\n WHERE batch_id='B3' AND object_name='POLICY'",
+      "cols": [
+        "number of rows updated",
+        "number of multi-joined rows updated"
+      ],
+      "rows": [
+        [
+          "0",
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 758,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 100,
+      "line": 255,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": "TC-05.3b rows the approval could be written to",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-05.3b rows the approval could be written to' AS check_name,\n       COUNT(*) AS rows_updated\nFROM CTRL.BATCH_STATUS WHERE batch_id='B3' AND object_name='POLICY'",
+      "cols": [
+        "CHECK_NAME",
+        "ROWS_UPDATED"
+      ],
+      "rows": [
+        [
+          "TC-05.3b rows the approval could be written to",
+          "0"
+        ]
+      ],
+      "expect_text": "/* EXPECT  rows_updated = 0. There is no row, so the UPDATE did nothing\n   and reported success. A silent no-op is the worst possible outcome\n   for an approval step: the approver believes they cleared the block. */",
+      "status": "PASS",
+      "detail": "rows_updated=0",
+      "error": null,
+      "elapsed_ms": 475,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 101,
+      "line": 263,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 356,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 102,
+      "line": 263,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 384,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 103,
+      "line": 264,
+      "tc_id": "TC-05.3b",
+      "tc_title": "The missing row cannot be exception-approved  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT r.object_name AS published_table, d.depends_on_object AS blocked_by,\n       NVL(s.status,'NO STATUS ROW') AS status, NVL(s.exception_flag,'N') AS exception_flag\nFROM      CTRL.OBJECT_REGISTRY   r\nJOIN      CTRL.OBJECT_DEPENDENCY d ON d.object_name = r.object_name\nLEFT JOIN CTRL.BATCH_STATUS      s ON s.object_name = d.depends_on_object\n                                  AND s.batch_id    = 'B3'\nWHERE r.object_type = 'PUBLISHED'\n  AND r.is_required = 'Y'\n  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )\n  AND NVL(s.exception_flag,'N') <> 'Y'",
+      "cols": [
+        "PUBLISHED_TABLE",
+        "BLOCKED_BY",
+        "STATUS",
+        "EXCEPTION_FLAG"
+      ],
+      "rows": [
+        [
+          "CUSTOMER_360",
+          "POLICY",
+          "NO STATUS ROW",
+          "N"
+        ],
+        [
+          "POLICY_SUMMARY",
+          "POLICY",
+          "NO STATUS ROW",
+          "N"
+        ]
+      ],
+      "expect_text": "/* EXPECT  STILL 2 ROWS. The block is unclearable by this route. */",
+      "status": "PASS",
+      "detail": "2 rows, as expected",
+      "error": null,
+      "elapsed_ms": 1081,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 104,
+      "line": 285,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 351,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 105,
+      "line": 285,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 365,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 106,
+      "line": 286,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.EXCEPTION_APPROVAL (batch_id,object_name,approved_by,approved_at,reason)\nVALUES ('B3','POLICY','business.owner',CURRENT_TIMESTAMP(),\n        'POLICY load did not report for B3; publishing B3 without it, agreed for this batch only')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 660,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 107,
+      "line": 292,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 368,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 108,
+      "line": 292,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 374,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 109,
+      "line": 293,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT r.object_name AS published_table, d.depends_on_object AS blocked_by,\n       NVL(s.status,'NO STATUS ROW')      AS status,\n       NVL(s.exception_flag,'N')          AS status_row_flag,\n       NVL(e.approved_by,'(none)')        AS approved_by\nFROM      CTRL.OBJECT_REGISTRY     r\nJOIN      CTRL.OBJECT_DEPENDENCY   d ON d.object_name = r.object_name\nLEFT JOIN CTRL.BATCH_STATUS        s ON s.object_name = d.depends_on_object\n                                    AND s.batch_id    = 'B3'\nLEFT JOIN CTRL.EXCEPTION_APPROVAL  e ON e.object_name = d.depends_on_object\n                                    AND e.batch_id    = 'B3'\nWHERE r.object_type = 'PUBLISHED'\n  AND r.is_required = 'Y'\n  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )\n  AND NVL(s.exception_flag,'N') <> 'Y'\n  AND e.object_name IS NULL",
+      "cols": [
+        "PUBLISHED_TABLE",
+        "BLOCKED_BY",
+        "STATUS",
+        "STATUS_ROW_FLAG",
+        "APPROVED_BY"
+      ],
+      "rows": [],
+      "expect_text": "/* EXPECT  ZERO ROWS \u2014 the approval clears the missing-row block. */",
+      "status": "PASS",
+      "detail": "0 rows, as expected",
+      "error": null,
+      "elapsed_ms": 668,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 110,
+      "line": 312,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": "TC-05.3c approvals in force for B3",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-05.3c approvals in force for B3' AS check_name,\n       object_name, approved_by, approved_at, reason\nFROM CTRL.EXCEPTION_APPROVAL WHERE batch_id='B3' ORDER BY object_name",
+      "cols": [
+        "CHECK_NAME",
+        "OBJECT_NAME",
+        "APPROVED_BY",
+        "APPROVED_AT",
+        "REASON"
+      ],
+      "rows": [
+        [
+          "TC-05.3c approvals in force for B3",
+          "POLICY",
+          "business.owner",
+          "2026-10-26 23:37:26.456000",
+          "POLICY load did not report for B3; publishing B3 without it, agreed for this batch only"
+        ]
+      ],
+      "expect_text": "/* EXPECT  1 row \u2014 POLICY, with an approver and a reason. */",
+      "status": "REVIEW",
+      "detail": "single row plus free text; read the grid",
+      "error": null,
+      "elapsed_ms": 468,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 111,
+      "line": 318,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 112,
+      "line": 318,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 350,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 113,
+      "line": 319,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": "TC-05.3c approvals in force for B4",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'TC-05.3c approvals in force for B4' AS check_name,\n       COUNT(*) AS approvals_for_next_batch\nFROM CTRL.EXCEPTION_APPROVAL WHERE batch_id='B4'",
+      "cols": [
+        "CHECK_NAME",
+        "APPROVALS_FOR_NEXT_BATCH"
+      ],
+      "rows": [
+        [
+          "TC-05.3c approvals in force for B4",
+          "0"
+        ]
+      ],
+      "expect_text": "/* EXPECT  0. Keyed on batch_id, so it cannot leak forward. This is the\n   same property s06 TC-06.4 tests for the status-row route.          */",
+      "status": "PASS",
+      "detail": "0, as expected",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 114,
+      "line": 326,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 367,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 115,
+      "line": 326,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 361,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 116,
+      "line": 327,
+      "tc_id": "TC-05.3c",
+      "tc_title": "The fix \u2014 approvals in their own table  (ADDED 27 Oct)",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.EXCEPTION_APPROVAL WHERE batch_id='B3'",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 672,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 117,
+      "line": 334,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 360,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 118,
+      "line": 334,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 399,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 119,
+      "line": 335,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "UPDATE CTRL.OBJECT_REGISTRY SET is_required='N' WHERE object_name='POLICY_SUMMARY'",
+      "cols": [
+        "number of rows updated",
+        "number of multi-joined rows updated"
+      ],
+      "rows": [
+        [
+          "1",
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 666,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 120,
+      "line": 336,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.OBJECT_DEPENDENCY WHERE object_name='CUSTOMER_360' AND depends_on_object='POLICY'",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 652,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 121,
+      "line": 341,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 381,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 122,
+      "line": 341,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 381,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 123,
+      "line": 342,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.CUSTOMER",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 664,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 124,
+      "line": 343,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.CUSTOMER\nSELECT seq4()+1, 'Customer '||(seq4()+1),\n       'cust'||(seq4()+1)||'@example.invalid',\n       LPAD(TO_VARCHAR(seq4()+1),3,'0')||'-00-0000', 'B4'\nFROM TABLE(GENERATOR(ROWCOUNT=>20))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "20"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1212,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 125,
+      "line": 348,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM BASE.POLICY",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 621,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 126,
+      "line": 349,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO BASE.POLICY\nSELECT seq4()+1, MOD(seq4(),20)+1, 1000+seq4(), 'B4'\nFROM TABLE(GENERATOR(ROWCOUNT=>50))",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "50"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 665,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 127,
+      "line": 353,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 368,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 128,
+      "line": 353,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 349,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 129,
+      "line": 354,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B4','CUSTOMER','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B4','POLICY','FAILED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1202,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 130,
+      "line": 358,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 344,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 131,
+      "line": 358,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 132,
+      "line": 359,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT r.object_name AS published_table, d.depends_on_object AS blocked_by,\n       NVL(s.status,'NO STATUS ROW') AS status, NVL(s.exception_flag,'N') AS exception_flag\nFROM      CTRL.OBJECT_REGISTRY   r\nJOIN      CTRL.OBJECT_DEPENDENCY d ON d.object_name = r.object_name\nLEFT JOIN CTRL.BATCH_STATUS      s ON s.object_name = d.depends_on_object\n                                  AND s.batch_id    = 'B4'\nWHERE r.object_type = 'PUBLISHED'\n  AND r.is_required = 'Y'\n  AND ( s.status IS NULL OR s.status <> 'COMPLETED' )\n  AND NVL(s.exception_flag,'N') <> 'Y'",
+      "cols": [
+        "PUBLISHED_TABLE",
+        "BLOCKED_BY",
+        "STATUS",
+        "EXCEPTION_FLAG"
+      ],
+      "rows": [],
+      "expect_text": "/* EXPECT  ZERO ROWS \u2014 nothing required is blocked */",
+      "status": "PASS",
+      "detail": "0 rows, as expected",
+      "error": null,
+      "elapsed_ms": 648,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 133,
+      "line": 371,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 346,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 134,
+      "line": 371,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 363,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 135,
+      "line": 372,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.CUSTOMER_360 COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_CUSTOMER_360",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 2154,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 136,
+      "line": 374,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "CREATE OR REPLACE TABLE D_STAGE.POLICY_SUMMARY COPY GRANTS COPY TAGS\n  AS SELECT * FROM SRC_VIEWS.V_POLICY_SUMMARY",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1437,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 137,
+      "line": 377,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 138,
+      "line": 378,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM CTRL.BATCH_STATUS WHERE batch_id='B4' AND object_name IN ('CUSTOMER_360','POLICY_SUMMARY')",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 647,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 139,
+      "line": 379,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_flag) VALUES\n  ('B4','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N'),\n  ('B4','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "2"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 705,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 140,
+      "line": 384,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 141,
+      "line": 384,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 356,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 142,
+      "line": 385,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": "sec-1 tags on D_STAGE.CUSTOMER_360",
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,\n       column_name, tag_name, tag_value\nFROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))\nWHERE TAG_NAME = 'PII'   \nORDER BY column_name",
+      "cols": [
+        "CHECK_NAME",
+        "COLUMN_NAME",
+        "TAG_NAME",
+        "TAG_VALUE"
+      ],
+      "rows": [
+        [
+          "sec-1 tags on D_STAGE.CUSTOMER_360",
+          "EMAIL",
+          "PII",
+          "EMAIL"
+        ],
+        [
+          "sec-1 tags on D_STAGE.CUSTOMER_360",
+          "SSN",
+          "PII",
+          "SSN"
+        ]
+      ],
+      "expect_text": "/* EXPECT  2 rows \u2014 email=EMAIL and ssn=SSN\n   ZERO ROWS  =  REFUSE THE PUBLISH                                    */",
+      "status": "PASS",
+      "detail": "2 rows, as expected",
+      "error": null,
+      "elapsed_ms": 690,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 143,
+      "line": 396,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 144,
+      "line": 396,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 145,
+      "line": 397,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": "sec-2 unentitled read of staging",
+      "role": "P7_VIEW_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_VIEW_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'sec-2 unentitled read of staging' AS check_name, customer_id, email, ssn\nFROM D_STAGE.CUSTOMER_360 ORDER BY customer_id LIMIT 3",
+      "cols": [
+        "CHECK_NAME",
+        "CUSTOMER_ID",
+        "EMAIL",
+        "SSN"
+      ],
+      "rows": [
+        [
+          "sec-2 unentitled read of staging",
+          "1",
+          "***MASKED***",
+          "***MASKED***"
+        ],
+        [
+          "sec-2 unentitled read of staging",
+          "2",
+          "***MASKED***",
+          "***MASKED***"
+        ],
+        [
+          "sec-2 unentitled read of staging",
+          "3",
+          "***MASKED***",
+          "***MASKED***"
+        ]
+      ],
+      "expect_text": "/* EXPECT  ***MASKED***\n   Real values here mean the data is unprotected \u2014 REFUSE THE PUBLISH  */",
+      "status": "PASS",
+      "detail": "all 6 tagged cells masked",
+      "error": null,
+      "elapsed_ms": 587,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 146,
+      "line": 402,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 147,
+      "line": 402,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 342,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 148,
+      "line": 403,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "ALTER SCHEMA D_STAGE SWAP WITH D_LIVE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 396,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 149,
+      "line": 404,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.PUBLISH_LOG (batch_id,attempted_at,outcome,refused_reason,exceptions_used,run_by)\nVALUES ('B4',CURRENT_TIMESTAMP(),'PUBLISHED',NULL,NULL,CURRENT_ROLE())",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 725,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 150,
+      "line": 407,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 371,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 151,
+      "line": 407,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 358,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 152,
+      "line": 408,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": "batch ids across the thin views",
+      "role": "P7_READER_OK",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_OK",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT 'batch ids across the thin views' AS check_name,\n       COUNT(DISTINCT batch_id) AS distinct_batches, MAX(batch_id) AS batch_seen\nFROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360\n       UNION ALL SELECT batch_id FROM D_VIEWS.V_POLICY_SUMMARY )",
+      "cols": [
+        "CHECK_NAME",
+        "DISTINCT_BATCHES",
+        "BATCH_SEEN"
+      ],
+      "rows": [
+        [
+          "batch ids across the thin views",
+          "1",
+          "B4"
+        ]
+      ],
+      "expect_text": "/* EXPECT  distinct_batches = 1,  batch_seen = B4 */",
+      "status": "PASS",
+      "detail": "distinct_batches=1; batch_seen=B4",
+      "error": null,
+      "elapsed_ms": 792,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 153,
+      "line": 414,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 634,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 154,
+      "line": 414,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 347,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 155,
+      "line": 415,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "UPDATE CTRL.OBJECT_REGISTRY SET is_required='Y' WHERE object_name='POLICY_SUMMARY'",
+      "cols": [
+        "number of rows updated",
+        "number of multi-joined rows updated"
+      ],
+      "rows": [
+        [
+          "1",
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 992,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 156,
+      "line": 416,
+      "tc_id": "TC-05.4",
+      "tc_title": "A NON-required dependency FAILED \u2014 publishes",
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO CTRL.OBJECT_DEPENDENCY VALUES ('CUSTOMER_360','POLICY')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 610,
+      "injected_by_harness": false
+    }
+  ]
+}
