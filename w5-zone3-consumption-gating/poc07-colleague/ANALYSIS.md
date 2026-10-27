@@ -110,11 +110,13 @@ no level), which is the condition under which the question is interesting.
 
 ## 5. Caveats on the document itself
 
-- **`CHANGES.md` contradicts itself.** The header says *"Nothing in either folder has
-  been run"* and §6 says *"`00_setup.sql` has not been run, so no POC07 object exists on
-  the account"* — while §4 reports a full execution and the JSON captures prove it. Those
-  two passages are stale, written before the run. Read top-down, the document says the
-  opposite of what happened.
+- **`CHANGES.md` reads as self-contradictory.** The header says *"Nothing in either
+  folder has been run"* and §6 says *"`00_setup.sql` has not been run"* — while §4 reports
+  a full execution. **Confirmed with Nikhil: he had already run `00_setup.sql` before the
+  colleague took the suite over**, which is why their pre-flight notes say otherwise.
+  Those two passages were written before their own run and never refreshed. Not an error
+  of fact about the account, but read top-down the document still says the opposite of
+  what happened, so it should not be circulated as-is.
 - Two sections are both numbered `## 4`.
 - It references `../POC07_DESIGN.md` (v14), `../POC07_TEST_DESIGN.md`, `../NIkhil/` and
   `../POC/_common/03_evidence/`. **None of these are in this repository.** Much of their
