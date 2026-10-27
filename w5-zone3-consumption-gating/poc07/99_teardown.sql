@@ -6,6 +6,8 @@
    gone the results cannot be regenerated.
    ===================================================================== */
 
+SET wh = 'COMPUTE_WH';          -- same warehouse as 00_setup.sql
+
 USE SECONDARY ROLES NONE;
 
 /* Detach the masking policy from the tag first. Neither a policy nor a
@@ -27,7 +29,13 @@ DROP ROLE IF EXISTS P7_READER_NO;
 DROP ROLE IF EXISTS P7_PROBE_ROLE;
 DROP ROLE IF EXISTS P7_BATCH_NOENT;
 
-/* confirm nothing P7_ is left */
+/* confirm nothing P7_ is left.
+   The RESULT_SCANs below are SELECTs and need a warehouse, which
+   SECURITYADMIN was never granted - and the P7_ roles that lent SYSADMIN
+   one have just been dropped. ACCOUNTADMIN reaches every warehouse.  */
+USE ROLE ACCOUNTADMIN;
+USE WAREHOUSE IDENTIFIER($wh);
+
 SHOW ROLES LIKE 'P7_%';
 SELECT 'roles remaining (expect zero rows)' AS check_name, "name"
 FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));

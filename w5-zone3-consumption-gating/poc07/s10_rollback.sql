@@ -42,10 +42,10 @@ TRUNCATE TABLE CTRL.BATCH_STATUS;
 TRUNCATE TABLE CTRL.PUBLISH_LOG;
 
 USE ROLE SECURITYADMIN;
-GRANT SELECT ON FUTURE TABLES IN SCHEMA D_LIVE  TO ROLE P7_VIEW_OWNER;
-GRANT SELECT ON FUTURE TABLES IN SCHEMA D_STAGE TO ROLE P7_VIEW_OWNER;
-GRANT SELECT ON ALL    TABLES IN SCHEMA D_LIVE  TO ROLE P7_VIEW_OWNER;
-GRANT SELECT ON ALL    TABLES IN SCHEMA D_STAGE TO ROLE P7_VIEW_OWNER;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
+GRANT SELECT ON ALL    TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
+GRANT SELECT ON ALL    TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
 
 /* the thin reader views — outside the swap, keeping the V_ name so
    reports change schema only, never object name                     */
@@ -215,6 +215,10 @@ FROM ( SELECT batch_id FROM D_VIEWS.V_CUSTOMER_360
 /* EXPECT  distinct_batches = 1,  batch_seen = B1 */
 /* EXPECT  batch_seen = B1. The rollback worked. */
 
+/* These read object metadata, so they need a role with privileges ON the
+   object and a warehouse. A reader role has neither on D_LIVE, and would
+   return ZERO ROWS rather than an error - which reads like lost tags. */
+USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SELECT 'TC-10.3 tags after the rollback' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_LIVE.CUSTOMER_360','table'))
 ORDER BY column_name;
