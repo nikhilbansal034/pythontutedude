@@ -115,6 +115,30 @@ Two things about this shape are load-bearing:
   it puts a piece of the tag's identity in the pipeline instead of in the
   declaration, which is the thing this design is trying to avoid.
 
+## The swap moves grants, so the pair must be symmetric
+
+`ALTER SCHEMA P8_STG SWAP WITH P8_LIVE` exchanges the two schemas **together
+with their grants**. A grant issued against the name `P8_STG` follows the
+object, which after one swap is called `P8_LIVE`.
+
+So a grant applied to only one half **works on day 1 and is gone on day 2**,
+with the privilege sitting on the wrong schema. It fails late, in a way that
+reads like a bug in the test rather than in the setup:
+
+```
+SQL compilation error: Schema 'LM_POC_DB.P8_STG' does not exist or not authorized.
+Your primary role P8_READER_NO must have USAGE ... on SCHEMA LM_POC_DB.P8_STG.
+```
+
+**The rule: in a swap-pair design, every schema-level grant goes on BOTH
+schemas.** Then the pair is symmetric and no swap can move a privilege out from
+under a role. The same applies to `FUTURE` grants, which are attached to the
+schema and alternate with it.
+
+This is the schema-level form of the alternation that governs the whole
+approach: the two storages take turns, so anything deployed to one only is
+absent on half of all batches, permanently.
+
 ## The pipeline must not be able to edit its own rulebook
 
 `P8_BATCH` holds **`SELECT`, and only `SELECT`**, on the control table. This is
