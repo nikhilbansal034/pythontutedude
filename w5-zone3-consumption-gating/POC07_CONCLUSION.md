@@ -57,7 +57,7 @@ These cannot be fixed by writing better SQL. They are what the mechanism does.
 
 | # | Property | Evidence | Consequence |
 |---|---|---|---|
-| 1 | **`COPY TAGS` copies from the table it replaces, not from live governance** | `TC-01.1` first build publishes untagged · `TC-03.1` **0,2,0,2** across four batches, reproduced in both runs · `TC-03.4` a newly tagged base column arrives unprotected and reads back as real phone numbers · `TC-04.3` + `TC-07.4` once tags are lost a rebuild cannot restore them | **Fails R14, R17, R25.** The disqualifying one |
+| 1 | **`COPY TAGS` copies from the table it replaces, not from live governance** | `TC-01.1` first build publishes untagged · `TC-03.1` **0,2,0,2** across four batches, reproduced in both runs · `TC-03.4` a newly tagged base column arrives unprotected and reads back as real phone numbers · `TC-04.3` + `TC-07.4` once tags are lost a rebuild cannot restore them | **A precaution, not a defect — see §4.** It imposes a deployment rule and needs a detective backstop |
 | 2 | **The swap pair alternates between two physical storages** | `TC-03.1`, `TC-01.5` | Anything deployed to one schema only is missing on **every other batch, forever**. Makes #1 twice as damaging |
 | 3 | **`COPY GRANTS` has the same bootstrap gap** | `TC-04.5` — no predecessor, nothing copied | Real, but future grants cover it |
 | 4 | **CTAS replaces the table, so OWNERSHIP moves to whoever ran it** | `TC-08.4` | Per-cycle ownership churn; the publishing role can lose its own table |
@@ -104,27 +104,64 @@ mechanism deserved.
 
 ## 4. So: is CTAS + Swap the wrong approach?
 
-**No — and that is a precise answer, not a hedge.**
+**No.** Its publication semantics are right — atomic per object (proven), gates, refuses,
+rolls back, audits. And **nothing in Buckets 4 or 5 — 24 of the ~30 findings — argues
+against it at all.** Four are our control-table design and would survive a change of
+mechanism; twenty were our own test bugs.
 
-- Its **publication semantics are right.** Atomic per object (proven), gates correctly,
-  refuses correctly, rolls back, auditable. Bucket 2, and most of §5 below.
-- Its **governance semantics are wrong**, and the fault is narrow enough to name: **one
-  clause, `COPY TAGS`.** It carries yesterday's protection forward instead of reading
-  today's. Three requirements turn on that distinction and all three fail.
-- **Nothing in Buckets 4 or 5 — 24 of the ~30 findings — argues against CTAS + Swap at
-  all.** Four are our control-table design and would survive a change of mechanism.
-  Twenty were our own test bugs.
+### `COPY TAGS` — the precaution, stated properly
 
-The honest headline is: **keep the swap, replace `COPY TAGS`.**
+**Decision, 27 October: we stay with CTAS + Swap. `INSERT OVERWRITE` is not being
+pursued.** The `COPY TAGS` behaviour is therefore recorded not as a defect in the
+mechanism but as **an operating precaution the POC exists to surface.**
 
-What replaces it is a design choice, not a test result. Two candidates:
+That is the right call, and the evidence supports it. `S02` ran four consecutive batches
+with tags and grants identical throughout — **zero drift**. With both schemas correctly
+governed, `COPY TAGS` carries protection forward indefinitely. Governance applied at
+deployment rather than at publication is a legitimate posture; the requirement states
+what must be true after a publication, not which layer makes it true.
 
-| Option | How it addresses R14/R17/R25 | Cost |
-|---|---|---|
-| **Re-apply tags from live governance after each build** | Reads current governance every cycle, so a changed or newly added tag lands | An extra governance step inside the gate; needs `APPLY` on the tags; needs a source of truth for "what tags should this object have" |
-| **`INSERT OVERWRITE` instead of CTAS** | The table object is never replaced, so its tags, grants and ownership are never disturbed — R14/R17/R25 stop being questions | Loses the free multi-object atomicity the schema swap gives; needs its own grouping mechanism. This was our original proposal, set aside before this evidence existed |
+**The precaution, precisely.** It is sharper than "keep the tables tagged":
 
----
+> Every column that governance requires to be protected must carry its tag **on the
+> published table in BOTH schemas**, applied **before** the first batch that includes it.
+> This covers a new column added by a schema change, and any governance change to an
+> existing tag. Both schemas every time — because the swap pair alternates, a tag applied
+> to only one storage is absent from every other batch, permanently (`TC-03.1`: 0, 2, 0, 2).
+
+**The precaution alone is not sufficient, and this is the part to carry into the POC
+write-up.** The security gate as built is a list-and-eyeball:
+
+```sql
+SELECT ... FROM TABLE(... TAG_REFERENCES_ALL_COLUMNS(...)) WHERE tag_name = 'PII'
+/* EXPECT  2 rows — email=EMAIL and ssn=SSN */
+```
+
+There is **no source of truth for which columns ought to be tagged**. So:
+
+| Failure | Does the gate catch it? |
+|---|---|
+| A tag is **lost** from a column the gate knows about | **Yes** — 0 rows instead of 2. Proven, `TC-01.2` refused the publish |
+| A **new column** arrives untagged | **No.** The gate still sees its 2 expected rows. `TC-03.4`: `phone` published and read back as real phone numbers with every check green |
+
+So the precaution needs one change to become safe:
+
+| | |
+|---|---|
+| **Preventive** | The deployment rule above. Owner currently unassigned — Liquibase was scoped out, so no mechanism carries it today |
+| **Detective** | **Change the gate from `EXPECT 2 rows` to an assertion against a governance list** — *every column governance says should be tagged is tagged on the staging table, or the publish refuses.* Small change, keeps `COPY TAGS`, and turns a silent process failure into a refused batch |
+
+Without the detective control the precaution is a procedure with no verification, and the
+failure mode is silent — exactly what Part B exists to prevent. **With it, R14 and R17 are
+met.**
+
+**R25 is a different matter and should go to the business as an explicit risk
+acceptance**, not as a solved item. It requires protection to be determined by *"live
+governance state, not by a snapshot"*, and `COPY TAGS` is definitionally a snapshot of the
+predecessor. Deployment discipline plus the gate makes the *outcome* match live
+governance; it does not make the *mechanism* read it. That is a process guarantee where
+the requirement asks for a mechanism guarantee — a reasonable trade, but one somebody has
+to accept in writing.
 
 ## 5. Requirement-by-requirement
 
@@ -143,14 +180,14 @@ What replaces it is a design choice, not a test result. Two candidates:
 | R11 | **PARTIAL** | Attributable, but a rollback is logged as a refusal. Bucket 4 |
 | R12 | PARTIAL | Reset proven; the "publish the completed cycle through the normal path" leg is untested |
 | R13 | N/A | Unreachable under A5 |
-| **R14** | **FAIL** | Bucket 1 #1 |
+| **R14** | **CONDITIONAL** | Met if the deployment rule holds **and** the gate asserts against governance. §4 |
 | R15 | **PASS** | Proven both ways — `TC-08.4` / `TC-08.5` |
 | R16 | **PARTIAL** | Gate works; nothing enforces it. Bucket 4 |
-| **R17** | **FAIL** | `TC-03.4` — new tagged column published unprotected |
+| **R17** | **CONDITIONAL** | `TC-03.4` — a new column publishes unprotected and the gate does **not** catch it today. Met once the gate asserts against a governance list. §4 |
 | R18 | **OPEN** | Steady-state publish is fine; setup and recovery needed `MANAGE GRANTS` / `SECURITYADMIN` / `ACCOUNTADMIN` |
 | R19 | **PASS** | `batch_id` + `PUBLISH_LOG` |
 | R22 | PARTIAL | Static `is_required`, not per-cycle |
-| **R25** | **FAIL** | Bucket 1 #1 — `COPY TAGS` is definitionally a snapshot |
+| **R25** | **RISK ACCEPTANCE** | `COPY TAGS` is a snapshot by definition. Outcome can be made to match governance; the mechanism still does not read it. Needs explicit sign-off. §4 |
 | R26 | **UNTESTED** | No row access policy exists anywhere |
 | R27 | **SETTLED** | Route (b) closed by Bucket 1 #5. Route (a) works and is now mandatory |
 | R28 | **PASS** | Entitled sees real, unentitled sees masked, through the views, before and after |
@@ -168,7 +205,7 @@ which is how it should have been done from the start.
 | **T-A** | Re-run the two-session reader/publisher with the account on `READ_CONSISTENCY_MODE = GLOBAL`, twice | **R3** | The only open question about the mechanism itself. Clean → the group guarantee costs an account setting and milliseconds. Dirty → the swap does not give group atomicity across sessions and the design needs rework. **Run it twice: one mixed read in 300 is a thin signal, and a single clean run is also what "got lucky" looks like** |
 | **T-B** | A second consistency group, published while the first is mid-publication | **R4** | Untested entirely. A failure means publishing one report's data can corrupt another's — the blast radius of the whole design |
 | **T-C** | A row access policy on a published object, through a rebuild | **R26** | Untested entirely. Row policies may behave differently from masking policies across `CREATE OR REPLACE`. If they do not survive, rows leak rather than columns |
-| **T-D** | Whichever replacement for `COPY TAGS` is chosen (§4), re-running S01, S03 and S07 | **R14, R17, R25** | This is the fix for the one disqualifying finding. Until it is tested, the POC has no answer for Part B |
+| **T-D** | **The governance-asserting gate.** Add a list of what should be tagged, have the gate compare the staging table against it, then re-run `TC-03.4` — the new tagged column must now be **refused**, not published | **R14, R17** | Converts the deployment precaution from a procedure into an enforced control. Without it a missed tag on a new column publishes PII in the clear with every check green, which is the one silent failure left in Part B |
 | **T-E** | An exception approval in its own table, keyed on `(batch_id, object_name)` | **R10** | Closes the silent no-op. Design is already proven by the colleague's `TC-05.3c`; it needs porting and re-running |
 | **T-F** | An override, then the late job completes, then the cycle publishes complete through the normal path | **R12** | The leg nobody has run. A failure means an overridden cycle never gets corrected |
 
@@ -186,11 +223,13 @@ CTAS + Swap satisfies Part A. On the evidence of two independent runs it gates, 
 publishes atomically per object, rolls back and audits correctly, and R2 — the requirement
 the POC was created to settle — passed.
 
-It does not satisfy Part B as built, for one reason: `COPY TAGS` carries forward the
-protection of the table it replaces rather than reading live governance. Since section 2
-of the problem statement says the two parts are not separable in delivery, **the POC
-cannot be signed off until that is replaced and re-tested, and until R3 is resolved one
-way or the other.**
+For Part B it is workable but conditional. `COPY TAGS` carries forward the protection of
+the table it replaces rather than reading live governance. **We are staying with CTAS +
+Swap, so this is recorded as an operating precaution, not a defect** — but the precaution
+only holds with a detective control behind it, because the gate as built cannot see a new
+column that should have been tagged and was not. **Two things close Part B: the
+governance-asserting gate (T-D), and an explicit business acceptance of R25.** R3 remains
+open until T-A is run.
 
 Everything else found — twenty-four of roughly thirty findings — is either our own test
 code or our own control-table design, and none of it is an argument against the mechanism.
