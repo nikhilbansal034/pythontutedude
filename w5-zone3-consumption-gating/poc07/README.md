@@ -29,8 +29,17 @@ s10_rollback.sql             ─┘
 ## Before the first run
 
 1. **Set the warehouse.** Line 1 of `00_setup.sql`: `SET wh = 'COMPUTE_WH';`
-2. **Roles.** Created with `SECURITYADMIN`, objects with `SYSADMIN`. If your account restricts those,
-   run `00_setup.sql` as `ACCOUNTADMIN` — nothing else changes.
+2. **Roles.** You must be able to `USE ROLE` both `SECURITYADMIN` and `SYSADMIN`. If your account
+   restricts those, run `00_setup.sql` as `ACCOUNTADMIN` — nothing else changes.
+
+   `SECURITYADMIN` is not optional. Two things in setup cannot be done by a schema owner, however
+   much it owns: a `GRANT … ON FUTURE` (needs `MANAGE GRANTS`), and any grant on a schema whose
+   ownership was just transferred (the transfer uses `REVOKE CURRENT GRANTS`, so the grants have to
+   come afterwards, from a role that still can).
+
+   If Snowsight offers a **"Resolve access error"** button on either, **do not click it** — it grants
+   `MANAGE GRANTS` to the P7_ role, which is account-wide and undoes the least-privilege split the
+   POC exists to test.
 3. **Check the setup assertions at the end of `00_setup.sql` before running any scenario.** If
    assertion 6c returns real values for the unentitled role, the masking policy is not attached to
    the tag and every later result is meaningless.

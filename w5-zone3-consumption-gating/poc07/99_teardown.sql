@@ -8,7 +8,14 @@
 
 USE SECONDARY ROLES NONE;
 
+/* Detach the masking policy from the tag first. Neither a policy nor a
+   tag can be dropped while the policy is assigned to the tag, and
+   although DROP DATABASE normally cascades, detaching first makes the
+   teardown work regardless.                                          */
 USE ROLE SYSADMIN;
+USE DATABASE P7_POC;
+ALTER TAG IF EXISTS GOV.PII UNSET MASKING POLICY GOV.MASK_PII;
+
 DROP DATABASE IF EXISTS P7_POC;
 
 USE ROLE SECURITYADMIN;
