@@ -406,4 +406,7 @@ USE ROLE SECURITYADMIN;
 REVOKE SELECT ON TABLE P7_POC.BASE.CUSTOMER FROM ROLE P7_READER_NO;
 REVOKE USAGE  ON SCHEMA P7_POC.BASE         FROM ROLE P7_READER_NO;
 
+/* SECURITYADMIN holds no warehouse. Hand back to SYSADMIN, which inherits
+   one through the P7_ roles granted to it. */
+USE ROLE SYSADMIN;
 SELECT 'SETUP COMPLETE - run a scenario script next. Each one resets itself to day 1.' AS status;

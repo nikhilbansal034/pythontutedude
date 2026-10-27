@@ -47,8 +47,8 @@ TRUNCATE TABLE CTRL.PUBLISH_LOG;
 USE ROLE SECURITYADMIN;
 -- NO future grants. This scenario manages grants explicitly, so that
 -- COPY GRANTS can be tested on its own.
-GRANT SELECT ON ALL TABLES IN SCHEMA D_LIVE  TO ROLE P7_VIEW_OWNER;
-GRANT SELECT ON ALL TABLES IN SCHEMA D_STAGE TO ROLE P7_VIEW_OWNER;
+GRANT SELECT ON ALL TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
+GRANT SELECT ON ALL TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
 
 /* the thin reader views — outside the swap, keeping the V_ name so
    reports change schema only, never object name                     */
@@ -100,6 +100,9 @@ INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_f
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_PROBE_ROLE;
 
+/* SECURITYADMIN was granted no warehouse, so the RESULT_SCAN below cannot
+   run under it. Read the grants as the schema owner instead. */
+USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SHOW GRANTS ON TABLE P7_POC.D_STAGE.CUSTOMER_360;
 SELECT 'TC-04.1 grants BEFORE the swap' AS check_name,
        "privilege", "grantee_name", "granted_on"
@@ -146,6 +149,9 @@ INSERT INTO CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exception_f
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_PROBE_ROLE;
 
+/* SECURITYADMIN was granted no warehouse, so the RESULT_SCAN below cannot
+   run under it. Read the grants as the schema owner instead. */
+USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SHOW GRANTS ON TABLE P7_POC.D_STAGE.CUSTOMER_360;
 SELECT 'TC-04.2 grants before the plain rebuild' AS check_name,
        "privilege", "grantee_name", "granted_on"
