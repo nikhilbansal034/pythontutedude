@@ -13,9 +13,18 @@
    BEFORE YOU RUN
    ---------------------------------------------------------------------
    1. Set the warehouse on the next line to one you can use.
-   2. Roles are created with SECURITYADMIN and objects with SYSADMIN.
-      If your account restricts those, run the whole file as
-      ACCOUNTADMIN - nothing else changes.
+   2. This file switches roles deliberately. You need to be able to
+      USE ROLE both SECURITYADMIN and SYSADMIN.
+
+      SECURITYADMIN is not optional. Two things here cannot be done by
+      a schema owner, however much it owns:
+        - any GRANT ... ON FUTURE, which needs MANAGE GRANTS
+        - any grant on a schema whose ownership has just been handed
+          over, because the handover uses REVOKE CURRENT GRANTS
+      If your account restricts SECURITYADMIN, run the whole file as
+      ACCOUNTADMIN - nothing else changes. Do NOT instead grant
+      MANAGE GRANTS to a P7_ role: that is account-wide, and it would
+      undo the least-privilege split this POC exists to test.
    3. Nothing here touches POC01 or POC02 objects. Every name starts
       P7_ and everything lives in one database, so 99_teardown.sql
       removes exactly what this created.
@@ -104,7 +113,9 @@ GRANT USAGE ON DATABASE P7_POC TO ROLE P7_READER_NO;
 GRANT USAGE ON DATABASE P7_POC TO ROLE P7_PROBE_ROLE;
 GRANT USAGE ON DATABASE P7_POC TO ROLE P7_BATCH_NOENT;
 
-/* ownership of each schema, so each role really is tested on its own rights */
+/* Ownership of each schema, so each role really is tested on its own
+   rights. REVOKE CURRENT GRANTS wipes existing grants on the schema,
+   which is why every USAGE grant below comes AFTER this, not before.  */
 GRANT OWNERSHIP ON SCHEMA BASE      TO ROLE P7_BASE_OWNER   REVOKE CURRENT GRANTS;
 GRANT OWNERSHIP ON SCHEMA SRC_VIEWS TO ROLE P7_BASE_OWNER   REVOKE CURRENT GRANTS;
 GRANT OWNERSHIP ON SCHEMA D_LIVE    TO ROLE P7_PUBLISH_ROLE REVOKE CURRENT GRANTS;
@@ -112,30 +123,45 @@ GRANT OWNERSHIP ON SCHEMA D_STAGE   TO ROLE P7_PUBLISH_ROLE REVOKE CURRENT GRANT
 GRANT OWNERSHIP ON SCHEMA CTRL      TO ROLE P7_PUBLISH_ROLE REVOKE CURRENT GRANTS;
 GRANT OWNERSHIP ON SCHEMA D_VIEWS   TO ROLE P7_VIEW_OWNER   REVOKE CURRENT GRANTS;
 
+/* ---------------------------------------------------------------------
+   The USAGE grants below are issued by SECURITYADMIN, NOT SYSADMIN.
+
+   Ownership of these schemas was just transferred away, so SYSADMIN no
+   longer owns them and cannot grant on them. The transfer also used
+   REVOKE CURRENT GRANTS, so the grants cannot simply be moved earlier
+   either - they would be wiped by the transfer.
+
+   SECURITYADMIN holds MANAGE GRANTS, so it can grant on any of them.
+   Names are fully qualified because SECURITYADMIN has no USAGE of its
+   own on this database.
+   --------------------------------------------------------------------- */
+USE ROLE SECURITYADMIN;
+
 /* the publishing role must be able to read the source views to build from them */
-GRANT USAGE ON SCHEMA SRC_VIEWS TO ROLE P7_PUBLISH_ROLE;
-GRANT USAGE ON SCHEMA BASE      TO ROLE P7_PUBLISH_ROLE;
-GRANT USAGE ON SCHEMA GOV       TO ROLE P7_PUBLISH_ROLE;
-GRANT USAGE ON SCHEMA GOV       TO ROLE P7_BASE_OWNER;
+GRANT USAGE ON SCHEMA P7_POC.SRC_VIEWS TO ROLE P7_PUBLISH_ROLE;
+GRANT USAGE ON SCHEMA P7_POC.BASE      TO ROLE P7_PUBLISH_ROLE;
+GRANT USAGE ON SCHEMA P7_POC.GOV       TO ROLE P7_PUBLISH_ROLE;
+GRANT USAGE ON SCHEMA P7_POC.GOV       TO ROLE P7_BASE_OWNER;
 
 /* the view owner reads both swapped schemas so its views resolve after a swap.
    NOTE: this is exactly the standing access S04 TC-04.7 measures.          */
-GRANT USAGE ON SCHEMA D_LIVE  TO ROLE P7_VIEW_OWNER;
-GRANT USAGE ON SCHEMA D_STAGE TO ROLE P7_VIEW_OWNER;
+GRANT USAGE ON SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
+GRANT USAGE ON SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
 
 /* readers reach D_VIEWS and nothing else */
-GRANT USAGE ON SCHEMA D_VIEWS TO ROLE P7_READER_OK;
-GRANT USAGE ON SCHEMA D_VIEWS TO ROLE P7_READER_NO;
+GRANT USAGE ON SCHEMA P7_POC.D_VIEWS TO ROLE P7_READER_OK;
+GRANT USAGE ON SCHEMA P7_POC.D_VIEWS TO ROLE P7_READER_NO;
 
 /* the no-entitlement batch identity needs to build, like the real one */
-GRANT USAGE ON SCHEMA SRC_VIEWS TO ROLE P7_BATCH_NOENT;
-GRANT USAGE ON SCHEMA BASE      TO ROLE P7_BATCH_NOENT;
-GRANT USAGE ON SCHEMA D_STAGE   TO ROLE P7_BATCH_NOENT;
+GRANT USAGE ON SCHEMA P7_POC.SRC_VIEWS TO ROLE P7_BATCH_NOENT;
+GRANT USAGE ON SCHEMA P7_POC.BASE      TO ROLE P7_BATCH_NOENT;
+GRANT USAGE ON SCHEMA P7_POC.D_STAGE   TO ROLE P7_BATCH_NOENT;
 
 /* =====================================================================
    3. GOVERNANCE - tags, entitlement, masking
    ===================================================================== */
 USE ROLE SYSADMIN;
+USE DATABASE P7_POC;
 USE SCHEMA GOV;
 
 CREATE TAG IF NOT EXISTS PII
@@ -204,8 +230,24 @@ ALTER TABLE CUSTOMER MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL';
 ALTER TABLE CUSTOMER MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN';
 
 GRANT SELECT ON ALL TABLES IN SCHEMA BASE TO ROLE P7_PUBLISH_ROLE;
-GRANT SELECT ON FUTURE TABLES IN SCHEMA BASE TO ROLE P7_PUBLISH_ROLE;
 GRANT SELECT ON ALL TABLES IN SCHEMA BASE TO ROLE P7_BATCH_NOENT;
+
+/* ---------------------------------------------------------------------
+   FUTURE grants must be issued by SECURITYADMIN.
+   A schema OWNER cannot create them - future grants require MANAGE
+   GRANTS on the account, which an owner does not have. Confirmed on
+   this account 27 Oct 2026: P7_BASE_OWNER is refused with
+   "Insufficient privileges to operate on SCHEMA 'BASE'".
+
+   Do NOT fix this by granting MANAGE GRANTS to P7_BASE_OWNER - that is
+   an account-wide privilege and would undo the least-privilege split
+   this POC exists to test.
+   --------------------------------------------------------------------- */
+USE ROLE SECURITYADMIN;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.BASE TO ROLE P7_PUBLISH_ROLE;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.BASE TO ROLE P7_BATCH_NOENT;
+
+USE ROLE P7_BASE_OWNER; USE DATABASE P7_POC; USE SCHEMA BASE;
 
 /* ---------------------------------------------------------------------
    The source views - the existing complex logic, text never edited.
@@ -233,8 +275,23 @@ SELECT p.policy_id,
 FROM BASE.POLICY p;
 
 GRANT SELECT ON ALL VIEWS IN SCHEMA SRC_VIEWS TO ROLE P7_PUBLISH_ROLE;
-GRANT SELECT ON FUTURE VIEWS IN SCHEMA SRC_VIEWS TO ROLE P7_PUBLISH_ROLE;
 GRANT SELECT ON ALL VIEWS IN SCHEMA SRC_VIEWS TO ROLE P7_BATCH_NOENT;
+
+/* ---------------------------------------------------------------------
+   FUTURE grants on the source views, as SECURITYADMIN - and these ones
+   genuinely matter.
+
+   S03 rebuilds these views with CREATE OR REPLACE VIEW several times.
+   That REPLACES the object, so its grants go with it. Without a future
+   grant, running S03 silently removes P7_BATCH_NOENT's access and S08
+   then fails on every later run, in a different scenario, for a reason
+   that is nowhere near the error.
+   --------------------------------------------------------------------- */
+USE ROLE SECURITYADMIN;
+GRANT SELECT ON FUTURE VIEWS IN SCHEMA P7_POC.SRC_VIEWS TO ROLE P7_PUBLISH_ROLE;
+GRANT SELECT ON FUTURE VIEWS IN SCHEMA P7_POC.SRC_VIEWS TO ROLE P7_BATCH_NOENT;
+
+USE ROLE P7_BASE_OWNER; USE DATABASE P7_POC;
 
 /* =====================================================================
    5. CONTROL TABLES  (four, not nine)
