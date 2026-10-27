@@ -81,6 +81,11 @@ SECURITYADMIN can normally issue it on the strength of `MANAGE GRANTS`. If your
 account refuses it, run that one line as **ACCOUNTADMIN** and carry on —
 nothing else in the pack needs that role.
 
+`99_teardown.sql` issues the same grant itself before it detaches the policy,
+because *detaching* needs the privilege too and teardown has to work when setup
+never finished — which is the common case, since that is usually why you are
+running teardown.
+
 This is worth carrying into the write-up rather than treating as plumbing:
 whoever attaches policies to tags holds an **account-wide** privilege, so that
 role is powerful and the grant is a decision. The pipeline does **not** need it
