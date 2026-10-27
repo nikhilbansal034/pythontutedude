@@ -1,0 +1,4756 @@
+{
+  "file": "00_setup",
+  "started": "2026-10-27T06:21:01.323374+00:00",
+  "finished": "2026-10-27T06:22:22.770890+00:00",
+  "account": "pn56976-deloittena",
+  "warehouse": "LM_PII_POC_WH",
+  "statements": 139,
+  "cases_found": 0,
+  "cases_expected": null,
+  "case_list": [],
+  "harness_injected_statements": 28,
+  "warehouse_problems": [],
+  "aborted": null,
+  "captures": [
+    {
+      "seq": 1,
+      "line": 45,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "SET wh = 'LM_PII_POC_WH'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 391,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 2,
+      "line": 54,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": null,
+      "identity": {},
+      "sql": "USE SECONDARY ROLES NONE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 355,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 3,
+      "line": 59,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 413,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 4,
+      "line": 61,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_BASE_OWNER      COMMENT = 'owns the Zone 3 base tables and the source views'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_BASE_OWNER successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 388,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 5,
+      "line": 62,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_PUBLISH_ROLE    COMMENT = 'owns D_LIVE, D_STAGE and CTRL. Builds and swaps'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_PUBLISH_ROLE successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 400,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 6,
+      "line": 63,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_VIEW_OWNER      COMMENT = 'owns D_VIEWS, the thin reader views'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_VIEW_OWNER successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 491,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 7,
+      "line": 64,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_READER_OK       COMMENT = 'a report user ENTITLED to see real values'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_READER_OK successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 439,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 8,
+      "line": 65,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_READER_NO       COMMENT = 'a report user NOT entitled - sees masked values'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_READER_NO successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 506,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 9,
+      "line": 66,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_PROBE_ROLE      COMMENT = 'grant target for the grants scenario. No work of its own'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_PROBE_ROLE successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 477,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 10,
+      "line": 67,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "CREATE ROLE IF NOT EXISTS P7_BATCH_NOENT     COMMENT = 'a batch identity with NO entitlement row - writes masks'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Role P7_BATCH_NOENT successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1191,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 11,
+      "line": 70,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_BASE_OWNER   TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 475,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 12,
+      "line": 71,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_PUBLISH_ROLE TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 459,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 13,
+      "line": 72,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_VIEW_OWNER   TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 477,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 14,
+      "line": 73,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_READER_OK    TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 502,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 15,
+      "line": 74,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_READER_NO    TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 650,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 16,
+      "line": 75,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_PROBE_ROLE   TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 461,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 17,
+      "line": 76,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_BATCH_NOENT  TO ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 429,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 18,
+      "line": 79,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "SET me = CURRENT_USER()",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 19,
+      "line": 80,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_BASE_OWNER   TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 411,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 20,
+      "line": 81,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_PUBLISH_ROLE TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 432,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 21,
+      "line": 82,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_VIEW_OWNER   TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 414,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 22,
+      "line": 83,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_READER_OK    TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 410,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 23,
+      "line": 84,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_READER_NO    TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 393,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 24,
+      "line": 85,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_PROBE_ROLE   TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 406,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 25,
+      "line": 86,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT ROLE P7_BATCH_NOENT  TO USER IDENTIFIER($me)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 503,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 26,
+      "line": 95,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "USE ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 379,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 27,
+      "line": 96,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE DATABASE IF NOT EXISTS P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Database P7_POC successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 530,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 28,
+      "line": 97,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 330,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 29,
+      "line": 99,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS GOV",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema GOV successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 490,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 30,
+      "line": 100,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS BASE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema BASE successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 502,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 31,
+      "line": 101,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS SRC_VIEWS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema SRC_VIEWS successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 394,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 32,
+      "line": 102,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS D_LIVE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema D_LIVE successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 444,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 33,
+      "line": 103,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS D_STAGE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema D_STAGE successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 405,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 34,
+      "line": 104,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS D_VIEWS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema D_VIEWS successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 459,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 35,
+      "line": 105,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "AUTOPROV_DB",
+        "schema": null
+      },
+      "sql": "CREATE SCHEMA IF NOT EXISTS CTRL",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Schema CTRL successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 433,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 36,
+      "line": 122,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "USE ROLE ACCOUNTADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 403,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 37,
+      "line": 123,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 396,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 38,
+      "line": 124,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 385,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 39,
+      "line": 125,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 409,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 40,
+      "line": 126,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 384,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 41,
+      "line": 127,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 367,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 42,
+      "line": 128,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_PROBE_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 395,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 43,
+      "line": 129,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON WAREHOUSE IDENTIFIER($wh) TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 697,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 44,
+      "line": 132,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "SHOW GRANTS ON WAREHOUSE IDENTIFIER($wh)",
+      "cols": [
+        "created_on",
+        "privilege",
+        "granted_on",
+        "name",
+        "granted_to",
+        "grantee_name",
+        "grant_option",
+        "granted_by",
+        "granted_by_role_type"
+      ],
+      "rows": [
+        [
+          "2026-08-03 04:48:01.769000-07:00",
+          "OWNERSHIP",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "ACCOUNTADMIN",
+          "true",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-04 01:47:10.945000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LMPOC_DBTAG_READER_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-03 05:24:37.170000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LMPOC_PII_READER_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-06 07:21:48.285000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LMPOC_S3_READER_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-17 00:46:36.599000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_P2_DATA_OWNER",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-17 00:46:37.435000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_P2_DT_OWNER",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-17 00:46:37.050000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_P2_ORCHESTRATOR",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-17 00:46:37.818000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_P2_READER_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-03 04:48:26.875000-07:00",
+          "MONITOR",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_PII_POC_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-03 04:48:26.736000-07:00",
+          "OPERATE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_PII_POC_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-03 04:48:26.576000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_PII_POC_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-04 01:47:10.586000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_PII_POLICY_ADMIN",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-08-04 01:47:10.138000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "LM_PII_TAG_ADMIN",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:21.385000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_BASE_OWNER",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:23.723000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_BATCH_NOENT",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:23.323000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_PROBE_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:21.772000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_PUBLISH_ROLE",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:22.940000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_READER_NO",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:22.570000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_READER_OK",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ],
+        [
+          "2026-10-26 23:21:22.170000-07:00",
+          "USAGE",
+          "WAREHOUSE",
+          "LM_PII_POC_WH",
+          "ROLE",
+          "P7_VIEW_OWNER",
+          "false",
+          "ACCOUNTADMIN",
+          "ROLE"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 631,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 45,
+      "line": 133,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "setup warehouse grants",
+      "role": "ACCOUNTADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "ACCOUNTADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "SELECT 'setup warehouse grants' AS check_name,\n       COUNT(*) AS p7_usage_grants\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"privilege\" = 'USAGE' AND \"grantee_name\" LIKE 'P7_%'",
+      "cols": [
+        "CHECK_NAME",
+        "P7_USAGE_GRANTS"
+      ],
+      "rows": [
+        [
+          "setup warehouse grants",
+          "7"
+        ]
+      ],
+      "expect_text": "/* EXPECT  p7_usage_grants = 7. Fewer means a role cannot run a query and\n   the scenarios will fail later with a confusing error.               */",
+      "status": "PASS",
+      "detail": "p7_usage_grants=7",
+      "error": null,
+      "elapsed_ms": 924,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 46,
+      "line": 141,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "USE ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 349,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 47,
+      "line": 142,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 335,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 48,
+      "line": 144,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 358,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 49,
+      "line": 145,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 398,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 50,
+      "line": 146,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 376,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 51,
+      "line": 147,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 377,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 52,
+      "line": 148,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 347,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 53,
+      "line": 149,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_PROBE_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 54,
+      "line": 150,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON DATABASE P7_POC TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 337,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 55,
+      "line": 153,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT OWNERSHIP ON SCHEMA BASE      TO ROLE P7_BASE_OWNER   REVOKE CURRENT GRANTS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 414,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 56,
+      "line": 154,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT OWNERSHIP ON SCHEMA SRC_VIEWS TO ROLE P7_BASE_OWNER   REVOKE CURRENT GRANTS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 425,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 57,
+      "line": 155,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT OWNERSHIP ON SCHEMA D_LIVE    TO ROLE P7_PUBLISH_ROLE REVOKE CURRENT GRANTS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 415,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 58,
+      "line": 156,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT OWNERSHIP ON SCHEMA D_STAGE   TO ROLE P7_PUBLISH_ROLE REVOKE CURRENT GRANTS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 59,
+      "line": 157,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT OWNERSHIP ON SCHEMA CTRL      TO ROLE P7_PUBLISH_ROLE REVOKE CURRENT GRANTS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 386,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 60,
+      "line": 158,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT OWNERSHIP ON SCHEMA D_VIEWS   TO ROLE P7_VIEW_OWNER   REVOKE CURRENT GRANTS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 376,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 61,
+      "line": 161,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA SRC_VIEWS TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 377,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 62,
+      "line": 162,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA BASE      TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 344,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 63,
+      "line": 163,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA GOV       TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 356,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 64,
+      "line": 164,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA GOV       TO ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 371,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 65,
+      "line": 168,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA D_LIVE  TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 66,
+      "line": 169,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA D_STAGE TO ROLE P7_VIEW_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 67,
+      "line": 172,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA D_VIEWS TO ROLE P7_READER_OK",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 376,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 68,
+      "line": 173,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA D_VIEWS TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 351,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 69,
+      "line": 176,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA SRC_VIEWS TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 70,
+      "line": 177,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA BASE      TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 338,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 71,
+      "line": 178,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "GRANT USAGE ON SCHEMA D_STAGE   TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 367,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 72,
+      "line": 183,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "USE ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 368,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 73,
+      "line": 184,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "USE SCHEMA GOV",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 340,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 74,
+      "line": 186,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "CREATE TAG IF NOT EXISTS PII\n  COMMENT = 'what a column holds. EMAIL | SSN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Tag PII successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 395,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 75,
+      "line": 188,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "CREATE TAG IF NOT EXISTS PII_SCOPE\n  COMMENT = 'the governance scope of a table or schema. Tested for survival, not wired into masking in this POC'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Tag PII_SCOPE successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 387,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 76,
+      "line": 192,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "CREATE TABLE IF NOT EXISTS ENTITLEMENT (\n    role_name   STRING,\n    can_see_pii BOOLEAN,\n    note        STRING\n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table ENTITLEMENT successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 585,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 77,
+      "line": 197,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "DELETE FROM ENTITLEMENT WHERE role_name LIKE 'P7_%'",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "0"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 843,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 78,
+      "line": 198,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "INSERT INTO ENTITLEMENT (role_name, can_see_pii, note) VALUES\n  ('P7_READER_OK'   , TRUE , 'an approved report user'),\n  ('P7_PUBLISH_ROLE', TRUE , 'the batch identity - MUST be entitled or the CTAS writes masks'),\n  ('P7_BASE_OWNER'  , TRUE , 'owns the raw data'),\n  ('P7_READER_NO'   , FALSE, 'an unapproved report user'),\n  ('P7_PROBE_ROLE'  , FALSE, 'grant target only'),\n  ('P7_VIEW_OWNER'  , FALSE, 'deliberately NOT entitled, so TC-04.7 shows what it can read'),\n  ('P7_BATCH_NOENT' , FALSE, 'deliberately NOT entitled - proves a writer stores masks')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "7"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 644,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 79,
+      "line": 220,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "CREATE MASKING POLICY IF NOT EXISTS MASK_PII AS (val STRING) RETURNS STRING ->\n  CASE\n    WHEN EXISTS ( SELECT 1\n                  FROM P7_POC.GOV.ENTITLEMENT e\n                  WHERE e.role_name   = CURRENT_ROLE()\n                    AND e.can_see_pii = TRUE )\n    THEN val\n    ELSE '***MASKED***'\n  END",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Masking policy MASK_PII successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 409,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 80,
+      "line": 230,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "ALTER TAG PII SET MASKING POLICY MASK_PII",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 422,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 81,
+      "line": 232,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "GRANT APPLY ON TAG P7_POC.GOV.PII       TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 365,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 82,
+      "line": 233,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "GRANT APPLY ON TAG P7_POC.GOV.PII_SCOPE TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 83,
+      "line": 234,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "GRANT APPLY ON TAG P7_POC.GOV.PII       TO ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 352,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 84,
+      "line": 235,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "GRANT APPLY ON TAG P7_POC.GOV.PII_SCOPE TO ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 341,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 85,
+      "line": 236,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "PUBLIC"
+      },
+      "sql": "GRANT SELECT ON TABLE P7_POC.GOV.ENTITLEMENT TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 376,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 86,
+      "line": 241,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 354,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 87,
+      "line": 242,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 357,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 88,
+      "line": 243,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "USE SCHEMA BASE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 339,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 89,
+      "line": 245,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "CREATE OR REPLACE TABLE CUSTOMER (\n    customer_id NUMBER,\n    full_name   STRING,\n    email       STRING,      \n    ssn         STRING,      \n    batch_id    STRING       \n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table CUSTOMER successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 1022,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 90,
+      "line": 252,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "CREATE OR REPLACE TABLE POLICY (\n    policy_id   NUMBER,\n    customer_id NUMBER,\n    premium     NUMBER(12,2),\n    batch_id    STRING\n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table POLICY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 635,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 91,
+      "line": 259,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "ALTER TABLE CUSTOMER MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 452,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 92,
+      "line": 260,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "ALTER TABLE CUSTOMER MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN'",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 515,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 93,
+      "line": 262,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "GRANT SELECT ON ALL TABLES IN SCHEMA BASE TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 392,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 94,
+      "line": 263,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "GOV"
+      },
+      "sql": "GRANT SELECT ON ALL TABLES IN SCHEMA BASE TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 388,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 95,
+      "line": 277,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 362,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 96,
+      "line": 278,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.BASE TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 378,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 97,
+      "line": 279,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.BASE TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 358,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 98,
+      "line": 280,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 395,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 99,
+      "line": 281,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 372,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 100,
+      "line": 282,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "USE SCHEMA BASE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 366,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 101,
+      "line": 289,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "USE SCHEMA SRC_VIEWS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 353,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 102,
+      "line": 291,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "CREATE OR REPLACE VIEW V_CUSTOMER_360 AS\nSELECT c.customer_id,\n       c.full_name,\n       c.email,\n       c.ssn,\n       COUNT(p.policy_id) AS policy_count,\n       c.batch_id\nFROM BASE.CUSTOMER c\nLEFT JOIN BASE.POLICY p ON p.customer_id = c.customer_id\nGROUP BY c.customer_id, c.full_name, c.email, c.ssn, c.batch_id",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "View V_CUSTOMER_360 successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 801,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 103,
+      "line": 302,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "CREATE OR REPLACE VIEW V_POLICY_SUMMARY AS\nSELECT p.policy_id,\n       p.customer_id,\n       p.premium,\n       p.batch_id\nFROM BASE.POLICY p",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "View V_POLICY_SUMMARY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 643,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 104,
+      "line": 309,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "GRANT SELECT ON ALL VIEWS IN SCHEMA SRC_VIEWS TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 429,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 105,
+      "line": 310,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "BASE"
+      },
+      "sql": "GRANT SELECT ON ALL VIEWS IN SCHEMA SRC_VIEWS TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 2 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 416,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 106,
+      "line": 321,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 357,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 107,
+      "line": 322,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON FUTURE VIEWS IN SCHEMA P7_POC.SRC_VIEWS TO ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 379,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 108,
+      "line": 323,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON FUTURE VIEWS IN SCHEMA P7_POC.SRC_VIEWS TO ROLE P7_BATCH_NOENT",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 394,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 109,
+      "line": 324,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 393,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 110,
+      "line": 325,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 363,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 111,
+      "line": 326,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "USE SCHEMA SRC_VIEWS",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 333,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 112,
+      "line": 331,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "USE ROLE P7_PUBLISH_ROLE",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 399,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 113,
+      "line": 332,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 375,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 114,
+      "line": 333,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "USE SCHEMA CTRL",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 349,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 115,
+      "line": 335,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "CREATE OR REPLACE TABLE OBJECT_REGISTRY (\n    object_name  STRING,     \n    object_type  STRING,     \n    is_required  STRING DEFAULT 'Y',\n    live_schema  STRING,\n    stage_schema STRING\n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table OBJECT_REGISTRY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 627,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 116,
+      "line": 343,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "CREATE OR REPLACE TABLE OBJECT_DEPENDENCY (\n    object_name       STRING,\n    depends_on_object STRING  \n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table OBJECT_DEPENDENCY successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 679,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 117,
+      "line": 348,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "CREATE OR REPLACE TABLE BATCH_STATUS (\n    batch_id       STRING,\n    object_name    STRING,\n    status         STRING,    \n    status_at      TIMESTAMP_NTZ,\n    exception_flag STRING DEFAULT 'N',\n    approved_by    STRING,\n    approved_at    TIMESTAMP_NTZ,\n    reason         STRING\n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table BATCH_STATUS successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 705,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 118,
+      "line": 372,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "CREATE OR REPLACE TABLE EXCEPTION_APPROVAL (\n    batch_id       STRING,\n    object_name    STRING,   \n    approved_by    STRING,\n    approved_at    TIMESTAMP_NTZ,\n    reason         STRING\n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table EXCEPTION_APPROVAL successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 557,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 119,
+      "line": 380,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "CREATE OR REPLACE TABLE PUBLISH_LOG (\n    batch_id        STRING,\n    attempted_at    TIMESTAMP_NTZ,\n    outcome         STRING,    \n    refused_reason  STRING,\n    exceptions_used STRING,\n    run_by          STRING\n)",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Table PUBLISH_LOG successfully created."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 582,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 120,
+      "line": 395,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "INSERT INTO OBJECT_REGISTRY (object_name, object_type, is_required, live_schema, stage_schema) VALUES\n  ('CUSTOMER'      ,'SOURCE'   ,'Y','',''),\n  ('POLICY'        ,'SOURCE'   ,'Y','',''),\n  ('CUSTOMER_360'  ,'PUBLISHED','Y','D_LIVE','D_STAGE'),\n  ('POLICY_SUMMARY','PUBLISHED','Y','D_LIVE','D_STAGE')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "4"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 793,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 121,
+      "line": 401,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_PUBLISH_ROLE",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_PUBLISH_ROLE",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "SRC_VIEWS"
+      },
+      "sql": "INSERT INTO OBJECT_DEPENDENCY (object_name, depends_on_object) VALUES\n  ('CUSTOMER_360'  ,'CUSTOMER'),\n  ('CUSTOMER_360'  ,'POLICY'),\n  ('POLICY_SUMMARY','POLICY')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "3"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 797,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 122,
+      "line": 409,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "USE ROLE SYSADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 853,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 123,
+      "line": 410,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "USE DATABASE P7_POC",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 360,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 124,
+      "line": 413,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "SHOW SCHEMAS IN DATABASE P7_POC",
+      "cols": [
+        "created_on",
+        "name",
+        "is_default",
+        "is_current",
+        "database_name",
+        "owner",
+        "comment",
+        "options",
+        "retention_time",
+        "owner_role_type",
+        "classification_profile_database",
+        "classification_profile_schema",
+        "classification_profile",
+        "object_visibility",
+        "is_nested"
+      ],
+      "rows": [
+        [
+          "2026-10-26 23:21:17.343000-07:00",
+          "BASE",
+          "N",
+          "N",
+          "P7_POC",
+          "P7_BASE_OWNER",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:19.501000-07:00",
+          "CTRL",
+          "N",
+          "N",
+          "P7_POC",
+          "P7_PUBLISH_ROLE",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:18.223000-07:00",
+          "D_LIVE",
+          "N",
+          "N",
+          "P7_POC",
+          "P7_PUBLISH_ROLE",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:18.655000-07:00",
+          "D_STAGE",
+          "N",
+          "N",
+          "P7_POC",
+          "P7_PUBLISH_ROLE",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:19.074000-07:00",
+          "D_VIEWS",
+          "N",
+          "N",
+          "P7_POC",
+          "P7_VIEW_OWNER",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:16.868000-07:00",
+          "GOV",
+          "N",
+          "N",
+          "P7_POC",
+          "SYSADMIN",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:22:09.569000-07:00",
+          "INFORMATION_SCHEMA",
+          "N",
+          "N",
+          "P7_POC",
+          "",
+          "Views describing the contents of schemas in this database",
+          "",
+          "1",
+          "",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:16.032000-07:00",
+          "PUBLIC",
+          "N",
+          "Y",
+          "P7_POC",
+          "SYSADMIN",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ],
+        [
+          "2026-10-26 23:21:17.802000-07:00",
+          "SRC_VIEWS",
+          "N",
+          "N",
+          "P7_POC",
+          "P7_BASE_OWNER",
+          "",
+          "",
+          "1",
+          "ROLE",
+          null,
+          null,
+          null,
+          null,
+          "false"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 404,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 125,
+      "line": 414,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "6a schema owners",
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "SELECT '6a schema owners' AS check_name, \"name\", \"owner\"\nFROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))\nWHERE \"name\" IN ('BASE','SRC_VIEWS','GOV','D_LIVE','D_STAGE','D_VIEWS','CTRL')\nORDER BY \"name\"",
+      "cols": [
+        "CHECK_NAME",
+        "name",
+        "owner"
+      ],
+      "rows": [
+        [
+          "6a schema owners",
+          "BASE",
+          "P7_BASE_OWNER"
+        ],
+        [
+          "6a schema owners",
+          "CTRL",
+          "P7_PUBLISH_ROLE"
+        ],
+        [
+          "6a schema owners",
+          "D_LIVE",
+          "P7_PUBLISH_ROLE"
+        ],
+        [
+          "6a schema owners",
+          "D_STAGE",
+          "P7_PUBLISH_ROLE"
+        ],
+        [
+          "6a schema owners",
+          "D_VIEWS",
+          "P7_VIEW_OWNER"
+        ],
+        [
+          "6a schema owners",
+          "GOV",
+          "SYSADMIN"
+        ],
+        [
+          "6a schema owners",
+          "SRC_VIEWS",
+          "P7_BASE_OWNER"
+        ]
+      ],
+      "expect_text": "/* EXPECT  D_LIVE, D_STAGE, CTRL -> P7_PUBLISH_ROLE\n           D_VIEWS              -> P7_VIEW_OWNER\n           BASE, SRC_VIEWS      -> P7_BASE_OWNER                        */",
+      "status": "PASS",
+      "detail": "all 6 owners as expected",
+      "error": null,
+      "elapsed_ms": 804,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 126,
+      "line": 423,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "6b base tags",
+      "role": "SYSADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SYSADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": "CTRL"
+      },
+      "sql": "SELECT '6b base tags' AS check_name, column_name, tag_name, tag_value\nFROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.BASE.CUSTOMER','table'))\nORDER BY column_name",
+      "cols": [
+        "CHECK_NAME",
+        "COLUMN_NAME",
+        "TAG_NAME",
+        "TAG_VALUE"
+      ],
+      "rows": [
+        [
+          "6b base tags",
+          "EMAIL",
+          "PII",
+          "EMAIL"
+        ],
+        [
+          "6b base tags",
+          "SSN",
+          "PII",
+          "SSN"
+        ]
+      ],
+      "expect_text": "/* EXPECT  email -> PII = EMAIL,  ssn -> PII = SSN                       */",
+      "status": "PASS",
+      "detail": "all 2 tag assignments as expected",
+      "error": null,
+      "elapsed_ms": 1214,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 127,
+      "line": 430,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 357,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 128,
+      "line": 431,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "INSERT INTO P7_POC.BASE.CUSTOMER\nVALUES (999,'Setup Check','setup@example.invalid','000-00-0000','B0')",
+      "cols": [
+        "number of rows inserted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 988,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 129,
+      "line": 434,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "6c entitled role (expect REAL values)",
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT '6c entitled role (expect REAL values)' AS check_name, email, ssn\nFROM P7_POC.BASE.CUSTOMER WHERE customer_id = 999",
+      "cols": [
+        "CHECK_NAME",
+        "EMAIL",
+        "SSN"
+      ],
+      "rows": [
+        [
+          "6c entitled role (expect REAL values)",
+          "setup@example.invalid",
+          "000-00-0000"
+        ]
+      ],
+      "expect_text": "/* EXPECT  setup@example.invalid  /  000-00-0000                         */",
+      "status": "PASS",
+      "detail": "['setup@example.invalid', '000-00-0000'] all present",
+      "error": null,
+      "elapsed_ms": 750,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 130,
+      "line": 438,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "GRANT SELECT ON TABLE P7_POC.BASE.CUSTOMER TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 390,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 131,
+      "line": 439,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "GRANT USAGE  ON SCHEMA P7_POC.BASE         TO ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 369,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 132,
+      "line": 441,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_READER_NO",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_NO",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 413,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 133,
+      "line": 442,
+      "tc_id": null,
+      "tc_title": null,
+      "label": "6c unentitled role (expect ***MASKED***)",
+      "role": "P7_READER_NO",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_READER_NO",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "SELECT '6c unentitled role (expect ***MASKED***)' AS check_name, email, ssn\nFROM P7_POC.BASE.CUSTOMER WHERE customer_id = 999",
+      "cols": [
+        "CHECK_NAME",
+        "EMAIL",
+        "SSN"
+      ],
+      "rows": [
+        [
+          "6c unentitled role (expect ***MASKED***)",
+          "***MASKED***",
+          "***MASKED***"
+        ]
+      ],
+      "expect_text": "/* EXPECT  ***MASKED***  /  ***MASKED***\n   If this returns real values the masking policy is NOT attached to the\n   tag - stop and fix setup before running any scenario.                 */",
+      "status": "PASS",
+      "detail": "all 2 tagged cells masked",
+      "error": null,
+      "elapsed_ms": 931,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 134,
+      "line": 449,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "USE ROLE P7_BASE_OWNER",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 373,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 135,
+      "line": 450,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "P7_BASE_OWNER",
+      "identity": {
+        "user": "PSINGH",
+        "role": "P7_BASE_OWNER",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": "LM_PII_POC_WH",
+        "database": "P7_POC",
+        "schema": null
+      },
+      "sql": "DELETE FROM P7_POC.BASE.CUSTOMER WHERE customer_id = 999",
+      "cols": [
+        "number of rows deleted"
+      ],
+      "rows": [
+        [
+          "1"
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 712,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 136,
+      "line": 451,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "USE ROLE SECURITYADMIN",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 360,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 137,
+      "line": 452,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "REVOKE SELECT ON TABLE P7_POC.BASE.CUSTOMER FROM ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 1 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 431,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 138,
+      "line": 453,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "REVOKE USAGE  ON SCHEMA P7_POC.BASE         FROM ROLE P7_READER_NO",
+      "cols": [
+        "status"
+      ],
+      "rows": [
+        [
+          "Statement executed successfully. 1 objects affected."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 386,
+      "injected_by_harness": false
+    },
+    {
+      "seq": 139,
+      "line": 455,
+      "tc_id": null,
+      "tc_title": null,
+      "label": null,
+      "role": "SECURITYADMIN",
+      "identity": {
+        "user": "PSINGH",
+        "role": "SECURITYADMIN",
+        "secondary_roles": "{\"roles\":\"\",\"value\":\"\"}",
+        "warehouse": null,
+        "database": null,
+        "schema": null
+      },
+      "sql": "SELECT 'SETUP COMPLETE - run a scenario script next. Each one resets itself to day 1.' AS status",
+      "cols": [
+        "STATUS"
+      ],
+      "rows": [
+        [
+          "SETUP COMPLETE - run a scenario script next. Each one resets itself to day 1."
+        ]
+      ],
+      "expect_text": "",
+      "status": "INFO",
+      "detail": "no stated expectation \u2014 captured for the record",
+      "error": null,
+      "elapsed_ms": 320,
+      "injected_by_harness": false
+    }
+  ]
+}
