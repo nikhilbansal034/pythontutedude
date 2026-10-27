@@ -119,6 +119,27 @@ tab, and carry on** — the error is the result.
 | `s08` TC-08.3 | reader selecting from `NB_D_LIVE` / `NB_D_STAGE` | proves readers reach only `NB_D_VIEWS` |
 | `s04` TC-04.5 | first build with `COPY GRANTS` on a dropped table | the grant bootstrap |
 
+## Two tags, and why the checks filter
+
+The pack sets **two** tags, and they behave differently:
+
+| Tag | Set on | What it is for |
+|---|---|---|
+| `PII` | the **columns** `email` and `ssn` | drives the masking policy. This is the one that matters |
+| `PII_SCOPE` | the **schemas** `NB_D_LIVE` and `NB_D_STAGE` | a domain marker, to see what a schema-level tag does across a swap |
+
+Snowflake inherits a tag down the object hierarchy, so a tag set on a schema reaches every table
+in it and then every column of those tables. `TAG_REFERENCES_ALL_COLUMNS` returns inherited tags
+as well as directly assigned ones — so an unfiltered call on a published table returns **one
+`PII_SCOPE` row per column**, whether or not `COPY TAGS` carried anything.
+
+Every column-tag check therefore filters `WHERE tag_name = 'PII'`. Without it, `EXPECT 2 rows`
+and `EXPECT ZERO ROWS` can never be true and the real answer is buried. The two `TAG_REFERENCES`
+calls in `s03` are deliberately unfiltered — they are about `PII_SCOPE` itself.
+
+If you run an unfiltered call by hand, read it this way: `PII_SCOPE` rows are inheritance and tell
+you nothing about `COPY TAGS`; only `PII` rows do.
+
 ## Recording results
 
 Each check is followed by an `/* EXPECT … */` or `/* RECORD … */` comment.

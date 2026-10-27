@@ -99,6 +99,10 @@ USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email=EMAIL and ssn=SSN
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -224,6 +228,10 @@ USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email=EMAIL and ssn=SSN
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -296,6 +304,10 @@ USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  ZERO ROWS — the tags were removed, so the check must refuse
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -331,6 +343,10 @@ USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email=EMAIL and ssn=SSN
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -447,6 +463,10 @@ USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
 SELECT 'sec-1 tags on D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('P7_POC.D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email=EMAIL and ssn=SSN
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
