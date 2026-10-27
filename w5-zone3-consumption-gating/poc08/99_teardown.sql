@@ -33,6 +33,8 @@ DROP ROLE IF EXISTS P8_BATCH;
 DROP ROLE IF EXISTS P8_GOV_ROLE;
 DROP ROLE IF EXISTS P8_READER_OK;
 DROP ROLE IF EXISTS P8_READER_NO;
+/* Dropping P8_GOV_ROLE also removes its account-level APPLY MASKING
+   POLICY grant, so there is nothing further to revoke. */
 
 /* ---------------------------------------------------------------------
    Confirm, by eye.

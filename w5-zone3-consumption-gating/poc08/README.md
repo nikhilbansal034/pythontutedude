@@ -58,12 +58,33 @@ borrowed, so nothing of yours is left in a changed state.
 ## Prerequisites
 
 You need to be able to `USE ROLE` both **SECURITYADMIN** and **SYSADMIN**.
-**ACCOUNTADMIN is not required** anywhere, teardown included.
 
 Every grant on `LM_POC_DB` and `POC_WH` is issued by SECURITYADMIN, which holds
 `MANAGE GRANTS` and can therefore grant on objects it does not own. SYSADMIN
 almost certainly does not own either, so issuing those grants as SYSADMIN would
 fail on privileges.
+
+**One account-level grant is needed**, and it is the only thing in the pack not
+scoped to `LM_POC_DB`:
+
+```sql
+GRANT APPLY MASKING POLICY ON ACCOUNT TO ROLE P8_GOV_ROLE;
+```
+
+Attaching a masking policy to a **tag** requires `APPLY MASKING POLICY` on the
+account. **Owning the tag and owning the policy is not enough** — without this
+grant, `ALTER TAG P8_PII SET MASKING POLICY P8_MASK FORCE` fails with
+*"Your primary role P8_GOV_ROLE must have APPLY MASKING POLICY granted on
+ACCOUNT"*.
+
+SECURITYADMIN can normally issue it on the strength of `MANAGE GRANTS`. If your
+account refuses it, run that one line as **ACCOUNTADMIN** and carry on —
+nothing else in the pack needs that role.
+
+This is worth carrying into the write-up rather than treating as plumbing:
+whoever attaches policies to tags holds an **account-wide** privilege, so that
+role is powerful and the grant is a decision. The pipeline does **not** need it
+— `P8_BATCH` only *sets* tags, which needs `APPLY` on the tag alone.
 
 ## The control row
 

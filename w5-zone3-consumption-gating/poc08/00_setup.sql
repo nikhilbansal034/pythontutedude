@@ -67,6 +67,31 @@ GRANT USAGE ON DATABASE LM_POC_DB TO ROLE P8_GOV_ROLE;
 GRANT USAGE ON DATABASE LM_POC_DB TO ROLE P8_READER_OK;
 GRANT USAGE ON DATABASE LM_POC_DB TO ROLE P8_READER_NO;
 
+/* ---------------------------------------------------------------------
+   ACCOUNT-LEVEL PRIVILEGE, and the one thing in this pack that is not
+   scoped to LM_POC_DB.
+   ---------------------------------------------------------------------
+   Attaching a masking policy to a TAG - the ALTER TAG ... SET MASKING
+   POLICY in section 4 - needs APPLY MASKING POLICY on the ACCOUNT.
+   OWNING THE TAG AND THE POLICY IS NOT ENOUGH. Without this grant that
+   statement fails with:
+
+     SQL access control error: Insufficient privileges to operate on
+     tag 'P8_PII'. Your primary role P8_GOV_ROLE must have APPLY
+     MASKING POLICY granted on ACCOUNT <account>.
+
+   SECURITYADMIN can issue it because it holds MANAGE GRANTS. If your
+   account refuses it here, run this one line as ACCOUNTADMIN and then
+   carry on from section 3 - nothing else in this pack needs that role.
+
+   NOTE FOR THE WRITE-UP: this is a real operating consequence of
+   tag-based masking, not a quirk of the POC. Whoever attaches policies
+   to tags needs an account-wide privilege, so that role is powerful and
+   the grant is a decision, not a formality. The PIPELINE does not need
+   it - P8_BATCH only SETS tags, which needs APPLY on the tag alone.
+   --------------------------------------------------------------------- */
+GRANT APPLY MASKING POLICY ON ACCOUNT TO ROLE P8_GOV_ROLE;
+
 /* =====================================================================
    3. SCHEMAS
    ---------------------------------------------------------------------
@@ -152,6 +177,7 @@ CREATE MASKING POLICY IF NOT EXISTS P8_MASK AS (val STRING) RETURNS STRING ->
     THEN val ELSE '***MASKED***'
   END;
 
+/* Needs APPLY MASKING POLICY ON ACCOUNT, granted in section 2. */
 ALTER TAG P8_PII SET MASKING POLICY P8_MASK FORCE;
 
 /* =====================================================================
