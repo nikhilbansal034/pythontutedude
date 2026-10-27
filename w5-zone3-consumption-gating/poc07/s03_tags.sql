@@ -40,6 +40,22 @@ ALTER SCHEMA D_STAGE SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN';
 TRUNCATE TABLE CTRL.BATCH_STATUS;
 TRUNCATE TABLE CTRL.PUBLISH_LOG;
 
+/* OBJECT_REGISTRY and OBJECT_DEPENDENCY describe the graph, not the run.
+   S05 mutates both and restores them at the end, but a run that stops part
+   way would leave them changed and silently weaken every later scenario.
+   Rebuilding them here makes each scenario independent of that.        */
+DELETE FROM CTRL.OBJECT_DEPENDENCY;
+DELETE FROM CTRL.OBJECT_REGISTRY;
+INSERT INTO CTRL.OBJECT_REGISTRY (object_name, object_type, is_required, live_schema, stage_schema) VALUES
+  ('CUSTOMER'      ,'SOURCE'   ,'Y','',''),
+  ('POLICY'        ,'SOURCE'   ,'Y','',''),
+  ('CUSTOMER_360'  ,'PUBLISHED','Y','D_LIVE','D_STAGE'),
+  ('POLICY_SUMMARY','PUBLISHED','Y','D_LIVE','D_STAGE');
+INSERT INTO CTRL.OBJECT_DEPENDENCY (object_name, depends_on_object) VALUES
+  ('CUSTOMER_360'  ,'CUSTOMER'),
+  ('CUSTOMER_360'  ,'POLICY'),
+  ('POLICY_SUMMARY','POLICY');
+
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
@@ -271,6 +287,16 @@ FROM TABLE(P7_POC.INFORMATION_SCHEMA.TAG_REFERENCES('P7_POC.D_STAGE.CUSTOMER_360
    Documented in the CREATE TABLE usage notes. The security check must
    catch it rather than publishing an unmasked column.
    ===================================================================== */
+/* TC-03.1 deliberately left the UNSEEDED storage sitting in D_STAGE, so the
+   table below carries no column tags at all. Re-seed BOTH schemas first, or
+   this case cannot tell "the renamed column lost its tag" apart from
+   "nothing was tagged to begin with".                                     */
+USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
+ALTER TABLE D_LIVE.CUSTOMER_360  MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL';
+ALTER TABLE D_LIVE.CUSTOMER_360  MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN';
+ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL';
+ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN';
+
 USE ROLE P7_BASE_OWNER; USE DATABASE P7_POC;
 CREATE OR REPLACE VIEW SRC_VIEWS.V_CUSTOMER_360 AS
 SELECT c.customer_id, c.full_name,
@@ -342,6 +368,13 @@ GROUP BY c.customer_id, c.full_name, c.email, c.ssn, c.batch_id;
    Governance tags a column in the base layer. COPY TAGS carries forward
    yesterday's tag set, so the new column arrives unprotected.
    ===================================================================== */
+/* Re-seed the control column. TC-03.3 renamed email, so ssn is the column
+   used to prove the predecessor WAS tagged - without it, 'phone has no tag'
+   would be true of every column and would prove nothing.                  */
+USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
+ALTER TABLE D_LIVE.CUSTOMER_360  MODIFY COLUMN ssn SET TAG P7_POC.GOV.PII = 'SSN';
+ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN ssn SET TAG P7_POC.GOV.PII = 'SSN';
+
 USE ROLE P7_BASE_OWNER; USE DATABASE P7_POC;
 ALTER TABLE BASE.CUSTOMER ADD COLUMN phone STRING;
 UPDATE BASE.CUSTOMER SET phone = '+44-0000-'||customer_id;
@@ -370,7 +403,8 @@ WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits
                             returns one PII_SCOPE row per column and buries the
                             answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
-/* EXPECT  'phone' carries NO tag on the published table, even though the
+/* EXPECT  'ssn' IS tagged (the control) and 'phone' carries NO tag on the
+          published table, even though the
    BASE column is tagged. COPY TAGS copies from the previous table, not
    from the source.                                                     */
 

@@ -44,9 +44,30 @@ ALTER SCHEMA D_STAGE SET TAG P7_POC.GOV.PII_SCOPE = 'P7_DOMAIN';
 TRUNCATE TABLE CTRL.BATCH_STATUS;
 TRUNCATE TABLE CTRL.PUBLISH_LOG;
 
+/* OBJECT_REGISTRY and OBJECT_DEPENDENCY describe the graph, not the run.
+   S05 mutates both and restores them at the end, but a run that stops part
+   way would leave them changed and silently weaken every later scenario.
+   Rebuilding them here makes each scenario independent of that.        */
+DELETE FROM CTRL.OBJECT_DEPENDENCY;
+DELETE FROM CTRL.OBJECT_REGISTRY;
+INSERT INTO CTRL.OBJECT_REGISTRY (object_name, object_type, is_required, live_schema, stage_schema) VALUES
+  ('CUSTOMER'      ,'SOURCE'   ,'Y','',''),
+  ('POLICY'        ,'SOURCE'   ,'Y','',''),
+  ('CUSTOMER_360'  ,'PUBLISHED','Y','D_LIVE','D_STAGE'),
+  ('POLICY_SUMMARY','PUBLISHED','Y','D_LIVE','D_STAGE');
+INSERT INTO CTRL.OBJECT_DEPENDENCY (object_name, depends_on_object) VALUES
+  ('CUSTOMER_360'  ,'CUSTOMER'),
+  ('CUSTOMER_360'  ,'POLICY'),
+  ('POLICY_SUMMARY','POLICY');
+
 USE ROLE SECURITYADMIN;
 -- NO future grants. This scenario manages grants explicitly, so that
--- COPY GRANTS can be tested on its own.
+-- COPY GRANTS can be tested on its own. Another scenario run earlier in
+-- the session will have left future grants in place, so revoke them --
+-- otherwise NB_VIEW_OWNER keeps appearing on every freshly built table
+-- and the "no future grants" premise of this scenario is not true.
+REVOKE SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_LIVE  FROM ROLE P7_VIEW_OWNER;
+REVOKE SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_STAGE FROM ROLE P7_VIEW_OWNER;
 GRANT SELECT ON ALL TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
 GRANT SELECT ON ALL TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
 
@@ -187,6 +208,16 @@ GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_VIEW_OWNER;
    The companion to COPY TAGS. If this works, one clause handles both
    and the two-schema future-grant rule can be dropped.
    ===================================================================== */
+/* TC-04.2's plain rebuild dropped the TAGS as well as the grants, and the
+   COPY TAGS below would simply copy that untagged table forward. Re-apply
+   them, or the security check in this case reads zero and TC-04.7 later
+   reads real values for the wrong reason.
+   RECORD THIS: a plain CTAS un-protects the table, and a later COPY TAGS
+   CANNOT recover it - it copies the now-untagged predecessor.            */
+USE ROLE P7_PUBLISH_ROLE; USE DATABASE P7_POC;
+ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN email SET TAG P7_POC.GOV.PII = 'EMAIL';
+ALTER TABLE D_STAGE.CUSTOMER_360 MODIFY COLUMN ssn   SET TAG P7_POC.GOV.PII = 'SSN';
+
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON TABLE P7_POC.D_STAGE.CUSTOMER_360 TO ROLE P7_PROBE_ROLE;
 
