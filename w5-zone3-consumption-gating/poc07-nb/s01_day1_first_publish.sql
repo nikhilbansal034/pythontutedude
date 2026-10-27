@@ -96,6 +96,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B1','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-01.1 tags on the staging table' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  ZERO ROWS — COPY TAGS had no predecessor to copy from.
    If tags DO appear, COPY TAGS reads from the source view and the rest
@@ -113,6 +117,10 @@ USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
 SELECT 'sec-1 tags on NB_D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  ZERO ROWS — this is the failure being demonstrated
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -165,6 +173,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B1','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-01.3 tags after re-tagging and rebuilding' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email = EMAIL, ssn = SSN */
 
@@ -179,6 +191,10 @@ USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
 SELECT 'sec-1 tags on NB_D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email=EMAIL and ssn=SSN
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -250,6 +266,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B2','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-01.5 tags on the other storage' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows. ZERO ROWS here would mean only one schema was seeded —
    which is exactly what S03 TC-03.1 demonstrates deliberately. */
@@ -259,6 +279,10 @@ USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
 SELECT 'sec-1 tags on NB_D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  2 rows — email=EMAIL and ssn=SSN
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */

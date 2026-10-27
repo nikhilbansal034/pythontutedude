@@ -97,6 +97,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B1','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-03.1 staging tags before the B1 swap' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* PUBLISH — the swap. One metadata operation, no data moves. */
 USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
@@ -135,6 +139,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B2','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-03.1 staging tags before the B2 swap' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* PUBLISH — the swap. One metadata operation, no data moves. */
 USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
@@ -173,6 +181,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B3','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-03.1 staging tags before the B3 swap' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* PUBLISH — the swap. One metadata operation, no data moves. */
 USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
@@ -211,6 +223,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B4','POLICY_SUMMARY','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-03.1 staging tags before the B4 swap' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* PUBLISH — the swap. One metadata operation, no data moves. */
 USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
@@ -276,6 +292,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B6','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-03.3 tags after the column rename' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  the renamed column (email_address) carries NO tag.
    RECORD whether 'ssn' kept its tag.                                  */
@@ -286,6 +306,10 @@ USE ROLE NB_PUBLISH_ROLE; USE DATABASE LM_POC_DB;
 SELECT 'sec-1 tags on NB_D_STAGE.CUSTOMER_360' AS check_name,
        column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  FEWER rows than before — the renamed column lost its tag
    ZERO ROWS  =  REFUSE THE PUBLISH                                    */
@@ -341,6 +365,10 @@ INSERT INTO NB_CTRL.BATCH_STATUS (batch_id,object_name,status,status_at,exceptio
   ('B7','CUSTOMER_360','COMPLETED',CURRENT_TIMESTAMP(),'N');
 SELECT 'TC-03.4 tags after adding a tagged base column' AS check_name, column_name, tag_name, tag_value
 FROM TABLE(LM_POC_DB.INFORMATION_SCHEMA.TAG_REFERENCES_ALL_COLUMNS('LM_POC_DB.NB_D_STAGE.CUSTOMER_360','table'))
+WHERE tag_name = 'PII'   /* the schema carries PII_SCOPE, and Snowflake inherits a
+                            schema tag down to EVERY column - so an unfiltered call
+                            returns one PII_SCOPE row per column and buries the
+                            answer. This check is about the column-level PII tag. */
 ORDER BY column_name;
 /* EXPECT  'phone' carries NO tag on the published table, even though the
    NB_BASE column is tagged. COPY TAGS copies from the previous table, not
