@@ -57,6 +57,25 @@ INSERT INTO CTRL.OBJECT_DEPENDENCY (object_name, depends_on_object) VALUES
   ('CUSTOMER_360'  ,'POLICY'),
   ('POLICY_SUMMARY','POLICY');
 
+/* The SOURCE VIEWS are shared state too. S03 renames a column in
+   V_CUSTOMER_360 and adds one, and S07 renames V_POLICY_SUMMARY away to
+   inject a fault. Both put things back at the end - but S07's fault sits
+   next to a statement that is MEANT to fail, so an interrupted run is
+   likeliest exactly there, and it would leave every later scenario
+   building from a view that no longer exists or lost a column.
+   Rebuilding them to the canonical shape here costs nothing and makes
+   each scenario independent of how the last one ended.                 */
+USE ROLE P7_BASE_OWNER; USE DATABASE P7_POC;
+DROP VIEW IF EXISTS SRC_VIEWS.V_POLICY_SUMMARY_BROKEN;
+CREATE OR REPLACE VIEW SRC_VIEWS.V_CUSTOMER_360 AS
+SELECT c.customer_id, c.full_name, c.email, c.ssn,
+       COUNT(p.policy_id) AS policy_count, c.batch_id
+FROM BASE.CUSTOMER c
+LEFT JOIN BASE.POLICY p ON p.customer_id = c.customer_id
+GROUP BY c.customer_id, c.full_name, c.email, c.ssn, c.batch_id;
+CREATE OR REPLACE VIEW SRC_VIEWS.V_POLICY_SUMMARY AS
+SELECT p.policy_id, p.customer_id, p.premium, p.batch_id FROM BASE.POLICY p;
+
 USE ROLE SECURITYADMIN;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_LIVE  TO ROLE P7_VIEW_OWNER;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA P7_POC.D_STAGE TO ROLE P7_VIEW_OWNER;
