@@ -1,0 +1,182 @@
+Subject: POC07 — Zone 3 consumption publication gating: outcome and recommendation
+
+Hi all,
+
+Short version: CTAS + Swap works, and we are recommending it. The requirement the
+POC existed to settle — that a reporting user must never see a half-refreshed
+dataset — has been proven on a real account rather than argued from documentation.
+One question is still open, and the POC has produced five operating rules that are
+not obvious from the Snowflake documentation and that any implementation will need.
+
+------------------------------------------------------------------------------
+WHAT WE SET OUT TO SETTLE
+------------------------------------------------------------------------------
+
+Today, reporting users can read Zone 3 consumption objects while an upstream batch
+is still running. They see some objects on last night's data and some on tonight's.
+It fails silently — the report renders, the numbers are wrong, and nothing says so.
+
+A second, quieter failure sits alongside it: if protection is not reapplied
+correctly when an object is republished, PII can become readable with every check
+showing green.
+
+We wrote 29 requirements as observable behaviour, deliberately naming no mechanism,
+so the options could be judged on evidence. They split into two parts, which the
+requirement is explicit cannot be delivered separately:
+
+  Part A — publication gating.       Fails visibly: wrong numbers on a report.
+  Part B — governance continuity.    Fails silently: exposed data, no error.
+
+------------------------------------------------------------------------------
+THE APPROACH WE TESTED
+------------------------------------------------------------------------------
+
+Each published table lives in two schemas — one the reports read, one where the
+next batch is built. Each batch rebuilds into staging. Two gates then run on the
+staging copy, before anything is visible:
+
+  - Dependency gate: every required upstream object completed for this batch, or
+    carries an approved exception.
+  - Security gate: the PII tags are present and an unentitled role reads masks.
+
+Publication is a single metadata operation that exchanges the two schemas. Reports
+never touch either one; they read thin views that sit outside the swap, so object
+names never change.
+
+INSERT OVERWRITE was considered and is not being pursued.
+
+------------------------------------------------------------------------------
+WHAT THE EVIDENCE SHOWED
+------------------------------------------------------------------------------
+
+Two independent runs, on different accounts, by different people, using different
+methods — ours captured as 75 screenshots in Snowsight, a parallel run captured as
+1,674 executed statements through a Python harness. Plus a dedicated two-session
+test written afterwards, because neither run had answered the central question.
+
+Passed:
+
+  - THE HEADLINE. 300 reads taken while 40 publications were in flight: zero saw a
+    mixed state. A published table flips atomically. This is the requirement the
+    POC was created to answer and it is now evidence, not expectation.
+  - The gate refused a failed dependency, and also a dependency that reported
+    nothing at all. Reports stayed on the previous batch in both cases.
+  - Four consecutive batches ran with tags and grants identical throughout. No
+    drift.
+  - Rollback works. Swapping back restored the previous batch complete with its
+    tags and grants.
+  - Masking holds across publication — an approved reader sees real values, an
+    unapproved one sees masks, before and after the swap.
+  - Every publication is attributable: what, when, by whom, under which path.
+  - Proven in the negative too: a batch identity that is not entitled to see PII
+    writes masked values to disk as though they were the data.
+
+Still open:
+
+  - One reading in 300 saw two different objects on different batches at the same
+    instant. Each table flipped atomically; the two did not reliably flip together
+    for a reader in a separate session. This is the last item that could change the
+    design rather than the runbook, and it may turn out to be a Snowflake account
+    setting rather than anything about the approach.
+  - Four smaller gaps listed at the end.
+
+------------------------------------------------------------------------------
+THE OPERATING RULES — the main deliverable
+------------------------------------------------------------------------------
+
+These are precautions rather than defects, but none of them is optional, and two
+were only discoverable by running the thing.
+
+1. Deploy every business tag to the published table in BOTH schemas, before the
+   first batch that includes the column. This covers a new column from a schema
+   change, and any governance change to an existing tag. Both schemas every time —
+   the two schemas exchange storage at each publication, so a tag applied to only
+   one of them is absent on every other batch, permanently.
+
+2. The batch identity must be entitled to see every protected value in the domain
+   it publishes. An unentitled identity does not fail — it silently writes masked
+   values to disk as if they were real data.
+
+3. Grants must be carried deliberately, by future grants on both schemas or by the
+   COPY GRANTS clause. A plain rebuild drops every grant on the table.
+
+4. Ownership must return to the publishing role after any build run by another
+   identity, or the next batch fails on privileges rather than on data.
+
+5. Capture each test scenario's control-table output before running the next one.
+   Each run resets them.
+
+------------------------------------------------------------------------------
+OBSERVATIONS
+------------------------------------------------------------------------------
+
+- The two independent runs converged. The second run found ten of the same defects
+  we did and hit the same two failures, having corrected the suite separately. That
+  agreement is the strongest validation signal in the exercise.
+
+- Most of what we found was wrong with our tests, not with Snowflake. Of roughly
+  thirty defects raised across both reviews, about twenty were bugs in our own test
+  SQL and four were in our control-table design — they would exist under any
+  publication mechanism. Five were genuine properties of CTAS + Swap. The headline
+  number should not be read as thirty problems with the approach.
+
+- The central question could not be answered by one session, and an earlier attempt
+  reported a clean result from zero measurements. A single-threaded harness ran 25
+  publications and took no readings during any of them, and the summary recorded it
+  as passing. We added a validity check that states plainly when nothing was
+  measured. Worth carrying into any future test harness: "no failures found" and
+  "nothing was tested" look identical unless something distinguishes them.
+
+- The alternating-storage behaviour is the single least obvious thing about this
+  design, and three of the five operating rules trace back to it. It is also where
+  our own first version went wrong.
+
+- The security gate currently lists what is tagged and relies on a person comparing
+  it to an expected number. Making it assert against the governance list instead
+  would be a small change and is worth considering at build time.
+
+- Scale is a caveat. The POC ran on 20 customers, 50 policies, two objects and one
+  consistency group. Nothing here speaks to volume, to realistic Zone 3 view
+  complexity, or to many groups publishing concurrently.
+
+- Two things we needed are not covered by the Snowflake documentation: whether
+  ALTER VIEW supports IF EXISTS on a rename, and how the account's read consistency
+  mode interacts with a schema swap. Both had to be established by testing or
+  worked around.
+
+------------------------------------------------------------------------------
+WHAT REMAINS
+------------------------------------------------------------------------------
+
+Five tests, which can be designed as one pack and run in a single session:
+
+  A. Re-run the two-session test with the account's read consistency mode set to
+     GLOBAL, twice. This settles the one open question above.
+  B. A second consistency group, published while the first is mid-publication.
+     Untested. A failure would mean publishing one report's data can affect
+     another's.
+  C. A row access policy through a rebuild. Untested. If row policies behave
+     differently from masking policies, rows leak rather than columns.
+  D. Exception approvals held in their own table, so that a dependency which never
+     reported can still be approved. Today that approval silently does nothing.
+  E. An override followed by the late job completing, then the full cycle
+     publishing through the normal path. Never run.
+
+Five decisions, needing no further Snowflake time:
+
+  - Record a rollback as its own outcome. Logging it as a refusal states that the
+    batch never reached readers, which is the opposite of the truth and the one
+    fact an incident review needs.
+  - Wrap publication in a single owner's-rights stored procedure, so the gate is
+    enforced rather than advisory.
+  - Model the per-cycle refresh expectation, rather than a static required flag,
+    so mixed-cadence objects are handled.
+  - Settle future grants versus COPY GRANTS as the standard.
+  - Assign an owner to operating rule 1. Nobody currently owns deploying tags to
+    both schemas, and it is the rule with the quietest failure.
+
+------------------------------------------------------------------------------
+
+Happy to walk through any of this, or share the evidence and scripts.
+
+Nikhil
