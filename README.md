@@ -12,6 +12,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
 ├── w4-generic-etl-framework/     Generic config-driven ETL framework   — ACTIVE
 ├── w5-zone3-consumption-gating/  Zone 3 consumption publication gating — ACTIVE
+├── w6-region-prefixed-sequence/  Region-prefixed sequence generation   — ACTIVE
 ├── datacamp project/             DataCamp DS practical exam            — ACTIVE
 └── external-advisory/            Work for another client, not GRS      — see below
     └── snowflake-folder-delta/   Snowflake stage folder-delta listing  — ACTIVE
@@ -329,6 +330,46 @@ arise. A *batch* is what runs; a *cycle* is one run of it and the data version i
 
 **Not W4.** W4 is the generic ETL framework that loads objects. W5 is about when a loaded object
 becomes *visible*. They meet only at the publication step.
+
+---
+
+## W6 — Region-prefixed sequence generation *(active)*
+
+Replacing the direct `<TABLE>_SEQ.NEXTVAL` call in the Zone 1 → Zone 2 ETL with a reusable
+function taking `(region_name, sequence_name)` — it resolves the region code from a mapping table,
+prefixes it to the sequence's next value and returns the value already cast to the surrogate key's
+datatype, so `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
+
+**Status**: requirement captured from the *[Internal] TD MOD — US/USI Daily Connect* transcript.
+Nothing investigated or tested. Two action items on Nikhil Bansal — the function approach itself,
+and whether it is safe called in parallel by multiple tables.
+
+**[`w6-region-prefixed-sequence/README.md`](w6-region-prefixed-sequence/README.md) is the folder
+index** — it carries R1–R9, where the change lands in the queries, and the five risks the POC
+exists to settle. The essentials:
+
+| Path | What it is |
+|------|-----------|
+| `sources/requirement_region_prefixed_sequence.txt` | **The baseline.** Transcript-derived requirement |
+| `sources/employee_q1_zone1_to_staging.txt` | EMPLOYEE Q1 — Zone 1 → `STG_EMPLOYEE`, leaves the SK `NULL` |
+| `sources/employee_q2_staging_to_zone2_target.txt` | EMPLOYEE Q2 — staging → Zone 2 target. **Line 50 is the only place a SK is minted** |
+
+**Settle this first.** Whether a Snowflake function may reference a sequence at all is unverified
+and could not be confirmed from documentation. The design fails hard without it; every other test
+is wasted effort until it is answered.
+
+**Region mapping** is North America → 1, EU → 2, APAC → 3, held in a table so the same code base
+runs unchanged across environments.
+
+**Parked, not blocking**: whether the physical target table also needs its own region-code column
+(Abhi and team).
+
+**Prefix arithmetic is the quiet risk.** On `NUMBER(38,0)` a numeric prefix is a different number,
+not a decorated string — region `1` over sequence value `1` is `11`, and row `11` is `111`. Prefix
+width, padding and cross-region collisions need deciding alongside the return type.
+
+**Not W3, not W4.** W3 generates these two queries; W4 is the generic framework that runs them.
+W6 changes one expression inside the generated Q2.
 
 ---
 
