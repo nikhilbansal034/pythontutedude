@@ -1,7 +1,8 @@
 # W6 — Region-prefixed sequence generation — requirement
 
-**Status**: being finalised. Decisions D1–D3 taken; C1–C6 are open and at least C1 and C2 can
-change the shape of the solution. Nothing built, nothing tested in Snowflake.
+**Status**: being finalised. Decisions D1–D3 taken. C1 is narrowed to one short Snowflake test;
+C2 is resolved into a concrete implementation rule; C3–C6 need your decisions. Nothing built,
+nothing tested in Snowflake.
 
 **Baseline**: `sources/requirement_region_prefixed_sequence.txt` — the transcript summary of the
 *[Internal] TD MOD — US/USI Daily Connect*. Where this document and the transcript disagree, the
@@ -84,41 +85,73 @@ Ordered by how much they can change the design. **C1 and C2 should be settled be
 
 ### C1 — Can a Snowflake function take a sequence *name* and return that sequence's next value?
 
-This is the load-bearing assumption under D1, and it is unverified. The reasoning that makes it
-doubtful:
+**Narrowed to a single testable unknown.** An earlier draft of this document concluded that R2 as
+worded "cannot be met by anything inline-callable". **That was too strong** — it assumed the
+sequence name had to be resolved as an *identifier*, which would need dynamic SQL. It does not: the
+name can be used as a **branch selector** over sequences the function already names literally, and
+then no dynamic SQL is involved and the signature is satisfied as written.
 
-- a sequence reference is written `<literal_name>.NEXTVAL`. An object name cannot be
-  parameterised in static SQL, so a *runtime* sequence name requires **dynamic SQL**
-- a SQL UDF body is a single static expression — no dynamic SQL
-- JavaScript and Python UDFs cannot execute SQL at all; only stored procedures can
-- a stored procedure **can** do `EXECUTE IMMEDIATE`, but a procedure is not callable inside a
-  `SELECT` or `MERGE` projection — which is exactly where the key is minted
+What the documentation confirms (all official Snowflake docs, reached through search because the
+docs host is unreachable from this session — see §9):
 
-If that reasoning holds, R2 as literally worded cannot be met by anything inline-callable, and the
-requirement itself needs to change rather than the implementation. Three ways out, to be evaluated
-in this order:
+| Confirmed | Consequence |
+|---|---|
+| A sequence is read as `seq_name.NEXTVAL` — the name is written literally | An object name still cannot be *parameterised* in static SQL, so a genuinely dynamic name needs dynamic SQL |
+| "DDL and DML operations are not supported in UDFs" | Does **not** settle this: consuming a sequence is neither DDL nor DML |
+| "You cannot use a stored procedure CALL as part of an expression"; `SELECT * FROM (call proc1(1))` fails | A procedure cannot mint the key inline where Q2 needs it |
+| `SELECT … FROM TABLE(proc(…))` exists, but only for procedures performing SELECT/SHOW/DESCRIBE/CALL — "stored procedures that make modifications … aren't allowed" — and such a SELECT "can't be used in the body of a view, a user-defined function (UDF), a user-defined table function (UDTF)" | The stored-procedure escape route is **closed more firmly** than the earlier draft argued, not less |
+| "Each occurrence of a sequence generates a set of distinct values" — unlike engines that return one value per statement | Two references to a sequence in one expression yield two values. Bears directly on option 1 below |
+| Sequence values are 64-bit; a next value beyond that range fails the query | Caps the sequence half of the key. Relevant to the field width in C3 |
+| `GETNEXTVAL` is a one-row table function alternative; its position in the `FROM` clause determines what it generates over, and it belongs at the end | An alternative shape, but its sequence name is still a literal |
 
-1. **UDF with a static `CASE` over known sequences** — keeps the literal `(region_name,
-   sequence_name)` signature and stays inline-callable. Each new table needs a line added to one
-   function, which is still a single place. Risk to test: whether Snowflake consumes `NEXTVAL`
-   on **every** branch of the `CASE` rather than only the taken one — if it does, this silently
-   burns values from unrelated sequences and may not be correct at all.
-2. **Procedure that reserves a key range per batch**, with the ETL distributing values by
-   `ROW_NUMBER()`. Keeps the signature, is genuinely parallel-safe, and is a well-established
-   pattern — but changes the ETL shape more than a drop-in swap.
-3. **Fall back to D1's rejected alternative** — `f(region_name, seq_value)` with `NEXTVAL` in the
-   query.
+**The one thing documentation does not state either way**: whether a SQL UDF body may contain
+`seq.NEXTVAL` at all. Snowflake's sequence page does not mention UDFs, and the UDF pages do not
+mention sequences. It is not excluded by the DDL/DML prohibition. **This is now the whole of C1,
+and a single short test in the account settles it.**
 
-**This cannot be answered from here.** Verification needs either Snowflake account access or
-`docs.snowflake.com` reachable — it is currently outside this session's allowed network domains.
+Ways out, re-ordered on the evidence:
 
-### C2 — How many times is a scalar UDF invoked per row?
+1. **UDF with a static `CASE` over known sequences** — *now the leading candidate.* Keeps the
+   literal `(region_name, sequence_name)` signature, stays inline-callable, needs no dynamic SQL.
+   The sequence name selects a branch rather than naming an object to resolve. Each new table adds
+   one line to one function — still a single place, which is what §1 asked for.
+   **Caveat, now evidenced rather than guessed**: because each occurrence of a sequence generates
+   distinct values, a `CASE` naming several sequences may consume a value from branches not taken.
+   That burns values from unrelated sequences — tolerable, since Snowflake already does not
+   guarantee gap-free sequences, but it must be measured, and it is a reason to prefer one
+   function per sequence if the branch count grows.
+2. **Fall back to `f(region_name, seq_value)`** with `NEXTVAL` left in the query — D1's rejected
+   alternative, retained for the case where a UDF body cannot reference a sequence.
+3. **Procedure reserving a key range per batch**, ETL distributing values by `ROW_NUMBER()`.
+   Genuinely parallel-safe and a well-established pattern, but now clearly **cannot** be called
+   inline, so it changes the ETL shape; and a procedure that consumes a sequence is a modifying
+   procedure, which bars it from `TABLE(…)` as well.
 
-Snowflake does not guarantee a scalar UDF is evaluated exactly once per row; the optimiser may
-evaluate an expression more or fewer times. Harmless for a pure function, a **correctness bug**
-for one that consumes a sequence. R10's test must count invocations, not just check for duplicate
-keys. W3 already recorded the adjacent trap — calling `NEXTVAL` twice on one row and assuming one
-value — in `w3-scd-effective-date-split/poc_v2/scenarios/S14.sql`.
+### C2 — Volatility, not invocation count
+
+**This supersedes an earlier version of C2 that was wrong.** It claimed Snowflake "does not
+guarantee a scalar UDF is evaluated exactly once per row". The documentation actually states the
+handler **is called once for each row**, and Query History reports handler invocation counts, so
+this is both specified and measurable. That earlier concern was overstated.
+
+The real hazard is sharper, and it is specific to this function:
+
+**Every row passes the function identical arguments** — the same region name and the same sequence
+name for the whole statement. Snowflake's `IMMUTABLE` keyword declares that a function "when
+called with the same inputs, will always return the same result", and the docs are explicit that
+this promise **is not verified** and that declaring it on a function which returns different
+values for the same input "will result in undefined behavior".
+
+So a region-prefixed sequence UDF declared `IMMUTABLE` invites Snowflake to hand **every new row
+the same surrogate key**. `VOLATILE` is the default, so an unannotated function is correct — but
+this is a one-word footgun: anyone later adding `IMMUTABLE` as a performance tweak silently
+corrupts the keyspace, with no error.
+
+**Therefore**: the function must be explicitly declared `VOLATILE` rather than relying on the
+default, with a comment saying why, and a test must assert that N input rows receive N distinct
+keys. W3 recorded the adjacent trap — calling `NEXTVAL` twice on one row and assuming one value —
+in `w3-scd-effective-date-split/poc_v2/scenarios/S14.sql`; finding that each sequence occurrence
+generates distinct values confirms it.
 
 ### C3 — Which prefix scheme, and what datatype? *(R5, R6, R12, R13)*
 
@@ -188,8 +221,10 @@ The work is done when, for the EMPLOYEE table:
 5. the region is recoverable from a key without a join *(pending R13 confirmation)*
 6. concurrent loads of several tables produce no duplicate keys **and** no unintended extra
    sequence consumption, with invocation count evidenced, not assumed
-7. the returned value needs no cast at the call site
-8. evidence is recorded for each of the above, in the W5 tracker style
+7. the function is explicitly declared `VOLATILE`, and a test asserts that N input rows receive
+   N distinct keys — per C2, `IMMUTABLE` on this function is undefined behaviour
+8. the returned value needs no cast at the call site
+9. evidence is recorded for each of the above, in the W5 tracker style
 
 ---
 
@@ -203,3 +238,34 @@ The work is done when, for the EMPLOYEE table:
 | `explore/prefix_schemes.py` | The runnable DuckDB demonstration behind it |
 | `sources/employee_q2_staging_to_zone2_target.txt` | Line 50 — the only place a key is minted |
 | `sources/employee_q1_zone1_to_staging.txt` | Q1, for why the key arrives `NULL` |
+
+---
+
+## 9. Sources, and what could not be checked
+
+The Snowflake behaviour cited in C1 and C2 comes from Snowflake's own documentation, read
+indirectly: `docs.snowflake.com` and the `docs.snowflake.cn` mirror are both outside this
+session's allowed network domains, so pages could not be fetched. Web search *can* read them and
+quote them, and that is the channel used — every "confirmed" row in C1 and every quoted phrase in
+C2 is documentation text surfaced that way.
+
+Pages the claims trace to:
+
+| Claim | Page |
+|---|---|
+| `seq_name.NEXTVAL` form; each occurrence generates distinct values; 64-bit limit; `GETNEXTVAL` | *Using Sequences* — `docs.snowflake.com/en/user-guide/querying-sequences` |
+| "DDL and DML operations are not supported in UDFs" | *DDL for user-defined functions…* — `docs.snowflake.com/en/sql-reference/ddl-udf` |
+| A `CALL` cannot be part of an expression | *CALL* — `docs.snowflake.com/en/sql-reference/sql/call` |
+| `TABLE(proc(…))` eligibility, and its exclusion from UDF/view/UDTF bodies | *Selecting from a stored procedure* — `docs.snowflake.com/en/developer-guide/stored-procedure/stored-procedures-selecting-from` |
+| `VOLATILE` is the default; `IMMUTABLE` is unverified and misdeclaration is undefined behaviour | *CREATE FUNCTION* — `docs.snowflake.com/en/sql-reference/sql/create-function` |
+| Handler called once per row; batch count and order may vary | *General Scala UDF handler coding guidelines* — `docs.snowflake.com/en/developer-guide/udf/scala/udf-scala-general` |
+
+**Caveat on method.** These are quotations relayed by a search tool, not pages read directly. They
+are consistent with each other and with the `CREATE FUNCTION` reference, so they are good enough
+to narrow the design — but before anything is built on them, confirm the two load-bearing ones
+directly: that a `CALL` cannot appear in an expression, and that `IMMUTABLE` misdeclaration is
+undefined behaviour. Allowing `docs.snowflake.com` in the environment's network settings is enough
+for that.
+
+**Still unverifiable without a Snowflake account** — and the only thing C1 now turns on: whether a
+SQL UDF body may contain `seq.NEXTVAL`. No documentation states it either way.

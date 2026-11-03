@@ -341,8 +341,8 @@ reusable function takes `(region_name, sequence_name)`, resolves the region code
 table, combines it with the sequence's next value and returns the key already cast — so
 `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status**: requirement being finalised. D1–D3 taken, C1–C6 open. Nothing built, nothing tested in
-Snowflake.
+**Status**: requirement being finalised. D1–D3 taken; C1 narrowed to one short Snowflake test, C2
+resolved, C3–C6 awaiting decisions. Nothing built, nothing tested in Snowflake.
 
 **[`w6-region-prefixed-sequence/README.md`](w6-region-prefixed-sequence/README.md) is the folder
 index.** The essentials:
@@ -354,12 +354,23 @@ index.** The essentials:
 | `explore/prefix_schemes.py` | The runnable DuckDB demonstration behind it |
 | `sources/` | Raw inputs. The transcript summary is the baseline and wins |
 
-**C1 decides whether the design is buildable.** An object name cannot be parameterised in static
-SQL, so a runtime sequence name needs dynamic SQL — which a SQL UDF cannot do, which JavaScript
-and Python UDFs cannot do either, and which a stored procedure can do but cannot be called from
-inside a `MERGE` projection. If that holds, R2 as worded cannot be met by anything inline-callable
-and the requirement changes rather than the implementation. Unverified: `docs.snowflake.com` is
-outside this session's allowed network domains and web sources were inconclusive.
+**C1 is now one short Snowflake test.** Checked against Snowflake's documentation: a stored
+procedure cannot mint the key inline (a `CALL` cannot be part of an expression, and the
+`TABLE(proc(…))` workaround bars modifying procedures and UDF/view bodies), and "each occurrence
+of a sequence generates a set of distinct values". But the signature *is* achievable without
+dynamic SQL — the sequence name can select a branch rather than name an object to resolve, which
+corrects an earlier, stronger conclusion recorded here. The one thing no documentation states
+either way is whether a SQL UDF body may contain `seq.NEXTVAL`.
+
+**C2 is resolved, and an earlier claim here was wrong.** The docs state a UDF handler is called
+once per row, so "invocation count is unspecified" was overstated. The real hazard is that every
+row passes this function identical arguments, and `IMMUTABLE` — an unverified promise whose
+misdeclaration Snowflake calls "undefined behavior" — would invite one key for every new row.
+`VOLATILE` is the default and must be declared explicitly anyway.
+
+Snowflake docs are unreachable from this session (`docs.snowflake.com` and the `.cn` mirror are
+both outside its allowed network domains), so the above was read indirectly via search quoting
+those pages. `requirement.md` §9 lists the pages and flags what to confirm directly.
 
 **Prefix scheme.** Fixed-width offset recommended over digit concatenation — concatenation is
 collision-free only while region codes are single-digit, and `concat(1, 23) = concat(12, 3) = 123`
