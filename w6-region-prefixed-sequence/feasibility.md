@@ -14,7 +14,7 @@ Every Snowflake quotation here was read directly from the documentation. Pages a
 |---|---|---|
 | R1 | ETL calls a reusable function instead of `<seq>.NEXTVAL` | **Achievable**, conditional on R3 |
 | R2 | Signature takes region name **and** sequence name | **Achievable with a workaround** — branch selector, not an identifier. Registry table viable as a *generator* input, not as run-time indirection |
-| R3 | Function gets the next value from the named sequence | **UNKNOWN — the one blocking test** |
+| R3 | Function gets the next value from the named sequence | **PROVEN 2026-11-03 — passed** |
 | R4 | Function resolves region code from region name | **Achievable, cleanly** |
 | R5 | Function combines region code with sequence value | **Achievable** — scheme choice open (C3) |
 | R6 | Function returns the target's datatype; cast inside the function | **Achievable with a workaround** — the declaration is ignored, the body must cast |
@@ -175,8 +175,26 @@ and pays with a restructured `MERGE`. Both are real; neither is a UDF reading a 
 one adjacent rule — *DDL for user-defined functions*: "DDL and DML operations are not supported in
 UDFs" — does **not** settle it, because consuming a sequence is neither DDL nor DML.
 
-**Reading**: undocumented either way. Not prohibited, not permitted. It cannot be resolved by
-reading more; it needs one statement run in the account.
+**TESTED 2026-11-03 — PASS.** The documentation never answered this, so it was run in Snowflake
+(`LM_POC_DB.POC_SCHEMA`). All six tests passed: the function created, 10 rows gave 10 distinct
+values, 100 rows gave 100 distinct values with zero duplicates spanning exactly `201`–`300`, and the
+`MERGE` form mirroring Q2 line 50 inserted 3 rows with 3 distinct IDs. **The silent-failure case did
+not occur.** Evidence: [`R3_evidence.docx`](R3_evidence.docx); write-up:
+[`poc/R3_RESULTS.md`](poc/R3_RESULTS.md).
+
+Two things came out of the run beyond the pass itself:
+
+- **Invocation count is exactly one per row** — 100 rows produced a span of exactly 100 values. That
+  is the evidence R10 needed, on this plan at least.
+- **A test of mine was wrong.** T1.5 read a bare `NEXTVAL` and expected it "roughly 100 ahead",
+  assuming a sequence is one monotonic counter. It returned `2` after the UDF had returned
+  `201`–`300`. That is documented **NOORDER** behaviour — the docs' own example is `1, 3, 101, 5,
+  103` — and the default comes from the `NOORDER_SEQUENCE_AS_DEFAULT` account parameter. The test
+  has been corrected; the design is unaffected, and NOORDER is in fact preferable here because it
+  "can improve performance when multiple INSERT operations are performed concurrently".
+
+**Reading (as written before the test)**: undocumented either way. Not prohibited, not permitted.
+It could not be resolved by reading more; it needed one statement run in the account.
 
 **Was this validated in DuckDB? No — and DuckDB cannot validate it.** Worth stating plainly,
 because a DuckDB test here would not merely be inconclusive, it would be **actively misleading**:

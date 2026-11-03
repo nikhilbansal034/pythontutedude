@@ -30,12 +30,15 @@ wrong before the docs host was reachable.
 ## Layout
 
 ```
+poc/README.md                               POC pack: run order, how to capture
 requirement_deck.html                       THE DECK - 12 slides, frozen requirement
 feasibility.md                              per-requirement analysis and verdicts
 poc/
-  01_r3_sequence_in_udf.sql                 THE BLOCKER - run this first
-  02_r2_sequence_name_binding.sql           qualified names, registry, branch selector
-  04_r10_concurrency.sql                    R10 validated thoroughly
+  01_r3_sequence_in_udf.sql                 R3 - DONE, passed 3 Nov
+  02_r2_sequence_name_binding.sql           R2 - qualified names, registry, branch selector
+  03_r6_return_datatype.sql                 R6 - declared type ignored, cast in body
+  04_r10_concurrency.sql                    R10 - concurrency and volatility
+  R3_RESULTS.md                             R3 evidence record
 requirement.md                              scope, R1-R13, D1-D3, C1-C7, acceptance
 explore/
   prefix_schemes.md                         C3 answered with worked numbers
