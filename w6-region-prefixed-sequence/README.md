@@ -17,7 +17,8 @@ Nothing built.
 
 | Read | For |
 |---|---|
-| [`requirement.md`](requirement.md) | **The requirement.** Scope, R1–R13, decisions D1–D3, open questions C1–C6, acceptance criteria |
+| [`feasibility.md`](feasibility.md) | **Start here for the detail.** All thirteen requirements, one at a time: what each asks, what Snowflake's docs say, how it reads, what can be built, what needs a workaround |
+| [`requirement.md`](requirement.md) | The requirement itself. Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
 | [`explore/prefix_schemes.md`](explore/prefix_schemes.md) | C3 worked through on evidence — concatenation vs fixed-width offset |
 | [`sources/`](sources/) | The raw inputs. `requirement_region_prefixed_sequence.txt` is the baseline and wins over everything derived from it |
 
@@ -28,7 +29,8 @@ wrong before the docs host was reachable.
 ## Layout
 
 ```
-requirement.md                              scope, R1-R13, D1-D3, C1-C6, acceptance
+feasibility.md                              per-requirement analysis and verdicts
+requirement.md                              scope, R1-R13, D1-D3, C1-C7, acceptance
 explore/
   prefix_schemes.md                         C3 answered with worked numbers
   prefix_schemes.py                         the runnable DuckDB demonstration

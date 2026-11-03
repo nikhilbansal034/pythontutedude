@@ -350,7 +350,8 @@ index.** The essentials:
 
 | Path | What it is |
 |------|-----------|
-| `requirement.md` | Scope, R1–R13, decisions D1–D3, open questions C1–C6, acceptance criteria |
+| `feasibility.md` | **The detail.** All thirteen requirements one at a time: what each asks, what the docs say, what can be built, what needs a workaround |
+| `requirement.md` | Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
 | `explore/prefix_schemes.md` | C3 on evidence — digit concatenation vs fixed-width offset |
 | `explore/prefix_schemes.py` | The runnable DuckDB demonstration behind it |
 | `sources/` | Raw inputs. The transcript summary is the baseline and wins |
