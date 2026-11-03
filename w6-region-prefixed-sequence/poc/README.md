@@ -6,9 +6,10 @@ schema, numbers every test, and tears down after itself.
 | Script | Requirement | Status |
 |---|---|---|
 | [`01_r3_sequence_in_udf.sql`](01_r3_sequence_in_udf.sql) | **R3** — may a UDF body read a sequence? | **DONE — passed 2026-11-03.** [`R3_RESULTS.md`](R3_RESULTS.md) |
-| [`02_r2_sequence_name_binding.sql`](02_r2_sequence_name_binding.sql) | **R2** — can the sequence be chosen by a run-time name? | Ready to run |
-| [`03_r6_return_datatype.sql`](03_r6_return_datatype.sql) | **R6 / C7** — does the function return the target's datatype? | Ready to run |
-| [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | Ready to run |
+| [`02_r2_sequence_name_binding.sql`](02_r2_sequence_name_binding.sql) | **R2** — can the sequence be chosen by a run-time name? | **DONE — satisfied.** [`R2_RESULTS.md`](R2_RESULTS.md) |
+| [`03_r6_return_datatype.sql`](03_r6_return_datatype.sql) | **R6 / C7** — does the function return the target's datatype? | **DONE — satisfied.** [`R6_RESULTS.md`](R6_RESULTS.md) |
+| [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](R10_RESULTS.md) |
+| [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — uniqueness when the prefix is load-bearing | Ready to run — closes 04's gap |
 
 ## Before you start
 
@@ -60,6 +61,9 @@ counts distinct values against row count rather than just checking the statement
 independent and can run in any order — though `04` is the longest and needs three worksheets open
 at once for its concurrent parts.
 
-`04` has one trap worth repeating: if you run it straight through in a single worksheet, T4.1 and
-T4.7 execute sequentially rather than together. T4.2's verdict detects that and says `INVALID`
-rather than giving a false pass.
+**The three-worksheet procedure is not sufficient on its own.** The R10 run measured sessions
+connecting up to **4 seconds apart** while a 20,000-row insert takes ~1.5s — so three worksheets
+started by hand can run consecutively while looking parallel. Worse, `sessions_involved` still
+returns 3, so that guard does **not** catch it. Any concurrency claim must come with a measured
+overlap (start/end timestamps per session, intersected), or be reported as unmeasured. This applies
+to `04` and `05` alike.

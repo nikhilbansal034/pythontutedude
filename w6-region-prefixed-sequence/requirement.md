@@ -3,6 +3,11 @@
 **Status**: **FROZEN** as of 2026-11-03. Decisions D1–D4 taken; C8 answered. The thirteen
 requirements are grouped into five tracking groups (below).
 
+**R2, R3, R6 and R10 are all PROVEN in Snowflake** (2026-11-03) — see `poc/R*_RESULTS.md`. Twelve of
+thirteen requirements now close. The one open item is **R12/R13 under the real topology**: every
+Snowflake test so far used a *shared* sequence across regions, so the prefix never had to carry
+uniqueness. `poc/05_r12_per_region_sequences.sql` closes that.
+
 **R3 is PROVEN and G2 is CLOSED** — tested in Snowflake on 2026-11-03, all six tests passed. A SQL
 UDF body *may* contain `seq.NEXTVAL`, it returns one distinct value per row, and it works inside a
 `MERGE` projection. Results and the NOORDER finding: [`poc/R3_RESULTS.md`](poc/R3_RESULTS.md);
@@ -74,11 +79,11 @@ at group level rather than as thirteen separate threads.
 
 | Grp | Group | Holds | What closes it | Status |
 |---|---|---|---|---|
-| **G1** | Function interface & contract | R1, R2, R6 | Docs answered; two need a workaround | Workaround |
+| **G1** | Function interface & contract | R1, R2, R6 | **CLOSED — proven 2026-11-03** (branch selector + body cast) | Closed |
 | **G2** | Sequence access | R3 | One short Snowflake test | **CLOSED — proven 2026-11-03** |
 | **G3** | Region configuration | R4, R7, R8, R11 | Closed on documentation | Closed |
-| **G4** | Key composition & integrity | R5, R12, R13 | One design decision, not a test | Decision |
-| **G5** | Placement & concurrency | R9, R10 | Both already answered | Closed |
+| **G4** | Key composition & integrity | R5, R12, R13 | Decision (C3) **+ one test** — `poc/05` | Open |
+| **G5** | Placement & concurrency | R9, R10 | **CLOSED — 90,000 keys, 0 duplicates, measured overlap** | Closed |
 
 G2 stood alone because nothing else could be built until it was answered. **It now is**: R3 passed
 in Snowflake on 2026-11-03, so G2 is closed and the branch-selector design in D1 is viable.
