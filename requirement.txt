@@ -1,0 +1,54 @@
+The current [Internal] TD MOD - US/USI Daily Connect is transcribed. The sequence discussion focused on changing how sequence IDs are generated so the region is embedded at the point the sequence is created, rather than being added later downstream.
+1. What needs to change
+Nidwika Vedanaparthi explained that the ETL currently calls something equivalent to sequenceDB.nextval to generate sequence numbers. The ask is to investigate replacing that direct call with a reusable function.
+Conceptually, the ETL would move from:
+sequenceDB.nextval
+to something like:
+function(region_name, sequence_name)
+The function should:
+Accept the region name.
+Accept the sequence name.
+Get the next value from the applicable sequence.
+Determine the configured region code.
+Prefix the region code to the generated sequence value.
+Return that region-prefixed value to the ETL.
+The intent is specifically to avoid implementing the prefix/casting logic separately in every DTTL/ETL.
+2. Region mapping needs to be dynamic
+Nidwika Vedanaparthi explicitly said the region code must be dynamic. The same function/code base should remain constant across environments, while the region name is provided to the function.
+A mapping table should maintain the relationship between region name → region code. The function would use that configuration to determine the prefix.
+The mappings mentioned in the meeting were:
+North America → 1
+EU → 2
+APAC → 3
+So the ETL provides the region name instead of hard-coding the numeric prefix directly into its logic.
+3. Why they want the prefix applied early
+Nikhil Bansal asked where this fits architecturally, specifically whether this would happen from Zone 2 to Zone 3 when business logic is applied. Nidwika Vedanaparthi clarified that the sequence should instead be handled on the left-hand side, when data moves from Zone 1 into Zone 2.
+The reason discussed was traceability and consistency.
+If Zone 2 first generates ordinary sequence values such as 1, 2, 3, and the region is added only when multiple regions are combined in the global database, the resulting identifier no longer directly matches what was stored earlier in Zone 2. Nidwika Vedanaparthi noted that tracing a problematic record back could then require either using the UUID or applying logic to remove the regional prefix before comparing values.
+The preference attributed in the discussion to Cindy MacFarlane was therefore to apply the region treatment on the left-hand side itself, so the identifier does not have to be changed later in the process.
+4. Important technical concern: datatype
+Nidwika Vedanaparthi also called out a Snowflake consideration: when she tried prefixing the region code to a sequence value in a query, the operation changed the datatype, requiring an explicit cast back to the required format.
+This is one of the reasons for centralizing the behavior in a function instead of repeating:
+nextval → prefix → cast
+inside every ETL.
+5. Parallel execution must be tested
+A specific technical validation was assigned to Nikhil Bansal: determine whether the same reusable function can safely be called in parallel by multiple tables.
+So this is not only a question of whether the function can return a region-prefixed sequence. The implementation also needs to validate its behavior when multiple ETLs/tables invoke it concurrently.
+Nikhil Bansal acknowledged the requirement and said he would confirm.
+6. Separate question: region column in the table
+There was also a related but not yet settled design question: whether the target table itself should contain an additional region-code column.
+Nidwika Vedanaparthi explicitly separated this from the immediate sequence-function work and left it for Abhi and team to discuss and confirm.
+So the current distinction is:
+Region-prefixed sequence generation: needs to be investigated/tested now.
+Separate region-code column: still requires confirmation and should not block the function investigation.
+7. Practical flow discussed
+The intended design can be summarized as:
+Region name + sequence name → reusable function → region lookup → sequence next value → prefix region code → return final sequence value → persist from Zone 1 → Zone 2
+This captures the logic described in the meeting, rather than specifying an implementation that has not yet been confirmed.
+Action items / open points
+Nikhil Bansal: investigate the reusable function approach taking region name + sequence name as inputs.
+Nikhil Bansal: validate whether it works when called in parallel by multiple tables.
+Design: maintain the region-name-to-region-code mapping in a table rather than embedding environment-specific values in the function.
+Implementation consideration: account for the datatype change caused by prefixing the regional value and return the expected datatype.
+Abhi/team: determine separately whether the physical table also needs an additional region-code column.
+Placement: sequence enrichment should happen while moving Zone 1 → Zone 2, rather than waiting until later global consolidation.
