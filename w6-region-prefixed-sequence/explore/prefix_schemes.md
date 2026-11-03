@@ -131,6 +131,14 @@ downstream `BIGINT`/`long` column consuming `EMPLOYEE_ID` would not be. **Check 
 `EMPLOYEE_ID` before fixing WIDTH** — a Java or Python consumer, a BI tool, or an export, may
 quietly cap at 64-bit.
 
+**And the sequence half has its own confirmed ceiling.** Snowflake's *Using Sequences* page states
+that "A sequence value can represent a 64-bit two's complement integer (-2^63 to 2^63 - 1). If the
+internal representation of a sequence's next value exceeds this range (in either direction) an
+error results and the query fails." An 18-digit field (10^18) sits just under that ~9.22×10^18
+ceiling, so it is sound — but it is close to the boundary, and the limit applies to the sequence's
+*internal* next value, which gaps can push ahead of the values actually returned. A 15- or
+16-digit field buys headroom at no real cost: 10^15 is still a quadrillion keys per region.
+
 ---
 
 ## Summary

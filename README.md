@@ -341,8 +341,9 @@ reusable function takes `(region_name, sequence_name)`, resolves the region code
 table, combines it with the sequence's next value and returns the key already cast — so
 `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status**: requirement being finalised. D1–D3 taken; C1 narrowed to one short Snowflake test, C2
-resolved, C3–C6 awaiting decisions. Nothing built, nothing tested in Snowflake.
+**Status**: requirement being finalised. D1–D3 taken; Snowflake behaviour verified against the
+docs; C1 down to one short account test, C2 and C7 resolved into implementation rules, C3–C6
+awaiting decisions. Nothing built.
 
 **[`w6-region-prefixed-sequence/README.md`](w6-region-prefixed-sequence/README.md) is the folder
 index.** The essentials:
@@ -354,23 +355,26 @@ index.** The essentials:
 | `explore/prefix_schemes.py` | The runnable DuckDB demonstration behind it |
 | `sources/` | Raw inputs. The transcript summary is the baseline and wins |
 
-**C1 is now one short Snowflake test.** Checked against Snowflake's documentation: a stored
-procedure cannot mint the key inline (a `CALL` cannot be part of an expression, and the
-`TABLE(proc(…))` workaround bars modifying procedures and UDF/view bodies), and "each occurrence
-of a sequence generates a set of distinct values". But the signature *is* achievable without
-dynamic SQL — the sequence name can select a branch rather than name an object to resolve, which
-corrects an earlier, stronger conclusion recorded here. The one thing no documentation states
-either way is whether a SQL UDF body may contain `seq.NEXTVAL`.
+**Snowflake behaviour verified directly against the docs.** Four outcomes, two of them
+corrections to what was recorded here earlier:
 
-**C2 is resolved, and an earlier claim here was wrong.** The docs state a UDF handler is called
-once per row, so "invocation count is unspecified" was overstated. The real hazard is that every
-row passes this function identical arguments, and `IMMUTABLE` — an unverified promise whose
-misdeclaration Snowflake calls "undefined behavior" — would invite one key for every new row.
-`VOLATILE` is the default and must be declared explicitly anyway.
-
-Snowflake docs are unreachable from this session (`docs.snowflake.com` and the `.cn` mirror are
-both outside its allowed network domains), so the above was read indirectly via search quoting
-those pages. `requirement.md` §9 lists the pages and flags what to confirm directly.
+- **C1 — resolved bar one test.** *SQL UDF limitations* states "Dynamic SQL is not supported when
+  referring to database objects", with a failing example that is exactly this pattern, so R2
+  cannot be met by resolving the sequence name as an identifier. The **branch-selector** shape
+  (`CASE sequence_name WHEN … THEN <SEQ>.NEXTVAL`) survives untouched. `TABLE(proc(…))` turns out
+  to be explicitly permitted in `MERGE`, reopening an option previously written off. The one
+  untested unknown: whether a SQL UDF body may contain `seq.NEXTVAL` at all — undocumented either
+  way.
+- **C2 — corrected.** The earlier "invocation count is unspecified" claim was wrong. The real
+  hazard is that every row passes identical arguments, and `IMMUTABLE` is an unverified promise
+  whose misdeclaration Snowflake calls "undefined behavior" — it would hand every new row the same
+  key. `MEMOIZABLE` is the same failure by another route. `VOLATILE` is the default; declare it.
+- **C7 — new, and it undercuts §4.** For SQL UDFs, declared `NUMBER` precision and scale are
+  **ignored**, so `RETURNS NUMBER(38,0)` guarantees nothing. The cast must sit in the function
+  body, not the signature.
+- **R10 — largely guaranteed already.** "Concurrent queries never observe the same value, and
+  values within a single query are always distinct." Parallel safety is documented for the
+  sequence itself; only the wrapper needs testing.
 
 **Prefix scheme.** Fixed-width offset recommended over digit concatenation — concatenation is
 collision-free only while region codes are single-digit, and `concat(1, 23) = concat(12, 3) = 123`

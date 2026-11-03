@@ -6,9 +6,10 @@ reusable function takes a region name and a sequence name, resolves the region c
 table, combines it with the sequence's next value, and returns the key already cast to the target
 column's type — so `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status** — requirement being finalised. D1–D3 taken. C1 narrowed to one short Snowflake test,
-C2 resolved into an implementation rule, C3–C6 awaiting decisions. Nothing built, nothing tested
-in Snowflake.
+**Status** — requirement being finalised. D1–D3 taken. Snowflake behaviour verified against the
+docs directly: R10 turns out largely guaranteed, C2 resolved into an implementation rule, C7 found
+(R6 does not work as written), C1 down to one short account test. C3–C6 await your decisions.
+Nothing built.
 
 ---
 
@@ -20,10 +21,9 @@ in Snowflake.
 | [`explore/prefix_schemes.md`](explore/prefix_schemes.md) | C3 worked through on evidence — concatenation vs fixed-width offset |
 | [`sources/`](sources/) | The raw inputs. `requirement_region_prefixed_sequence.txt` is the baseline and wins over everything derived from it |
 
-Snowflake documentation is unreachable from the session that wrote this — `docs.snowflake.com` and
-the `.cn` mirror are both outside its allowed network domains. The behaviour cited below was read
-indirectly, through search quoting those pages; `requirement.md` §9 lists every page and flags the
-two claims worth confirming directly before building on them.
+Snowflake behaviour cited below was read **directly** from the documentation; `requirement.md` §9
+lists every page each claim traces to, and records the one conclusion a search-relayed reading got
+wrong before the docs host was reachable.
 
 ## Layout
 
@@ -44,42 +44,64 @@ work has to land in, not themselves the deliverable.
 
 ---
 
-## C1 — now one short test, not an open-ended risk
+## C1 — resolved bar one test
 
-Checked against Snowflake's documentation. **My earlier conclusion that the requirement's
-signature "cannot be met by anything inline-callable" was too strong** — it assumed the sequence
-name had to be resolved as an *identifier*. It doesn't have to be: the name can select a **branch**
-over sequences the function names literally, which needs no dynamic SQL and satisfies R2 as
-written.
+Snowflake's docs were read directly. The answer is more definite than either earlier note here.
 
-What the docs confirm:
+**A SQL UDF cannot resolve a database object named by a parameter.** *SQL UDF limitations*:
+"Dynamic SQL is not supported when referring to database objects", and the page's own failing
+example is exactly this pattern — a UDF taking an object name as `VARCHAR` and reaching it via
+`IDENTIFIER(param)`. So R2 cannot be met by resolving the sequence name as an identifier. That
+route is closed by name.
 
-- a stored procedure **cannot** mint the key inline — "you cannot use a stored procedure CALL as
-  part of an expression", and the `TABLE(proc(…))` workaround excludes modifying procedures and
-  cannot be used inside a UDF or view body. That route is closed *more* firmly than I first argued
-- **"each occurrence of a sequence generates a set of distinct values"** — so a `CASE` naming
-  several sequences may consume from branches not taken. Measurable, and tolerable since
-  gap-free sequences are not guaranteed anyway
-- "DDL and DML operations are not supported in UDFs" does **not** settle this — consuming a
-  sequence is neither DDL nor DML
+What survives is the **branch-selector** shape — the parameter is compared as a value, every
+sequence named literally — which the limitation does not touch:
 
-**The only thing documentation does not state either way** is whether a SQL UDF body may contain
-`seq.NEXTVAL`. That is now the whole of C1, and one short test in the account answers it.
+```sql
+CASE sequence_name WHEN 'EMPLOYEE_SEQ' THEN EMPLOYEE_SEQ.NEXTVAL
+                   WHEN 'JOB_SEQ'      THEN JOB_SEQ.NEXTVAL END
+```
+
+Also confirmed, and it **reopens** an option I had written off: `TABLE(proc(…))` is explicitly
+permitted in `MERGE` — the docs list "`SELECT`; `INSERT`, `UPDATE`, `DELETE`, or `MERGE`;
+`CREATE TABLE AS SELECT`" — which is exactly where Q2 needs it. Whether it applies here turns on
+whether consuming a sequence counts as a modifying operation, which is undocumented.
+
+**The one untested unknown**: whether a SQL UDF body may contain `seq.NEXTVAL` at all. "sequence"
+appears nowhere in *CREATE FUNCTION*, *Introduction to SQL UDFs* or *SQL UDF limitations*. One
+short test settles it.
 
 ## C2 — the hazard is volatility, and I had it wrong
 
-**This corrects an earlier claim** that Snowflake "does not guarantee a scalar UDF is evaluated
-once per row". The docs say the handler **is** called once per row, and Query History reports
-invocation counts. That concern was overstated.
+**This corrects an earlier claim here** that Snowflake "does not guarantee a scalar UDF is
+evaluated once per row". That concern does not exist as written.
 
-The real hazard is specific to this function: **every row passes it identical arguments** — same
-region name, same sequence name. `IMMUTABLE` declares "same inputs always return the same result",
-Snowflake does **not verify** that promise, and misdeclaring it is explicitly "undefined
-behavior". So an `IMMUTABLE` region-prefixed sequence UDF invites Snowflake to give **every new
-row the same surrogate key**.
+The real hazard is specific to this function: **every row passes it identical arguments**.
+*CREATE FUNCTION* on `IMMUTABLE` — "This guarantee is not checked. Specifying IMMUTABLE for a UDF
+that returns different values for the same input will result in undefined behavior." So an
+`IMMUTABLE` version invites one surrogate key for every new row, silently. `MEMOIZABLE`, also
+accepted by the SQL handler, is the same failure by another route.
 
-`VOLATILE` is the default, so an unannotated function is correct — but it is a one-word footgun.
-Declare `VOLATILE` explicitly, say why in a comment, and assert that N rows get N distinct keys.
+`VOLATILE` is the default, so an unannotated function is correct — but declare it explicitly, and
+never set the other two.
+
+## C7 — R6 does not work the way it reads
+
+New, and it undercuts §4's motivation. *SQL UDF limitations*: for SQL UDFs, "Precision and scale
+for arguments and return values of type NUMBER" are **ignored**, and "the received value may be
+used as received whether or not it conforms to constraints specified in the declaration."
+
+So `RETURNS NUMBER(38,0)` guarantees nothing. R6 is still reachable, but the **body** must do the
+`CAST` — the signature cannot. Test the returned value's actual type, not the declaration.
+
+## R10 — largely guaranteed already, not something to prove
+
+*Using Sequences*: "Concurrent queries never observe the same value, and values within a single
+query are always distinct." The parallel-safety concern is answered for the sequence itself. What
+remains is only that the wrapper does not break that guarantee — which is C2, not concurrency.
+
+Caveats from the same page: gaps and ordering are never guaranteed, flipping the interval's sign
+"may result in duplicates", and `currval` is not supported.
 
 ## What is already settled
 
