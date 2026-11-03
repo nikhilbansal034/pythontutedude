@@ -5,13 +5,20 @@ requirements are grouped into five tracking groups (below).
 
 **R2, R3, R6, R10 and R13 are PROVEN in Snowflake** (2026-11-03) — see `poc/R*_RESULTS.md`.
 
-**R12 remains open.** Two attempts have now passed *vacuously*: `poc/04`'s T4.7 shared one sequence
-across all regions, and `poc/05`'s T5.2 used three per-region sequences that moved in lockstep because
-one function body named all three (R2's finding F4 at function scope). In both the prefix contributed
-nothing to uniqueness, so neither run tested what R12 asserts.
-`poc/06_r12_independent_region_deployments.sql` gives each region its own schema, sequence and copy of
-the identical function text — the real deployment shape — and adds sensitivity checks that report
-VACUOUS rather than PASS when the premise fails.
+**R12 remains open after three attempts**, and the third was the most informative:
+
+- `poc/04` T4.7 — vacuous: one sequence shared by all regions.
+- `poc/05` T5.2 — vacuous: three per-region sequences moved in lockstep, because one function body
+  named all three (R2's F4 at function scope).
+- `poc/06` T6.1 — **halted at its own sensitivity gate**, and in doing so refuted a design assumption:
+  an **unqualified SEQUENCE inside a UDF body resolves in the CALLER'S current schema**, while a table
+  in the same body resolves in the function's schema. This contradicts Snowflake's *Name resolution*
+  page ("All unqualified objects in a view or UDF definition will be resolved in the view's or UDF's
+  schema only") and **reverses R8's build-standard decision**: the sequence reference must be **fully
+  qualified**. See `poc/R12_RESULTS_v2.md`.
+
+`poc/07_r12_qualified_sequences.sql` fully qualifies the sequence, adds a regression test for the
+asymmetry (T7.0) and a caller-schema-independence test (T7.2), and keeps the sensitivity gates.
 
 **R3 is PROVEN and G2 is CLOSED** — tested in Snowflake on 2026-11-03, all six tests passed. A SQL
 UDF body *may* contain `seq.NEXTVAL`, it returns one distinct value per row, and it works inside a
@@ -86,7 +93,7 @@ at group level rather than as thirteen separate threads.
 |---|---|---|---|---|
 | **G1** | Function interface & contract | R1, R2, R6 | **CLOSED — proven 2026-11-03** (branch selector + body cast) | Closed |
 | **G2** | Sequence access | R3 | One short Snowflake test | **CLOSED — proven 2026-11-03** |
-| **G3** | Region configuration | R4, R7, R8, R11 | Closed on documentation | Closed |
+| **G3** | Region configuration | R4, R7, R8, R11 | R4/R7/R11 closed; **R8 needs re-confirming** — unqualified sequences follow the caller, so the body must be fully qualified | Open |
 | **G4** | Key composition & integrity | R5, R12, R13 | R13 proven; **R12 still open** — `poc/06`; plus decision C3 | Open |
 | **G5** | Placement & concurrency | R9, R10 | **CLOSED — 90,000 keys, 0 duplicates, measured overlap** | Closed |
 
