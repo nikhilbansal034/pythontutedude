@@ -1,0 +1,460 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "R2-20261103-210217",
+    "requirement_id": "R2",
+    "work_item": "W6",
+    "script": "SQL/02_r2_sequence_name_binding.sql",
+    "script_question": "Can the sequence be chosen by a name supplied at run time?",
+    "prerequisite": "R3 PASSED on 2026-11-03 (see R3_01_r3_sequence_in_udf_20261103-204457.json) - a SQL UDF body may contain seq.NEXTVAL.",
+    "started_at_utc": "2026-11-03T21:02:17Z",
+    "finished_at_utc": "2026-11-03T21:02:17Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call)",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with the R3 run. Objects retained in LM_POC_DB.POC_SCHEMA for follow-on tests.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "error.code and error.sqlstate are null because the execution surface returned only the message text. The message is reproduced verbatim and unmodified.",
+      "Result sets are reproduced exactly as returned, including Snowflake's own column casing.",
+      "T2.2a and T2.2b were EXPECTED to fail. Their error text is the deliverable evidence, not an incident."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "POC_SCHEMA",
+    "snowflake_version": "10.39.101"
+  },
+  "statements": [
+    {
+      "seq": 1,
+      "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_employee_seq START 1 INCREMENT 1",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMPLOYEE_SEQ successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 2,
+      "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_job_seq START 1000 INCREMENT 1",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_JOB_SEQ successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 3,
+      "test_id": "T2.1a",
+      "purpose": "Fully-qualified sequence name inside the function body. Hard-codes database + schema, so NOT portable for R8.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_qualified_test()\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    LM_POC_DB.POC_SCHEMA.w6_employee_seq.NEXTVAL\n$$",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_QUALIFIED_TEST successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 4,
+      "test_id": "T2.1a",
+      "sql": "SELECT COUNT(*) AS rows_out, COUNT(DISTINCT k) AS distinct_keys,\n       CASE WHEN COUNT(DISTINCT k) = COUNT(*) THEN 'PASS - qualified name works'\n            ELSE 'FAIL' END AS verdict\nFROM (SELECT w6_qualified_test() AS k FROM TABLE(GENERATOR(ROWCOUNT => 5)))",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[5, 5, "PASS - qualified name works"]],
+      "error": null,
+      "expectation": "5 / 5 / PASS",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 5,
+      "test_id": "T2.1b",
+      "purpose": "Unqualified sequence name - resolved in the schema containing the function, therefore the R8-portable form.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_unqualified_test()\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    w6_employee_seq.NEXTVAL\n$$",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_UNQUALIFIED_TEST successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 6,
+      "test_id": "T2.1b",
+      "sql": "SELECT COUNT(*) AS rows_out, COUNT(DISTINCT k) AS distinct_keys,\n       CASE WHEN COUNT(DISTINCT k) = COUNT(*) THEN 'PASS - unqualified name works'\n            ELSE 'FAIL' END AS verdict\nFROM (SELECT w6_unqualified_test() AS k FROM TABLE(GENERATOR(ROWCOUNT => 5)))",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[5, 5, "PASS - unqualified name works"]],
+      "error": null,
+      "expectation": "5 / 5 / PASS. If both pass -> use the UNQUALIFIED form in the real function, for R8.",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 7,
+      "test_id": "T2.2-SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_sequence_registry (\n    LOGICAL_NAME       VARCHAR(100),\n    FULL_SEQUENCE_NAME VARCHAR(500)\n)",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_SEQUENCE_REGISTRY successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 8,
+      "test_id": "T2.2-SETUP",
+      "sql": "INSERT INTO w6_sequence_registry VALUES\n    ('EMPLOYEE', 'w6_employee_seq'),\n    ('JOB',      'w6_job_seq')",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[2]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 9,
+      "test_id": "T2.2a",
+      "purpose": "Registry-table indirection: hold the sequence name in a table, read it, use it via IDENTIFIER(). EXPECTED TO FAIL - the error message is the evidence.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_registry_lookup_test(logical_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    (SELECT IDENTIFIER(r.FULL_SEQUENCE_NAME || '.NEXTVAL')\n     FROM w6_sequence_registry r\n     WHERE r.LOGICAL_NAME = logical_name)\n$$",
+      "status": "ERROR",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": null,
+      "columns": null,
+      "rows": null,
+      "error": {
+        "code": null,
+        "sqlstate": null,
+        "message": "Compilation of SQL UDF failed: SQL compilation error:\nsyntax error line 2 at position 5 unexpected 'SELECT'.\nsyntax error line 2 at position 23 unexpected 'r'.\nsyntax error line 3 at position 5 unexpected 'FROM'."
+      },
+      "expectation": "a compilation error, at CREATE or at first call",
+      "failure_point": "CREATE",
+      "verdict": "FAILED AS EXPECTED",
+      "observation": "Failed at CREATE, so the function never existed and no invocation was possible. The documented cause is 'Dynamic SQL is not supported when referring to database objects' plus IDENTIFIER() accepting only a string literal, session variable, bind variable or Snowflake Scripting variable - a column value is none of those."
+    },
+    {
+      "seq": 10,
+      "test_id": "T2.2b",
+      "purpose": "IDENTIFIER() straight on the parameter, no table involved. Isolates whether the registry read or the parameter is the blocker.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_param_identifier_test(seq_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    IDENTIFIER(seq_name).NEXTVAL\n$$",
+      "status": "ERROR",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": null,
+      "columns": null,
+      "rows": null,
+      "error": {
+        "code": null,
+        "sqlstate": null,
+        "message": "Compilation of SQL UDF failed: SQL compilation error:\nsyntax error line 2 at position 15 unexpected 'seq_name'.\nsyntax error line 2 at position 15 unexpected 'seq_name'.\nsyntax error line 2 at position 24 unexpected '.'."
+      },
+      "expectation": "the same failure, confirming the PARAMETER is the blocker so no amount of table indirection can help",
+      "failure_point": "CREATE",
+      "verdict": "FAILED AS EXPECTED",
+      "observation": "Fails with no table in the picture. The parameter itself cannot feed IDENTIFIER(), which settles the question: table indirection cannot rescue the approach."
+    },
+    {
+      "seq": 11,
+      "test_id": "T2.3",
+      "purpose": "The branch selector - run-time value picks a branch; every sequence is named literally, so no identifier is ever constructed from data.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_branch_selector(sequence_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nCOMMENT = 'VOLATILE is required - see 04_r10_concurrency.sql T4.4/T4.5.'\nAS\n$$\n    CASE sequence_name\n        WHEN 'EMPLOYEE_SEQ' THEN w6_employee_seq.NEXTVAL\n        WHEN 'JOB_SEQ'      THEN w6_job_seq.NEXTVAL\n    END\n$$",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_BRANCH_SELECTOR successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 12,
+      "test_id": "T2.3a",
+      "purpose": "One sequence name per statement.",
+      "sql": "SELECT requested,\n       COUNT(*) AS rows_out,\n       COUNT(DISTINCT k) AS distinct_keys,\n       MIN(k) AS min_key, MAX(k) AS max_key,\n       CASE WHEN COUNT(DISTINCT k) = COUNT(*) THEN 'PASS' ELSE 'FAIL' END AS verdict\nFROM (\n    SELECT 'EMPLOYEE_SEQ' AS requested, w6_branch_selector('EMPLOYEE_SEQ') AS k\n    FROM TABLE(GENERATOR(ROWCOUNT => 5))\n    UNION ALL\n    SELECT 'JOB_SEQ', w6_branch_selector('JOB_SEQ')\n    FROM TABLE(GENERATOR(ROWCOUNT => 5))\n)\nGROUP BY requested ORDER BY requested",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 2,
+      "columns": [
+        { "name": "REQUESTED", "type": "VARCHAR" },
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "MIN_KEY", "type": "NUMBER(38,0)" },
+        { "name": "MAX_KEY", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["EMPLOYEE_SEQ", 5, 5, 201, 205, "PASS"],
+        ["JOB_SEQ", 5, 5, 1005, 1009, "PASS"]
+      ],
+      "error": null,
+      "expectation": "two rows. EMPLOYEE keys in the 1.. range, JOB keys in the 1000.. range, 5 distinct each, both PASS",
+      "verdict": "PASS",
+      "observation": "Each requested name drew from its own sequence: EMPLOYEE from the 1-origin sequence (201-205 after earlier consumption in T2.1), JOB from the 1000-origin sequence (1005-1009)."
+    },
+    {
+      "seq": 13,
+      "test_id": "T2.3b-SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_mixed_stage (LOGICAL_NAME VARCHAR(100))",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_MIXED_STAGE successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 14,
+      "test_id": "T2.3b-SETUP",
+      "sql": "INSERT INTO w6_mixed_stage VALUES\n    ('EMPLOYEE_SEQ'), ('JOB_SEQ'), ('EMPLOYEE_SEQ'), ('JOB_SEQ'), ('EMPLOYEE_SEQ')",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[5]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 15,
+      "test_id": "T2.3b",
+      "purpose": "Name varying PER ROW - the realistic case when one function serves several tables in one load.",
+      "sql": "WITH keyed AS (\n    SELECT LOGICAL_NAME, w6_branch_selector(LOGICAL_NAME) AS k FROM w6_mixed_stage\n)\nSELECT COUNT(*) AS rows_out,\n       COUNT(DISTINCT k) AS distinct_keys,\n       SUM(CASE WHEN LOGICAL_NAME = 'EMPLOYEE_SEQ' AND k < 1000 THEN 1\n                WHEN LOGICAL_NAME = 'JOB_SEQ'      AND k >= 1000 THEN 1\n                ELSE 0 END) AS keys_from_correct_sequence,\n       CASE WHEN COUNT(DISTINCT k) = COUNT(*)\n             AND COUNT(*) = SUM(CASE WHEN LOGICAL_NAME = 'EMPLOYEE_SEQ' AND k < 1000 THEN 1\n                                     WHEN LOGICAL_NAME = 'JOB_SEQ'      AND k >= 1000 THEN 1\n                                     ELSE 0 END)\n            THEN 'PASS - every row keyed from its own sequence'\n            ELSE 'FAIL' END AS verdict\nFROM keyed",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "KEYS_FROM_CORRECT_SEQUENCE", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[5, 5, 5, "PASS - every row keyed from its own sequence"]],
+      "error": null,
+      "expectation": "5 / 5 / 5 / PASS",
+      "verdict": "PASS",
+      "observation": "The branch selector resolves correctly when the sequence name varies row by row, not merely statement by statement."
+    },
+    {
+      "seq": 16,
+      "test_id": "T2.4-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_employee_seq START 1 INCREMENT 1",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMPLOYEE_SEQ successfully created."]],
+      "error": null,
+      "verdict": "PASS",
+      "observation": "CREATE OR REPLACE on a sequence already referenced by w6_branch_selector did not invalidate the function - subsequent calls in T2.4b worked."
+    },
+    {
+      "seq": 17,
+      "test_id": "T2.4-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_job_seq START 1000 INCREMENT 1",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_JOB_SEQ successfully created."]],
+      "error": null,
+      "verdict": "PASS"
+    },
+    {
+      "seq": 18,
+      "test_id": "T2.4a",
+      "purpose": "Snapshot BEFORE. Measured via INFORMATION_SCHEMA.SEQUENCES.NEXT_VALUE, which reads metadata and consumes nothing - deliberately NOT a bare NEXTVAL, which misled R3's T1.5.",
+      "sql": "SELECT SEQUENCE_NAME, NEXT_VALUE, ORDERED\nFROM INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_SCHEMA = CURRENT_SCHEMA()\n  AND SEQUENCE_NAME IN ('W6_EMPLOYEE_SEQ','W6_JOB_SEQ')\nORDER BY SEQUENCE_NAME",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 2,
+      "columns": [
+        { "name": "SEQUENCE_NAME", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" },
+        { "name": "ORDERED", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6_EMPLOYEE_SEQ", "1", "NO"],
+        ["W6_JOB_SEQ", "1000", "NO"]
+      ],
+      "error": null,
+      "expectation": "NEXT_VALUE 1 and 1000. Note ORDERED too - 'NO' means NOORDER.",
+      "verdict": "RECORDED",
+      "observation": "ORDERED = NO on both sequences. This independently confirms the NOORDER property and is the documented explanation for the non-monotonic values recorded as finding F1 in the R3 run."
+    },
+    {
+      "seq": 19,
+      "test_id": "T2.4b",
+      "purpose": "Draw 20 rows, ALL asking for EMPLOYEE_SEQ. JOB_SEQ is never selected.",
+      "sql": "SELECT COUNT(*) AS rows_drawn, COUNT(DISTINCT k) AS distinct_keys\nFROM (SELECT w6_branch_selector('EMPLOYEE_SEQ') AS k\n      FROM TABLE(GENERATOR(ROWCOUNT => 20)))",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_DRAWN", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [[20, 20]],
+      "error": null,
+      "expectation": "20 / 20",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 20,
+      "test_id": "T2.4c",
+      "purpose": "Snapshot AFTER, and the verdict in one row. THE REAL UNKNOWN: do untaken CASE arms consume sequence values?",
+      "sql": "SELECT\n    MAX(CASE WHEN SEQUENCE_NAME = 'W6_EMPLOYEE_SEQ' THEN NEXT_VALUE END) AS employee_next,\n    MAX(CASE WHEN SEQUENCE_NAME = 'W6_JOB_SEQ'      THEN NEXT_VALUE END) AS job_next,\n    CASE WHEN MAX(CASE WHEN SEQUENCE_NAME = 'W6_JOB_SEQ' THEN TO_NUMBER(NEXT_VALUE) END) = 1000\n         THEN 'UNTAKEN ARMS ARE FREE - job_seq never moved'\n         ELSE 'UNTAKEN ARMS CONSUME - job_seq advanced without being selected'\n    END AS verdict\nFROM INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_SCHEMA = CURRENT_SCHEMA()\n  AND SEQUENCE_NAME IN ('W6_EMPLOYEE_SEQ','W6_JOB_SEQ')",
+      "status": "SUCCESS",
+      "query_id": null,
+      "elapsed_ms": null,
+      "rowcount": 1,
+      "columns": [
+        { "name": "EMPLOYEE_NEXT", "type": "VARCHAR" },
+        { "name": "JOB_NEXT", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["101", "1100", "UNTAKEN ARMS CONSUME - job_seq advanced without being selected"]],
+      "error": null,
+      "expectation": "RECORD the number either way. job_next = 1000 -> untaken arms cost nothing. job_next > 1000 -> every arm consumes.",
+      "verdict": "RECORDED - UNTAKEN ARMS CONSUME",
+      "observation": "W6_JOB_SEQ advanced from 1000 to 1100 despite never being selected by any row. Both sequences advanced by exactly 100, which is the block-reservation size rather than a per-row cost: 20 rows were drawn, but each referenced sequence reserved a 100-value block."
+    },
+    { "seq": 21, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_qualified_test()", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 22, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_unqualified_test()", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 23, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_registry_lookup_test(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run. Note this object never existed - T2.2a failed at CREATE." },
+    { "seq": 24, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_param_identifier_test(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run. Note this object never existed - T2.2b failed at CREATE." },
+    { "seq": 25, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_branch_selector(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 26, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_sequence_registry", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 27, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_mixed_stage", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 28, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_employee_seq", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 29, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_job_seq", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." }
+  ],
+  "summary": {
+    "statements_total": 29,
+    "statements_executed": 20,
+    "statements_skipped": 9,
+    "statements_succeeded": 18,
+    "statements_errored": 2,
+    "errors_were_expected": true,
+    "tests_passed": ["T2.1a", "T2.1b", "T2.3", "T2.3a", "T2.3b"],
+    "tests_failed_as_expected": ["T2.2a", "T2.2b"],
+    "tests_recorded": ["T2.4a", "T2.4c"],
+    "tests_failed_unexpectedly": []
+  },
+  "decision_table_resolution": {
+    "source": "SQL/02_r2_sequence_name_binding.sql - WHAT THE RESULTS MEAN FOR R2",
+    "matched_rules": [
+      "T2.1a+b pass -> use the UNQUALIFIED form in the real function (R8).",
+      "T2.2a+b fail -> the registry CANNOT be an indirection inside a UDF. It stays useful as a REGISTRY: generate the function's CASE arms from it, so onboarding a table is still 'insert a row, re-run the generator'.",
+      "T2.3a+b pass -> R2 is satisfied by the branch selector. Closes R2.",
+      "T2.4 job_seq moved -> add 'one function per sequence' to the build standard, and document the consumption."
+    ],
+    "r2_verdict": "SATISFIED by the branch selector",
+    "answer_to_the_question": "The sequence can be chosen by a run-time name ONLY via a branch selector in which every sequence is named literally. A name used to construct an identifier - whether read from a registry table or passed as a parameter - cannot work inside a SQL UDF.",
+    "build_standard_decisions": [
+      "Use the UNQUALIFIED sequence name inside the function body, for R8 portability across environments.",
+      "Do NOT attempt registry/IDENTIFIER() indirection inside the UDF. Keep the registry as a code generator for the CASE arms instead.",
+      "Prefer one function per sequence as the branch list grows, because of finding F4."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F4",
+      "severity": "DESIGN-RELEVANT",
+      "title": "Untaken CASE arms DO consume sequence values - every referenced sequence reserves a block",
+      "evidence": "T2.4a baseline: W6_EMPLOYEE_SEQ NEXT_VALUE = 1, W6_JOB_SEQ NEXT_VALUE = 1000. T2.4b drew 20 rows all requesting EMPLOYEE_SEQ, so the JOB_SEQ arm was never selected. T2.4c after: employee_next = 101, job_next = 1100.",
+      "interpretation": "W6_JOB_SEQ advanced by 100 without issuing a single key. Both sequences moved by exactly 100 for a 20-row draw, so the cost is block reservation per referenced sequence per statement, not one value per row per arm. This matches the documented wording that each OCCURRENCE of a sequence in the statement generates a set of distinct values - occurrences, not branches taken.",
+      "implication": "A branch selector with N sequences burns a reserved block from ALL N sequences on every statement, however few arms are actually used. Uniqueness is unaffected. The consequence is wasted consumption and larger gaps, which must be documented so nobody reads the gaps as lost rows. It also argues for one function per sequence once the branch list grows beyond a handful.",
+      "status": "Open - recommend adding to the build standard."
+    },
+    {
+      "id": "F5",
+      "severity": "CONFIRMATORY",
+      "title": "Both sequences are NOORDER, which explains the R3/F1 non-monotonic result",
+      "evidence": "T2.4a returned ORDERED = NO for both W6_EMPLOYEE_SEQ and W6_JOB_SEQ.",
+      "interpretation": "NOORDER is the default and is why direct and UDF-mediated calls draw from different reserved ranges, producing values that are unique but not globally ordered.",
+      "implication": "Confirms finding F1 from the R3 run was expected Snowflake behaviour rather than an anomaly. R10's T4.8 additionally warns against setting ORDER later to tidy the keys, since NOORDER is what makes concurrent INSERTs perform.",
+      "status": "Closed - explained."
+    },
+    {
+      "id": "F6",
+      "severity": "INFORMATIONAL",
+      "title": "The T2.2 failures are syntax errors at CREATE, not run-time rejections",
+      "evidence": "Both T2.2a and T2.2b failed with 'Compilation of SQL UDF failed: SQL compilation error: syntax error ...' at CREATE time. Neither function was ever created, so neither could be invoked.",
+      "interpretation": "The script allowed for failure 'at CREATE or at first call'. It was at CREATE, and the parser rejects IDENTIFIER() in this position outright rather than deferring to run time.",
+      "implication": "Useful for the build standard: the failure is loud and immediate, not a silent trap. An engineer attempting the registry approach cannot accidentally ship it.",
+      "status": "Closed."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.POC_SCHEMA",
+    "objects": [
+      { "type": "SEQUENCE", "name": "W6_EMPLOYEE_SEQ", "note": "NEXT_VALUE was 101 at end of run." },
+      { "type": "SEQUENCE", "name": "W6_JOB_SEQ", "note": "NEXT_VALUE was 1100 at end of run." },
+      { "type": "FUNCTION", "name": "W6_QUALIFIED_TEST()", "note": "Qualified-name variant." },
+      { "type": "FUNCTION", "name": "W6_UNQUALIFIED_TEST()", "note": "Unqualified-name variant, the R8-portable form." },
+      { "type": "FUNCTION", "name": "W6_BRANCH_SELECTOR(VARCHAR)", "note": "The shape that satisfies R2." },
+      { "type": "TABLE", "name": "W6_SEQUENCE_REGISTRY", "note": "2 rows." },
+      { "type": "TABLE", "name": "W6_MIXED_STAGE", "note": "5 rows." }
+    ],
+    "never_created": [
+      { "type": "FUNCTION", "name": "W6_REGISTRY_LOOKUP_TEST(VARCHAR)", "note": "T2.2a failed at CREATE." },
+      { "type": "FUNCTION", "name": "W6_PARAM_IDENTIFIER_TEST(VARCHAR)", "note": "T2.2b failed at CREATE." }
+    ],
+    "cleanup_sql": [
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_qualified_test()",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_unqualified_test()",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_branch_selector(VARCHAR)",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_sequence_registry",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_mixed_stage",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_employee_seq",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_job_seq"
+    ]
+  }
+}

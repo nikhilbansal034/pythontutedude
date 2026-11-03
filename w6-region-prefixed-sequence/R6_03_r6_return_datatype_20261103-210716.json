@@ -1,0 +1,431 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "R6-20261103-210716",
+    "requirement_id": "R6",
+    "work_item": "W6",
+    "script": "SQL/03_r6_return_datatype.sql",
+    "script_question": "Does the function return the target's datatype?",
+    "started_at_utc": "2026-11-03T21:07:16Z",
+    "finished_at_utc": "2026-11-03T21:07:16Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call)",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with the R3 and R2 runs. Objects retained in LM_POC_DB.POC_SCHEMA.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "error.code and error.sqlstate are null because the execution surface returned only the message text. Messages are reproduced verbatim and unmodified.",
+      "T3.1 and T3.2 are EXPECTED to show the declaration being ignored - that is the finding, not a failure.",
+      "T3.5a produced an outcome the script did not anticipate. It is recorded as observed, not forced into one of the script's two predicted branches. See finding F7."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "POC_SCHEMA",
+    "snowflake_version": "10.39.101"
+  },
+  "constants": {
+    "field_width": 1000000000000000,
+    "field_width_note": "10^15, written as a literal throughout. A session variable is deliberately NOT used - a UDF body cannot see one. THIS NUMBER MUST NEVER CHANGE once keys are issued: changing it renumbers every key ever generated."
+  },
+  "statements": [
+    {
+      "seq": 1,
+      "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_r6_seq START 1 INCREMENT 1",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_R6_SEQ successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 2,
+      "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_region_map (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_REGION_MAP successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 3,
+      "test_id": "SETUP",
+      "sql": "INSERT INTO w6_region_map VALUES ('North America', 1), ('EU', 2), ('APAC', 3)",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[3]],
+      "error": null, "verdict": "PASS",
+      "observation": "Implements the requirement's dynamic region mapping: North America -> 1, EU -> 2, APAC -> 3, held in a table rather than embedded in the function."
+    },
+    {
+      "seq": 4,
+      "test_id": "T3.1",
+      "purpose": "Declare a return type far too small for the value the body produces. If the declaration were enforced, this would error or truncate.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_tiny_declared_type()\nRETURNS NUMBER(3,0)\nVOLATILE\nAS\n$$\n    CAST(123456789012345 AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_TINY_DECLARED_TYPE successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "CREATE succeeded even though the body plainly exceeds the declared NUMBER(3,0) - precision/scale is not checked at CREATE."
+    },
+    {
+      "seq": 5,
+      "test_id": "T3.1",
+      "sql": "SELECT w6_tiny_declared_type()                      AS returned_value,\n       SYSTEM$TYPEOF(w6_tiny_declared_type())       AS actual_type,\n       CASE WHEN w6_tiny_declared_type() > 999\n            THEN 'DECLARATION IGNORED - value exceeds the declared NUMBER(3,0)'\n            ELSE 'DECLARATION ENFORCED - docs would be wrong' END AS verdict",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "RETURNED_VALUE", "type": "NUMBER(38,0)" },
+        { "name": "ACTUAL_TYPE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[123456789012345, "NUMBER(38,0)[SB8]", "DECLARATION IGNORED - value exceeds the declared NUMBER(3,0)"]],
+      "error": null,
+      "expectation": "the full 15-digit value back, and 'DECLARATION IGNORED'. THAT IS THE DOCUMENTED BEHAVIOUR.",
+      "verdict": "CONFIRMS DOCUMENTATION",
+      "observation": "Full 15-digit value returned, and the actual type reported as NUMBER(38,0) rather than the declared NUMBER(3,0). Declared precision/scale is documentation, not enforcement."
+    },
+    {
+      "seq": 6,
+      "test_id": "T3.2",
+      "sql": "CREATE OR REPLACE FUNCTION w6_tiny_varchar()\nRETURNS VARCHAR(1)\nVOLATILE\nAS\n$$\n    'ABCDEFGHIJ'\n$$",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_TINY_VARCHAR successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 7,
+      "test_id": "T3.2",
+      "sql": "SELECT w6_tiny_varchar()            AS returned_value,\n       LENGTH(w6_tiny_varchar())    AS returned_length,\n       CASE WHEN LENGTH(w6_tiny_varchar()) > 1\n            THEN 'DECLARATION IGNORED - longer than the declared VARCHAR(1)'\n            ELSE 'DECLARATION ENFORCED' END AS verdict",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "RETURNED_VALUE", "type": "VARCHAR" },
+        { "name": "RETURNED_LENGTH", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["ABCDEFGHIJ", 10, "DECLARATION IGNORED - longer than the declared VARCHAR(1)"]],
+      "error": null,
+      "expectation": "'ABCDEFGHIJ', length 10, 'DECLARATION IGNORED'",
+      "verdict": "CONFIRMS DOCUMENTATION",
+      "observation": "Ten characters returned from a VARCHAR(1) declaration. Declared length is not enforced."
+    },
+    {
+      "seq": 8,
+      "test_id": "T3.3",
+      "purpose": "The fix R6 depends on: put the CAST in the body, not the signature.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_cast_in_body()\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    CAST('42' AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_CAST_IN_BODY successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 9,
+      "test_id": "T3.3",
+      "sql": "SELECT w6_cast_in_body()                        AS returned_value,\n       SYSTEM$TYPEOF(w6_cast_in_body())         AS actual_type,\n       CASE WHEN SYSTEM$TYPEOF(w6_cast_in_body()) ILIKE 'NUMBER%'\n            THEN 'PASS - the body cast delivers a NUMBER'\n            ELSE 'FAIL - still not numeric' END AS verdict",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "RETURNED_VALUE", "type": "NUMBER(38,0)" },
+        { "name": "ACTUAL_TYPE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[42, "NUMBER(38,0)[SB1]", "PASS - the body cast delivers a NUMBER"]],
+      "error": null,
+      "expectation": "42, a NUMBER type, PASS",
+      "verdict": "PASS",
+      "observation": "Text in, number out, cast in the body. The body-level cast is what actually determines the delivered type."
+    },
+    {
+      "seq": 10,
+      "test_id": "T3.4",
+      "purpose": "Fixed-width offset (C3 candidate A - recommended): region_code * 10^15 + nextval. Arithmetic never leaves the numeric domain.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_key_offset(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nCOMMENT = 'VOLATILE is required - never IMMUTABLE or MEMOIZABLE. See 04_r10.'\nAS\n$$\n    CAST(\n        (SELECT m.REGION_CODE FROM w6_region_map m WHERE m.REGION_NAME = region_name)\n        * 1000000000000000 + w6_r6_seq.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_KEY_OFFSET successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "This is the first function in the pack matching the requirement's intended signature shape - it takes the region name and performs the lookup, prefix and cast internally so no ETL repeats them."
+    },
+    {
+      "seq": 11,
+      "test_id": "T3.4",
+      "sql": "WITH k AS (\n    SELECT 'North America' AS region, w6_key_offset('North America') AS key_val\n    FROM TABLE(GENERATOR(ROWCOUNT => 5))\n    UNION ALL\n    SELECT 'EU', w6_key_offset('EU') FROM TABLE(GENERATOR(ROWCOUNT => 5))\n)\n, typed AS (\n    SELECT region, key_val, SYSTEM$TYPEOF(key_val) AS val_type FROM k\n)\nSELECT region,\n       COUNT(*)                                   AS rows_out,\n       COUNT(DISTINCT key_val)                    AS distinct_keys,\n       MIN(val_type)                              AS actual_type,\n       CAST(MIN(key_val) AS VARCHAR)              AS min_key,\n       CAST(MAX(key_val) AS VARCHAR)              AS max_key,\n       MIN(FLOOR(key_val / 1000000000000000))     AS decoded_region_code,\n       CASE WHEN COUNT(DISTINCT key_val) = COUNT(*) AND MIN(val_type) ILIKE 'NUMBER%'\n            THEN 'PASS' ELSE 'FAIL' END           AS verdict\nFROM typed GROUP BY region ORDER BY region",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "ACTUAL_TYPE", "type": "VARCHAR" },
+        { "name": "MIN_KEY", "type": "VARCHAR" },
+        { "name": "MAX_KEY", "type": "VARCHAR" },
+        { "name": "DECODED_REGION_CODE", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["EU", 5, 5, "NUMBER(38,0)[SB16]", "2000000000000006", "2000000000000010", 2, "PASS"],
+        ["North America", 5, 5, "NUMBER(38,0)[SB16]", "1000000000000001", "1000000000000005", 1, "PASS"]
+      ],
+      "error": null,
+      "expectation": "two rows. 5 distinct keys each, a NUMBER type, keys of the shape 1000000000000001.. and 2000000000000001.., decoded_region_code 1 and 2",
+      "verdict": "PASS",
+      "observation": "Exactly the expected key shape. Note the two regions drew from ONE shared sequence, so EU continued at 6-10 rather than restarting at 1. The region prefix is what separates them, not a per-region sequence."
+    },
+    {
+      "seq": 12,
+      "test_id": "T3.5a",
+      "purpose": "Digit concatenation WITHOUT a body cast - what the ETL would hit if it concatenated inline. Shows where the requirement's datatype problem comes from.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_key_concat_nocast(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    (SELECT CAST(m.REGION_CODE AS VARCHAR) FROM w6_region_map m\n     WHERE m.REGION_NAME = region_name)\n    || CAST(w6_r6_seq.NEXTVAL AS VARCHAR)\n$$",
+      "status": "ERROR",
+      "query_id": null, "elapsed_ms": null, "rowcount": null,
+      "columns": null, "rows": null,
+      "error": {
+        "code": null,
+        "sqlstate": null,
+        "message": "Declared return type 'NUMBER(38,0)' is incompatible with actual return type 'VARCHAR(134217728)'"
+      },
+      "expectation": "likely VARCHAR, proving the declaration does not coerce. If it comes back NUMBER, Snowflake coerced it. RECORD WHICH.",
+      "outcome_branch": "NEITHER - a third outcome the script did not predict",
+      "verdict": "RECORDED - REFUSED AT CREATE",
+      "observation": "Snowflake neither returned VARCHAR nor coerced to NUMBER. It REFUSED THE CREATE outright. The declared BASE TYPE is enforced even though precision and length are not. See finding F7."
+    },
+    {
+      "seq": 13,
+      "test_id": "T3.5a",
+      "purpose": "The script's verification query for T3.5a, attempted for completeness.",
+      "sql": "WITH one_call AS (\n    SELECT w6_key_concat_nocast('North America') AS v\n)\nSELECT v                                AS returned_value,\n       SYSTEM$TYPEOF(v)                 AS actual_type,\n       CASE WHEN SYSTEM$TYPEOF(v) ILIKE 'VARCHAR%'\n            THEN 'TEXT RETURNED despite RETURNS NUMBER - this is section 4''s problem'\n            WHEN SYSTEM$TYPEOF(v) ILIKE 'NUMBER%'\n            THEN 'coerced to NUMBER anyway - declaration did more than documented'\n            ELSE 'other - record the type' END AS verdict\nFROM one_call",
+      "status": "ERROR",
+      "query_id": null, "elapsed_ms": null, "rowcount": null,
+      "columns": null, "rows": null,
+      "error": {
+        "code": null,
+        "sqlstate": null,
+        "message": "SQL compilation error:\nUnknown function W6_KEY_CONCAT_NOCAST."
+      },
+      "expectation": "Unreachable - the function failed to create at seq 12.",
+      "verdict": "BLOCKED BY seq 12",
+      "observation": "Independently confirms the function was never created. This statement is retained in the evidence so the record shows the script's step was attempted rather than silently dropped."
+    },
+    {
+      "seq": 14,
+      "test_id": "T3.5b",
+      "purpose": "Digit concatenation WITH the body cast - the form that would actually ship.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_key_concat_cast(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    CAST(\n        (SELECT CAST(m.REGION_CODE AS VARCHAR) FROM w6_region_map m\n         WHERE m.REGION_NAME = region_name)\n        || CAST(w6_r6_seq.NEXTVAL AS VARCHAR)\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_KEY_CONCAT_CAST successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "The same body that was refused at seq 12 creates successfully once wrapped in CAST(... AS NUMBER(38,0)). This isolates the body cast as the single thing that makes the concatenation scheme legal."
+    },
+    {
+      "seq": 15,
+      "test_id": "T3.5b",
+      "sql": "WITH one_call AS (\n    SELECT w6_key_concat_cast('North America') AS v\n)\nSELECT v                    AS returned_value,\n       SYSTEM$TYPEOF(v)     AS actual_type,\n       CASE WHEN SYSTEM$TYPEOF(v) ILIKE 'NUMBER%'\n            THEN 'PASS - body cast fixes it' ELSE 'FAIL' END AS verdict\nFROM one_call",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "RETURNED_VALUE", "type": "NUMBER(38,0)" },
+        { "name": "ACTUAL_TYPE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1101, "NUMBER(38,0)[SB16]", "PASS - body cast fixes it"]],
+      "error": null,
+      "expectation": "a NUMBER, PASS",
+      "verdict": "PASS",
+      "observation": "Returned 1101 = region code '1' concatenated with sequence value '101'. Contrast with T3.4's 1000000000000001: the concatenation scheme produces VARIABLE-WIDTH keys, which is the collision risk that distinguishes candidate B from candidate A. See finding F8."
+    },
+    {
+      "seq": 16,
+      "test_id": "T3.6",
+      "purpose": "The declaration being ignored matters only if a wrong value reaches the target. The column type IS enforced, so this is the test that counts.",
+      "sql": "CREATE OR REPLACE TABLE w6_key_target (\n    EMPLOYEE_ID NUMBER(38,0),\n    REGION      VARCHAR(50)\n)",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEY_TARGET successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 17,
+      "test_id": "T3.6",
+      "sql": "INSERT INTO w6_key_target (EMPLOYEE_ID, REGION)\nSELECT w6_key_offset('North America'), 'North America' FROM TABLE(GENERATOR(ROWCOUNT => 10))\nUNION ALL\nSELECT w6_key_offset('APAC'), 'APAC' FROM TABLE(GENERATOR(ROWCOUNT => 10))",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[20]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 18,
+      "test_id": "T3.6",
+      "sql": "SELECT COUNT(*)                                      AS rows_stored,\n       COUNT(DISTINCT EMPLOYEE_ID)                   AS distinct_keys,\n       SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = m.REGION_CODE\n                THEN 1 ELSE 0 END)                   AS decode_correct,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT EMPLOYEE_ID)\n             AND COUNT(*) = SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = m.REGION_CODE\n                                     THEN 1 ELSE 0 END)\n            THEN 'PASS - stored intact and every key decodes to its region'\n            ELSE 'FAIL' END                          AS verdict\nFROM w6_key_target t\nJOIN w6_region_map m ON m.REGION_NAME = t.REGION",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_STORED", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_CORRECT", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[20, 20, 20, "PASS - stored intact and every key decodes to its region"]],
+      "error": null,
+      "expectation": "20 / 20 / 20 / PASS",
+      "verdict": "PASS",
+      "observation": "This is the decisive R6 result: the ignored declaration caused no harm because the enforced COLUMN type received the value intact, and every key decodes back to its issuing region."
+    },
+    {
+      "seq": 19,
+      "test_id": "T3.6b",
+      "sql": "SELECT SYSTEM$TYPEOF(EMPLOYEE_ID) AS stored_type,\n       CASE WHEN SYSTEM$TYPEOF(EMPLOYEE_ID) ILIKE 'NUMBER%' THEN 'PASS' ELSE 'FAIL' END AS verdict\nFROM w6_key_target LIMIT 1",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "STORED_TYPE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["NUMBER(38,0)[SB8]", "PASS"]],
+      "error": null,
+      "expectation": "a NUMBER type, PASS",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 20,
+      "test_id": "T3.6",
+      "purpose": "Eyeball a few actual keys - useful in the evidence pack.",
+      "sql": "SELECT REGION, CAST(EMPLOYEE_ID AS VARCHAR) AS employee_id,\n       FLOOR(EMPLOYEE_ID / 1000000000000000) AS region_part,\n       EMPLOYEE_ID % 1000000000000000        AS sequence_part\nFROM w6_key_target ORDER BY EMPLOYEE_ID LIMIT 6",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": 6,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "EMPLOYEE_ID", "type": "VARCHAR" },
+        { "name": "REGION_PART", "type": "NUMBER(38,0)" },
+        { "name": "SEQUENCE_PART", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["North America", "1000000000000201", 1, 201],
+        ["North America", "1000000000000202", 1, 202],
+        ["North America", "1000000000000203", 1, 203],
+        ["North America", "1000000000000204", 1, 204],
+        ["North America", "1000000000000205", 1, 205],
+        ["North America", "1000000000000206", 1, 206]
+      ],
+      "error": null,
+      "expectation": "region_part 1 or 3, sequence_part small and ascending",
+      "verdict": "RECORDED",
+      "observation": "region_part decodes cleanly to 1 and sequence_part is contiguous 201-206. The sequence_part starts at 201 rather than 11 because of block reservation (see R2 finding F4 and R3 finding F1), which is expected and harmless."
+    },
+    { "seq": 21, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_tiny_declared_type()", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 22, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_tiny_varchar()", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 23, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_cast_in_body()", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 24, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_key_offset(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 25, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_key_concat_nocast(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run. Note this object never existed - T3.5a was refused at CREATE." },
+    { "seq": 26, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_key_concat_cast(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 27, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_key_target", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 28, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_region_map", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained. R10 recreates this table with identical content." },
+    { "seq": 29, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_r6_seq", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." }
+  ],
+  "summary": {
+    "statements_total": 29,
+    "statements_executed": 20,
+    "statements_skipped": 9,
+    "statements_succeeded": 18,
+    "statements_errored": 2,
+    "errors_note": "One error (seq 12) is a genuine finding that contradicted the script's prediction. The second (seq 13) is its unavoidable consequence.",
+    "tests_passed": ["T3.3", "T3.4", "T3.5b", "T3.6", "T3.6b"],
+    "tests_confirming_documentation": ["T3.1", "T3.2"],
+    "tests_with_unanticipated_outcome": ["T3.5a"],
+    "tests_failed_unexpectedly": []
+  },
+  "decision_table_resolution": {
+    "source": "SQL/03_r6_return_datatype.sql - WHAT THE RESULTS MEAN FOR R6",
+    "matched_rules": [
+      "T3.1/T3.2 show the declaration ignored -> confirms the docs. The build standard must say: PUT THE CAST IN THE BODY, and test the returned type, never trust RETURNS.",
+      "T3.3 + T3.4 + T3.6 pass -> R6 is satisfied. Closes R6."
+    ],
+    "rules_that_did_NOT_match": [
+      "'T3.5a returns VARCHAR' - did not happen; the CREATE was refused instead.",
+      "'T3.5a returns NUMBER (coerced)' - did not happen either.",
+      "'T3.1 unexpectedly ENFORCES the declaration' - did not happen; precision was ignored as documented, so C7 does NOT go away."
+    ],
+    "r6_verdict": "SATISFIED - closes R6",
+    "answer_to_the_question": "Yes, but only because the cast is in the BODY. The RETURNS clause does not deliver the datatype: declared NUMBER precision/scale and VARCHAR length are both ignored. What does hold is that the declared BASE TYPE is enforced at CREATE, and the target COLUMN type is enforced at INSERT - and with a body-level cast the value lands intact and decodes to its region.",
+    "build_standard_decisions": [
+      "PUT THE CAST IN THE BODY. Never rely on the RETURNS clause for precision, scale or length.",
+      "Test the returned type with SYSTEM$TYPEOF rather than trusting the declaration.",
+      "C7 remains live: declared precision/scale really is ignored, so the body cast is mandatory rather than belt-and-braces.",
+      "Prefer the fixed-width offset scheme (candidate A) over digit concatenation (candidate B) - see finding F8."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F7",
+      "severity": "DESIGN-RELEVANT",
+      "title": "The declared BASE TYPE is enforced at CREATE, even though precision, scale and length are not",
+      "evidence": "T3.1: RETURNS NUMBER(3,0) accepted a 15-digit body value - precision ignored. T3.2: RETURNS VARCHAR(1) returned 10 characters - length ignored. T3.5a: RETURNS NUMBER(38,0) with a VARCHAR-producing body was REFUSED at CREATE with 'Declared return type 'NUMBER(38,0)' is incompatible with actual return type 'VARCHAR(134217728)''.",
+      "interpretation": "The documented statement that 'argument and return type constraints are sometimes ignored' is accurate but incomplete as applied here. Two distinct layers exist: the base type (NUMBER vs VARCHAR) is checked at CREATE and will refuse the function; the precision/scale/length modifiers within that type are not checked at all.",
+      "implication": "Better news than the script assumed. The requirement's datatype problem cannot be shipped silently - a UDF that concatenates without casting will not create at all, so the failure is loud and immediate rather than a wrong value reaching a target. The body cast is still mandatory, but for correctness of magnitude rather than to avoid a silent type mismatch.",
+      "status": "Open - recommend correcting the script's T3.5a expectation and telling the design team, since it removes a feared silent-failure mode."
+    },
+    {
+      "id": "F8",
+      "severity": "DESIGN-RELEVANT",
+      "title": "Digit concatenation produces variable-width keys and is a collision risk; fixed-width offset does not",
+      "evidence": "T3.4 (offset scheme) produced 1000000000000001 for region 1 and 2000000000000006 for region 2 - always 16 digits, region always the leading digit block. T3.5b (concatenation scheme) produced 1101 for region 1 with sequence 101 - only 4 digits.",
+      "interpretation": "Concatenation yields a key whose width grows with the sequence value and whose region boundary is not positionally fixed. Region 1 with sequence 101 gives 1101; region 11 with sequence 01 would also give 1101. The two schemes are not equivalent in safety, only in that both can be made to return a NUMBER.",
+      "implication": "Supports candidate A (fixed-width offset) over candidate B (concatenation) on uniqueness grounds, independent of the datatype question that T3.5 was written to probe. The offset scheme keeps the region decodable by integer division at a fixed power of ten; concatenation does not. Note this only becomes a live collision risk with multi-digit region codes - the three codes currently in scope are 1, 2, 3 - but the mapping table is explicitly meant to be extensible.",
+      "status": "Open - recommend confirming with the design team before C3 is settled."
+    },
+    {
+      "id": "F9",
+      "severity": "INFORMATIONAL",
+      "title": "All regions share one sequence; the prefix alone separates them",
+      "evidence": "T3.4: North America drew 1000000000000001-1000000000000005 and EU drew 2000000000000006-2000000000000010. EU continued the sequence at 6 rather than restarting at 1.",
+      "interpretation": "w6_key_offset reads one shared sequence (w6_r6_seq) and distinguishes regions purely by the multiplier. The sequence_part is therefore globally consumed, not per-region.",
+      "implication": "Each region's key space is sparse: region 1 will never see sequence_part values that region 2 consumed. This is harmless for uniqueness and traceability, and it is what makes cross-region uniqueness automatic. It does mean the sequence_part cannot be read as 'the Nth record in this region'. Worth stating explicitly so nobody builds a per-region counter expectation on it.",
+      "status": "Closed - behaviour understood, recommend documenting."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.POC_SCHEMA",
+    "objects": [
+      { "type": "SEQUENCE", "name": "W6_R6_SEQ", "note": "Consumed through the T3.4/T3.5b/T3.6 tests." },
+      { "type": "TABLE", "name": "W6_REGION_MAP", "note": "3 rows: North America=1, EU=2, APAC=3." },
+      { "type": "TABLE", "name": "W6_KEY_TARGET", "note": "20 rows across North America and APAC." },
+      { "type": "FUNCTION", "name": "W6_TINY_DECLARED_TYPE()", "note": "Negative test - declared NUMBER(3,0)." },
+      { "type": "FUNCTION", "name": "W6_TINY_VARCHAR()", "note": "Negative test - declared VARCHAR(1)." },
+      { "type": "FUNCTION", "name": "W6_CAST_IN_BODY()", "note": "Body-cast demonstrator." },
+      { "type": "FUNCTION", "name": "W6_KEY_OFFSET(VARCHAR)", "note": "C3 candidate A - fixed-width offset. The recommended shape." },
+      { "type": "FUNCTION", "name": "W6_KEY_CONCAT_CAST(VARCHAR)", "note": "C3 candidate B - digit concatenation with body cast." }
+    ],
+    "never_created": [
+      { "type": "FUNCTION", "name": "W6_KEY_CONCAT_NOCAST(VARCHAR)", "note": "T3.5a refused at CREATE - see finding F7." }
+    ],
+    "cleanup_sql": [
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_tiny_declared_type()",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_tiny_varchar()",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_cast_in_body()",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_key_offset(VARCHAR)",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_key_concat_cast(VARCHAR)",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_key_target",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_region_map",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_r6_seq"
+    ]
+  }
+}

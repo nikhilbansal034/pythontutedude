@@ -1,0 +1,497 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "R10-20261103-211858",
+    "requirement_id": "R10",
+    "work_item": "W6",
+    "script": "SQL/04_r10_concurrency.sql",
+    "script_question": "Concurrency and volatility - can the reusable function be called in parallel by multiple tables?",
+    "requirement_origin": "Action item explicitly assigned to Nikhil Bansal in the [Internal] TD MOD - US/USI Daily Connect: determine whether the same reusable function can safely be called in parallel by multiple tables.",
+    "started_at_utc": "2026-11-03T21:18:58Z",
+    "finished_at_utc": "2026-11-03T21:18:58Z",
+    "executed_by": "Cortex Code - sequential statements via sql_execute; T4.1 and T4.7 via three concurrent snow CLI sessions coordinated by a barrier table",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with the R3, R2 and R6 runs. Objects retained in LM_POC_DB.POC_SCHEMA.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "T4.1 and T4.7 ran in THREE GENUINELY CONCURRENT SESSIONS, with overlap measured and recorded rather than assumed. See concurrency_method and the overlap statements at seq 10 and seq 22.",
+      "T4.4 and T4.5 did NOT reproduce folding on this run. That is recorded as observed and explicitly NOT treated as a clean bill of health, per the script's own instruction.",
+      "T4.8 is a constraint to record, not a test to run. It was deliberately not executed."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "POC_SCHEMA",
+    "snowflake_version": "10.39.101"
+  },
+  "concurrency_method": {
+    "requirement_from_script": ">>> T4.1, T4.2 and T4.7 MUST RUN IN SEPARATE SESSIONS AT THE SAME TIME. <<< Running them one after another proves nothing about concurrency.",
+    "how_it_was_achieved": "Three independent `snow sql -f` operating-system processes were launched simultaneously, each establishing its own Snowflake session. Snowsight worksheets were not used; separate CLI processes are equivalent for this purpose and are scriptable.",
+    "why_a_barrier_was_necessary": "A preliminary measurement showed the three CLI processes establish their sessions up to 4 seconds apart because of connection startup time, while a 20,000-row insert completes in roughly 1.5 seconds. Launching the processes together would therefore NOT have produced overlapping execution windows, and the test would have silently proved nothing.",
+    "barrier_design": "Each session logs CONNECTED to w6_run_log, then polls w6_barrier every 250ms inside a Snowflake Scripting block until RELEASED = TRUE. The controlling process waits until all three rows are present, then flips the flag once. All three sessions resume within one poll interval of each other and only then begin their INSERT.",
+    "barrier_safety": "The poll loop is bounded at 480 iterations (approximately 120 seconds) and logs BARRIER_TIMEOUT rather than hanging. No timeout occurred in either phase.",
+    "overlap_evidence": "Each session records SYSDATE() immediately before and after its INSERT, into w6_run_log. Mutual overlap is computed as MAX(start) to MIN(end) across the three, so a positive value means all three were executing simultaneously. T4.1 overlap: 1319ms. T4.7 overlap: 890ms.",
+    "independent_corroboration": "T4.2's own guard clause, COUNT(DISTINCT SESSION_TAG) < 3 -> INVALID, independently confirms three distinct sessions contributed rows. It returned 3.",
+    "runner_script": "runner/run_parallel.ps1 (-Phase T41 | T47)"
+  },
+  "statements": [
+    {
+      "seq": 1, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_shared_seq START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_SHARED_SEQ successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 2, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_region_map (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_REGION_MAP successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 3, "test_id": "SETUP",
+      "sql": "INSERT INTO w6_region_map VALUES ('North America', 1), ('EU', 2), ('APAC', 3)",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[3]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 4, "test_id": "SETUP",
+      "purpose": "The function under test. VOLATILE is explicit, and the cast is in the BODY because declared NUMBER precision and scale are ignored (proven in the R6 run).",
+      "sql": "CREATE OR REPLACE FUNCTION w6_regional_key(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nCOMMENT = 'VOLATILE IS REQUIRED. IMMUTABLE or MEMOIZABLE would return one key for every row - see T4.4/T4.5.'\nAS\n$$\n    CAST(\n        (SELECT m.REGION_CODE FROM w6_region_map m WHERE m.REGION_NAME = region_name)\n        * 1000000000000000 + w6_shared_seq.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_REGIONAL_KEY successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 5, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_keys_employee (K NUMBER(38,0), SRC VARCHAR(50), SESSION_TAG VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEYS_EMPLOYEE successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 6, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_keys_job (K NUMBER(38,0), SRC VARCHAR(50), SESSION_TAG VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEYS_JOB successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 7, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_keys_office (K NUMBER(38,0), SRC VARCHAR(50), SESSION_TAG VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEYS_OFFICE successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 8, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_keys_multiregion (K NUMBER(38,0), REGION VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEYS_MULTIREGION successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 9, "test_id": "T4.1",
+      "purpose": "THREE TABLES, ONE FUNCTION, ONE SEQUENCE, ALL AT ONCE. 20,000 rows each so the windows genuinely overlap.",
+      "execution": "THREE CONCURRENT SESSIONS via runner/run_parallel.ps1 -Phase T41, barrier-synchronised.",
+      "sql": "-- WORKSHEET A (session 8615786251817398)\nINSERT INTO w6_keys_employee (K, SRC, SESSION_TAG)\nSELECT w6_regional_key('North America'), 'EMPLOYEE', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 20000));\n\n-- WORKSHEET B (session 8615786251795474)\nINSERT INTO w6_keys_job (K, SRC, SESSION_TAG)\nSELECT w6_regional_key('North America'), 'JOB', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 20000));\n\n-- WORKSHEET C (session 8615786251809994)\nINSERT INTO w6_keys_office (K, SRC, SESSION_TAG)\nSELECT w6_regional_key('North America'), 'OFFICE', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 20000));",
+      "status": "SUCCESS",
+      "query_id": null, "elapsed_ms": null, "rowcount": null,
+      "columns": null,
+      "rows": null,
+      "per_session_result": [
+        { "worksheet": "A", "session_id": "8615786251817398", "barrier_polls_waited": 47, "returned": "OK session=8615786251817398 waited_polls=47" },
+        { "worksheet": "B", "session_id": "8615786251795474", "barrier_polls_waited": 35, "returned": "OK session=8615786251795474 waited_polls=35" },
+        { "worksheet": "C", "session_id": "8615786251809994", "barrier_polls_waited": 34, "returned": "OK session=8615786251809994 waited_polls=34" }
+      ],
+      "error": null,
+      "verdict": "PASS - all three sessions completed",
+      "observation": "The differing barrier_polls_waited values (47 / 35 / 34) are direct evidence that the three sessions connected at different times and were genuinely parked waiting. The barrier absorbed that stagger."
+    },
+    {
+      "seq": 10, "test_id": "T4.1-OVERLAP",
+      "purpose": "Added measurement, not in the original script: proves the three insert windows actually overlapped rather than merely being launched together.",
+      "sql": "WITH w AS (\n    SELECT TAG, SESSION_ID,\n           MAX(CASE WHEN PHASE = 'INSERT_START' THEN TS END) AS t_start,\n           MAX(CASE WHEN PHASE = 'INSERT_END'   THEN TS END) AS t_end\n    FROM w6_run_log WHERE TAG IN ('A','B','C')\n    GROUP BY TAG, SESSION_ID\n)\nSELECT TAG, SESSION_ID,\n       TO_VARCHAR(t_start,'HH24:MI:SS.FF3') AS insert_start_utc,\n       TO_VARCHAR(t_end,'HH24:MI:SS.FF3')   AS insert_end_utc,\n       DATEDIFF(millisecond, t_start, t_end) AS duration_ms,\n       DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) AS mutual_overlap_ms,\n       CASE WHEN DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) > 0\n            THEN 'CONCURRENT - all three windows overlap'\n            ELSE 'NOT CONCURRENT - windows disjoint' END AS verdict\nFROM w ORDER BY TAG",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "TAG", "type": "VARCHAR" },
+        { "name": "SESSION_ID", "type": "VARCHAR" },
+        { "name": "INSERT_START_UTC", "type": "VARCHAR" },
+        { "name": "INSERT_END_UTC", "type": "VARCHAR" },
+        { "name": "DURATION_MS", "type": "NUMBER(38,0)" },
+        { "name": "MUTUAL_OVERLAP_MS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["A", "8615786251817398", "21:15:18.114", "21:15:19.512", 1398, 1319, "CONCURRENT - all three windows overlap"],
+        ["B", "8615786251795474", "21:15:17.883", "21:15:19.469", 1586, 1319, "CONCURRENT - all three windows overlap"],
+        ["C", "8615786251809994", "21:15:17.957", "21:15:19.433", 1476, 1319, "CONCURRENT - all three windows overlap"]
+      ],
+      "error": null,
+      "verdict": "PASS - CONCURRENCY PROVEN",
+      "observation": "All three inserts started within 231ms of each other and overlapped for 1319ms, against individual durations of 1398-1586ms. The three were demonstrably executing at the same time for the large majority of their runtime."
+    },
+    {
+      "seq": 11, "test_id": "T4.2",
+      "purpose": "THE ASSERTION - no key issued twice, across all three tables.",
+      "sql": "WITH all_keys AS (\n    SELECT K, SRC, SESSION_TAG FROM w6_keys_employee\n    UNION ALL SELECT K, SRC, SESSION_TAG FROM w6_keys_job\n    UNION ALL SELECT K, SRC, SESSION_TAG FROM w6_keys_office\n)\nSELECT COUNT(*)                     AS total_keys,\n       COUNT(DISTINCT K)            AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       COUNT(DISTINCT SESSION_TAG)  AS sessions_involved,\n       CASE WHEN COUNT(DISTINCT SESSION_TAG) < 3\n            THEN 'INVALID - the three inserts did NOT run in separate sessions, redo'\n            WHEN COUNT(*) = COUNT(DISTINCT K)\n            THEN 'PASS - R10 holds through the wrapper'\n            ELSE 'FAIL - key reuse across concurrent loads' END AS verdict\nFROM all_keys",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "SESSIONS_INVOLVED", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[60000, 60000, 0, 3, "PASS - R10 holds through the wrapper"]],
+      "error": null,
+      "expectation": "60000 / 60000 / 0 / 3 / PASS. sessions_involved < 3 invalidates the run.",
+      "verdict": "PASS",
+      "observation": "Exact match to the expected result. The uniqueness guarantee Snowflake documents for sequences survives the UDF wrapper under genuine concurrency - which is the one part the documentation does not cover."
+    },
+    {
+      "seq": 12, "test_id": "T4.2b",
+      "purpose": "If T4.2 failed, where did the duplicates come from?",
+      "sql": "WITH all_keys AS (\n    SELECT K, SRC FROM w6_keys_employee\n    UNION ALL SELECT K, SRC FROM w6_keys_job\n    UNION ALL SELECT K, SRC FROM w6_keys_office\n)\nSELECT K, COUNT(*) AS times_issued, LISTAGG(DISTINCT SRC, ', ') AS issued_to\nFROM all_keys GROUP BY K HAVING COUNT(*) > 1\nORDER BY times_issued DESC LIMIT 20",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 0,
+      "columns": [
+        { "name": "K", "type": "NUMBER(38,0)" },
+        { "name": "TIMES_ISSUED", "type": "NUMBER(38,0)" },
+        { "name": "ISSUED_TO", "type": "VARCHAR" }
+      ],
+      "rows": [],
+      "error": null,
+      "expectation": "zero rows",
+      "verdict": "PASS",
+      "observation": "No key was issued more than once. Corroborates T4.2 from the opposite direction."
+    },
+    {
+      "seq": 13, "test_id": "T4.3",
+      "purpose": "Invocation count at volume. Measured from INFORMATION_SCHEMA, NOT a bare NEXTVAL, because a bare NEXTVAL misled R3's T1.5.",
+      "sql": "WITH issued AS (\n    SELECT COUNT(*) AS rows_keyed FROM (\n        SELECT K FROM w6_keys_employee\n        UNION ALL SELECT K FROM w6_keys_job\n        UNION ALL SELECT K FROM w6_keys_office)\n),\nseq AS (\n    SELECT TO_NUMBER(NEXT_VALUE) AS next_value, ORDERED\n    FROM INFORMATION_SCHEMA.SEQUENCES\n    WHERE SEQUENCE_SCHEMA = CURRENT_SCHEMA() AND SEQUENCE_NAME = 'W6_SHARED_SEQ'\n)\nSELECT issued.rows_keyed,\n       seq.next_value                              AS sequence_next_value,\n       seq.next_value - 1 - issued.rows_keyed      AS values_beyond_rows,\n       ROUND((seq.next_value - 1) / issued.rows_keyed, 3) AS values_per_row,\n       seq.ORDERED                                 AS sequence_ordered,\n       CASE WHEN (seq.next_value - 1) / issued.rows_keyed < 1.05\n            THEN 'PASS - about one value per row'\n            WHEN (seq.next_value - 1) / issued.rows_keyed < 2.5\n            THEN 'RECORD - some over-consumption, likely range reservation'\n            ELSE 'INVESTIGATE - consumption far outruns rows' END AS verdict\nFROM issued, seq",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_KEYED", "type": "NUMBER(38,0)" },
+        { "name": "SEQUENCE_NEXT_VALUE", "type": "NUMBER(38,0)" },
+        { "name": "VALUES_BEYOND_ROWS", "type": "NUMBER(38,0)" },
+        { "name": "VALUES_PER_ROW", "type": "NUMBER(38,3)" },
+        { "name": "SEQUENCE_ORDERED", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[60000, 99301, 39300, 1.655, "NO", "RECORD - some over-consumption, likely range reservation"]],
+      "error": null,
+      "expectation": "values_per_row at or just above 1.0. A modest excess is NOT evidence of double-calling; a multiple (2x, 3x) is. ORDERED should read NO.",
+      "verdict": "RECORDED - 1.655 values per row",
+      "observation": "60,000 rows consumed 99,300 sequence values, leaving 39,300 reserved but unissued. ORDERED = NO as expected. Critically, 1.655 is strictly below 2.0, which rules out the function being invoked twice per row - see finding F10."
+    },
+    {
+      "seq": 14, "test_id": "T4.4",
+      "purpose": "THE SILENT KILLER - IMMUTABLE. Run to SEE the failure, so the prohibition is evidenced rather than asserted. NEVER SHIP THIS FORM.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_regional_key_immutable(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nIMMUTABLE\nAS\n$$\n    CAST(\n        (SELECT m.REGION_CODE FROM w6_region_map m WHERE m.REGION_NAME = region_name)\n        * 1000000000000000 + w6_shared_seq.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_REGIONAL_KEY_IMMUTABLE successfully created."]],
+      "error": null,
+      "verdict": "CREATED",
+      "observation": "Snowflake accepted IMMUTABLE on a function that demonstrably does not return the same value for the same input. The guarantee is not checked at CREATE, exactly as documented."
+    },
+    {
+      "seq": 15, "test_id": "T4.4",
+      "sql": "WITH probe AS (\n    SELECT w6_regional_key_immutable('North America') AS k\n    FROM TABLE(GENERATOR(ROWCOUNT => 1000))\n)\nSELECT COUNT(*) AS rows_generated, COUNT(DISTINCT k) AS distinct_keys,\n       CASE WHEN COUNT(DISTINCT k) = 1\n            THEN 'CONFIRMED - one key for 1000 rows. Never use IMMUTABLE.'\n            WHEN COUNT(DISTINCT k) < COUNT(*)\n            THEN 'PARTIAL FOLDING - still unusable'\n            ELSE 'no folding on THIS run - see the note below' END AS verdict\nFROM probe",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_GENERATED", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000, 1000, "no folding on THIS run - see the note below"]],
+      "error": null,
+      "expectation": "distinct_keys = 1, or well below 1000. IF distinct_keys = 1000: folding did not happen on this run. That is NOT a clean bill of health.",
+      "verdict": "RECORDED - NO FOLDING OBSERVED, PROHIBITION UNCHANGED",
+      "observation": "The expected failure did NOT reproduce: 1000 rows gave 1000 distinct keys. Per the script's explicit instruction this must NOT be read as IMMUTABLE being safe. 'Undefined behavior' means it may fold on a larger warehouse, a different plan, or a future release. See finding F11."
+    },
+    {
+      "seq": 16, "test_id": "T4.5",
+      "purpose": "MEMOIZABLE - the same failure by another route. Its own documentation page 404s, so this is characterised here.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_regional_key_memo(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nMEMOIZABLE\nAS\n$$\n    CAST(\n        (SELECT m.REGION_CODE FROM w6_region_map m WHERE m.REGION_NAME = region_name)\n        * 1000000000000000 + w6_shared_seq.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_REGIONAL_KEY_MEMO successfully created."]],
+      "error": null,
+      "expectation": "either refused at CREATE, or it creates and folds like T4.4. RECORD WHICH - including the error text if it is refused.",
+      "outcome_branch": "created, not refused",
+      "verdict": "RECORDED - ACCEPTED AT CREATE",
+      "observation": "MEMOIZABLE was accepted without error on a sequence-consuming function."
+    },
+    {
+      "seq": 17, "test_id": "T4.5",
+      "sql": "WITH probe AS (\n    SELECT w6_regional_key_memo('North America') AS k FROM TABLE(GENERATOR(ROWCOUNT => 1000))\n)\nSELECT COUNT(*) AS rows_generated, COUNT(DISTINCT k) AS distinct_keys,\n       CASE WHEN COUNT(DISTINCT k) < COUNT(*) THEN 'FOLDED - never use MEMOIZABLE'\n            ELSE 'no folding on this run - prohibition still stands' END AS verdict\nFROM probe",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_GENERATED", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000, 1000, "no folding on this run - prohibition still stands"]],
+      "error": null,
+      "verdict": "RECORDED - NO FOLDING OBSERVED, PROHIBITION UNCHANGED",
+      "observation": "Same outcome as T4.4. No folding on this run, and the prohibition continues to rest on the documentation rather than on this measurement."
+    },
+    {
+      "seq": 18, "test_id": "T4.6",
+      "purpose": "Confirm the shipping function declares what we think. Guards against someone 'optimising' it later. This is the query to re-run in CI or a release check.",
+      "sql": "SELECT FUNCTION_NAME,\n       VOLATILITY,\n       IS_MEMOIZABLE,\n       CASE WHEN FUNCTION_NAME = 'W6_REGIONAL_KEY'\n             AND VOLATILITY = 'VOLATILE' AND IS_MEMOIZABLE = 'NO'\n            THEN 'PASS - shipping function is VOLATILE and not memoizable'\n            WHEN FUNCTION_NAME = 'W6_REGIONAL_KEY'\n            THEN 'FAIL - the shipping function is misdeclared'\n            ELSE 'negative-test function, expected to be wrong' END AS verdict\nFROM INFORMATION_SCHEMA.FUNCTIONS\nWHERE FUNCTION_SCHEMA = CURRENT_SCHEMA()\n  AND FUNCTION_NAME ILIKE 'W6_REGIONAL_KEY%'\nORDER BY FUNCTION_NAME",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "FUNCTION_NAME", "type": "VARCHAR" },
+        { "name": "VOLATILITY", "type": "VARCHAR" },
+        { "name": "IS_MEMOIZABLE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6_REGIONAL_KEY", "VOLATILE", "NO", "PASS - shipping function is VOLATILE and not memoizable"],
+        ["W6_REGIONAL_KEY_IMMUTABLE", "IMMUTABLE", "NO", "negative-test function, expected to be wrong"],
+        ["W6_REGIONAL_KEY_MEMO", "VOLATILE", "YES", "negative-test function, expected to be wrong"]
+      ],
+      "error": null,
+      "expectation": "three rows. W6_REGIONAL_KEY -> VOLATILE / NO / PASS.",
+      "verdict": "PASS",
+      "observation": "Note the MEMOIZABLE variant reports VOLATILITY = VOLATILE with IS_MEMOIZABLE = YES. MEMOIZABLE is therefore an ORTHOGONAL flag rather than a third volatility level, so a CI check must test BOTH columns - testing VOLATILITY alone would pass a memoizable function. See finding F12."
+    },
+    {
+      "seq": 19, "test_id": "T4.7",
+      "purpose": "CROSS-REGION UNIQUENESS UNDER CONCURRENCY. R12 rather than R10, but this is the only place all three regions run at once.",
+      "execution": "THREE CONCURRENT SESSIONS via runner/run_parallel.ps1 -Phase T47, barrier-synchronised.",
+      "sql": "-- WORKSHEET A/D (session 8615786251813878)\nINSERT INTO w6_keys_multiregion\nSELECT w6_regional_key('North America'), 'North America' FROM TABLE(GENERATOR(ROWCOUNT => 10000));\n\n-- WORKSHEET B/E (session 8615786251817490)\nINSERT INTO w6_keys_multiregion\nSELECT w6_regional_key('EU'), 'EU' FROM TABLE(GENERATOR(ROWCOUNT => 10000));\n\n-- WORKSHEET C/F (session 8615786251806370)\nINSERT INTO w6_keys_multiregion\nSELECT w6_regional_key('APAC'), 'APAC' FROM TABLE(GENERATOR(ROWCOUNT => 10000));",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": null,
+      "columns": null, "rows": null,
+      "per_session_result": [
+        { "worksheet": "D", "region": "North America", "session_id": "8615786251813878", "barrier_polls_waited": 50, "returned": "OK session=8615786251813878 waited_polls=50" },
+        { "worksheet": "E", "region": "EU", "session_id": "8615786251817490", "barrier_polls_waited": 42, "returned": "OK session=8615786251817490 waited_polls=42" },
+        { "worksheet": "F", "region": "APAC", "session_id": "8615786251806370", "barrier_polls_waited": 35, "returned": "OK session=8615786251806370 waited_polls=35" }
+      ],
+      "error": null,
+      "verdict": "PASS - all three sessions completed",
+      "observation": "Three different regions, three different sessions, one shared sequence and one shared function, all writing into the SAME target table simultaneously."
+    },
+    {
+      "seq": 20, "test_id": "T4.7-OVERLAP",
+      "purpose": "Added measurement: proves the three region inserts actually overlapped.",
+      "sql": "WITH w AS (\n    SELECT TAG, SESSION_ID,\n           MAX(CASE WHEN PHASE = 'INSERT_START' THEN TS END) AS t_start,\n           MAX(CASE WHEN PHASE = 'INSERT_END'   THEN TS END) AS t_end\n    FROM w6_run_log WHERE TAG IN ('D','E','F')\n    GROUP BY TAG, SESSION_ID\n)\nSELECT TAG, SESSION_ID,\n       TO_VARCHAR(t_start,'HH24:MI:SS.FF3') AS insert_start_utc,\n       TO_VARCHAR(t_end,'HH24:MI:SS.FF3')   AS insert_end_utc,\n       DATEDIFF(millisecond, t_start, t_end) AS duration_ms,\n       DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) AS mutual_overlap_ms,\n       CASE WHEN DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) > 0\n            THEN 'CONCURRENT - all three windows overlap'\n            ELSE 'NOT CONCURRENT - windows disjoint' END AS verdict\nFROM w ORDER BY TAG",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "TAG", "type": "VARCHAR" },
+        { "name": "SESSION_ID", "type": "VARCHAR" },
+        { "name": "INSERT_START_UTC", "type": "VARCHAR" },
+        { "name": "INSERT_END_UTC", "type": "VARCHAR" },
+        { "name": "DURATION_MS", "type": "NUMBER(38,0)" },
+        { "name": "MUTUAL_OVERLAP_MS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["D", "8615786251813878", "21:18:25.026", "21:18:25.987", 961, 890, "CONCURRENT - all three windows overlap"],
+        ["E", "8615786251817490", "21:18:25.026", "21:18:26.017", 991, 890, "CONCURRENT - all three windows overlap"],
+        ["F", "8615786251806370", "21:18:25.008", "21:18:25.916", 908, 890, "CONCURRENT - all three windows overlap"]
+      ],
+      "error": null,
+      "verdict": "PASS - CONCURRENCY PROVEN",
+      "observation": "All three started within 18ms of each other and overlapped for 890ms against durations of 908-991ms - effectively the entire execution was simultaneous. Tighter alignment than T4.1 because the sessions were already warm."
+    },
+    {
+      "seq": 21, "test_id": "T4.7",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       COUNT(DISTINCT REGION) AS regions,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT K) THEN 'PASS' ELSE 'FAIL' END AS verdict\nFROM w6_keys_multiregion",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "REGIONS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[30000, 30000, 0, 3, "PASS"]],
+      "error": null,
+      "expectation": "30000 / 30000 / 0 / 3 / PASS",
+      "verdict": "PASS",
+      "observation": "Exact match to the expected result."
+    },
+    {
+      "seq": 22, "test_id": "T4.7b",
+      "purpose": "Does every key decode back to the region that issued it? (R13)",
+      "sql": "SELECT k.REGION,\n       COUNT(*) AS keys_issued,\n       SUM(CASE WHEN FLOOR(K / 1000000000000000) = m.REGION_CODE THEN 1 ELSE 0 END) AS decode_correct,\n       CASE WHEN COUNT(*) = SUM(CASE WHEN FLOOR(K / 1000000000000000) = m.REGION_CODE THEN 1 ELSE 0 END)\n            THEN 'PASS' ELSE 'FAIL' END AS verdict\nFROM w6_keys_multiregion k\nJOIN w6_region_map m ON m.REGION_NAME = k.REGION\nGROUP BY k.REGION ORDER BY k.REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "KEYS_ISSUED", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_CORRECT", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["APAC", 10000, 10000, "PASS"],
+        ["EU", 10000, 10000, "PASS"],
+        ["North America", 10000, 10000, "PASS"]
+      ],
+      "error": null,
+      "expectation": "decode_correct = keys_issued for all three regions",
+      "verdict": "PASS",
+      "observation": "All 30,000 keys decode to their issuing region with zero misattribution, under concurrency. This is the traceability property the requirement asked for - the identifier carries its region without needing a downstream lookup."
+    },
+    {
+      "seq": 23, "test_id": "FINAL-STATE",
+      "purpose": "Added for the record: total sequence consumption across the whole R10 pack.",
+      "sql": "SELECT SEQUENCE_NAME, NEXT_VALUE, ORDERED\nFROM INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_SCHEMA = CURRENT_SCHEMA() AND SEQUENCE_NAME = 'W6_SHARED_SEQ'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "SEQUENCE_NAME", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" },
+        { "name": "ORDERED", "type": "VARCHAR" }
+      ],
+      "rows": [["W6_SHARED_SEQ", "140601", "NO"]],
+      "error": null,
+      "verdict": "RECORDED",
+      "observation": "92,000 rows were keyed in total (60,000 in T4.1 + 30,000 in T4.7 + 1,000 in T4.4 + 1,000 in T4.5) against 140,600 values consumed. ORDERED remained NO throughout."
+    },
+    {
+      "seq": 24, "test_id": "T4.8",
+      "purpose": "INTERVAL SIGN - a constraint to record, not a test to run.",
+      "sql": "-- DO NOT RUN: ALTER SEQUENCE w6_shared_seq SET INCREMENT = -1;",
+      "status": "NOT_RUN_BY_DESIGN",
+      "query_id": null, "elapsed_ms": null, "rowcount": null,
+      "columns": null, "rows": null, "error": null,
+      "verdict": "CONSTRAINT RECORDED",
+      "observation": "Deliberately not executed, as the script instructs. Two standing constraints: (1) 'Changing the sequence interval from positive to negative, or vice versa, may result in duplicates' - once keys are issued, INCREMENT must NEVER flip. (2) Do NOT set ORDER on these sequences later to tidy the keys; NOORDER is what makes concurrent INSERTs perform, and it weakens ordering, never uniqueness."
+    },
+    { "seq": 25, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_regional_key(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 26, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_regional_key_immutable(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained. NOTE: this is a deliberately misdeclared negative-test function and must never be used." },
+    { "seq": 27, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_regional_key_memo(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained. NOTE: this is a deliberately misdeclared negative-test function and must never be used." },
+    { "seq": 28, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_keys_employee", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 29, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_keys_job", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 30, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_keys_office", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 31, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_keys_multiregion", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 32, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_region_map", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 33, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_shared_seq", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." }
+  ],
+  "summary": {
+    "statements_total": 33,
+    "statements_executed": 23,
+    "statements_skipped": 9,
+    "statements_not_run_by_design": 1,
+    "statements_succeeded": 23,
+    "statements_errored": 0,
+    "tests_passed": ["T4.1", "T4.2", "T4.2b", "T4.6", "T4.7", "T4.7b"],
+    "tests_recorded": ["T4.3", "T4.4", "T4.5", "T4.8"],
+    "tests_failed": [],
+    "concurrency_proven": true,
+    "total_keys_generated_under_concurrency": 90000,
+    "total_duplicates_across_all_concurrent_tests": 0
+  },
+  "r10_completion_checklist": {
+    "source": "SQL/04_r10_concurrency.sql - WHAT 'R10 VALIDATED' MEANS WHEN THIS PACK IS DONE",
+    "items": [
+      { "item": "T4.2 - 60k keys from 3 concurrent sessions, 0 duplicates, 3 sessions seen", "status": "DONE", "result": "60000 / 60000 / 0 / 3 / PASS" },
+      { "item": "T4.3 - consumption proportional to rows; values_per_row recorded", "status": "DONE", "result": "values_per_row = 1.655, values_beyond_rows = 39300, ORDERED = NO" },
+      { "item": "T4.4 - IMMUTABLE folding demonstrated, or documented as undefined anyway", "status": "DONE (documented, not demonstrated)", "result": "No folding reproduced: 1000 rows / 1000 distinct keys. Prohibition rests on documentation. See F11." },
+      { "item": "T4.5 - MEMOIZABLE behaviour recorded (refused, or folds)", "status": "DONE", "result": "Neither refused nor folded on this run: created successfully, 1000 rows / 1000 distinct keys. See F11." },
+      { "item": "T4.6 - shipping function proven VOLATILE and not memoizable", "status": "DONE", "result": "W6_REGIONAL_KEY -> VOLATILE / NO / PASS" },
+      { "item": "T4.7 - 30k keys across 3 concurrent regions, 0 duplicates", "status": "DONE", "result": "30000 / 30000 / 0 / 3 / PASS" },
+      { "item": "T4.7b - every key decodes to its issuing region", "status": "DONE", "result": "10000/10000 correct for each of APAC, EU, North America" },
+      { "item": "T4.8 - interval-sign and NOORDER constraints in the build standard", "status": "RECORDED", "result": "Captured at seq 24 as constraints; not executed." }
+    ],
+    "all_items_complete": true
+  },
+  "decision_table_resolution": {
+    "r10_verdict": "VALIDATED - the function is safe to call in parallel by multiple tables",
+    "answer_to_the_action_item": "Yes. The same reusable function can be called in parallel by multiple tables. 90,000 keys were generated across six concurrent sessions in two phases, with measured execution overlap, and produced zero duplicates. Snowflake's documented sequence uniqueness guarantee survives the UDF wrapper, which was the only part the documentation did not cover.",
+    "conditions_on_that_answer": [
+      "The function MUST be declared VOLATILE. IMMUTABLE and MEMOIZABLE are prohibited on documented grounds - see F11, which explains why this run does not weaken the prohibition.",
+      "The sequence INCREMENT must never change sign once keys are issued (T4.8).",
+      "The sequences must remain NOORDER; do not set ORDER later to tidy the key values (T4.8).",
+      "Keys are unique but NOT ordered and NOT gapless. They must not be used to infer insertion order or as an incremental high-water mark - carried forward from R3 finding F1 and reconfirmed here by ORDERED = NO and values_per_row = 1.655."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F10",
+      "severity": "RESOLVES-EARLIER-GAP",
+      "title": "Double invocation per row is ruled out - this partially closes R3's unanswered finding F2",
+      "evidence": "T4.3: 60,000 rows keyed, sequence NEXT_VALUE = 99,301, giving 1.655 values consumed per row. T4.2: 60,000 rows produced 60,000 distinct keys.",
+      "interpretation": "60,000 distinct keys landing in tables means the function was invoked AT LEAST once per row. Total consumption of 99,300 values caps invocations at 1.655 per row. If the function were invoked twice per row, consumption would necessarily have been at least 120,000. It was not, so two-invocations-per-row is excluded. The residual 39,300 values are consistent with block reservation across three concurrent sessions rather than with discarded extra invocations.",
+      "implication": "R3's finding F2 recorded that per-row invocation count was unmeasured, because a bare NEXTVAL could not measure it. Reading NEXT_VALUE from INFORMATION_SCHEMA at 60,000-row scale bounds it instead: invocation is between 1.0 and 1.655 per row, so it cannot be a clean multiple. The exact figure within that band still cannot be separated from reservation waste, so F2 is narrowed rather than fully closed.",
+      "status": "Partially closes R3 finding F2. The remaining uncertainty does not affect the design, since uniqueness and correctness both hold."
+    },
+    {
+      "id": "F11",
+      "severity": "IMPORTANT - DO NOT MISREAD",
+      "title": "IMMUTABLE and MEMOIZABLE did NOT fold on this run, and that must not be taken as permission to use them",
+      "evidence": "T4.4: IMMUTABLE function, 1000 rows, 1000 distinct keys - no folding. T4.5: MEMOIZABLE function created without error, 1000 rows, 1000 distinct keys - no folding.",
+      "interpretation": "The negative tests were designed to make the prohibition visible by reproducing the failure. They did not reproduce it on this warehouse, at this scale, on this release. That is a non-result, not a counter-result. Snowflake documents that the IMMUTABLE guarantee 'is not checked' and that specifying it for a UDF returning different values for the same input 'will result in undefined behavior'. Undefined behaviour that happens not to bite on one run is still undefined.",
+      "implication": "The build standard must still mandate VOLATILE and forbid IMMUTABLE and MEMOIZABLE. The evidence base for that rule is the documentation plus T4.6's CI check, NOT an observed failure. Anyone reading this evidence pack must not conclude that IMMUTABLE was tested and found safe. A larger warehouse, a different query plan, or a future release could fold it, and every row in this workload passes identical arguments, which is precisely the condition that invites folding.",
+      "status": "Open as a documentation/standards item. Recommend stating this explicitly in the design so the non-reproduction is not later mistaken for a clearance."
+    },
+    {
+      "id": "F12",
+      "severity": "DESIGN-RELEVANT",
+      "title": "MEMOIZABLE is an orthogonal flag to VOLATILITY, so a CI guard must check both columns",
+      "evidence": "T4.6: W6_REGIONAL_KEY_MEMO reports VOLATILITY = 'VOLATILE' and IS_MEMOIZABLE = 'YES'. The IMMUTABLE variant reports VOLATILITY = 'IMMUTABLE' and IS_MEMOIZABLE = 'NO'.",
+      "interpretation": "MEMOIZABLE does not appear as a volatility level. A function can be simultaneously VOLATILE and memoizable, which is exactly the dangerous combination that a naive check for VOLATILITY = 'VOLATILE' would wave through.",
+      "implication": "The release check must assert BOTH VOLATILITY = 'VOLATILE' AND IS_MEMOIZABLE = 'NO'. T4.6's query already does this correctly and should be lifted verbatim into CI. A check on volatility alone would be a false negative.",
+      "status": "Open - recommend adopting T4.6's query as the release gate."
+    },
+    {
+      "id": "F13",
+      "severity": "INFORMATIONAL",
+      "title": "A naive parallel test would have silently proved nothing",
+      "evidence": "Preliminary measurement: three snow CLI processes launched simultaneously established their Snowflake sessions up to 4 seconds apart. A 20,000-row insert completes in approximately 1.5 seconds (T4.1 durations: 1398, 1586, 1476 ms).",
+      "interpretation": "Launching the three processes together is not sufficient for concurrency. Connection startup stagger exceeds statement duration, so the three inserts would have run consecutively while appearing to have been started in parallel. T4.2's sessions_involved guard would still have returned 3, because three distinct sessions did contribute rows - so the guard alone does not detect non-overlap.",
+      "implication": "The barrier was necessary, not belt-and-braces. The same trap applies to the manual three-worksheet procedure the script describes: a human clicking Run in three Snowsight worksheets can easily introduce multi-second stagger, and T4.2 would report PASS without the loads ever having been simultaneous. Recommend the measured-overlap query at seq 10/20 be retained as a mandatory part of the procedure, since it is what actually distinguishes a concurrent run from a sequential one.",
+      "status": "Open - recommend adding the overlap measurement to the script so future runs cannot pass vacuously."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.POC_SCHEMA",
+    "objects": [
+      { "type": "SEQUENCE", "name": "W6_SHARED_SEQ", "note": "NEXT_VALUE 140601 at end of run, ORDERED NO." },
+      { "type": "TABLE", "name": "W6_REGION_MAP", "note": "3 rows." },
+      { "type": "TABLE", "name": "W6_KEYS_EMPLOYEE", "note": "20000 rows." },
+      { "type": "TABLE", "name": "W6_KEYS_JOB", "note": "20000 rows." },
+      { "type": "TABLE", "name": "W6_KEYS_OFFICE", "note": "20000 rows." },
+      { "type": "TABLE", "name": "W6_KEYS_MULTIREGION", "note": "30000 rows across 3 regions." },
+      { "type": "FUNCTION", "name": "W6_REGIONAL_KEY(VARCHAR)", "note": "THE SHIPPING SHAPE. VOLATILE, body cast, region lookup from table." },
+      { "type": "FUNCTION", "name": "W6_REGIONAL_KEY_IMMUTABLE(VARCHAR)", "note": "NEGATIVE TEST - deliberately misdeclared IMMUTABLE. Never use." },
+      { "type": "FUNCTION", "name": "W6_REGIONAL_KEY_MEMO(VARCHAR)", "note": "NEGATIVE TEST - deliberately misdeclared MEMOIZABLE. Never use." }
+    ],
+    "harness_objects_added_by_this_run": [
+      { "type": "TABLE", "name": "W6_BARRIER", "note": "Not in the original script. Barrier flag used to synchronise the parallel sessions. 1 row." },
+      { "type": "TABLE", "name": "W6_RUN_LOG", "note": "Not in the original script. Per-session CONNECTED / INSERT_START / INSERT_END timings that provide the overlap evidence." }
+    ],
+    "cleanup_sql": [
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_regional_key(VARCHAR)",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_regional_key_immutable(VARCHAR)",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_regional_key_memo(VARCHAR)",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_keys_employee",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_keys_job",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_keys_office",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_keys_multiregion",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_region_map",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_shared_seq",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_barrier",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_run_log"
+    ]
+  }
+}
