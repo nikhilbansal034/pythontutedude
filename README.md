@@ -12,6 +12,7 @@ design work. It holds **several unrelated workstreams**, one folder each.
 ├── history_load_chunking_design/ Iceberg → native history-load chunks  — ACTIVE
 ├── w4-generic-etl-framework/     Generic config-driven ETL framework   — ACTIVE
 ├── w5-zone3-consumption-gating/  Zone 3 consumption publication gating — ACTIVE
+├── w6-region-prefixed-sequence/  Region-prefixed sequence generation   — ACTIVE
 ├── datacamp project/             DataCamp DS practical exam            — ACTIVE
 └── external-advisory/            Work for another client, not GRS      — see below
     └── snowflake-folder-delta/   Snowflake stage folder-delta listing  — ACTIVE
@@ -329,6 +330,63 @@ arise. A *batch* is what runs; a *cycle* is one run of it and the data version i
 
 **Not W4.** W4 is the generic ETL framework that loads objects. W5 is about when a loaded object
 becomes *visible*. They meet only at the publication step.
+
+---
+
+## W6 — Region-prefixed sequence generation *(active)*
+
+Making Zone 2 surrogate keys region-qualified at the moment they are created, moving
+Zone 1 → Zone 2, so the identifier never has to change during later global consolidation. A
+reusable function takes `(region_name, sequence_name)`, resolves the region code from a mapping
+table, combines it with the sequence's next value and returns the key already cast — so
+`nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
+
+**Status**: requirement **FROZEN** (2026-11-03). D1–D4 taken; each table has its own sequence per
+region, so the prefix is load-bearing for integrity. Thirteen requirements tracked as five groups —
+seven close on documentation, R3 is the one blocker, C3–C6 are open decisions.
+
+**[`w6-region-prefixed-sequence/README.md`](w6-region-prefixed-sequence/README.md) is the folder
+index.** The essentials:
+
+| Path | What it is |
+|------|-----------|
+| `requirement_deck.html` | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with the documentation behind each |
+| `feasibility.md` | **The detail.** All thirteen requirements one at a time: what each asks, what the docs say, what can be built, what needs a workaround |
+| `requirement.md` | Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
+| `explore/prefix_schemes.md` | C3 on evidence — digit concatenation vs fixed-width offset |
+| `explore/prefix_schemes.py` | The runnable DuckDB demonstration behind it |
+| `sources/` | Raw inputs. The transcript summary is the baseline and wins |
+
+**Snowflake behaviour verified directly against the docs.** Four outcomes, two of them
+corrections to what was recorded here earlier:
+
+- **C1 — resolved bar one test.** *SQL UDF limitations* states "Dynamic SQL is not supported when
+  referring to database objects", with a failing example that is exactly this pattern, so R2
+  cannot be met by resolving the sequence name as an identifier. The **branch-selector** shape
+  (`CASE sequence_name WHEN … THEN <SEQ>.NEXTVAL`) survives untouched. `TABLE(proc(…))` turns out
+  to be explicitly permitted in `MERGE`, reopening an option previously written off. The one
+  untested unknown: whether a SQL UDF body may contain `seq.NEXTVAL` at all — undocumented either
+  way.
+- **C2 — corrected.** The earlier "invocation count is unspecified" claim was wrong. The real
+  hazard is that every row passes identical arguments, and `IMMUTABLE` is an unverified promise
+  whose misdeclaration Snowflake calls "undefined behavior" — it would hand every new row the same
+  key. `MEMOIZABLE` is the same failure by another route. `VOLATILE` is the default; declare it.
+- **C7 — new, and it undercuts §4.** For SQL UDFs, declared `NUMBER` precision and scale are
+  **ignored**, so `RETURNS NUMBER(38,0)` guarantees nothing. The cast must sit in the function
+  body, not the signature.
+- **R10 — largely guaranteed already.** "Concurrent queries never observe the same value, and
+  values within a single query are always distinct." Parallel safety is documented for the
+  sequence itself; only the wrapper needs testing.
+
+**Prefix scheme.** Fixed-width offset recommended over digit concatenation — concatenation is
+collision-free only while region codes are single-digit, and `concat(1, 23) = concat(12, 3) = 123`
+makes it fail silently at the tenth region. 99 duplicate keys across an 11-region population,
+against 0. Decision still with Nikhil.
+
+**Parked, not blocking**: whether the target table also needs its own region-code column.
+
+**Not W3, not W4.** W3 generates these two queries; W4 is the framework that runs them. W6 changes
+how one value inside the generated Q2 is produced.
 
 ---
 

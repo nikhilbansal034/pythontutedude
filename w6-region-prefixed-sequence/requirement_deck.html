@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W6 Region-Prefixed Sequence Generation</title>
+<style>
+:root{
+  --teal:#0097A9; --teal-dk:#007680; --teal-dp:#004F59; --teal-1:#DDEFE8; --teal-2:#9DD4CF;
+  --navy:#012169; --blue-ac:#007CB0; --green:#86BC25; --green-ac:#26890D;
+  --orange:#ED8B00; --red:#DA291C;
+  --g1:#F2F2F2; --g2:#D0D0CE; --g6:#A7A8AA; --g9:#75787B; --g11:#53565A;
+  --white:#FFFFFF; --ink:#1A1A1A;
+  --font:"Open Sans","Segoe UI",Calibri,Arial,sans-serif;
+  --mono:Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{font-family:var(--font);background:var(--g1);color:var(--ink);
+     font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;}
+
+/* ---------- left sidebar navigation ---------- */
+.sidenav{background:var(--white);border-bottom:3px solid var(--teal);}
+.brandmark{display:flex;align-items:center;padding:18px 18px 14px;font-size:15px;font-weight:700;
+  color:var(--navy);white-space:nowrap;border-bottom:1px solid var(--g2);}
+.brandmark .dot{color:var(--green);font-size:22px;line-height:0;margin-left:3px;}
+.tabs{display:flex;flex-wrap:wrap;}
+.navsec{font-size:11px;font-weight:700;letter-spacing:.14em;color:var(--teal);
+  padding:14px 18px 3px;text-transform:uppercase;}
+.tab{appearance:none;border:0;background:transparent;cursor:pointer;font-family:var(--font);
+  font-size:14px;font-weight:600;color:var(--g9);padding:8px 18px;text-align:left;
+  border-left:3px solid transparent;line-height:1.3;white-space:normal;}
+.tab .tnum{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--g6);margin-bottom:1px;}
+.tab:hover{color:var(--navy);background:var(--g1);}
+.tab[aria-selected="true"]{color:var(--navy);font-weight:700;border-left-color:var(--teal);background:var(--g1);}
+.tab[aria-selected="true"] .tnum{color:var(--teal);}
+.tab:focus-visible{outline:2px solid var(--blue-ac);outline-offset:-2px;}
+.navhint{display:flex;align-items:center;gap:8px;padding:12px 18px;font-size:12px;color:var(--g6);}
+.navbtn{appearance:none;border:1px solid var(--g2);background:var(--white);cursor:pointer;
+  font-family:var(--font);font-size:14px;font-weight:700;color:var(--navy);
+  width:30px;height:30px;line-height:1;padding:0;}
+.navbtn:hover{background:var(--teal);color:var(--white);border-color:var(--teal);}
+.navbtn:disabled{color:var(--g2);cursor:default;background:var(--white);border-color:var(--g2);}
+body.js .sidenav{position:fixed;left:0;top:0;bottom:0;width:240px;border-bottom:0;
+  border-right:3px solid var(--teal);z-index:50;display:flex;flex-direction:column;}
+body.js .tabs{flex-direction:column;flex-wrap:nowrap;flex:1;overflow-y:auto;padding:2px 0 8px;}
+body.js .tab{width:100%;}
+body.js .navhint{border-top:1px solid var(--g2);}
+
+/* ---------- deck shell ---------- */
+.deck{max-width:1320px;margin:0 auto;padding:28px 20px 80px;}
+.slide{position:relative;background:var(--white);width:100%;min-height:735px;
+  margin:0 0 28px;padding:44px 54px 78px 62px;border:1px solid var(--g2);overflow:hidden;}
+body.js{overflow:hidden;}
+body.js .deck{margin-left:240px;max-width:none;padding:14px 0 0;display:flex;justify-content:center;}
+body.js .stage{width:1280px;transform-origin:top center;}
+body.js .slide{display:none;width:1280px;height:720px;min-height:0;margin:0;padding:0;border:1px solid var(--g2);}
+body.js .slide.active{display:block;}
+.slide-inner{position:absolute;left:62px;top:34px;width:1164px;transform-origin:top center;}
+body.js .slide.cover .slide-inner{height:646px;display:flex;flex-direction:column;justify-content:center;}
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--teal);}
+.slide-no{position:absolute;right:26px;bottom:12px;font-size:12px;color:var(--g6);letter-spacing:.06em;}
+
+/* ---------- type ---------- */
+h1{font-size:44px;line-height:1.15;font-weight:700;color:var(--navy);margin:0 0 16px;}
+h2{font-size:30px;line-height:1.2;font-weight:700;color:var(--navy);margin:0 0 6px;}
+.sub{font-size:16px;font-style:italic;font-weight:600;color:var(--teal-dk);margin:0 0 18px;}
+h3{font-size:14px;font-weight:700;color:var(--g11);text-transform:uppercase;
+   letter-spacing:.09em;margin:0 0 10px;}
+h3.gap{margin-top:16px;}
+
+/* ---------- cover ---------- */
+.cover .eyebrow{font-size:14px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:20px;}
+.cover .rule{width:120px;height:5px;background:var(--green);margin-bottom:24px;}
+.cover .lede{font-size:19px;color:var(--g11);margin:0 0 28px;line-height:1.5;}
+.cover .meta{font-size:15px;color:var(--g9);line-height:1.9;}
+.cover .meta b{color:var(--g11);font-weight:700;}
+.agenda{border:1px solid var(--g2);border-top:5px solid var(--teal);background:var(--white);padding:20px 26px 14px;}
+.agenda .ttl{font-size:14px;font-weight:700;letter-spacing:.14em;color:var(--g11);text-transform:uppercase;margin-bottom:4px;}
+.agenda .sec{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--teal);text-transform:uppercase;margin:14px 0 7px;}
+.agenda .item{display:flex;gap:14px;align-items:baseline;font-size:17.5px;font-weight:600;color:var(--navy);margin-bottom:9px;line-height:1.3;}
+.agenda .item .k{font-size:14px;font-weight:700;color:var(--white);background:var(--navy);
+  min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:16px;}
+th{background:var(--navy);color:var(--white);font-weight:700;text-align:left;padding:10px 12px;
+  font-size:15px;vertical-align:middle;border:1px solid var(--navy);}
+td{padding:10px 12px;border:1px solid var(--g2);vertical-align:top;color:var(--ink);line-height:1.4;}
+tbody tr:nth-child(even) td{background:var(--g1);}
+td.num,th.num{width:40px;text-align:center;color:var(--g9);font-weight:700;}
+td b{color:var(--navy);}
+td.id,th.id{width:58px;text-align:center;font-weight:700;color:var(--navy);white-space:nowrap;}
+th.id{color:var(--white);}
+table.tight td{padding:8px 12px;}
+table.req th{padding:8px 10px;font-size:14px;}
+table.req td{padding:7px 10px;font-size:15px;line-height:1.35;}
+table.req.snug td{padding:5px 10px;}
+.feat{display:block;font-family:var(--mono);font-size:12.5px;color:var(--teal-dp);line-height:1.4;}
+.dsc{display:block;font-size:13.5px;color:var(--g11);line-height:1.35;margin-top:2px;}
+.olbl{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--teal);text-transform:uppercase;margin-bottom:1px;}
+.olbl.alt{color:var(--g9);}
+.src{font-size:13px;color:var(--g9);line-height:1.4;margin:7px 0 0;}
+.src b{color:var(--g11);}
+.rtag{display:inline-block;font-size:12px;font-weight:700;color:var(--navy);background:var(--teal-1);
+  border:1px solid var(--teal-2);padding:1px 6px;margin:6px 4px 0 0;white-space:nowrap;}
+.st{font-size:13.5px;color:var(--g11);}
+
+/* ---------- highlighted rows (flag the exception visually) ---------- */
+tbody tr.hl td{background:#FFF8E8;}
+tbody tr.hlg td{background:#E8F6EC;}
+tbody tr.hlr td{background:#FFF6F5;}
+
+/* ---------- chips ---------- */
+.chip{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;
+  padding:3px 9px;border-radius:2px;white-space:nowrap;text-transform:uppercase;}
+.chip.ok{background:var(--green-ac);color:#fff;}
+.chip.warn{background:var(--orange);color:#3d2400;}
+.chip.no{background:var(--red);color:#fff;}
+.chip.part{background:var(--teal-2);color:var(--teal-dp);}
+.chip.chk{background:var(--white);color:#7A4000;border:1px solid var(--orange);}
+
+/* ---------- takeaway bar ---------- */
+.takeaway{position:absolute;left:62px;right:54px;bottom:32px;background:var(--teal);
+  color:var(--white);font-size:17px;font-weight:700;text-align:center;padding:13px 18px;line-height:1.3;}
+
+/* ---------- callouts, lists, layout ---------- */
+.callout{border-left:5px solid var(--orange);background:#FFF8E8;color:#7A4000;
+  padding:12px 16px;font-size:15.5px;line-height:1.5;}
+.callout.teal{border-left-color:var(--teal);background:var(--teal-1);color:var(--teal-dp);}
+.callout ul{margin:4px 0 0;padding-left:20px;} .callout li{margin-bottom:3px;}
+.stmt{border-left:5px solid var(--navy);background:var(--g1);padding:14px 18px;font-size:17px;line-height:1.5;color:var(--ink);}
+.stmt b{color:var(--navy);}
+.cols{display:flex;gap:30px;align-items:flex-start;}
+.cols>*{flex:1;min-width:0;}
+.cols.c55>*:first-child{flex:0 0 55%;}
+.cols.c60>*:first-child{flex:0 0 60%;}
+.also{font-size:15px;color:var(--g11);margin:10px 0 0;}
+ol.steps{list-style:none;margin:0;padding:0;counter-reset:st;}
+ol.steps li{counter-increment:st;position:relative;padding:8px 12px 8px 48px;margin-bottom:7px;
+  border:1px solid var(--g2);background:var(--white);font-size:15.5px;line-height:1.35;}
+ol.steps li::before{content:counter(st);position:absolute;left:0;top:0;bottom:0;width:36px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;}
+ol.steps.teal li::before{background:var(--teal);}
+ol.steps.chk li::before{background:var(--orange);color:#3d2400;}
+ol.steps li b{color:var(--navy);}
+
+/* ---------- horizon strip ---------- */
+.hz{display:flex;gap:8px;margin:0 0 16px;}
+.hz .a{flex:1;border:1px solid var(--g2);background:var(--g1);padding:8px 12px;}
+.hz .a .h{font-size:14px;font-weight:700;color:var(--g11);line-height:1.25;}
+.hz .a .x{font-size:12.5px;color:var(--g9);line-height:1.3;margin-top:2px;}
+.hz .a.on{background:var(--teal-1);border-color:var(--teal);border-top:4px solid var(--teal);}
+.hz .a.on .h{color:var(--navy);}
+.hz .a.on .x{color:var(--teal-dp);}
+.hz .lbl{flex:0 0 150px;display:flex;flex-direction:column;justify-content:center;padding-right:4px;}
+.hz .lbl .h{font-size:14px;font-weight:700;color:var(--navy);line-height:1.25;}
+.hz .lbl .x{font-size:12.5px;color:var(--g11);line-height:1.3;margin-top:2px;}
+
+/* ---------- feature cards ---------- */
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.fcard{border:1px solid var(--g2);border-top:4px solid var(--teal);background:var(--white);padding:9px 12px 10px;display:flex;flex-direction:column;}
+.fcard.ml{border-top-color:var(--navy);background:#F7F9FC;}
+.fcard .nm{font-size:15.5px;font-weight:700;color:var(--navy);line-height:1.3;}
+.fcard .nm .chip{font-size:10.5px;padding:2px 6px;vertical-align:2px;}
+.fcard .wi{font-size:13px;color:var(--g11);line-height:1.35;margin:3px 0 6px;}
+.fcard .wi .chip{font-size:10.5px;padding:2px 6px;}
+.fcard .us{font-size:14px;color:var(--ink);line-height:1.35;border-top:1px dashed var(--g2);padding-top:6px;flex:1;}
+.fcard .us b{color:var(--teal-dp);}
+.fcard .rtag{margin-top:6px;}
+
+/* ---------- scenario cards ---------- */
+.scen{border:1px solid var(--g2);border-left:7px solid var(--green-ac);padding:12px 18px 14px;margin-bottom:14px;background:var(--white);}
+.scen.bad{border-left-color:var(--red);background:#FFF6F5;}
+.scen .hd{font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--g9);text-transform:uppercase;margin-bottom:6px;}
+.scen .nums{display:flex;gap:20px;}
+.scen .nb .l{font-size:13px;color:var(--g9);}
+.scen .nb .v{font-size:32px;font-weight:700;color:var(--navy);line-height:1.1;}
+.scen.bad .nb .v.hot{color:var(--red);}
+.scen .res{margin-top:10px;font-size:15px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:var(--g11);}
+
+/* ---------- process / step strips ---------- */
+.flow{display:flex;gap:10px;align-items:stretch;}
+.flow .step{flex:1;border:1px solid var(--g2);border-top:4px solid var(--teal);background:var(--white);padding:9px 12px 10px;min-width:0;}
+.flow .step .n{font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.1em;}
+.flow .step .t{font-size:17px;font-weight:700;color:var(--navy);margin:1px 0 2px;line-height:1.2;}
+.flow .step .d{font-size:13.5px;color:var(--g11);line-height:1.35;}
+.flow .step .fx{font-size:12.5px;font-weight:700;color:var(--teal-dp);line-height:1.3;margin-top:5px;}
+
+@media print{
+  body,body.js{background:#fff;overflow:visible;}
+  .sidenav{display:none;}
+  .deck,body.js .deck{max-width:none;margin:0;padding:0;display:block;}
+  body.js .stage{transform:none !important;width:auto;}
+  body.js .slide,body.js .slide.active{display:block;page-break-after:always;break-after:page;zoom:0.78;border:none;margin:0 auto;}
+  @page{size:A4 landscape;margin:8mm;}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidenav" aria-label="Slide navigation">
+  <div class="brandmark">W6 Region Sequence<span class="dot">.</span></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-target="s1" aria-selected="true"  aria-controls="s1"><span class="tnum">01</span>Overview &amp; agenda</button>
+    <div class="navsec">Problem</div>
+    <button class="tab" role="tab" data-target="s2" aria-selected="false" aria-controls="s2"><span class="tnum">02</span>The problem &amp; what is frozen</button>
+    <div class="navsec">Requirements</div>
+    <button class="tab" role="tab" data-target="s3" aria-selected="false" aria-controls="s3"><span class="tnum">03</span>13 requirements &rarr; 5 tracking groups</button>
+    <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>G1 &mdash; Function interface</button>
+    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>G2 &mdash; Sequence access</button>
+    <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>G3 &mdash; Region configuration</button>
+    <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>G4 &mdash; Key composition</button>
+    <button class="tab" role="tab" data-target="s8" aria-selected="false" aria-controls="s8"><span class="tnum">08</span>G5 &mdash; Placement &amp; concurrency</button>
+    <div class="navsec">Evidence</div>
+    <button class="tab" role="tab" data-target="s9" aria-selected="false" aria-controls="s9"><span class="tnum">09</span>Out of scope &amp; doc findings</button>
+    <button class="tab" role="tab" data-target="s10" aria-selected="false" aria-controls="s10"><span class="tnum">10</span>Closed vs needs POC</button>
+    <div class="navsec">Validation</div>
+    <button class="tab" role="tab" data-target="s11" aria-selected="false" aria-controls="s11"><span class="tnum">11</span>R3 validation &mdash; next action</button>
+    <button class="tab" role="tab" data-target="s12" aria-selected="false" aria-controls="s12"><span class="tnum">12</span>Open decisions &amp; next steps</button>
+  </div>
+  <div class="navhint">
+    <button class="navbtn" id="prev" aria-label="Previous slide">&#8592;</button>
+    <button class="navbtn" id="next" aria-label="Next slide">&#8594;</button>
+    <span>arrow keys</span>
+  </div>
+</nav>
+
+<main class="deck">
+
+<!-- ===================== 1 — COVER ===================== -->
+<section class="slide cover active" id="s1" role="tabpanel">
+  <div class="cols c55" style="align-items:center;">
+    <div>
+      <div class="eyebrow">Zone 1 &rarr; Zone 2 &middot; Surrogate keys</div>
+      <h1>Making the region part of the key when the key is created &mdash; not when regions are merged</h1>
+      <div class="rule"></div>
+      <p class="lede">Each region mints its own <b>1, 2, 3&hellip;</b>, so the identifier must change when regions are consolidated globally. A reusable function puts the <b>region code into the key at creation</b> instead.</p>
+      <div class="meta">
+        <b>Basis</b> &nbsp;[Internal] TD MOD &mdash; US/USI Daily Connect transcript + Snowflake docs, read directly<br>
+        <b>Scope</b> &nbsp;EMPLOYEE, Q1/Q2 historical load &mdash; 13 requirements, 5 tracking groups<br>
+        <b>Status</b> &nbsp;Requirement <b>frozen</b>. 7 of 13 closed on documentation; R3 blocks the rest
+      </div>
+    </div>
+    <div class="agenda">
+      <div class="ttl">Agenda</div>
+      <div class="sec">Problem</div>
+      <div class="item"><span class="k">2</span>What breaks today, and the four frozen decisions</div>
+      <div class="sec">Requirements</div>
+      <div class="item"><span class="k">3</span>13 requirements clubbed into 5 trackable groups</div>
+      <div class="item"><span class="k">4</span>G1 &mdash; the function&rsquo;s interface and contract</div>
+      <div class="item"><span class="k">5</span>G2 &mdash; sequence access: the one blocker</div>
+      <div class="item"><span class="k">6</span>G3 &mdash; region configuration: closed</div>
+      <div class="item"><span class="k">7</span>G4 &mdash; key composition and integrity</div>
+      <div class="item"><span class="k">8</span>G5 &mdash; placement and concurrency: closed</div>
+      <div class="sec">Evidence</div>
+      <div class="item"><span class="k">9</span>Exclusions, and what the docs volunteered</div>
+      <div class="item"><span class="k">10</span>What closes now vs what needs a POC</div>
+      <div class="sec">Validation</div>
+      <div class="item"><span class="k">11</span>R3 validation &mdash; the immediate next action</div>
+      <div class="item"><span class="k">12</span>Open decisions and next steps</div>
+    </div>
+  </div>
+  <div class="slide-no">1 / 12</div>
+</section>
+
+<!-- ===================== 2 — PROBLEM ===================== -->
+<section class="slide" id="s2" role="tabpanel">
+  <h2>The problem, and what we are freezing</h2>
+  <p class="sub">Each table has its own sequence, and each region runs its own copy &mdash; so every region issues the same low integers</p>
+  <div class="cols">
+    <div>
+      <h3>Why the prefix cannot wait until consolidation</h3>
+      <div class="scen">
+        <div class="hd">Today &mdash; Zone 2, per region</div>
+        <div class="nums">
+          <div class="nb"><div class="l">NA EMPLOYEE_SEQ</div><div class="v">1, 2, 3</div></div>
+          <div class="nb"><div class="l">EU EMPLOYEE_SEQ</div><div class="v">1, 2, 3</div></div>
+        </div>
+        <div class="res"><span class="chip ok">Valid in each region</span> unique within its own Zone 2</div>
+      </div>
+      <div class="scen bad">
+        <div class="hd">On consolidation into the global database</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Keys that collide</div><div class="v hot">6,000</div></div>
+          <div class="nb"><div class="l">of keys tested</div><div class="v">9,000</div></div>
+        </div>
+        <div class="res"><span class="chip no">Collision</span> region added here &rArr; the global id no longer matches what Zone 2 stored</div>
+      </div>
+      <div class="stmt">Qualify the key <b>on the left-hand side</b>, Zone 1 &rarr; Zone 2, so the identifier never changes later &mdash; tracing a record back then needs no UUID and no prefix-stripping.</div>
+      <p class="src"><b>Source:</b> transcript &sect;3 &mdash; placement attributed to Cindy MacFarlane&rsquo;s preference. Collision figures: <span class="feat" style="display:inline;">explore/r10_concurrency_sim.py &sect;7</span>.</p>
+    </div>
+    <div>
+      <h3>Frozen decisions</h3>
+      <table class="req snug">
+        <thead><tr><th class="id">ID</th><th>Decision</th></tr></thead>
+        <tbody>
+          <tr><td class="id">D1</td><td><b>Signature keeps both inputs</b> &mdash; <span class="feat" style="display:inline;">f(region_name, sequence_name)</span>.</td></tr>
+          <tr><td class="id">D2</td><td><b>Region mapping lives in a table</b>, not in the function body and not in the ETL.</td></tr>
+          <tr><td class="id">D3</td><td><b>DuckDB first</b> for logic and arithmetic; Snowflake only for what it cannot answer.</td></tr>
+          <tr><td class="id">D4</td><td><b>Each table has its own sequence</b>, per region. Confirmed by Nikhil &mdash; so the prefix is <b>load-bearing for integrity</b>, not decoration.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal" style="margin-top:11px;">
+        <b>Why D4 matters most.</b> With a sequence per table per region, the prefix is the <b>only</b> thing keeping North America&rsquo;s employee 1 apart from EU&rsquo;s &mdash; so it carries integrity, not just traceability. That raises the stakes on G4 considerably.
+      </div>
+    </div>
+  </div>
+  <div class="takeaway">A region code added at consolidation produces an identifier that no longer matches Zone 2 &mdash; so it has to be added at creation, and with one sequence per table per region it is the only thing making keys globally unique.</div>
+  <div class="slide-no">2 / 12</div>
+</section>
+
+<!-- ===================== 3 — GROUPING ===================== -->
+<section class="slide" id="s3" role="tabpanel">
+  <h2>13 requirements, clubbed into 5 trackable groups</h2>
+  <p class="sub">Grouped by what closes them &mdash; a single answer or decision settles every requirement in a group</p>
+  <div class="hz">
+    <div class="lbl"><div class="h">5 tracking groups</div><div class="x">each closes as a unit</div></div>
+    <div class="a"><div class="h">G1 Interface</div><div class="x">R1 R2 R6</div></div>
+    <div class="a on"><div class="h">G2 Sequence access</div><div class="x">R3 &mdash; blocker</div></div>
+    <div class="a"><div class="h">G3 Region config</div><div class="x">R4 R7 R8 R11</div></div>
+    <div class="a"><div class="h">G4 Key composition</div><div class="x">R5 R12 R13</div></div>
+    <div class="a"><div class="h">G5 Placement &amp; concurrency</div><div class="x">R9 R10</div></div>
+  </div>
+  <table class="req snug">
+    <thead><tr><th class="id">Grp</th><th style="width:210px;">Group</th><th>Requirements it holds</th><th style="width:150px;">What closes it</th><th style="width:118px;">Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">G1</td>
+        <td><b>Function interface &amp; contract</b></td>
+        <td><span class="rtag">R1 call site</span><span class="rtag">R2 signature</span><span class="rtag">R6 return type</span></td>
+        <td>Docs answered; 2 need a workaround</td>
+        <td><span class="chip part">Workaround</span></td>
+      </tr>
+      <tr class="hl">
+        <td class="id">G2</td>
+        <td><b>Sequence access</b></td>
+        <td><span class="rtag">R3 NEXTVAL inside</span></td>
+        <td>One short Snowflake test</td>
+        <td><span class="chip warn">Blocking</span></td>
+      </tr>
+      <tr>
+        <td class="id">G3</td>
+        <td><b>Region configuration</b></td>
+        <td><span class="rtag">R4 lookup</span><span class="rtag">R7 in a table</span><span class="rtag">R8 one code base</span><span class="rtag">R11 new regions</span></td>
+        <td>Closed on documentation</td>
+        <td><span class="chip ok">Closed</span></td>
+      </tr>
+      <tr>
+        <td class="id">G4</td>
+        <td><b>Key composition &amp; integrity</b></td>
+        <td><span class="rtag">R5 combine</span><span class="rtag">R12 uniqueness</span><span class="rtag">R13 decodable</span></td>
+        <td>One design decision, not a test</td>
+        <td><span class="chip chk">Decision</span></td>
+      </tr>
+      <tr>
+        <td class="id">G5</td>
+        <td><b>Placement &amp; concurrency</b></td>
+        <td><span class="rtag">R9 Zone 1&rarr;2</span><span class="rtag">R10 parallel</span></td>
+        <td>Both already answered</td>
+        <td><span class="chip ok">Closed</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout" style="margin-top:12px;">
+    <b>Each group shares one closing condition</b>, so progress tracks at group level rather than thirteen threads. G2 stands alone &mdash; nothing else can be built until it is answered. <b>R12 and R13 are derived, not stated:</b> both need confirming, and if R13 is not required, G4 loosens considerably.
+  </div>
+  <div class="takeaway">Seven of thirteen requirements close on documentation alone; one blocks everything else; one needs a decision rather than a test.</div>
+  <div class="slide-no">3 / 12</div>
+</section>
+
+<!-- ===================== 4 — G1 ===================== -->
+<section class="slide" id="s4" role="tabpanel">
+  <h2>G1 &mdash; Function interface &amp; contract</h2>
+  <p class="sub">R1 call site &middot; R2 signature &middot; R6 return type &mdash; the call site is fine, the other two need a workaround</p>
+  <table class="req snug">
+    <thead><tr><th class="id">ID</th><th style="width:218px;">Requirement</th><th>What Snowflake documentation says</th><th style="width:116px;">Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">R1</td>
+        <td>ETL calls a reusable function instead of <span class="feat" style="display:inline;">&lt;seq&gt;.NEXTVAL</span></td>
+        <td>&ldquo;A SQL UDF evaluates an arbitrary SQL expression.&rdquo; Nothing restricts calling a scalar UDF in a <span class="feat" style="display:inline;">MERGE &hellip; USING</span> projection.<span class="dsc"><b>Reads as:</b> the call site is not the problem. R1 inherits whatever R3 needs.</span></td>
+        <td><span class="chip ok">Closed</span><span class="dsc">pending R3</span></td>
+      </tr>
+      <tr class="hl">
+        <td class="id">R2</td>
+        <td>Signature takes <b>region name</b> and <b>sequence name</b></td>
+        <td>&ldquo;<b>Dynamic SQL is not supported when referring to database objects.</b>&rdquo; The docs&rsquo; failing example is this exact pattern &mdash; a UDF taking an object name as VARCHAR via <span class="feat" style="display:inline;">IDENTIFIER(param)</span>. <span class="feat" style="display:inline;">IDENTIFIER()</span> accepts only a literal, session, bind or Scripting variable.<span class="dsc"><b>Reads as:</b> the name cannot be <i>resolved as an identifier</i> &mdash; but it can be <i>compared as a value</i>.</span></td>
+        <td><span class="chip part">Workaround</span></td>
+      </tr>
+      <tr>
+        <td class="id">R6</td>
+        <td>Returns the target&rsquo;s datatype; cast inside the function</td>
+        <td>&ldquo;<b>the received value may be used as received whether or not it conforms to constraints specified in the declaration</b>.&rdquo; Ignored for SQL UDFs: &ldquo;Precision and scale for &hellip; NUMBER&rdquo;.<span class="dsc"><b>Reads as:</b> <span class="feat" style="display:inline;">RETURNS NUMBER(38,0)</span> is documentation, not enforcement &mdash; the <b>body</b> must cast.</span></td>
+        <td><span class="chip part">Workaround</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="cols" style="margin-top:12px;">
+    <div class="callout teal"><b>R2 workaround &mdash; the name selects a branch.</b> <span class="feat" style="display:inline;">CASE sequence_name WHEN 'EMPLOYEE_SEQ' THEN EMPLOYEE_SEQ.NEXTVAL &hellip; END</span>. <b>Cost:</b> the function must know every sequence by name, so onboarding a table edits the function &mdash; still <i>one place</i>, but not the generic thing the signature implies.</div>
+    <div class="callout"><b>Asked: can a registry table hold the full sequence name? No, not inside a UDF.</b> The blocker is not where the string comes from &mdash; <b>no run-time value can become an object reference</b>. DuckDB refuses it identically: &ldquo;must be a constant expression&rdquo;. <b>Two shapes that do work:</b> generate the function from the registry, or use a stored procedure via <span class="feat" style="display:inline;">TABLE(proc(&hellip;))</span>.</div>
+  </div>
+  <p class="src"><b>Sources:</b> SQL UDF limitations &middot; IDENTIFIER() syntax &middot; Introduction to SQL UDFs &mdash; read directly. <b>Qualified names:</b> they work, but hard-code db/schema and so break R8 &mdash; prefer unqualified.</p>
+  <div class="takeaway">The signature survives, but only because the sequence name can pick a branch rather than name an object &mdash; and the return type must be cast in the body, because the declaration is ignored.</div>
+  <div class="slide-no">4 / 12</div>
+</section>
+
+<!-- ===================== 5 — G2 BLOCKER ===================== -->
+<section class="slide" id="s5" role="tabpanel">
+  <h2>G2 &mdash; Sequence access: the one blocker</h2>
+  <p class="sub">R3 &mdash; may a SQL UDF body contain <span class="feat" style="display:inline;">seq.NEXTVAL</span>? The documentation does not say, either way</p>
+  <div class="cols">
+    <div>
+      <h3>What the documentation says &mdash; nothing</h3>
+      <table class="req snug tight">
+        <thead><tr><th>Page checked</th><th style="width:150px;">Mentions sequences?</th></tr></thead>
+        <tbody>
+          <tr><td>CREATE FUNCTION</td><td><span class="chip no">No</span></td></tr>
+          <tr><td>Introduction to SQL UDFs</td><td><span class="chip no">No</span></td></tr>
+          <tr><td>SQL UDF limitations</td><td><span class="chip no">No</span></td></tr>
+          <tr><td>Using Sequences</td><td><span class="chip no">Never mentions UDFs</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:11px;"><b>The one adjacent rule does not settle it.</b> &ldquo;DDL and DML operations are not supported in UDFs&rdquo; &mdash; but consuming a sequence is <b>neither DDL nor DML</b>. Not prohibited, not permitted.</div>
+      <div class="callout teal" style="margin-top:11px;"><b>DuckDB cannot answer this, and would mislead.</b> DuckDB&rsquo;s <span class="feat" style="display:inline;">nextval('name')</span> takes a <b>string</b>; Snowflake&rsquo;s <span class="feat" style="display:inline;">seq.NEXTVAL</span> is an <b>identifier</b>. So a wrapper function <i>succeeds</i> in DuckDB and proves nothing. That false positive is demonstrated deliberately in <span class="feat" style="display:inline;">explore/r2_sequence_name_binding.py</span> &sect;1 so it is never mistaken for evidence.</div>
+    </div>
+    <div>
+      <h3>Three outcomes, and one is a trap</h3>
+      <table class="req snug">
+        <thead><tr><th style="width:168px;">Result of the test</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr><td><b>CREATE fails</b></td><td>R3 impossible in a SQL UDF. R2&rsquo;s signature cannot hold with NEXTVAL inside. Fall back.</td></tr>
+          <tr class="hlg"><td><b>10 distinct values</b></td><td><span class="chip ok">R3 achieved</span> The branch-selector design is viable. Proceed.</td></tr>
+          <tr class="hlr"><td><b>10 identical values</b></td><td><span class="chip no">Worst case &mdash; silent</span> The body was folded to a constant. R3 unusable, but <b>no error is raised</b>. This is why CREATE succeeding is not enough.</td></tr>
+        </tbody>
+      </table>
+      <h3 class="gap">Fallbacks, in order</h3>
+      <ol class="steps chk">
+        <li><b>Pass the value in</b> &mdash; <span class="feat" style="display:inline;">f(region_name, seq_value)</span>, NEXTVAL stays in the query. Loses half of R2; keeps everything else.</li>
+        <li><b>Stored procedure via <span class="feat" style="display:inline;">TABLE(proc(&hellip;))</span></b> in the MERGE source. Docs permit this for MERGE &mdash; open question is whether consuming a sequence counts as a &ldquo;modification&rdquo;.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="takeaway">R3 is the base of everything else and no amount of further reading will settle it &mdash; it needs one statement run in a Snowflake account, and a pass that returns identical values is a failure wearing a success.</div>
+  <div class="slide-no">5 / 12</div>
+</section>
+
+<!-- ===================== 6 — G3 ===================== -->
+<section class="slide" id="s6" role="tabpanel">
+  <h2>G3 &mdash; Region configuration: closed on documentation</h2>
+  <p class="sub">R4 lookup &middot; R7 in a table &middot; R8 one code base &middot; R11 new regions &mdash; all four answered, no POC needed</p>
+  <table class="req snug">
+    <thead><tr><th class="id">ID</th><th style="width:200px;">Requirement</th><th>What Snowflake documentation says</th><th style="width:106px;">Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">R4</td>
+        <td>Function resolves region code from region name</td>
+        <td>A UDF body may query a table &mdash; the docs&rsquo; own example is <span class="feat" style="display:inline;">AS 'select count(*) from users'</span>. And: &ldquo;<b>The invoker &hellip; need not have access to the objects referenced in the function definition</b>, but only needs the privilege to use the function.&rdquo;<span class="dsc"><b>Reads as:</b> straightforward &mdash; and the privilege model is a bonus: ETL roles need USAGE on the function but no grant on the mapping table.</span></td>
+        <td><span class="chip ok">Closed</span></td>
+      </tr>
+      <tr>
+        <td class="id">R7</td>
+        <td>Mapping lives in a table, not in code</td>
+        <td>Same mechanism as R4.<span class="dsc"><b>Reads as:</b> satisfied. Two notes the docs imply rather than state &mdash; the lookup runs <b>per row</b>, and the table must be reachable from the function&rsquo;s schema. Three rows is trivial to scan, but confirm in the query profile.</span></td>
+        <td><span class="chip ok">Closed</span></td>
+      </tr>
+      <tr>
+        <td class="id">R8</td>
+        <td>One code base, unchanged across environments</td>
+        <td>&ldquo;If a function definition refers to an <b>unqualified</b> table, then that table is <b>resolved in the schema containing the function</b>.&rdquo;<span class="dsc"><b>Reads as:</b> this is the <i>mechanism</i> that makes R8 work, not an obstacle. Identical text in dev, SIT and prod each binds its own mapping table. A <b>fully-qualified</b> body would break it.</span></td>
+        <td><span class="chip ok">Closed</span></td>
+      </tr>
+      <tr>
+        <td class="id">R11</td>
+        <td>New regions without a code change</td>
+        <td>Not a Snowflake question.<span class="dsc"><b>Reads as:</b> holds for <b>regions</b> &mdash; insert a mapping row. Worth separating from a conflated case: adding a <b>table/sequence</b> does need a function edit, which is a consequence of R2&rsquo;s workaround, not a failure of R11.</span></td>
+        <td><span class="chip ok">Closed</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout" style="margin-top:12px;">
+    <b>One caveat on R8, carried as open question C5.</b> R8 is only <i>genuinely</i> met if the region name is not hard-coded upstream, and the transcript does not say where the ETL gets it. <b>A region name hard-coded in a job definition is a hard-coded region with extra steps.</b>
+  </div>
+  <p class="src"><b>Sources:</b> Introduction to SQL UDFs &mdash; read directly. Transcript &sect;2 for the mapping requirement and the three allocated codes.</p>
+  <div class="takeaway">All four configuration requirements are satisfied by mechanisms Snowflake already documents &mdash; and the unqualified-reference rule is what delivers one portable code base, so the function must not fully qualify its objects.</div>
+  <div class="slide-no">6 / 12</div>
+</section>
+
+<!-- ===================== 7 — G4 ===================== -->
+<section class="slide" id="s7" role="tabpanel">
+  <h2>G4 &mdash; Key composition &amp; integrity</h2>
+  <p class="sub">R5 combine &middot; R12 uniqueness &middot; R13 decodable &mdash; one decision closes all three, and it is a decision, not a test</p>
+  <div class="cols c55">
+    <div>
+      <h3>The two candidate schemes, measured</h3>
+      <table class="req snug tight">
+        <thead><tr><th>Property</th><th style="width:118px;">Digit concat</th><th style="width:122px;">Fixed-width offset</th></tr></thead>
+        <tbody>
+          <tr><td>Needs a cast back (R6)</td><td><span class="chip no">Yes &mdash; VARCHAR</span></td><td><span class="chip ok">No</span></td></tr>
+          <tr><td>Region recoverable (R13)</td><td><span class="chip warn">1-digit only</span></td><td><span class="chip ok">By division</span></td></tr>
+          <tr><td>Sequence value recoverable</td><td><span class="chip no">Never</span></td><td><span class="chip ok">By modulo</span></td></tr>
+          <tr class="hlr"><td><b>Unique at 11 regions (R12)</b></td><td><span class="chip no">99 duplicates</span></td><td><span class="chip ok">0</span></td></tr>
+          <tr><td>Survives a new region</td><td><span class="chip no">Fails silently</span></td><td><span class="chip ok">Yes</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:9px;"><b>Why concatenation fails.</b> <span class="feat" style="display:inline;">concat(1, 23)</span> and <span class="feat" style="display:inline;">concat(12, 3)</span> are both <b>123</b>. Collision-free <i>today</i> only because the three allocated codes are single digits &mdash; it breaks at a tenth region, with no error raised.</div>
+      <p class="src"><b>Measured:</b> <span class="feat" style="display:inline;">explore/prefix_schemes.py</span> &mdash; 4,389 keys, 11 regions, on DECIMAL(38,0).</p>
+      <div class="callout teal" style="margin-top:10px;">
+        <b>Recommendation &mdash; fixed-width offset.</b> The only scheme meeting R12 and R13 unconditionally, and it <i>removes</i> &sect;4&rsquo;s datatype problem rather than centralising it. <b>Pin the field width with the decision</b> &mdash; changing it later renumbers every key ever issued.
+      </div>
+    </div>
+    <div>
+      <table class="req snug">
+        <thead><tr><th class="id">ID</th><th>Requirement &amp; what the docs say</th></tr></thead>
+        <tbody>
+          <tr><td class="id">R5</td><td><b>Combine region code with sequence value.</b> No constraint on the arithmetic; a sequence value is a <b>64-bit</b> integer and exceeding that range fails the query.<span class="dsc"><b>Reads as:</b> &ldquo;combine&rdquo; is underspecified &mdash; the two readings behave very differently.</span></td></tr>
+          <tr><td class="id">R12</td><td><b>Unique across regions, for all time.</b> &ldquo;All values generated by a sequence are globally unique&rdquo; covers <i>one</i> sequence. Per <b>D4</b> each table has its own per region, so <b>the prefix is the separator</b> &mdash; Snowflake guarantees the sequence half, the composed key is a scheme property.</td></tr>
+          <tr><td class="id">R13</td><td><b>Region recoverable without a join.</b> Not a Snowflake question.<span class="dsc"><b>Reads as:</b> offset decodes by <span class="feat" style="display:inline;">key / 10^n</span> and <span class="feat" style="display:inline;">key % 10^n</span>. Concatenation gets the region from the first character only, and never the sequence value.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="takeaway">With one sequence per table per region, the prefix is the only thing separating two regions&rsquo; primary keys &mdash; so concatenation&rsquo;s failure at a two-digit region code stops being untidiness and becomes a correctness loss.</div>
+  <div class="slide-no">7 / 12</div>
+</section>
+
+<!-- ===================== 8 — G5 ===================== -->
+<section class="slide" id="s8" role="tabpanel">
+  <h2>G5 &mdash; Placement &amp; concurrency: both already answered</h2>
+  <p class="sub">R9 is satisfied by the current code &middot; R10 is guaranteed by Snowflake &mdash; what remains is a volatility rule, not a concurrency question</p>
+  <table class="req snug">
+    <thead><tr><th class="id">ID</th><th style="width:190px;">Requirement</th><th>What Snowflake documentation says</th><th style="width:106px;">Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">R9</td>
+        <td>Region applied Zone 1 &rarr; Zone 2, not later</td>
+        <td>Not a Snowflake question.<span class="dsc"><b>Reads as:</b> already satisfied. Q1 leaves the key NULL; Q2 mints it at <b>line 50</b>. Both sit inside Zone 1 &rarr; Zone 2, so the key exists before anything reaches Zone 3. <b>Nothing to relocate.</b></span></td>
+        <td><span class="chip ok">Closed</span><span class="dsc">confirm C4</span></td>
+      </tr>
+      <tr>
+        <td class="id">R10</td>
+        <td>Correct when called concurrently by multiple tables</td>
+        <td>&ldquo;<b>Concurrent queries never observe the same value, and values within a single query are always distinct.</b>&rdquo;<span class="dsc"><b>Reads as:</b> the action item shrinks. Not &ldquo;prove sequences are concurrency-safe&rdquo; &mdash; Snowflake already does &mdash; but &ldquo;prove the <b>wrapper</b> does not break a guarantee that already exists&rdquo;.</span></td>
+        <td><span class="chip part">Mostly</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="cols" style="margin-top:13px;">
+    <div>
+      <h3>Validated locally already</h3>
+      <div class="scen">
+        <div class="hd">7 parallel workers &middot; 3 regions &middot; 3 tables</div>
+        <div class="nums">
+          <div class="nb"><div class="l">Keys issued</div><div class="v">14,000</div></div>
+          <div class="nb"><div class="l">Duplicates</div><div class="v">0</div></div>
+          <div class="nb"><div class="l">Cross-region</div><div class="v">0</div></div>
+        </div>
+        <div class="res"><span class="chip ok">Pass</span> every key decodes to its issuing region</div>
+      </div>
+      <p class="src"><b>Measured:</b> <span class="feat" style="display:inline;">explore/r10_concurrency_sim.py</span> &mdash; which also makes gap behaviour visible: thousands of gaps, <b>correct</b>, not missing rows.</p>
+      <p class="st" style="margin-top:9px;"><b>Also constraints to carry:</b> gaps and ordering are never guaranteed, and flipping the interval&rsquo;s sign &ldquo;may result in duplicates&rdquo; &mdash; so INCREMENT must never change once keys are issued.</p>
+    </div>
+    <div>
+      <h3>The real hazard: volatility, not concurrency</h3>
+      <div class="callout"><b>Every row passes this function identical arguments</b> &mdash; same region name, same sequence name, all statement long. On <span class="feat" style="display:inline;">IMMUTABLE</span>: &ldquo;UDF assumes that the function, when called with the same inputs, will always return the same result. <b>This guarantee is not checked.</b> Specifying IMMUTABLE for a UDF that returns different values for the same input will result in <b>undefined behavior</b>.&rdquo; Default is VOLATILE.</div>
+      <div class="callout teal" style="margin-top:10px;"><b>So IMMUTABLE invites one surrogate key for every new row, silently</b> &mdash; and <span class="feat" style="display:inline;">MEMOIZABLE</span> is the same failure by another route. <b>Build rule:</b> declare <span class="feat" style="display:inline;">VOLATILE</span> explicitly with a comment saying why, never the other two, and assert N rows receive N distinct keys.</div>
+    </div>
+  </div>
+  <div class="takeaway">Snowflake already guarantees the concurrency the action item asked about; the residual risk is a single keyword that would silently collapse every new key to one value.</div>
+  <div class="slide-no">8 / 12</div>
+</section>
+
+<!-- ===================== 9 — SCOPE & FINDINGS ===================== -->
+<section class="slide" id="s9" role="tabpanel">
+  <h2>Deliberate exclusions, and what the docs volunteered</h2>
+  <p class="sub">Things consciously left out, and four findings nobody asked for that bear on the design</p>
+  <div class="cols">
+    <div>
+      <h3>Out of scope, on purpose</h3>
+      <table class="req snug tight">
+        <thead><tr><th>Excluded</th><th style="width:220px;">Why</th></tr></thead>
+        <tbody>
+          <tr><td><b>A separate region-code column</b> on the target table</td><td>Explicitly separated from this work in the meeting (&sect;6) and parked with Abhi and team. Must not block the function.</td></tr>
+          <tr><td><b>The existing SCD-2 split logic</b>, change-flag derivation, the two-query shape</td><td>W6 changes how one value is produced. Nothing else about the load changes.</td></tr>
+          <tr><td><b>Backfilling existing keys</b></td><td>Open (C6) &mdash; the transcript does not say whether existing unprefixed keys stay as they are, leaving two key formats in one table, or need a backfill.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:12px;">
+        <b>C6 is a real R12 risk, not housekeeping.</b> If the target already holds unprefixed keys, then <span class="feat" style="display:inline;">1</span> as a legacy key and <span class="feat" style="display:inline;">1</span>&hellip; as a region-1 key must not be confusable. Under fixed-width offset they cannot be, because every new key is at least 10<sup>15</sup>. Under concatenation they can.
+      </div>
+    </div>
+    <div>
+      <h3>Found while checking, not asked about</h3>
+      <div class="fgrid" style="grid-template-columns:repeat(2,1fr);">
+        <div class="fcard">
+          <div class="nm"><span class="feat" style="display:inline;">currval</span> not supported</div>
+          <div class="wi">Deliberately omitted &mdash; the pattern is &ldquo;contrary to Snowflake best practices&rdquo;.</div>
+          <div class="us"><b>For us:</b> nothing may read back the last issued key.</div>
+          <div class="rtag">R10</div>
+        </div>
+        <div class="fcard">
+          <div class="nm"><span class="feat" style="display:inline;">GETNEXTVAL</span></div>
+          <div class="wi">A one-row table function alternative. Must be aliased; FROM-clause position decides what it generates over.</div>
+          <div class="us"><b>For us:</b> a possible shape if the scalar-UDF route fails &mdash; its name is still a literal.</div>
+          <div class="rtag">R3</div>
+        </div>
+        <div class="fcard ml">
+          <div class="nm"><span class="feat" style="display:inline;">MEMOIZABLE</span> <span class="chip no">Fatal here</span></div>
+          <div class="wi">Accepted by the SQL handler alongside the volatility keyword.</div>
+          <div class="us"><b>For us:</b> would fold the call like IMMUTABLE. Needs an explicit prohibition in the build standard, not just a document.</div>
+          <div class="rtag">R10</div>
+        </div>
+        <div class="fcard">
+          <div class="nm">Gaps are guaranteed possible</div>
+          <div class="wi">&ldquo;Snowflake does not guarantee generating sequence numbers without gaps.&rdquo;</div>
+          <div class="us"><b>For us:</b> if anything downstream treats a missing key as lost data, that assumption is already wrong &mdash; independently of this change.</div>
+          <div class="rtag">R12</div>
+        </div>
+      </div>
+      <p class="src"><b>Sources:</b> Using Sequences &middot; CREATE FUNCTION. <span class="feat" style="display:inline;">MEMOIZABLE</span> comes from the SQL-handler syntax block; its own doc page 404s, so <b>its behaviour here is unverified</b> &mdash; hence prohibited rather than tested around.</p>
+    </div>
+  </div>
+  <div class="takeaway">Two of the four incidental findings change the build standard &mdash; MEMOIZABLE must be banned outright, and anything downstream treating a key gap as data loss is already broken.</div>
+  <div class="slide-no">9 / 12</div>
+</section>
+
+<!-- ===================== 10 — CLOSED VS POC ===================== -->
+<section class="slide" id="s10" role="tabpanel">
+  <h2>What closes now, and what needs a POC</h2>
+  <p class="sub">Seven requirements close on documentation &middot; three need a decision &middot; three need Snowflake</p>
+  <div class="cols c55">
+    <div>
+      <h3>Closes on documentation &mdash; no POC</h3>
+      <table class="req snug tight">
+        <thead><tr><th class="id">ID</th><th>Closes because</th></tr></thead>
+        <tbody>
+          <tr><td class="id">R1</td><td>A UDF is callable in a MERGE projection</td></tr>
+          <tr><td class="id">R2</td><td>Signature achievable &mdash; <b>via the branch-selector workaround</b></td></tr>
+          <tr><td class="id">R4</td><td>A UDF body may query a table</td></tr>
+          <tr><td class="id">R7</td><td>Same mechanism as R4</td></tr>
+          <tr><td class="id">R8</td><td>Unqualified references resolve in the function&rsquo;s schema</td></tr>
+          <tr><td class="id">R9</td><td>Already satisfied at Q2 line 50</td></tr>
+          <tr><td class="id">R11</td><td>A new region is a mapping row</td></tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:10px;"><b>Decided, not tested &mdash; R5, R12, R13.</b> One scheme decision closes all three; evidence is in hand and needs no Snowflake access, so it runs in parallel with R3. <b>Plus</b> confirming R12 and R13 are genuinely required.</div>
+    </div>
+    <div>
+      <h3>Needs a POC in Snowflake</h3>
+      <table class="req snug tight">
+        <thead><tr><th class="id">ID</th><th>What must be proven</th><th style="width:96px;">Script</th></tr></thead>
+        <tbody>
+          <tr class="hl">
+            <td class="id">R3</td>
+            <td><b>Blocking.</b> May a UDF body contain <span class="feat" style="display:inline;">seq.NEXTVAL</span>, return distinct values per row, and survive inside a MERGE?</td>
+            <td><span class="feat" style="display:inline;">poc/01</span></td>
+          </tr>
+          <tr><td class="id">R2</td><td>Does the branch selector work, do untaken CASE arms consume values, is unqualified the portable form?</td><td><span class="feat" style="display:inline;">poc/02</span></td></tr>
+          <tr><td class="id">R6</td><td>Does a body-level CAST deliver the declared type, given the declaration is ignored?</td><td><span class="chip chk">To write</span></td></tr>
+          <tr><td class="id">R10</td><td>Does the guarantee hold <b>through the wrapper</b>? Invocation count, plus negative tests for IMMUTABLE and MEMOIZABLE.</td><td><span class="feat" style="display:inline;">poc/04</span></td></tr>
+        </tbody>
+      </table>
+      <div class="callout teal" style="margin-top:10px;"><b>Sequencing.</b> R3 runs first and alone. If it fails, R2&rsquo;s signature cannot hold with NEXTVAL inside a UDF, and the fallbacks change what R6 and R10 even test &mdash; running them first wastes the effort.</div>
+      <p class="src"><b>R2 is in both lists deliberately:</b> the signature is <i>achievable</i> on documentation, but the mechanism it relies on still needs measuring.</p>
+    </div>
+  </div>
+  <div class="takeaway">Only four requirements need Snowflake at all, and three of those four are waiting on the one test that decides whether the agreed signature is buildable.</div>
+  <div class="slide-no">10 / 12</div>
+</section>
+
+<!-- ===================== 11 — R3 VALIDATION ===================== -->
+<section class="slide" id="s11" role="tabpanel">
+  <h2>R3 validation &mdash; the immediate next action</h2>
+  <p class="sub">Six tests, under a minute of runtime, and the result reshapes everything downstream</p>
+  <div class="flow">
+    <div class="step"><div class="n">TEST 1</div><div class="t">Baseline</div><div class="d">NEXTVAL works here outside any function.</div><div class="fx">Rules out privileges as the cause</div></div>
+    <div class="step"><div class="n">TEST 2</div><div class="t">Does it CREATE?</div><div class="d">A UDF whose body is <span class="feat" style="display:inline;">seq.NEXTVAL</span>.</div><div class="fx">First point of truth</div></div>
+    <div class="step" style="border-top-color:var(--red);"><div class="n">TEST 3</div><div class="t">Distinct per row?</div><div class="d">10 rows through the function.</div><div class="fx">THE decisive test &mdash; identical values = silent failure</div></div>
+    <div class="step"><div class="n">TEST 4</div><div class="t">Machine-checked</div><div class="d">100 rows, counted rather than eyeballed.</div><div class="fx">Removes judgement from the verdict</div></div>
+    <div class="step"><div class="n">TEST 5</div><div class="t">Consumption</div><div class="d">How many values did 100 rows burn?</div><div class="fx">Detects extra invocations per row</div></div>
+    <div class="step"><div class="n">TEST 6</div><div class="t">Inside a MERGE</div><div class="d">The same call in a MERGE USING projection.</div><div class="fx">Mirrors Q2 line 50 exactly</div></div>
+  </div>
+  <div class="cols" style="margin-top:16px;">
+    <div>
+      <h3>How each outcome reshapes the design</h3>
+      <table class="req snug tight">
+        <thead><tr><th style="width:168px;">Outcome</th><th>Then</th></tr></thead>
+        <tbody>
+          <tr class="hlg"><td><b>2, 3 and 6 all pass</b></td><td><span class="chip ok">R3 achieved</span> The branch-selector design is viable. G1 and G5 POCs proceed as written.</td></tr>
+          <tr class="hlr"><td><b>2 passes, 3 returns identical values</b></td><td><span class="chip no">Treat as hard failure</span> Silent, and the most dangerous result. Do not build on it.</td></tr>
+          <tr><td><b>2 fails</b></td><td>R3 impossible in a SQL UDF. Move to the fallbacks &mdash; and R2&rsquo;s signature cannot hold with NEXTVAL inside.</td></tr>
+          <tr><td><b>6 fails alone</b></td><td>Works in SELECT, not MERGE. The design survives only if Q2 stages keys in a prior SELECT.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3>What is needed to run it</h3>
+      <ol class="steps teal">
+        <li>A <b>scratch database and schema</b> &mdash; nothing in the script touches real objects, and it ends with a teardown.</li>
+        <li>Privileges to <b>CREATE SEQUENCE, CREATE FUNCTION and CREATE TABLE</b> in that schema.</li>
+        <li>Record each result. <b>Do not infer one test&rsquo;s outcome from another</b> &mdash; the silent case looks like success.</li>
+      </ol>
+      <div class="callout" style="margin-top:11px;">
+        <b>A second, smaller unknown rides along.</b> If the fallback is needed: does consuming a sequence count as &ldquo;making modifications using DDL or DML operations&rdquo; for <span class="feat" style="display:inline;">TABLE(proc(&hellip;))</span> eligibility? Undocumented &mdash; another short test, worth the same session.
+      </div>
+    </div>
+  </div>
+  <div class="takeaway">R3 is cheap to answer and expensive to assume &mdash; one scratch schema and under a minute decides whether the frozen signature is buildable at all.</div>
+  <div class="slide-no">11 / 12</div>
+</section>
+
+<!-- ===================== 12 — CLOSING ===================== -->
+<section class="slide" id="s12" role="tabpanel">
+  <h2>Open decisions and next steps</h2>
+  <p class="sub">Four decisions are yours; three tests are mine; nothing else blocks</p>
+  <table class="req snug">
+    <thead><tr><th class="id">ID</th><th style="width:244px;">Open question</th><th>Where it stands</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">C3</td>
+        <td>Which prefix scheme and datatype?</td>
+        <td><span class="chip part">Recommended</span> <b>Fixed-width offset</b> &mdash; the only scheme meeting R12 and R13 unconditionally. <b>Needs your decision, and the field width pinned with it.</b><span class="dsc"><span class="chip chk">Also confirm</span> R12 and R13 are <b>derived</b> from &sect;3, not stated. If R13 is not required, concatenation&rsquo;s weakness matters much less and this reopens.</span></td>
+      </tr>
+      <tr>
+        <td class="id">C4</td>
+        <td>Did Nidwika mean Q2, or Q1?</td>
+        <td><span class="chip ok">Likely nothing to do</span> The key is already minted inside Zone 1 &rarr; Zone 2. Minting in Q1 would mean allocating keys for rows the MERGE has not yet decided to insert, and rethinking the flag-4 path.</td>
+      </tr>
+      <tr>
+        <td class="id">C5</td>
+        <td>Where does the region name come from?</td>
+        <td><span class="chip warn">Open</span> Decides whether R8 is <i>genuinely</i> met. An orchestrator parameter, derivation from the source schema, or a per-job config row.</td>
+      </tr>
+      <tr>
+        <td class="id">C6</td>
+        <td>Existing unprefixed keys?</td>
+        <td><span class="chip warn">Open</span> Leave them (two key formats in one table) or backfill. Interacts with R12.</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="cols" style="margin-top:14px;">
+    <div>
+      <h3>Next steps &mdash; in order</h3>
+      <ol class="steps">
+        <li><b>Run R3</b> in a scratch schema &mdash; everything downstream waits on it.</li>
+        <li><b>Decide C3</b> and pin the field width &mdash; needs no Snowflake access, so it runs in parallel with step 1.</li>
+        <li><b>Take R12/R13 and C4 back to Nidwika</b> &mdash; three short confirmations. <b>Then</b> the R2, R6 and R10 POCs, shaped by whatever R3 returned.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Still to verify before building</h3>
+      <ol class="steps chk">
+        <li><b>R3</b> &mdash; may a UDF body read a sequence? The blocker.</li>
+        <li><b>Untaken CASE arms</b> &mdash; do they consume values? &ldquo;Each occurrence generates distinct values&rdquo; suggests they may; DuckDB said no, and does not transfer.</li>
+
+        <li><b>Downstream consumers of EMPLOYEE_ID</b> &mdash; anything capping at 64-bit breaks where NUMBER(38,0) does not. <b>MEMOIZABLE</b> stays prohibited rather than characterised, since its doc page 404s.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="takeaway">The requirement is frozen and seven of thirteen are already closed &mdash; one test and one scheme decision unblock the remaining six.</div>
+  <div class="slide-no">12 / 12</div>
+</section>
+
+</main>
+
+
+<script>
+(function () {
+  "use strict";
+  document.body.classList.add("js");
+
+  var SLIDE_W = 1280, SLIDE_H = 720;
+  var INNER_W = 1164, INNER_TOP = 34, BOTTOM_RESERVE = 86;
+  var MIN_FIT = 0.55, NAV_W = 240;
+
+  var tabs   = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var deck   = document.querySelector(".deck");
+  var prev   = document.getElementById("prev");
+  var next   = document.getElementById("next");
+  var index  = 0;
+
+  slides.forEach(function (sl) {
+    var inner = document.createElement("div");
+    inner.className = "slide-inner";
+    Array.prototype.slice.call(sl.childNodes).forEach(function (node) {
+      if (node.nodeType === 1 &&
+          (node.classList.contains("takeaway") || node.classList.contains("slide-no"))) { return; }
+      inner.appendChild(node);
+    });
+    sl.insertBefore(inner, sl.firstChild);
+  });
+
+  var stage = document.createElement("div");
+  stage.className = "stage";
+  while (deck.firstChild) { stage.appendChild(deck.firstChild); }
+  deck.appendChild(stage);
+
+  function fitContent(sl) {
+    var inner = sl.querySelector(".slide-inner");
+    if (!inner || sl.classList.contains("cover")) { return; }
+    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    inner.style.width = INNER_W + "px";
+    inner.style.transform = "none";
+    var h = inner.scrollHeight;
+    var s = h > avail ? Math.max(MIN_FIT, (avail / h) * 0.995) : 1;
+    inner.style.transform = "scale(" + s + ")";
+  }
+
+  function fitStage() {
+    var z = Math.min((window.innerWidth - NAV_W - 26) / SLIDE_W,
+                     (window.innerHeight - 26) / SLIDE_H);
+    z = Math.max(0.2, Math.min(z, 1.35));
+    stage.style.transform = "scale(" + z + ")";
+    deck.style.height = (SLIDE_H * z + 16) + "px";
+  }
+
+  function show(i) {
+    index = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach(function (s, n) { s.classList.toggle("active", n === index); });
+    tabs.forEach(function (t, n) { t.setAttribute("aria-selected", n === index ? "true" : "false"); });
+    prev.disabled = index === 0;
+    next.disabled = index === slides.length - 1;
+    tabs[index].scrollIntoView({ block: "nearest", inline: "nearest" });
+    fitContent(slides[index]);
+    if (history.replaceState) { history.replaceState(null, "", "#" + slides[index].id); }
+  }
+
+  tabs.forEach(function (t, n) { t.addEventListener("click", function () { show(n); }); });
+  prev.addEventListener("click", function () { show(index - 1); });
+  next.addEventListener("click", function () { show(index + 1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.altKey || e.metaKey) { return; }
+    if (e.key === "ArrowRight" || e.key === "PageDown") { show(index + 1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { show(index - 1); e.preventDefault(); }
+    else if (e.key === "Home") { show(0); e.preventDefault(); }
+    else if (e.key === "End") { show(slides.length - 1); e.preventDefault(); }
+    else if (e.key >= "1" && e.key <= "9") { show(parseInt(e.key, 10) - 1); e.preventDefault(); }
+  });
+
+  window.addEventListener("resize", fitStage);
+  window.addEventListener("beforeprint", function () { slides.forEach(fitContent); });
+
+  var start = slides.map(function (s) { return "#" + s.id; }).indexOf(window.location.hash);
+  fitStage();
+  show(start > -1 ? start : 0);
+  window.setTimeout(function () { fitStage(); fitContent(slides[index]); }, 150);
+}());
+</script>
+</body>
+</html>
