@@ -335,41 +335,41 @@ becomes *visible*. They meet only at the publication step.
 
 ## W6 — Region-prefixed sequence generation *(active)*
 
-Replacing the direct `<TABLE>_SEQ.NEXTVAL` call in the Zone 1 → Zone 2 ETL with a reusable
-function taking `(region_name, sequence_name)` — it resolves the region code from a mapping table,
-prefixes it to the sequence's next value and returns the value already cast to the surrogate key's
-datatype, so `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
+Making Zone 2 surrogate keys region-qualified at the moment they are created, moving
+Zone 1 → Zone 2, so the identifier never has to change during later global consolidation. A
+reusable function takes `(region_name, sequence_name)`, resolves the region code from a mapping
+table, combines it with the sequence's next value and returns the key already cast — so
+`nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status**: requirement captured from the *[Internal] TD MOD — US/USI Daily Connect* transcript.
-Nothing investigated or tested. Two action items on Nikhil Bansal — the function approach itself,
-and whether it is safe called in parallel by multiple tables.
+**Status**: requirement being finalised. D1–D3 taken, C1–C6 open. Nothing built, nothing tested in
+Snowflake.
 
 **[`w6-region-prefixed-sequence/README.md`](w6-region-prefixed-sequence/README.md) is the folder
-index** — it carries R1–R9, where the change lands in the queries, and the five risks the POC
-exists to settle. The essentials:
+index.** The essentials:
 
 | Path | What it is |
 |------|-----------|
-| `sources/requirement_region_prefixed_sequence.txt` | **The baseline.** Transcript-derived requirement |
-| `sources/employee_q1_zone1_to_staging.txt` | EMPLOYEE Q1 — Zone 1 → `STG_EMPLOYEE`, leaves the SK `NULL` |
-| `sources/employee_q2_staging_to_zone2_target.txt` | EMPLOYEE Q2 — staging → Zone 2 target. **Line 50 is the only place a SK is minted** |
+| `requirement.md` | Scope, R1–R13, decisions D1–D3, open questions C1–C6, acceptance criteria |
+| `explore/prefix_schemes.md` | C3 on evidence — digit concatenation vs fixed-width offset |
+| `explore/prefix_schemes.py` | The runnable DuckDB demonstration behind it |
+| `sources/` | Raw inputs. The transcript summary is the baseline and wins |
 
-**Settle this first.** Whether a Snowflake function may reference a sequence at all is unverified
-and could not be confirmed from documentation. The design fails hard without it; every other test
-is wasted effort until it is answered.
+**C1 decides whether the design is buildable.** An object name cannot be parameterised in static
+SQL, so a runtime sequence name needs dynamic SQL — which a SQL UDF cannot do, which JavaScript
+and Python UDFs cannot do either, and which a stored procedure can do but cannot be called from
+inside a `MERGE` projection. If that holds, R2 as worded cannot be met by anything inline-callable
+and the requirement changes rather than the implementation. Unverified: `docs.snowflake.com` is
+outside this session's allowed network domains and web sources were inconclusive.
 
-**Region mapping** is North America → 1, EU → 2, APAC → 3, held in a table so the same code base
-runs unchanged across environments.
+**Prefix scheme.** Fixed-width offset recommended over digit concatenation — concatenation is
+collision-free only while region codes are single-digit, and `concat(1, 23) = concat(12, 3) = 123`
+makes it fail silently at the tenth region. 99 duplicate keys across an 11-region population,
+against 0. Decision still with Nikhil.
 
-**Parked, not blocking**: whether the physical target table also needs its own region-code column
-(Abhi and team).
+**Parked, not blocking**: whether the target table also needs its own region-code column.
 
-**Prefix arithmetic is the quiet risk.** On `NUMBER(38,0)` a numeric prefix is a different number,
-not a decorated string — region `1` over sequence value `1` is `11`, and row `11` is `111`. Prefix
-width, padding and cross-region collisions need deciding alongside the return type.
-
-**Not W3, not W4.** W3 generates these two queries; W4 is the generic framework that runs them.
-W6 changes one expression inside the generated Q2.
+**Not W3, not W4.** W3 generates these two queries; W4 is the framework that runs them. W6 changes
+how one value inside the generated Q2 is produced.
 
 ---
 
