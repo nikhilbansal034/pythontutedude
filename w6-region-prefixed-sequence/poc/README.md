@@ -9,7 +9,8 @@ schema, numbers every test, and tears down after itself.
 | [`02_r2_sequence_name_binding.sql`](02_r2_sequence_name_binding.sql) | **R2** — can the sequence be chosen by a run-time name? | **DONE — satisfied.** [`R2_RESULTS.md`](R2_RESULTS.md) |
 | [`03_r6_return_datatype.sql`](03_r6_return_datatype.sql) | **R6 / C7** — does the function return the target's datatype? | **DONE — satisfied.** [`R6_RESULTS.md`](R6_RESULTS.md) |
 | [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](R10_RESULTS.md) |
-| [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — uniqueness when the prefix is load-bearing | Ready to run — closes 04's gap |
+| [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — first attempt | **DEFECTIVE — superseded by 06.** R13 proven, R12 not. [`R12_RESULTS.md`](R12_RESULTS.md) |
+| [`06_r12_independent_region_deployments.sql`](06_r12_independent_region_deployments.sql) | **R12** — three region schemas, prefix genuinely load-bearing | Ready to run |
 
 ## Before you start
 
@@ -60,6 +61,14 @@ counts distinct values against row count rather than just checking the statement
 `01` ran first because everything else presupposed it. With R3 proven, the remaining three are
 independent and can run in any order — though `04` is the longest and needs three worksheets open
 at once for its concurrent parts.
+
+**An assertion that cannot fail proves nothing — this has now bitten twice.** `04`'s T4.7 passed
+while all regions shared one sequence; `05`'s T5.2 passed while three nominally separate sequences
+moved in lockstep. Both reported `PASS` with zero duplicates, and in both cases removing the region
+prefix entirely would have changed nothing. Neither script's guard caught it, because both guards
+checked that the test *ran*, not that it *could have failed*. `06` adds explicit sensitivity checks
+(T6.1, T6.3) and reports `VACUOUS` rather than `PASS` when the premise is not established. **Build
+that check into any future test whose result is "no duplicates".**
 
 **The three-worksheet procedure is not sufficient on its own.** The R10 run measured sessions
 connecting up to **4 seconds apart** while a 20,000-row insert takes ~1.5s — so three worksheets
