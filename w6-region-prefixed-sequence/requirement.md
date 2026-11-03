@@ -1,8 +1,13 @@
 # W6 — Region-prefixed sequence generation — requirement
 
 **Status**: **FROZEN** as of 2026-11-03. Decisions D1–D4 taken; C8 answered. The thirteen
-requirements are grouped into five tracking groups (below). Seven close on documentation; R3 is the
-one blocker; C3–C6 remain open decisions that do not reopen the requirement itself.
+requirements are grouped into five tracking groups (below).
+
+**R3 is PROVEN and G2 is CLOSED** — tested in Snowflake on 2026-11-03, all six tests passed. A SQL
+UDF body *may* contain `seq.NEXTVAL`, it returns one distinct value per row, and it works inside a
+`MERGE` projection. Results and the NOORDER finding: [`poc/R3_RESULTS.md`](poc/R3_RESULTS.md);
+evidence: [`R3_evidence.docx`](R3_evidence.docx). The blocker is gone — eight of thirteen
+requirements now close, and C3–C6 remain open decisions that do not reopen the requirement.
 
 **Deck**: [`requirement_deck.html`](requirement_deck.html) — 12 slides, the frozen requirement as
 presented. **Per-requirement analysis**: [`feasibility.md`](feasibility.md).
@@ -70,12 +75,13 @@ at group level rather than as thirteen separate threads.
 | Grp | Group | Holds | What closes it | Status |
 |---|---|---|---|---|
 | **G1** | Function interface & contract | R1, R2, R6 | Docs answered; two need a workaround | Workaround |
-| **G2** | Sequence access | R3 | One short Snowflake test | **Blocking** |
+| **G2** | Sequence access | R3 | One short Snowflake test | **CLOSED — proven 2026-11-03** |
 | **G3** | Region configuration | R4, R7, R8, R11 | Closed on documentation | Closed |
 | **G4** | Key composition & integrity | R5, R12, R13 | One design decision, not a test | Decision |
 | **G5** | Placement & concurrency | R9, R10 | Both already answered | Closed |
 
-G2 stands alone because nothing else can be built until it is answered.
+G2 stood alone because nothing else could be built until it was answered. **It now is**: R3 passed
+in Snowflake on 2026-11-03, so G2 is closed and the branch-selector design in D1 is viable.
 
 ---
 
@@ -139,6 +145,12 @@ Three caveats the same page attaches, all worth recording:
   issued value
 
 ### C1 — Can a Snowflake function take a sequence *name* and return that sequence's next value?
+
+> **RESOLVED 2026-11-03 — YES.** The one untested unknown below (may a SQL UDF body contain
+> `seq.NEXTVAL`?) was tested in Snowflake and **passed**: the function created, returned 100
+> distinct keys for 100 rows with zero duplicates, and worked inside a `MERGE` projection. See
+> [`poc/R3_RESULTS.md`](poc/R3_RESULTS.md). The analysis below stands as written; only its final
+> open question is now answered, in the affirmative.
 
 **Resolved, except for one test.** Snowflake's docs were read directly (see §9), and the answer is
 more definite than either earlier draft of this section.

@@ -79,6 +79,8 @@ These aren't visual style — they're what makes a deck in this family read as r
 - [ ] The deck is still readable with JavaScript disabled — content isn't hidden by anything other than the pagination script (deck 2 §1)
 - [ ] Any diagram whose layout could be mistaken for a scaled quantity (timeline widths, relative sizes) is captioned "illustrative, not to scale" if it isn't actually to scale
 - [ ] If the deck mixes client-facing and internal-only content, internal slides are visually flagged (accent color + badge), not just mentally set aside
+- [ ] **No slide's content runs underneath its takeaway bar.** `fitContent`'s `BOTTOM_RESERVE` is a fixed 86px in both reference decks, which only clears a *one-line* takeaway. A two- or three-line takeaway sits higher and content scaled to the fixed reserve will overlap it — invisible in the measured scroll height, obvious on screen. Either keep every takeaway to one line, or measure the bar: `reserve = Math.max(BOTTOM_RESERVE, takeaway.offsetHeight + takeawayBottom + 14)`. Verify by comparing each slide's deepest content bottom against the takeaway's top in a real browser, not by eye
+- [ ] **Every slide's `<div>`s balance.** A single dropped `</div>` lets the takeaway be absorbed into a narrow column, where it wraps to several lines and silently triggers the overlap above. Count opens vs closes per `<section>` after any hand-editing
 
 ## Extending this skill
 

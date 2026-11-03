@@ -7,6 +7,10 @@
 -- It is not excluded by "DDL and DML operations are not supported in UDFs",
 -- because consuming a sequence is neither DDL nor DML.
 --
+-- RUN 2026-11-03: ALL TESTS PASSED. R3 is achieved and G2 is closed.
+-- Results and the NOORDER finding: R3_RESULTS.md. Evidence: ../R3_evidence.docx.
+-- Kept runnable so the result can be reproduced in another account.
+--
 -- Run this FIRST. Everything else in W6 is wasted effort until T1.3 is known.
 -- Expected runtime: under a minute. Needs CREATE SEQUENCE + CREATE FUNCTION.
 --
@@ -82,13 +86,31 @@ FROM generated;
 -- ------------------------------------------------------------------ PASS/FAIL
 
 -- --------------------------------------------------------------------------
--- T1.5  How many values did 100 rows actually consume? If the UDF is invoked
---       more than once per row, consumption outruns the row count.
+-- T1.5  CORRECTED 2026-11-03 after the first run. The original version of this
+--       test read a bare NEXTVAL and expected it to land "roughly 100 ahead of
+--       T1.4's max_key". THAT EXPECTATION WAS WRONG: it assumed a sequence is a
+--       single monotonic counter. On the first run T1.1 returned 1, the UDF
+--       then returned 101-110 and 201-300, and this statement returned 2.
+--
+--       That is documented NOORDER behaviour, not a defect. CREATE SEQUENCE:
+--       "NOORDER specifies that the values are not guaranteed to be in
+--       increasing order. For example, if a sequence has START 1 INCREMENT 2,
+--       the generated values might be 1, 3, 101, 5, 103, etc." The default is
+--       set by the NOORDER_SEQUENCE_AS_DEFAULT account parameter.
+--
+--       So a bare NEXTVAL cannot measure what the UDF consumed - the two draw
+--       from different reserved ranges. Invocation count is measured by T1.4
+--       instead: 100 rows produced 100 distinct values spanning exactly
+--       201-300, so exactly one value per row was generated.
 -- --------------------------------------------------------------------------
-SELECT w6_test_seq.NEXTVAL AS next_after_100_rows;
--- EXPECT: roughly 100 ahead of T1.4's max_key. Materially higher means extra
--- invocations; record the number rather than judging it here.
--- ------------------------------------------------------------------ PASS/FAIL
+-- Record the sequence's ORDER/NOORDER property rather than guessing from values.
+SHOW SEQUENCES LIKE 'W6_TEST_SEQ';
+SELECT "name", "ordered" FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+-- EXPECT: "ordered" = N on an account where NOORDER is the default.
+-- NOT A FAILURE EITHER WAY - recorded because it explains the value pattern,
+-- and because ORDER must NOT be set on these sequences later to "tidy up" the
+-- keys: it would cost concurrent-load performance to buy monotonicity the
+-- design does not need. ------------------------------------------- RECORD ONLY
 
 -- --------------------------------------------------------------------------
 -- T1.6  Does it still work nested inside a MERGE source, which is where Q2
@@ -133,6 +155,8 @@ DROP SEQUENCE IF EXISTS w6_test_seq;
 --                                Treat as a hard failure. Do not build on it.
 -- T1.2 + T1.3 + T1.6 all pass  -> R3 ACHIEVED. The branch-selector design in
 --                                02_r2_sequence_name_binding.sql is viable.
+--                                *** THIS IS WHAT HAPPENED on 2026-11-03.
+--                                    See R3_RESULTS.md for the evidence. ***
 -- T1.6 fails alone             -> Works in SELECT but not MERGE. The design
 --                                survives only if Q2 is restructured to stage
 --                                keys in a prior SELECT.

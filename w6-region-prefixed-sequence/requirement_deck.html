@@ -209,7 +209,7 @@ ol.steps li b{color:var(--navy);}
     <div class="navsec">Requirements</div>
     <button class="tab" role="tab" data-target="s3" aria-selected="false" aria-controls="s3"><span class="tnum">03</span>13 requirements &rarr; 5 tracking groups</button>
     <button class="tab" role="tab" data-target="s4" aria-selected="false" aria-controls="s4"><span class="tnum">04</span>G1 &mdash; Function interface</button>
-    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>G2 &mdash; Sequence access</button>
+    <button class="tab" role="tab" data-target="s5" aria-selected="false" aria-controls="s5"><span class="tnum">05</span>G2 &mdash; Sequence access: proven</button>
     <button class="tab" role="tab" data-target="s6" aria-selected="false" aria-controls="s6"><span class="tnum">06</span>G3 &mdash; Region configuration</button>
     <button class="tab" role="tab" data-target="s7" aria-selected="false" aria-controls="s7"><span class="tnum">07</span>G4 &mdash; Key composition</button>
     <button class="tab" role="tab" data-target="s8" aria-selected="false" aria-controls="s8"><span class="tnum">08</span>G5 &mdash; Placement &amp; concurrency</button>
@@ -240,7 +240,7 @@ ol.steps li b{color:var(--navy);}
       <div class="meta">
         <b>Basis</b> &nbsp;[Internal] TD MOD &mdash; US/USI Daily Connect transcript + Snowflake docs, read directly<br>
         <b>Scope</b> &nbsp;EMPLOYEE, Q1/Q2 historical load &mdash; 13 requirements, 5 tracking groups<br>
-        <b>Status</b> &nbsp;Requirement <b>frozen</b>. 7 of 13 closed on documentation; R3 blocks the rest
+        <b>Status</b> &nbsp;Requirement <b>frozen</b>. <b>R3 proven in Snowflake 3 Nov</b> &mdash; the blocker is cleared
       </div>
     </div>
     <div class="agenda">
@@ -250,7 +250,7 @@ ol.steps li b{color:var(--navy);}
       <div class="sec">Requirements</div>
       <div class="item"><span class="k">3</span>13 requirements clubbed into 5 trackable groups</div>
       <div class="item"><span class="k">4</span>G1 &mdash; the function&rsquo;s interface and contract</div>
-      <div class="item"><span class="k">5</span>G2 &mdash; sequence access: the one blocker</div>
+      <div class="item"><span class="k">5</span>G2 &mdash; sequence access: tested and proven</div>
       <div class="item"><span class="k">6</span>G3 &mdash; region configuration: closed</div>
       <div class="item"><span class="k">7</span>G4 &mdash; key composition and integrity</div>
       <div class="item"><span class="k">8</span>G5 &mdash; placement and concurrency: closed</div>
@@ -318,7 +318,7 @@ ol.steps li b{color:var(--navy);}
   <div class="hz">
     <div class="lbl"><div class="h">5 tracking groups</div><div class="x">each closes as a unit</div></div>
     <div class="a"><div class="h">G1 Interface</div><div class="x">R1 R2 R6</div></div>
-    <div class="a on"><div class="h">G2 Sequence access</div><div class="x">R3 &mdash; blocker</div></div>
+    <div class="a on"><div class="h">G2 Sequence access</div><div class="x">R3 &mdash; proven</div></div>
     <div class="a"><div class="h">G3 Region config</div><div class="x">R4 R7 R8 R11</div></div>
     <div class="a"><div class="h">G4 Key composition</div><div class="x">R5 R12 R13</div></div>
     <div class="a"><div class="h">G5 Placement &amp; concurrency</div><div class="x">R9 R10</div></div>
@@ -333,12 +333,12 @@ ol.steps li b{color:var(--navy);}
         <td>Docs answered; 2 need a workaround</td>
         <td><span class="chip part">Workaround</span></td>
       </tr>
-      <tr class="hl">
+      <tr class="hlg">
         <td class="id">G2</td>
         <td><b>Sequence access</b></td>
         <td><span class="rtag">R3 NEXTVAL inside</span></td>
-        <td>One short Snowflake test</td>
-        <td><span class="chip warn">Blocking</span></td>
+        <td>Tested 3 Nov &mdash; all 6 passed</td>
+        <td><span class="chip ok">Closed</span></td>
       </tr>
       <tr>
         <td class="id">G3</td>
@@ -364,9 +364,9 @@ ol.steps li b{color:var(--navy);}
     </tbody>
   </table>
   <div class="callout" style="margin-top:12px;">
-    <b>Each group shares one closing condition</b>, so progress tracks at group level rather than thirteen threads. G2 stands alone &mdash; nothing else can be built until it is answered. <b>R12 and R13 are derived, not stated:</b> both need confirming, and if R13 is not required, G4 loosens considerably.
+    <b>Each group shares one closing condition</b>, so progress tracks at group level rather than thirteen threads. G2 stood alone because nothing else could be built until it was answered &mdash; <b>it passed in Snowflake on 3 Nov</b>. <b>R12 and R13 are derived, not stated:</b> both need confirming, and if R13 is not required, G4 loosens considerably.
   </div>
-  <div class="takeaway">Seven of thirteen requirements close on documentation alone; one blocks everything else; one needs a decision rather than a test.</div>
+  <div class="takeaway">Eight of thirteen requirements are now closed &mdash; seven on documentation and R3 on evidence; what remains is one scheme decision and two confirmations.</div>
   <div class="slide-no">3 / 12</div>
 </section>
 
@@ -408,41 +408,33 @@ ol.steps li b{color:var(--navy);}
 
 <!-- ===================== 5 — G2 BLOCKER ===================== -->
 <section class="slide" id="s5" role="tabpanel">
-  <h2>G2 &mdash; Sequence access: the one blocker</h2>
-  <p class="sub">R3 &mdash; may a SQL UDF body contain <span class="feat" style="display:inline;">seq.NEXTVAL</span>? The documentation does not say, either way</p>
-  <div class="cols">
+  <h2>G2 &mdash; Sequence access: tested, and it passed</h2>
+  <p class="sub">R3 &mdash; the documentation never answered it, so it was run in Snowflake on 3 November. All six tests passed</p>
+  <div class="cols c55">
     <div>
-      <h3>What the documentation says &mdash; nothing</h3>
+      <h3>Results &mdash; <span class="feat" style="display:inline;">LM_POC_DB.POC_SCHEMA</span>, 3 Nov 2026</h3>
       <table class="req snug tight">
-        <thead><tr><th>Page checked</th><th style="width:150px;">Mentions sequences?</th></tr></thead>
+        <thead><tr><th style="width:50px;">Test</th><th>What it checked<span class="dsc" style="font-weight:400;">T1.1 baseline passed; omitted</span></th><th style="width:188px;">Result</th><th style="width:64px;">&nbsp;</th></tr></thead>
         <tbody>
-          <tr><td>CREATE FUNCTION</td><td><span class="chip no">No</span></td></tr>
-          <tr><td>Introduction to SQL UDFs</td><td><span class="chip no">No</span></td></tr>
-          <tr><td>SQL UDF limitations</td><td><span class="chip no">No</span></td></tr>
-          <tr><td>Using Sequences</td><td><span class="chip no">Never mentions UDFs</span></td></tr>
+          <tr><td><b>T1.2</b></td><td>Does the UDF <b>create</b> with a sequence in its body?</td><td>&ldquo;successfully created&rdquo;</td><td><span class="chip ok">Pass</span></td></tr>
+          <tr class="hlg"><td><b>T1.3</b></td><td><b>Decisive</b> &mdash; distinct value per row, 10 rows</td><td>10 distinct: <b>101&ndash;110</b></td><td><span class="chip ok">Pass</span></td></tr>
+          <tr><td><b>T1.4</b></td><td>Machine-checked, 100 rows</td><td>100 / 100 distinct, <b>0 duplicates</b>, 201&ndash;300</td><td><span class="chip ok">Pass</span></td></tr>
+          <tr><td><b>T1.5</b></td><td>Consumption after 100 rows</td><td>returned <b>2</b> &mdash; the <i>test</i> was wrong</td><td><span class="chip part">n/a</span></td></tr>
+          <tr><td><b>T1.6</b></td><td>Inside a MERGE, mirroring Q2 line 50</td><td>3 rows, 3 distinct IDs</td><td><span class="chip ok">Pass</span></td></tr>
         </tbody>
       </table>
-      <div class="callout" style="margin-top:11px;"><b>The one adjacent rule does not settle it.</b> &ldquo;DDL and DML operations are not supported in UDFs&rdquo; &mdash; but consuming a sequence is <b>neither DDL nor DML</b>. Not prohibited, not permitted.</div>
-      <div class="callout teal" style="margin-top:11px;"><b>DuckDB cannot answer this, and would mislead.</b> DuckDB&rsquo;s <span class="feat" style="display:inline;">nextval('name')</span> takes a <b>string</b>; Snowflake&rsquo;s <span class="feat" style="display:inline;">seq.NEXTVAL</span> is an <b>identifier</b>. So a wrapper function <i>succeeds</i> in DuckDB and proves nothing. That false positive is demonstrated deliberately in <span class="feat" style="display:inline;">explore/r2_sequence_name_binding.py</span> &sect;1 so it is never mistaken for evidence.</div>
+      <div class="callout teal" style="margin-top:9px;"><b>The trap case did not happen.</b> Ten <i>identical</i> values at T1.3 would have meant a constant-folded body &mdash; the silent failure T1.2 passing would have masked.</div>
+      <p class="src"><b>Evidence:</b> <span class="feat" style="display:inline;">R3_evidence.docx</span> &middot; <span class="feat" style="display:inline;">poc/R3_RESULTS.md</span></p>
     </div>
     <div>
-      <h3>Three outcomes, and one is a trap</h3>
-      <table class="req snug">
-        <thead><tr><th style="width:168px;">Result of the test</th><th>Consequence</th></tr></thead>
-        <tbody>
-          <tr><td><b>CREATE fails</b></td><td>R3 impossible in a SQL UDF. R2&rsquo;s signature cannot hold with NEXTVAL inside. Fall back.</td></tr>
-          <tr class="hlg"><td><b>10 distinct values</b></td><td><span class="chip ok">R3 achieved</span> The branch-selector design is viable. Proceed.</td></tr>
-          <tr class="hlr"><td><b>10 identical values</b></td><td><span class="chip no">Worst case &mdash; silent</span> The body was folded to a constant. R3 unusable, but <b>no error is raised</b>. This is why CREATE succeeding is not enough.</td></tr>
-        </tbody>
-      </table>
-      <h3 class="gap">Fallbacks, in order</h3>
-      <ol class="steps chk">
-        <li><b>Pass the value in</b> &mdash; <span class="feat" style="display:inline;">f(region_name, seq_value)</span>, NEXTVAL stays in the query. Loses half of R2; keeps everything else.</li>
-        <li><b>Stored procedure via <span class="feat" style="display:inline;">TABLE(proc(&hellip;))</span></b> in the MERGE source. Docs permit this for MERGE &mdash; open question is whether consuming a sequence counts as a &ldquo;modification&rdquo;.</li>
-      </ol>
+      <h3>Invocation count: exactly one per row</h3>
+      <p class="st">T1.4 is the real measure: 100 rows produced 100 distinct keys spanning <b>exactly</b> 201&ndash;300. Twice per row would have consumed ~200. <b>That is the evidence R10 needed</b> &mdash; on this plan; re-check at volume.</p>
+      <h3 class="gap">T1.5 returned 2 &mdash; and my test was wrong</h3>
+      <p class="st" style="font-family:var(--mono);font-size:12.5px;background:var(--g1);border-left:4px solid var(--navy);padding:8px 11px;line-height:1.5;">T1.1 direct&nbsp;&nbsp;&rarr; 1<br>T1.3 UDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; 101 .. 110<br>T1.4 UDF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; 201 .. 300<br>T1.5 direct&nbsp;&nbsp;&rarr; 2 &nbsp;&nbsp;&lt;- looks wrong, is not</p>
+      <div class="callout" style="margin-top:9px;"><b>Documented NOORDER behaviour.</b> <i>CREATE SEQUENCE</i>: values &ldquo;are not guaranteed to be in increasing order &hellip; might be <b>1, 3, 101, 5, 103</b>&rdquo; &mdash; the docs&rsquo; own example is the pattern seen, and the default comes from <span class="feat" style="display:inline;">NOORDER_SEQUENCE_AS_DEFAULT</span>. My test assumed one monotonic counter; direct and UDF calls draw from <b>different reserved ranges</b>, so a bare NEXTVAL cannot measure UDF consumption. <b>And NOORDER is what we want</b> &mdash; it &ldquo;can improve performance when multiple INSERT operations are performed concurrently&rdquo;, and weakens ordering, never uniqueness. Do not set ORDER later to tidy the keys. Gaps are wide though: 101&ndash;200 was reserved, ten values used.</div>
     </div>
   </div>
-  <div class="takeaway">R3 is the base of everything else and no amount of further reading will settle it &mdash; it needs one statement run in a Snowflake account, and a pass that returns identical values is a failure wearing a success.</div>
+  <div class="takeaway">R3 is proven and G2 closes &mdash; the function may read a sequence, once per row, inside a MERGE; the only surprise was a test of mine that assumed sequences are monotonic.</div>
   <div class="slide-no">5 / 12</div>
 </section>
 
@@ -628,7 +620,7 @@ ol.steps li b{color:var(--navy);}
 <!-- ===================== 10 — CLOSED VS POC ===================== -->
 <section class="slide" id="s10" role="tabpanel">
   <h2>What closes now, and what needs a POC</h2>
-  <p class="sub">Seven requirements close on documentation &middot; three need a decision &middot; three need Snowflake</p>
+  <p class="sub">Eight now closed &mdash; seven on documentation, R3 on evidence &middot; three need a decision &middot; three still need Snowflake</p>
   <div class="cols c55">
     <div>
       <h3>Closes on documentation &mdash; no POC</h3>
@@ -642,6 +634,7 @@ ol.steps li b{color:var(--navy);}
           <tr><td class="id">R8</td><td>Unqualified references resolve in the function&rsquo;s schema</td></tr>
           <tr><td class="id">R9</td><td>Already satisfied at Q2 line 50</td></tr>
           <tr><td class="id">R11</td><td>A new region is a mapping row</td></tr>
+          <tr class="hlg"><td class="id">R3</td><td><b>Proven in Snowflake 3 Nov</b> &mdash; all six tests passed</td></tr>
         </tbody>
       </table>
       <div class="callout" style="margin-top:10px;"><b>Decided, not tested &mdash; R5, R12, R13.</b> One scheme decision closes all three; evidence is in hand and needs no Snowflake access, so it runs in parallel with R3. <b>Plus</b> confirming R12 and R13 are genuinely required.</div>
@@ -651,28 +644,23 @@ ol.steps li b{color:var(--navy);}
       <table class="req snug tight">
         <thead><tr><th class="id">ID</th><th>What must be proven</th><th style="width:96px;">Script</th></tr></thead>
         <tbody>
-          <tr class="hl">
-            <td class="id">R3</td>
-            <td><b>Blocking.</b> May a UDF body contain <span class="feat" style="display:inline;">seq.NEXTVAL</span>, return distinct values per row, and survive inside a MERGE?</td>
-            <td><span class="feat" style="display:inline;">poc/01</span></td>
-          </tr>
           <tr><td class="id">R2</td><td>Does the branch selector work, do untaken CASE arms consume values, is unqualified the portable form?</td><td><span class="feat" style="display:inline;">poc/02</span></td></tr>
           <tr><td class="id">R6</td><td>Does a body-level CAST deliver the declared type, given the declaration is ignored?</td><td><span class="chip chk">To write</span></td></tr>
           <tr><td class="id">R10</td><td>Does the guarantee hold <b>through the wrapper</b>? Invocation count, plus negative tests for IMMUTABLE and MEMOIZABLE.</td><td><span class="feat" style="display:inline;">poc/04</span></td></tr>
         </tbody>
       </table>
-      <div class="callout teal" style="margin-top:10px;"><b>Sequencing.</b> R3 runs first and alone. If it fails, R2&rsquo;s signature cannot hold with NEXTVAL inside a UDF, and the fallbacks change what R6 and R10 even test &mdash; running them first wastes the effort.</div>
+      <div class="callout teal" style="margin-top:10px;"><b>Sequencing resolved.</b> R3 ran first and alone, and passed &mdash; so R2, R6 and R10 can now be written against the branch-selector design rather than hedged against a fallback. <b>R3&rsquo;s run also pre-answered part of R10</b>: invocation count is one per row.</div>
       <p class="src"><b>R2 is in both lists deliberately:</b> the signature is <i>achievable</i> on documentation, but the mechanism it relies on still needs measuring.</p>
     </div>
   </div>
-  <div class="takeaway">Only four requirements need Snowflake at all, and three of those four are waiting on the one test that decides whether the agreed signature is buildable.</div>
+  <div class="takeaway">The one test that gated the design has passed, so the three remaining POCs now refine a design that is known to work rather than deciding whether it works at all.</div>
   <div class="slide-no">10 / 12</div>
 </section>
 
 <!-- ===================== 11 — R3 VALIDATION ===================== -->
 <section class="slide" id="s11" role="tabpanel">
-  <h2>R3 validation &mdash; the immediate next action</h2>
-  <p class="sub">Six tests, under a minute of runtime, and the result reshapes everything downstream</p>
+  <h2>R3 validation &mdash; run, and passed</h2>
+  <p class="sub">Six tests, run 3 November in <span class="feat" style="display:inline;">LM_POC_DB.POC_SCHEMA</span> &mdash; every one passed</p>
   <div class="flow">
     <div class="step"><div class="n">TEST 1</div><div class="t">Baseline</div><div class="d">NEXTVAL works here outside any function.</div><div class="fx">Rules out privileges as the cause</div></div>
     <div class="step"><div class="n">TEST 2</div><div class="t">Does it CREATE?</div><div class="d">A UDF whose body is <span class="feat" style="display:inline;">seq.NEXTVAL</span>.</div><div class="fx">First point of truth</div></div>
@@ -687,7 +675,7 @@ ol.steps li b{color:var(--navy);}
       <table class="req snug tight">
         <thead><tr><th style="width:168px;">Outcome</th><th>Then</th></tr></thead>
         <tbody>
-          <tr class="hlg"><td><b>2, 3 and 6 all pass</b></td><td><span class="chip ok">R3 achieved</span> The branch-selector design is viable. G1 and G5 POCs proceed as written.</td></tr>
+          <tr class="hlg"><td><b>2, 3 and 6 all pass</b></td><td><span class="chip ok">THIS HAPPENED</span> R3 achieved. The branch-selector design is viable; G1 and G5 POCs proceed as written.</td></tr>
           <tr class="hlr"><td><b>2 passes, 3 returns identical values</b></td><td><span class="chip no">Treat as hard failure</span> Silent, and the most dangerous result. Do not build on it.</td></tr>
           <tr><td><b>2 fails</b></td><td>R3 impossible in a SQL UDF. Move to the fallbacks &mdash; and R2&rsquo;s signature cannot hold with NEXTVAL inside.</td></tr>
           <tr><td><b>6 fails alone</b></td><td>Works in SELECT, not MERGE. The design survives only if Q2 stages keys in a prior SELECT.</td></tr>
@@ -695,7 +683,7 @@ ol.steps li b{color:var(--navy);}
       </table>
     </div>
     <div>
-      <h3>What is needed to run it</h3>
+      <h3>What it needed to run</h3>
       <ol class="steps teal">
         <li>A <b>scratch database and schema</b> &mdash; nothing in the script touches real objects, and it ends with a teardown.</li>
         <li>Privileges to <b>CREATE SEQUENCE, CREATE FUNCTION and CREATE TABLE</b> in that schema.</li>
@@ -706,14 +694,14 @@ ol.steps li b{color:var(--navy);}
       </div>
     </div>
   </div>
-  <div class="takeaway">R3 is cheap to answer and expensive to assume &mdash; one scratch schema and under a minute decides whether the frozen signature is buildable at all.</div>
+  <div class="takeaway">R3 was cheap to answer and would have been expensive to assume &mdash; one scratch schema and under a minute confirmed the frozen signature is buildable.</div>
   <div class="slide-no">11 / 12</div>
 </section>
 
 <!-- ===================== 12 — CLOSING ===================== -->
 <section class="slide" id="s12" role="tabpanel">
   <h2>Open decisions and next steps</h2>
-  <p class="sub">Four decisions are yours; three tests are mine; nothing else blocks</p>
+  <p class="sub">R3 is proven; three decisions are yours; three POCs remain &mdash; nothing blocks</p>
   <table class="req snug">
     <thead><tr><th class="id">ID</th><th style="width:244px;">Open question</th><th>Where it stands</th></tr></thead>
     <tbody>
@@ -743,22 +731,22 @@ ol.steps li b{color:var(--navy);}
     <div>
       <h3>Next steps &mdash; in order</h3>
       <ol class="steps">
-        <li><b>Run R3</b> in a scratch schema &mdash; everything downstream waits on it.</li>
-        <li><b>Decide C3</b> and pin the field width &mdash; needs no Snowflake access, so it runs in parallel with step 1.</li>
-        <li><b>Take R12/R13 and C4 back to Nidwika</b> &mdash; three short confirmations. <b>Then</b> the R2, R6 and R10 POCs, shaped by whatever R3 returned.</li>
+        <li><span class="chip ok">Done</span> <b>R3 run and passed</b> &mdash; 3 Nov. Blocker cleared.</li>
+        <li><b>Decide C3</b> and pin the field width &mdash; needs no Snowflake access.</li>
+        <li><b>Take R12/R13 and C4 back to Nidwika</b> &mdash; three short confirmations. <b>Then</b> the R2, R6 and R10 POCs, now written against a design known to work.</li>
       </ol>
     </div>
     <div>
       <h3>Still to verify before building</h3>
       <ol class="steps chk">
-        <li><b>R3</b> &mdash; may a UDF body read a sequence? The blocker.</li>
+        <li><b>Invocation count at volume</b> &mdash; one per row was shown on a 100-row plan; confirm at production size.</li>
         <li><b>Untaken CASE arms</b> &mdash; do they consume values? &ldquo;Each occurrence generates distinct values&rdquo; suggests they may; DuckDB said no, and does not transfer.</li>
 
         <li><b>Downstream consumers of EMPLOYEE_ID</b> &mdash; anything capping at 64-bit breaks where NUMBER(38,0) does not. <b>MEMOIZABLE</b> stays prohibited rather than characterised, since its doc page 404s.</li>
       </ol>
     </div>
   </div>
-  <div class="takeaway">The requirement is frozen and seven of thirteen are already closed &mdash; one test and one scheme decision unblock the remaining six.</div>
+  <div class="takeaway">The requirement is frozen, R3 is proven and eight of thirteen are closed &mdash; one scheme decision and two confirmations are all that stand between here and building it.</div>
   <div class="slide-no">12 / 12</div>
 </section>
 
@@ -800,7 +788,17 @@ ol.steps li b{color:var(--navy);}
   function fitContent(sl) {
     var inner = sl.querySelector(".slide-inner");
     if (!inner || sl.classList.contains("cover")) { return; }
-    var avail = SLIDE_H - INNER_TOP - BOTTOM_RESERVE;
+    // Reserve the takeaway bar's ACTUAL height, not a fixed guess. The bar is
+    // excluded from scaling and pinned to the bottom, so a two- or three-line
+    // takeaway sits higher up the slide and the fixed 86px reserve let content
+    // run underneath it. Measured per slide, content can never overlap it.
+    var tk = sl.querySelector(".takeaway");
+    var reserve = BOTTOM_RESERVE;
+    if (tk) {
+      var tkBottom = parseFloat(getComputedStyle(tk).bottom) || 32;
+      reserve = Math.max(BOTTOM_RESERVE, tk.offsetHeight + tkBottom + 14);
+    }
+    var avail = SLIDE_H - INNER_TOP - reserve;
     inner.style.width = INNER_W + "px";
     inner.style.transform = "none";
     var h = inner.scrollHeight;
