@@ -1,0 +1,530 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "R12-20261103-214743",
+    "requirement_id": "R12",
+    "work_item": "W6",
+    "script": "SQL/05_r12_per_region_sequences.sql",
+    "script_question": "Cross-region uniqueness when the prefix is load-bearing - do per-region sequences that all start at 1 stay separated by the region prefix alone?",
+    "related_decision": "D4 - each table has its own sequence PER REGION, and every one starts at 1.",
+    "started_at_utc": "2026-11-03T21:47:43Z",
+    "finished_at_utc": "2026-11-03T21:47:43Z",
+    "executed_by": "Cortex Code - sequential statements via sql_execute; T5.2 via three concurrent snow CLI sessions coordinated by a barrier table",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with the R3, R2, R6 and R10 runs. Objects retained in LM_POC_DB.POC_SCHEMA.",
+    "headline": "R12 IS NOT PROVEN BY THIS RUN. T5.2 returned PASS, but the pass is VACUOUS: the three per-region sequences never issued overlapping raw numbers, so the prefix was never load-bearing. This is the same defect the script was written to correct in 04's T4.7, arriving by a different route.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "T5.1 returned the script's own UNEXPECTED branch. Per the script's instruction ('stop and investigate'), two diagnostic statements were added at seq 12 and seq 13 before continuing.",
+      "One further diagnostic was added at seq 22, not present in the script, to measure directly whether any raw sequence value was reused across regions. That is the crux of R12 and the script did not test it explicitly.",
+      "The remainder of the script was then run as written, so the record is complete, but T5.2's PASS must be read together with findings F14 and F15.",
+      "T5.2b is described in the script as a RECORD step with no SQL supplied. The overlap query used is the one carried over from the R10 run."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "POC_SCHEMA",
+    "snowflake_version": "10.39.101"
+  },
+  "concurrency_method": {
+    "how_it_was_achieved": "Three independent `snow sql -f` processes, each its own Snowflake session, released together by a barrier table (w6_barrier) that each session polls every 250ms inside a Snowflake Scripting block.",
+    "why_a_barrier_was_necessary": "Measured in the R10 run: CLI sessions connect up to 4 seconds apart while a 10,000-row insert takes roughly 1.5 seconds. The script itself warns about this at lines 96-97.",
+    "overlap_evidence": "T5.2b at seq 19. All three windows overlapped for 866ms.",
+    "runner_script": "runner/run_parallel.ps1 -Phase T52"
+  },
+  "statements": [
+    {
+      "seq": 1, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_na START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_NA successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 2, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_eu START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_EU successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 3, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_apac START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_APAC successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "All three sequences declared START 1, which is the premise of D4 and of this whole script."
+    },
+    {
+      "seq": 4, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_region_map2 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_REGION_MAP2 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 5, "test_id": "SETUP",
+      "sql": "INSERT INTO w6_region_map2 VALUES ('North America', 1), ('EU', 2), ('APAC', 3)",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[3]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 6, "test_id": "SETUP",
+      "purpose": "Per-region prefixed key function. Unqualified names for R8, VOLATILE per R10, body cast per R6, branch-selector shape per R2.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_key_per_region(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nCOMMENT = 'VOLATILE required. Per-region sequences: the prefix is load-bearing for uniqueness.'\nAS\n$$\n    CAST(\n        (SELECT m.REGION_CODE FROM w6_region_map2 m WHERE m.REGION_NAME = region_name)\n        * 1000000000000000\n        + CASE region_name\n              WHEN 'North America' THEN w6_emp_seq_na.NEXTVAL\n              WHEN 'EU'            THEN w6_emp_seq_eu.NEXTVAL\n              WHEN 'APAC'          THEN w6_emp_seq_apac.NEXTVAL\n          END\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_KEY_PER_REGION successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "CRITICAL: this single function body names ALL THREE sequences. R2's finding F4 established that every sequence referenced in a statement reserves a block whether or not its CASE arm is selected. That property is what invalidates T5.1 and T5.2 - see findings F14 and F15."
+    },
+    {
+      "seq": 7, "test_id": "SETUP",
+      "purpose": "The raw (unprefixed) value, to prove the collision the prefix prevents.",
+      "sql": "CREATE OR REPLACE FUNCTION w6_raw_per_region(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    CASE region_name\n        WHEN 'North America' THEN w6_emp_seq_na.NEXTVAL\n        WHEN 'EU'            THEN w6_emp_seq_eu.NEXTVAL\n        WHEN 'APAC'          THEN w6_emp_seq_apac.NEXTVAL\n    END\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_RAW_PER_REGION successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "Same three-arm structure, and therefore the same block-reservation behaviour."
+    },
+    {
+      "seq": 8, "test_id": "SETUP",
+      "sql": "CREATE OR REPLACE TABLE w6_keys_perregion (K NUMBER(38,0), RAW_K NUMBER(38,0), REGION VARCHAR(50), SESSION_TAG VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEYS_PERREGION successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 9, "test_id": "T5.1",
+      "sql": "CREATE OR REPLACE TABLE w6_raw_probe (RAW_K NUMBER(38,0), REGION VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_RAW_PROBE successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 10, "test_id": "T5.1",
+      "sql": "INSERT INTO w6_raw_probe\nSELECT w6_raw_per_region('North America'), 'North America' FROM TABLE(GENERATOR(ROWCOUNT => 500))\nUNION ALL\nSELECT w6_raw_per_region('EU'), 'EU' FROM TABLE(GENERATOR(ROWCOUNT => 500))\nUNION ALL\nSELECT w6_raw_per_region('APAC'), 'APAC' FROM TABLE(GENERATOR(ROWCOUNT => 500))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[1500]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 11, "test_id": "T5.1",
+      "purpose": "WITHOUT A PREFIX, DO THE REGIONS COLLIDE? Establishes the baseline the prefix is supposed to fix.",
+      "sql": "SELECT COUNT(*) AS rows_out, COUNT(DISTINCT RAW_K) AS distinct_raw,\n       COUNT(*) - COUNT(DISTINCT RAW_K) AS collisions,\n       CASE WHEN COUNT(*) > COUNT(DISTINCT RAW_K)\n            THEN 'CONFIRMED - regions collide without a prefix. This is what the prefix prevents.'\n            ELSE 'UNEXPECTED - no collision; check the sequences really start at 1' END AS verdict\nFROM w6_raw_probe",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_RAW", "type": "NUMBER(38,0)" },
+        { "name": "COLLISIONS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1500, 1500, 0, "UNEXPECTED - no collision; check the sequences really start at 1"]],
+      "error": null,
+      "expectation": "1500 rows, ~500 distinct, ~1000 collisions. If there is no collision, the per-region sequences are not independent - stop and investigate.",
+      "outcome_branch": "UNEXPECTED",
+      "verdict": "FAILED TO ESTABLISH THE BASELINE",
+      "observation": "Zero collisions. The script's own instruction is to stop and investigate, which was done at seq 12 and seq 13. The per-region sequences are NOT behaving independently."
+    },
+    {
+      "seq": 12, "test_id": "T5.1-INVESTIGATION",
+      "purpose": "Added, not in the script. Investigates the UNEXPECTED result by showing the raw range each region actually drew.",
+      "sql": "SELECT REGION, COUNT(*) AS n, MIN(RAW_K) AS min_raw, MAX(RAW_K) AS max_raw, COUNT(DISTINCT RAW_K) AS distinct_raw\nFROM w6_raw_probe GROUP BY REGION ORDER BY REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "N", "type": "NUMBER(38,0)" },
+        { "name": "MIN_RAW", "type": "NUMBER(38,0)" },
+        { "name": "MAX_RAW", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_RAW", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["APAC", 500, 1101, 1600, 500],
+        ["EU", 500, 601, 1100, 500],
+        ["North America", 500, 1, 500, 500]
+      ],
+      "error": null,
+      "verdict": "ROOT CAUSE IDENTIFIED",
+      "observation": "The three regions drew DISJOINT ranges: NA 1-500, EU 601-1100, APAC 1101-1600. Only North America started at 1. The premise that 'North America's employee 1 and EU's employee 1 both exist' is FALSE in this implementation."
+    },
+    {
+      "seq": 13, "test_id": "T5.1-INVESTIGATION",
+      "purpose": "Added, not in the script. Reads sequence metadata to confirm the cause.",
+      "sql": "SELECT SEQUENCE_NAME, NEXT_VALUE, ORDERED\nFROM INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_SCHEMA = CURRENT_SCHEMA()\n  AND SEQUENCE_NAME IN ('W6_EMP_SEQ_NA','W6_EMP_SEQ_EU','W6_EMP_SEQ_APAC')\nORDER BY SEQUENCE_NAME",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_NAME", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" },
+        { "name": "ORDERED", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6_EMP_SEQ_APAC", "2601", "NO"],
+        ["W6_EMP_SEQ_EU", "2601", "NO"],
+        ["W6_EMP_SEQ_NA", "2601", "NO"]
+      ],
+      "error": null,
+      "verdict": "ROOT CAUSE CONFIRMED",
+      "observation": "All three sequences stand at EXACTLY the same NEXT_VALUE of 2601 after a run in which each region supplied only 500 of the 1500 rows. They advanced in lockstep because every row advances all three, which is R2's finding F4 operating at function-body scope. See finding F14."
+    },
+    {
+      "seq": 14, "test_id": "T5.2-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_na START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_NA successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 15, "test_id": "T5.2-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_eu START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_EU successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 16, "test_id": "T5.2-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_apac START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_APAC successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 17, "test_id": "T5.2-RESET",
+      "sql": "TRUNCATE TABLE w6_keys_perregion",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Statement executed successfully."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 18, "test_id": "T5.2",
+      "purpose": "FIXED-WIDTH OFFSET, PER-REGION SEQUENCES, CONCURRENT. Three sessions, 10,000 rows each.",
+      "execution": "THREE CONCURRENT SESSIONS via runner/run_parallel.ps1 -Phase T52, barrier-synchronised.",
+      "sql": "-- SESSION A (session 8615786251799166)\nINSERT INTO w6_keys_perregion (K, RAW_K, REGION, SESSION_TAG)\nSELECT w6_key_per_region('North America'), NULL, 'North America', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 10000));\n\n-- SESSION B (session 8615786251799174)\nINSERT INTO w6_keys_perregion (K, RAW_K, REGION, SESSION_TAG)\nSELECT w6_key_per_region('EU'), NULL, 'EU', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 10000));\n\n-- SESSION C (session 8615786251807418)\nINSERT INTO w6_keys_perregion (K, RAW_K, REGION, SESSION_TAG)\nSELECT w6_key_per_region('APAC'), NULL, 'APAC', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 10000));",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": null,
+      "columns": null, "rows": null,
+      "per_session_result": [
+        { "worksheet": "R12NA", "region": "North America", "session_id": "8615786251799166", "barrier_polls_waited": 52, "returned": "OK session=8615786251799166 waited_polls=52" },
+        { "worksheet": "R12EU", "region": "EU", "session_id": "8615786251799174", "barrier_polls_waited": 40, "returned": "OK session=8615786251799174 waited_polls=40" },
+        { "worksheet": "R12AP", "region": "APAC", "session_id": "8615786251807418", "barrier_polls_waited": 37, "returned": "OK session=8615786251807418 waited_polls=37" }
+      ],
+      "error": null, "verdict": "PASS - all three sessions completed"
+    },
+    {
+      "seq": 19, "test_id": "T5.2a",
+      "purpose": "The assertion.",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       COUNT(DISTINCT SESSION_TAG) AS sessions_involved,\n       CASE WHEN COUNT(DISTINCT SESSION_TAG) < 3\n            THEN 'INVALID - not three sessions, redo'\n            WHEN COUNT(*) = COUNT(DISTINCT K)\n            THEN 'PASS - prefix keeps per-region sequences apart under concurrency'\n            ELSE 'FAIL - the prefix did not separate the regions' END AS verdict\nFROM w6_keys_perregion",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "SESSIONS_INVOLVED", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[30000, 30000, 0, 3, "PASS - prefix keeps per-region sequences apart under concurrency"]],
+      "error": null,
+      "expectation": "30000 / 30000 / 0 / 3 / PASS",
+      "verdict": "PASS AS WRITTEN - BUT VACUOUS",
+      "observation": "The literal assertion passed and matches the expected result exactly. However the verdict text claims more than the test established. Seq 21 and seq 22 show the raw numbers never overlapped, so the prefix was never the thing keeping the regions apart. See finding F15."
+    },
+    {
+      "seq": 20, "test_id": "T5.2b",
+      "purpose": "OVERLAP CHECK - mandatory, not optional. sessions_involved = 3 does NOT prove the loads overlapped. The script supplies no SQL for this step; the query below is carried over from the R10 run.",
+      "sql": "WITH w AS (\n    SELECT TAG, SESSION_ID,\n           MAX(CASE WHEN PHASE = 'INSERT_START' THEN TS END) AS t_start,\n           MAX(CASE WHEN PHASE = 'INSERT_END'   THEN TS END) AS t_end\n    FROM w6_run_log WHERE TAG IN ('R12NA','R12EU','R12AP')\n    GROUP BY TAG, SESSION_ID\n)\nSELECT TAG, SESSION_ID,\n       TO_VARCHAR(t_start,'HH24:MI:SS.FF3') AS insert_start_utc,\n       TO_VARCHAR(t_end,'HH24:MI:SS.FF3')   AS insert_end_utc,\n       DATEDIFF(millisecond, t_start, t_end) AS duration_ms,\n       DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) AS mutual_overlap_ms,\n       CASE WHEN DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) > 0\n            THEN 'CONCURRENT - all three windows overlap'\n            ELSE 'NOT CONCURRENT - windows disjoint' END AS verdict\nFROM w ORDER BY TAG",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "TAG", "type": "VARCHAR" },
+        { "name": "SESSION_ID", "type": "VARCHAR" },
+        { "name": "INSERT_START_UTC", "type": "VARCHAR" },
+        { "name": "INSERT_END_UTC", "type": "VARCHAR" },
+        { "name": "DURATION_MS", "type": "NUMBER(38,0)" },
+        { "name": "MUTUAL_OVERLAP_MS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["R12AP", "8615786251807418", "21:45:52.600", "21:45:53.924", 1324, 866, "CONCURRENT - all three windows overlap"],
+        ["R12EU", "8615786251799174", "21:45:51.866", "21:45:53.466", 1600, 866, "CONCURRENT - all three windows overlap"],
+        ["R12NA", "8615786251799166", "21:45:52.194", "21:45:53.795", 1601, 866, "CONCURRENT - all three windows overlap"]
+      ],
+      "error": null,
+      "verdict": "PASS - CONCURRENCY PROVEN",
+      "observation": "All three started within 734ms of each other and overlapped for 866ms. The concurrency half of the test is sound; it is the uniqueness premise that is not."
+    },
+    {
+      "seq": 21, "test_id": "T5.2c",
+      "purpose": "Proof the regions really did reuse the same sequence numbers.",
+      "sql": "SELECT REGION, COUNT(*) AS keys_issued,\n       MIN(K % 1000000000000000) AS min_seq_part,\n       MAX(K % 1000000000000000) AS max_seq_part\nFROM w6_keys_perregion GROUP BY REGION ORDER BY REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "KEYS_ISSUED", "type": "NUMBER(38,0)" },
+        { "name": "MIN_SEQ_PART", "type": "NUMBER(38,0)" },
+        { "name": "MAX_SEQ_PART", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["APAC", 10000, 26201, 36204],
+        ["EU", 10000, 1, 10004],
+        ["North America", 10000, 13101, 23104]
+      ],
+      "error": null,
+      "expectation": "all three regions span a SIMILAR sequence_part range, each starting near 1. That is the whole point - the raw numbers overlap, and only the prefix separates them.",
+      "verdict": "EXPECTATION NOT MET",
+      "observation": "The ranges are entirely DISJOINT: EU 1-10004, North America 13101-23104, APAC 26201-36204. Only EU started near 1. The regions did NOT reuse the same sequence numbers, so the condition this script exists to test was never created."
+    },
+    {
+      "seq": 22, "test_id": "T5.2c-DIAGNOSTIC",
+      "purpose": "Added, not in the script. Measures the crux of R12 directly: was any raw sequence value issued to more than one region?",
+      "sql": "WITH parts AS (\n    SELECT REGION, K % 1000000000000000 AS seq_part FROM w6_keys_perregion\n),\nshared AS (\n    SELECT seq_part, COUNT(DISTINCT REGION) AS region_count\n    FROM parts GROUP BY seq_part\n)\nSELECT COUNT(*)                                            AS distinct_seq_parts,\n       SUM(CASE WHEN region_count > 1 THEN 1 ELSE 0 END)    AS seq_parts_shared_by_multiple_regions,\n       MAX(region_count)                                    AS max_regions_per_seq_part,\n       CASE WHEN SUM(CASE WHEN region_count > 1 THEN 1 ELSE 0 END) = 0\n            THEN 'PREFIX WAS NOT LOAD-BEARING - no raw value was reused across regions, so uniqueness came from the sequences, not the prefix'\n            ELSE 'PREFIX WAS LOAD-BEARING - raw values were reused across regions and only the prefix separated them'\n       END AS verdict\nFROM shared",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "DISTINCT_SEQ_PARTS", "type": "NUMBER(38,0)" },
+        { "name": "SEQ_PARTS_SHARED_BY_MULTIPLE_REGIONS", "type": "NUMBER(38,0)" },
+        { "name": "MAX_REGIONS_PER_SEQ_PART", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[30000, 0, 1, "PREFIX WAS NOT LOAD-BEARING - no raw value was reused across regions, so uniqueness came from the sequences, not the prefix"]],
+      "error": null,
+      "verdict": "R12 NOT PROVEN",
+      "observation": "30,000 raw values, every one belonging to exactly one region, zero shared. Removing the prefix entirely would still have produced 30,000 unique keys. T5.2's PASS therefore carries no information about the prefix."
+    },
+    {
+      "seq": 23, "test_id": "T5.3",
+      "purpose": "DOES EVERY KEY DECODE TO ITS ISSUING REGION? (R13)",
+      "sql": "SELECT k.REGION, COUNT(*) AS keys_issued,\n       SUM(CASE WHEN FLOOR(K / 1000000000000000) = m.REGION_CODE THEN 1 ELSE 0 END) AS decode_correct,\n       CASE WHEN COUNT(*) = SUM(CASE WHEN FLOOR(K / 1000000000000000) = m.REGION_CODE THEN 1 ELSE 0 END)\n            THEN 'PASS' ELSE 'FAIL' END AS verdict\nFROM w6_keys_perregion k\nJOIN w6_region_map2 m ON m.REGION_NAME = k.REGION\nGROUP BY k.REGION ORDER BY k.REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "KEYS_ISSUED", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_CORRECT", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["APAC", 10000, 10000, "PASS"],
+        ["EU", 10000, 10000, "PASS"],
+        ["North America", 10000, 10000, "PASS"]
+      ],
+      "error": null,
+      "expectation": "decode_correct = keys_issued for all three",
+      "verdict": "PASS",
+      "observation": "This result IS sound and is unaffected by the T5.1/T5.2 problem. Decoding tests whether the prefix is recoverable from the key, which does not depend on whether the raw values collided. R13 holds under concurrency with per-region sequences."
+    },
+    {
+      "seq": 24, "test_id": "T5.4",
+      "purpose": "DIGIT CONCATENATION UNDER THE SAME CONDITIONS (for C3).",
+      "sql": "CREATE OR REPLACE FUNCTION w6_key_concat_per_region(region_name VARCHAR)\nRETURNS NUMBER(38,0)\nVOLATILE\nAS\n$$\n    CAST(\n        (SELECT CAST(m.REGION_CODE AS VARCHAR) FROM w6_region_map2 m WHERE m.REGION_NAME = region_name)\n        || CAST(CASE region_name\n                    WHEN 'North America' THEN w6_emp_seq_na.NEXTVAL\n                    WHEN 'EU'            THEN w6_emp_seq_eu.NEXTVAL\n                    WHEN 'APAC'          THEN w6_emp_seq_apac.NEXTVAL\n                END AS VARCHAR)\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function W6_KEY_CONCAT_PER_REGION successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "Created successfully because the body cast is present - consistent with R6 finding F7, where the uncast concatenation variant was refused at CREATE."
+    },
+    {
+      "seq": 25, "test_id": "T5.4-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_na START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_NA successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 26, "test_id": "T5.4-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_eu START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_EU successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 27, "test_id": "T5.4-RESET",
+      "sql": "CREATE OR REPLACE SEQUENCE w6_emp_seq_apac START 1 INCREMENT 1",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Sequence W6_EMP_SEQ_APAC successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 28, "test_id": "T5.4",
+      "sql": "CREATE OR REPLACE TABLE w6_keys_concat (K NUMBER(38,0), REGION VARCHAR(50))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table W6_KEYS_CONCAT successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 29, "test_id": "T5.4",
+      "sql": "INSERT INTO w6_keys_concat\nSELECT w6_key_concat_per_region('North America'), 'North America' FROM TABLE(GENERATOR(ROWCOUNT => 2000))\nUNION ALL\nSELECT w6_key_concat_per_region('EU'), 'EU' FROM TABLE(GENERATOR(ROWCOUNT => 2000))\nUNION ALL\nSELECT w6_key_concat_per_region('APAC'), 'APAC' FROM TABLE(GENERATOR(ROWCOUNT => 2000))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[6000]],
+      "error": null, "verdict": "PASS",
+      "observation": "Run as a SINGLE statement, as the script writes it. Note the script's header says three sessions are needed for T5.2 and T5.4, but the T5.4 body is one UNION ALL statement. The script body was followed. See finding F17."
+    },
+    {
+      "seq": 30, "test_id": "T5.4",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       MIN(LENGTH(CAST(K AS VARCHAR))) AS min_key_width,\n       MAX(LENGTH(CAST(K AS VARCHAR))) AS max_key_width,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT K)\n            THEN 'PASS at 3 single-digit codes - but see min/max width'\n            ELSE 'FAIL' END AS verdict\nFROM w6_keys_concat",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "MIN_KEY_WIDTH", "type": "NUMBER(38,0)" },
+        { "name": "MAX_KEY_WIDTH", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[6000, 6000, 0, 2, 5, "PASS at 3 single-digit codes - but see min/max width"]],
+      "error": null,
+      "expectation": "6000 / 6000 / 0, and min_key_width != max_key_width. THE WIDTH SPREAD IS THE POINT.",
+      "verdict": "PASS, AND THE WIDTH SPREAD IS CONFIRMED",
+      "observation": "Keys range from 2 to 5 digits wide. Compare T5.2's offset scheme where every key is exactly 16 digits. This is the measured confirmation of R6 finding F8: concatenation produces variable-width keys whose region boundary is not positionally fixed."
+    },
+    {
+      "seq": 31, "test_id": "FINAL-STATE",
+      "purpose": "Added for the record. Confirms the lockstep behaviour persisted through T5.4.",
+      "sql": "SELECT SEQUENCE_NAME, NEXT_VALUE, ORDERED\nFROM INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_SCHEMA = CURRENT_SCHEMA()\n  AND SEQUENCE_NAME IN ('W6_EMP_SEQ_NA','W6_EMP_SEQ_EU','W6_EMP_SEQ_APAC')\nORDER BY SEQUENCE_NAME",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_NAME", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" },
+        { "name": "ORDERED", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6_EMP_SEQ_APAC", "7101", "NO"],
+        ["W6_EMP_SEQ_EU", "7101", "NO"],
+        ["W6_EMP_SEQ_NA", "7101", "NO"]
+      ],
+      "error": null,
+      "verdict": "LOCKSTEP CONFIRMED AGAIN",
+      "observation": "All three identical at 7101 after T5.4's 6,000 rows (2,000 per region). Each sequence advanced by roughly the FULL row count rather than its own region's share - about 3x the necessary consumption. Independent reconfirmation of finding F14."
+    },
+    { "seq": 32, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_key_per_region(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 33, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_raw_per_region(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 34, "test_id": "TEARDOWN", "sql": "DROP FUNCTION IF EXISTS w6_key_concat_per_region(VARCHAR)", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 35, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_keys_perregion", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 36, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_keys_concat", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 37, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_raw_probe", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 38, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS w6_region_map2", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 39, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_emp_seq_na", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 40, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_emp_seq_eu", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." },
+    { "seq": 41, "test_id": "TEARDOWN", "sql": "DROP SEQUENCE IF EXISTS w6_emp_seq_apac", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained." }
+  ],
+  "summary": {
+    "statements_total": 41,
+    "statements_executed": 31,
+    "statements_skipped": 10,
+    "statements_succeeded": 31,
+    "statements_errored": 0,
+    "statements_added_as_diagnostics": [12, 13, 22, 31],
+    "tests_passed_and_sound": ["T5.3", "T5.4"],
+    "tests_passed_but_vacuous": ["T5.2a"],
+    "tests_that_failed_to_establish_their_premise": ["T5.1", "T5.2c"],
+    "concurrency_proven": true,
+    "r12_proven": false
+  },
+  "decision_table_resolution": {
+    "source": "SQL/05_r12_per_region_sequences.sql - WHAT THIS CLOSES",
+    "rule_the_script_anticipated": "T5.1 collides + T5.2 passes -> R12 proven under the REAL topology.",
+    "what_actually_happened": "T5.1 did NOT collide. The first half of the rule's condition failed, so the rule does not fire and R12 is NOT proven.",
+    "r12_verdict": "NOT PROVEN - the test could not create the condition it exists to test",
+    "r13_verdict": "PROVEN - T5.3 passed for all three regions under measured concurrency, and is unaffected by the T5.1 defect",
+    "c3_verdict": "Evidence strengthened for candidate A. T5.4 confirmed concatenation yields keys 2-5 digits wide against the offset scheme's uniform 16. As the script itself says, this is not an argument for concatenation and the decision turns on the tenth region.",
+    "what_still_needs_doing": "R12 needs a re-run in which the three per-region sequences genuinely issue overlapping raw values. That requires removing the three-arm CASE - see finding F16 for the specific change."
+  },
+  "findings": [
+    {
+      "id": "F14",
+      "severity": "BLOCKS-R12",
+      "title": "Per-region sequences do NOT behave independently when all three are named in one function body - they advance in lockstep",
+      "evidence": "Seq 13: after T5.1's 1500 rows (500 per region), all three sequences stood at EXACTLY NEXT_VALUE = 2601. Seq 31: after T5.4's 6000 rows (2000 per region), all three stood at EXACTLY 7101. Seq 12: the regions drew disjoint ranges NA 1-500, EU 601-1100, APAC 1101-1600.",
+      "interpretation": "Both w6_raw_per_region and w6_key_per_region name all three sequences inside a single CASE. R2's finding F4 established that every sequence referenced in a statement reserves a block regardless of which arm is selected. Consequently every row advances all three sequences, they stay in lockstep, and no two regions ever receive the same raw number. The sequences are per-region in NAME only; in behaviour they act as one shared counter consumed three times over.",
+      "implication": "Three consequences. First, D4's intent - 'North America's employee 1 and EU's employee 1 both exist' - is NOT delivered by this implementation; only one region ever gets 1. Second, consumption is roughly 3x what is needed, and would be Nx with N regions. Third, and most importantly for this script, the collision condition that R12 exists to test cannot arise, so the test cannot prove anything about the prefix.",
+      "status": "Open - BLOCKING. R12 cannot be closed until this is addressed."
+    },
+    {
+      "id": "F15",
+      "severity": "BLOCKS-R12",
+      "title": "T5.2's PASS is vacuous - it would have passed identically with no prefix at all",
+      "evidence": "Seq 19: 30000 / 30000 / 0 duplicates / 3 sessions / PASS. Seq 21: the three regions occupied disjoint sequence_part ranges (EU 1-10004, NA 13101-23104, APAC 26201-36204). Seq 22: of 30,000 distinct raw sequence values, ZERO were shared by more than one region, and the maximum regions per raw value was 1.",
+      "interpretation": "Uniqueness of the 30,000 final keys was fully determined by the raw sequence values alone. Stripping the region prefix would still have left 30,000 unique values. The prefix therefore contributed nothing to uniqueness in this run, and the verdict string 'prefix keeps per-region sequences apart under concurrency' overstates what was demonstrated.",
+      "implication": "This is precisely the defect the script was written to correct in 04's T4.7, reproduced by a different mechanism. T4.7 was vacuous because one sequence was shared by design; T5.2 is vacuous because three nominally separate sequences behave as one. The assertion in both cases is insensitive to the thing being tested. Note also that T5.2a's own INVALID guard did not catch this - it only checks session count, which was legitimately 3.",
+      "status": "Open - BLOCKING. The assertion needs to be made sensitive to raw-value reuse, e.g. by adopting seq 22's diagnostic as a mandatory precondition."
+    },
+    {
+      "id": "F16",
+      "severity": "RECOMMENDATION",
+      "title": "To make R12 testable, give each region its own single-sequence function",
+      "evidence": "Derived from F14, and from R2's finding F4 which already recommended 'one function per sequence' once the branch list grows.",
+      "interpretation": "If a function body names exactly ONE sequence, only that sequence is referenced and only it advances. Three such functions - one per region - would let all three sequences genuinely sit at 1 simultaneously, producing the overlapping raw values R12 needs. The branch selection then moves from inside the function to the caller, which is a change to the design shape R2 settled on, not merely a test fix.",
+      "implication": "This turns R2's efficiency note into a correctness requirement for the per-region topology. It also raises a design question worth putting to the team: if per-region numbering starting at 1 is genuinely wanted (D4), the single-function branch selector cannot deliver it, and the function signature f(region_name, sequence_name) would need either one function per region-sequence pair or a different mechanism entirely.",
+      "status": "Open - recommend deciding this before re-running R12, since it affects the design and not just the test."
+    },
+    {
+      "id": "F17",
+      "severity": "INFORMATIONAL",
+      "title": "T5.4 is documented as needing three sessions but written as a single statement",
+      "evidence": "Script line 19 states 'THREE SESSIONS NEEDED for T5.2 and T5.4'. The T5.4 body at lines 184-189 is a single INSERT with UNION ALL across all three regions.",
+      "interpretation": "The script body was followed, so T5.4 ran in one session. The discrepancy is in the script, not the execution.",
+      "implication": "Low impact for T5.4's stated purpose, which is to record the key WIDTH SPREAD rather than to test concurrency, and the width spread was obtained (2 to 5 digits). Worth correcting in the script so a future reader does not believe T5.4 carries concurrency evidence that it does not.",
+      "status": "Open - minor script correction."
+    },
+    {
+      "id": "F18",
+      "severity": "CONFIRMATORY",
+      "title": "R13 holds, and is the one substantive result this run establishes",
+      "evidence": "Seq 23: decode_correct = keys_issued = 10000 for each of APAC, EU and North America, across three measured-concurrent sessions.",
+      "interpretation": "Whether each key's region can be recovered by integer division does not depend on whether raw values collided, so the T5.1/T5.2 defect does not contaminate this result.",
+      "implication": "R13 can be closed on this evidence. Combined with R10's T4.7b, which showed the same property on a shared sequence, region decoding is now demonstrated under both topologies.",
+      "status": "Closed."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.POC_SCHEMA",
+    "objects": [
+      { "type": "SEQUENCE", "name": "W6_EMP_SEQ_NA", "note": "NEXT_VALUE 7101 at end of run." },
+      { "type": "SEQUENCE", "name": "W6_EMP_SEQ_EU", "note": "NEXT_VALUE 7101 at end of run." },
+      { "type": "SEQUENCE", "name": "W6_EMP_SEQ_APAC", "note": "NEXT_VALUE 7101 at end of run." },
+      { "type": "TABLE", "name": "W6_REGION_MAP2", "note": "3 rows." },
+      { "type": "TABLE", "name": "W6_KEYS_PERREGION", "note": "30000 rows from the T5.2 concurrent run." },
+      { "type": "TABLE", "name": "W6_KEYS_CONCAT", "note": "6000 rows from T5.4." },
+      { "type": "TABLE", "name": "W6_RAW_PROBE", "note": "1500 rows from T5.1." },
+      { "type": "FUNCTION", "name": "W6_KEY_PER_REGION(VARCHAR)", "note": "Three-arm CASE. Subject of finding F14." },
+      { "type": "FUNCTION", "name": "W6_RAW_PER_REGION(VARCHAR)", "note": "Unprefixed variant, three-arm CASE." },
+      { "type": "FUNCTION", "name": "W6_KEY_CONCAT_PER_REGION(VARCHAR)", "note": "C3 candidate B under per-region sequences." }
+    ],
+    "harness_objects_reused_from_the_R10_run": [
+      { "type": "TABLE", "name": "W6_BARRIER", "note": "Barrier flag for session synchronisation." },
+      { "type": "TABLE", "name": "W6_RUN_LOG", "note": "Per-session timings; tags R12NA / R12EU / R12AP for this run." }
+    ],
+    "cleanup_sql": [
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_key_per_region(VARCHAR)",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_raw_per_region(VARCHAR)",
+      "DROP FUNCTION IF EXISTS LM_POC_DB.POC_SCHEMA.w6_key_concat_per_region(VARCHAR)",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_keys_perregion",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_keys_concat",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_raw_probe",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_region_map2",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_emp_seq_na",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_emp_seq_eu",
+      "DROP SEQUENCE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_emp_seq_apac"
+    ]
+  }
+}
