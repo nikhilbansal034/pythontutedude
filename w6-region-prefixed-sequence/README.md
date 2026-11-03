@@ -91,18 +91,59 @@ confirming whether the intent was instead to mint the key earlier still, in Q1.
    **Test this first**; everything else is wasted effort until it is settled. If it is not
    supported, the fallbacks to evaluate are minting the raw value in the calling query and passing
    it to a pure formatting function, `GETNEXTVAL`, or a column `DEFAULT`.
-2. **Return datatype.** `NUMBER(38,0)` with a numeric prefix is arithmetically a *different
-   number*, not a decorated string. `1` prefixed with region `1` is `11`; row `11` is `111`. Prefix
-   width, zero-padding and the collision rule across regions all need deciding, and whether the
-   target column stays `NUMBER(38,0)` or becomes `VARCHAR`. This interacts with R5.
+2. **Return datatype and prefix scheme.** On `NUMBER(38,0)` a prefix is arithmetic, not
+   decoration: region `1` over sequence value `1` is `11`, and over `11` is `111`, so key
+   magnitude grows with the sequence. Digit concatenation is *decodable* while every region code
+   is a single digit — the first digit is the region, the rest is the sequence value — but it
+   stops being decodable the moment a region code reaches two digits, because `concat(1, 23)` and
+   `concat(12, 3)` are both `123`. Three codes are allocated today (1, 2, 3) and the mapping table
+   is designed to grow, so the scheme needs to survive a fourth-to-tenth region. A fixed-width
+   scheme such as `region_code * 10^18 + nextval` has no such cliff, stays decodable by division,
+   and keeps keys monotonic within a region. Decide this alongside whether the target column stays
+   `NUMBER(38,0)` or becomes `VARCHAR` — R5 depends on it.
 3. **Parallel safety (R9).** Snowflake sequence values are unique but not gap-free, and ordering is
    not guaranteed across concurrent statements. The test has to cover several tables calling the
    same function concurrently and check for duplicates, not just that it returns.
+   A sharper concern sits underneath R9: Snowflake does not guarantee **how many times** a UDF is
+   invoked per row — the optimiser may evaluate a scalar expression more or fewer times than there
+   are rows. That is harmless for a pure function and a correctness bug for one that consumes a
+   sequence. Verify invocation count, not just uniqueness.
 4. **One call per row.** W3 already recorded the trap of calling `NEXTVAL` twice on one row and
    assuming the same value — see `w3-scd-effective-date-split/poc_v2/scenarios/S14.sql`. The
    same caution applies to a function wrapping it.
 5. **`NEXTVAL` inside `MERGE … WHEN NOT MATCHED`.** Flagged in W3's context pack as expected to
    work but never confirmed. A function call in that position inherits the same uncertainty.
+
+## A narrower shape worth weighing first
+
+*Proposed here, not agreed in the meeting, and not yet tested.*
+
+The stated motivation in §1 and §4 is **not** "the function must own the sequence" — it is "do not
+reimplement the prefix/casting logic in every DTTL/ETL". That goal is met without ever putting
+`nextval` inside a function:
+
+```sql
+-- the ETL keeps the sequence call it already has, and wraps only the part worth centralising
+CAST(CASE WHEN stg.CHANGE_FLAG = '0'
+          THEN GET_REGIONAL_KEY('North America', EMPLOYEE_SEQ.NEXTVAL)
+          ELSE stg.EMPLOYEE_ID END AS NUMBER(38,0)) AS EMPLOYEE_ID,
+```
+
+`GET_REGIONAL_KEY(region_name, seq_value)` looks the region code up from the mapping table,
+applies the prefix and returns the target datatype. It is **pure and deterministic**, so:
+
+- R3–R7 are all still satisfied, and the prefix/cast logic still lives in exactly one place
+- risk 1 disappears — the function never touches a sequence, so whether a Snowflake function *may*
+  reference one stops being load-bearing
+- R9 becomes trivial rather than something to prove: a deterministic function has no shared state
+  to contend over, and repeated invocation is harmless
+- the one-call-per-row discipline stays visible in the query, where W3's S14 already handles it
+
+The cost is that each ETL still names its own sequence inline — which it does today anyway, so
+nothing regresses. The trade to put to Nidwika Vedanaparthi is whether R1's literal
+`function(region_name, sequence_name)` signature is the requirement, or whether it was shorthand
+for "centralise the prefix and the cast". If the signature is genuinely required, risk 1 has to be
+settled first and this folder's test order stands as written.
 
 ---
 
