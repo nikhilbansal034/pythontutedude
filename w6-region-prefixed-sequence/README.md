@@ -30,10 +30,16 @@ wrong before the docs host was reachable.
 
 ```
 feasibility.md                              per-requirement analysis and verdicts
+poc/
+  01_r3_sequence_in_udf.sql                 THE BLOCKER - run this first
+  02_r2_sequence_name_binding.sql           qualified names, registry, branch selector
+  04_r10_concurrency.sql                    R10 validated thoroughly
 requirement.md                              scope, R1-R13, D1-D3, C1-C7, acceptance
 explore/
   prefix_schemes.md                         C3 answered with worked numbers
   prefix_schemes.py                         the runnable DuckDB demonstration
+  r2_sequence_name_binding.py               R2: why a registry lookup cannot work in a UDF
+  r10_concurrency_sim.py                    R10: 14k keys, 7 parallel workers, 0 collisions
 sources/
   requirement_region_prefixed_sequence.txt  THE BASELINE - transcript summary
   employee_q1_zone1_to_staging.txt          Q1: Zone 1 -> STG_EMPLOYEE, leaves the key NULL

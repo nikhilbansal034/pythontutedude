@@ -13,7 +13,7 @@ Every Snowflake quotation here was read directly from the documentation. Pages a
 | # | Requirement | Verdict |
 |---|---|---|
 | R1 | ETL calls a reusable function instead of `<seq>.NEXTVAL` | **Achievable**, conditional on R3 |
-| R2 | Signature takes region name **and** sequence name | **Achievable with a workaround** — name must be a branch selector, not an identifier |
+| R2 | Signature takes region name **and** sequence name | **Achievable with a workaround** — branch selector, not an identifier. Registry table viable as a *generator* input, not as run-time indirection |
 | R3 | Function gets the next value from the named sequence | **UNKNOWN — the one blocking test** |
 | R4 | Function resolves region code from region name | **Achievable, cleanly** |
 | R5 | Function combines region code with sequence value | **Achievable** — scheme choice open (C3) |
@@ -21,7 +21,7 @@ Every Snowflake quotation here was read directly from the documentation. Pages a
 | R7 | Mapping lives in a table | **Achievable** — watch per-row lookup cost |
 | R8 | One code base across environments, region name an input | **Achievable** — and Snowflake's schema resolution helps |
 | R9 | Region applied Zone 1 → Zone 2, not later | **Already satisfied** — confirm intent |
-| R10 | Correct when called concurrently by multiple tables | **Already guaranteed** by Snowflake, for the sequence itself |
+| R10 | Correct when called concurrently by multiple tables | **Already guaranteed** for the sequence; simulated clean locally; wrapper + volatility still to test |
 | R11 | Mapping accommodates further regions without code change | **Achievable for regions**; new *sequences* do need a function edit |
 | R12 | Every key unique across regions, for all time | **Achievable with fixed-width offset**; fails with concatenation |
 | R13 | Region recoverable from the key without a join | **Achievable with fixed-width offset**; weak with concatenation |
@@ -107,6 +107,65 @@ measured, and it argues for one function per sequence if the branch list grows l
 
 ---
 
+### Nikhil's two questions on R2
+
+**(a) Will `CASE … THEN DB.SCHEMA.SEQUENCE.NEXTVAL` accept a fully-qualified name?**
+
+Yes — a fully-qualified sequence reference is an ordinary identifier, and Q2 line 50 already
+writes one. **But note why that is not evidence of anything dynamic**: Q2's `$$inout_param_*`
+markers are substituted by the **orchestrator** before Snowflake ever sees the SQL. Snowflake
+receives literal object names. It proves qualification works; it says nothing about run-time
+naming.
+
+There is a catch that cuts the other way, and it bears on R8. A fully-qualified body **hard-codes
+the database and schema**, so the same function text is not portable across environments. An
+*unqualified* reference resolves "in the schema containing the function", so identical text
+deployed to dev, SIT and prod each binds its own objects. **Prefer unqualified inside the
+function.** Test `T2.1` vs `T2.1b` in `poc/02_r2_sequence_name_binding.sql` settles it either way.
+
+**(b) Can a second mapping table hold the full sequence name, so new entries are data not code?**
+
+**No — not inside a UDF.** This is the part worth being precise about, because the idea is
+reasonable and the reason it fails is not obvious.
+
+The prohibition is not about *where the string comes from*. It is about turning any run-time value
+into an object reference at all. Two independent pieces of evidence:
+
+- Snowflake's `IDENTIFIER()` syntax accepts **only** "a string literal, session variable, bind
+  variable, or Snowflake Scripting variable". A value read from a table is **none of those** — and
+  neither is a UDF argument. *SQL UDF limitations* then closes it explicitly: "Dynamic SQL is not
+  supported when referring to database objects."
+- DuckDB, a completely unrelated engine, refuses the same thing in the same terms. From
+  `explore/r2_sequence_name_binding.py`:
+
+  ```
+  Nikhil's proposal: look the full name up from a mapping table, pass it in
+    FAILED -> Binder Error: The "sequence_name" argument in function "nextval"
+              must be a constant expression
+  ```
+
+  Two engines enforcing the same invariant is good evidence it is intrinsic: **a sequence must be
+  identifiable before the query runs.** Storing the name in a table makes the *name* data; it does
+  not make the name *usable*.
+
+**But the registry table is still worth building** — as a registry, not an indirection. Two shapes
+deliver what you are after, which is "onboarding a table is a data change":
+
+1. **Generate the function from the registry.** The registry is the source of truth; a small
+   generator emits the `CASE` arms and the function is replaced on deploy. Onboarding becomes
+   *insert a row, re-run the generator* — no hand-editing, and the registry stays authoritative.
+   This fits W6 unusually well, because **these queries are already generated** rather than
+   hand-written, so a generation step is not new machinery. It is the option I would put forward.
+2. **Use a stored procedure instead of a UDF.** A procedure *can* do dynamic SQL, so it can read
+   the full name from the registry and use it — exactly your design, working. The cost is the call
+   site: per *CALL*, "you cannot use a stored procedure CALL as part of an expression", so it
+   cannot sit in Q2's projection. It would have to come in through `TABLE(proc(…))` in the `MERGE`
+   source, which *Selecting from a stored procedure* does permit for `MERGE` — subject to the open
+   question of whether consuming a sequence counts as a modifying operation.
+
+Option 1 keeps the simple call site and pays with a build step. Option 2 keeps your exact design
+and pays with a restructured `MERGE`. Both are real; neither is a UDF reading a name from a table.
+
 ## R3 — The function gets the next value from the named sequence
 
 **Asks**: `NEXTVAL` happens *inside* the function.
@@ -118,6 +177,22 @@ UDFs" — does **not** settle it, because consuming a sequence is neither DDL no
 
 **Reading**: undocumented either way. Not prohibited, not permitted. It cannot be resolved by
 reading more; it needs one statement run in the account.
+
+**Was this validated in DuckDB? No — and DuckDB cannot validate it.** Worth stating plainly,
+because a DuckDB test here would not merely be inconclusive, it would be **actively misleading**:
+
+| | DuckDB | Snowflake |
+|---|---|---|
+| How a sequence is read | `nextval('seq_name')` — a **string** argument | `seq_name.NEXTVAL` — an **identifier** |
+| Wrapping it in a function with a name parameter | **Works** (macros inline the literal) | The open question |
+
+So "a function that takes a sequence name and returns its next value" *succeeds in DuckDB* and
+tells you nothing about Snowflake. `explore/r2_sequence_name_binding.py` §1 demonstrates exactly
+this false positive, deliberately, so nobody later mistakes it for evidence.
+
+What DuckDB *can* corroborate is the deeper rule — that the sequence must be fixed at compile time
+— which it enforces in its own words, and which is what settles R2(b) above. For R3 itself the
+only instrument is `poc/01_r3_sequence_in_udf.sql`.
 
 **The test** — this is the whole of the blocking unknown:
 
@@ -332,6 +407,30 @@ failure by another route.
 **Rule to carry into the build**: declare `VOLATILE` explicitly with a comment saying why, never
 `IMMUTABLE`, never `MEMOIZABLE`, and assert that N input rows receive N distinct keys.
 
+**Validated so far, and what remains.** You asked for R10 to be validated thoroughly, so it is
+split into what is already evidenced and what still needs Snowflake.
+
+*Simulated locally* — `explore/r10_concurrency_sim.py`, 7 parallel workers across 3 regions and 3
+tables drawing from one shared sequence:
+
+```
+keys issued      14,000
+distinct keys    14,000
+duplicates       0        <- PASS
+keys shared by >1 region  0        <- PASS
+every key decodes to its issuing region   PASS (all 3 regions)
+```
+
+It also makes the gap behaviour visible — each region's keys are scattered across the shared
+range, with thousands of gaps, which is **correct** and must not be read as missing rows.
+
+*What the simulation cannot touch*, and what `poc/04_r10_concurrency.sql` exists for: Snowflake's
+own guarantee holding **through the function wrapper**, invocation counts per row, and the
+`IMMUTABLE`/`MEMOIZABLE` folding tests — which have no DuckDB equivalent and are the real hazard.
+That pack runs three concurrent sessions over 30,000 keys, then 15,000 across three concurrent
+regions, with negative tests for both volatility keywords and a check that the shipping function
+declares what we think it declares.
+
 **Three caveats from the same page**, worth recording as design constraints:
 
 - "There is no guarantee that values from a sequence are contiguous (gap-free) or that the
@@ -342,6 +441,38 @@ failure by another route.
   issued value
 
 ---
+
+### C8 — One shared sequence, or one per region? *(new, and it changes what the prefix is for)*
+
+The simulation surfaced a question nothing in the transcript settles, and it changes the stakes of
+the C3 decision.
+
+If all regions draw from **one shared sequence**, the sequence alone already separates every row —
+measured in `explore/r10_concurrency_sim.py` §6, zero duplicate sequence parts across 14,000 keys
+with the prefix ignored entirely. The prefix would then carry **traceability only** (R13), not
+uniqueness.
+
+But §3 of the transcript describes regions being consolidated into a *global* database later,
+which implies each region runs its own Zone 2 with its **own sequence** — each starting at 1.
+Modelled in §7 of the same script:
+
+```
+every region issued 1..3000 independently
+duplicate keys with NO prefix at all:            6,000  of 9,000
+duplicate keys with FIXED-WIDTH OFFSET prefix:       0
+duplicate keys with DIGIT CONCATENATION prefix:      0
+```
+
+Under that topology the prefix is **load-bearing for integrity**, not decoration: it is the only
+thing keeping North America's employee 1 apart from EU's employee 1. Which is presumably why the
+requirement exists at all.
+
+**Why it matters for C3**: both schemes cope at three single-digit region codes. But if the prefix
+is the sole separator between regions, digit concatenation's failure at a two-digit region code
+stops being a tidiness argument and becomes **the loss of the only thing distinguishing two
+regions' primary keys**. The same decision, with much more riding on it.
+
+**Confirm the topology before settling C3.**
 
 ## R11 — The mapping accommodates further regions without code change
 
