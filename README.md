@@ -341,15 +341,16 @@ reusable function takes `(region_name, sequence_name)`, resolves the region code
 table, combines it with the sequence's next value and returns the key already cast — so
 `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status**: requirement being finalised. D1–D3 taken; Snowflake behaviour verified against the
-docs; C1 down to one short account test, C2 and C7 resolved into implementation rules, C3–C6
-awaiting decisions. Nothing built.
+**Status**: requirement **FROZEN** (2026-11-03). D1–D4 taken; each table has its own sequence per
+region, so the prefix is load-bearing for integrity. Thirteen requirements tracked as five groups —
+seven close on documentation, R3 is the one blocker, C3–C6 are open decisions.
 
 **[`w6-region-prefixed-sequence/README.md`](w6-region-prefixed-sequence/README.md) is the folder
 index.** The essentials:
 
 | Path | What it is |
 |------|-----------|
+| `requirement_deck.html` | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with the documentation behind each |
 | `feasibility.md` | **The detail.** All thirteen requirements one at a time: what each asks, what the docs say, what can be built, what needs a workaround |
 | `requirement.md` | Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
 | `explore/prefix_schemes.md` | C3 on evidence — digit concatenation vs fixed-width offset |

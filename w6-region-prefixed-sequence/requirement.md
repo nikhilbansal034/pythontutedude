@@ -1,8 +1,11 @@
 # W6 — Region-prefixed sequence generation — requirement
 
-**Status**: being finalised. Decisions D1–D3 taken. C1 is narrowed to one short Snowflake test;
-C2 is resolved into a concrete implementation rule; C3–C6 need your decisions. Nothing built,
-nothing tested in Snowflake.
+**Status**: **FROZEN** as of 2026-11-03. Decisions D1–D4 taken; C8 answered. The thirteen
+requirements are grouped into five tracking groups (below). Seven close on documentation; R3 is the
+one blocker; C3–C6 remain open decisions that do not reopen the requirement itself.
+
+**Deck**: [`requirement_deck.html`](requirement_deck.html) — 12 slides, the frozen requirement as
+presented. **Per-requirement analysis**: [`feasibility.md`](feasibility.md).
 
 **Baseline**: `sources/requirement_region_prefixed_sequence.txt` — the transcript summary of the
 *[Internal] TD MOD — US/USI Daily Connect*. Where this document and the transcript disagree, the
@@ -59,6 +62,21 @@ and the two-query load shape. W6 changes how one value is produced, nothing else
 R12 and R13 are not in the transcript. They are the properties §3's traceability argument depends
 on, written down so the prefix scheme can be judged against them. **Flag them for confirmation.**
 
+### Tracking groups
+
+The thirteen are tracked as five groups, each sharing a single closing condition, so progress reads
+at group level rather than as thirteen separate threads.
+
+| Grp | Group | Holds | What closes it | Status |
+|---|---|---|---|---|
+| **G1** | Function interface & contract | R1, R2, R6 | Docs answered; two need a workaround | Workaround |
+| **G2** | Sequence access | R3 | One short Snowflake test | **Blocking** |
+| **G3** | Region configuration | R4, R7, R8, R11 | Closed on documentation | Closed |
+| **G4** | Key composition & integrity | R5, R12, R13 | One design decision, not a test | Decision |
+| **G5** | Placement & concurrency | R9, R10 | Both already answered | Closed |
+
+G2 stands alone because nothing else can be built until it is answered.
+
 ---
 
 ## 4. Decisions taken
@@ -73,6 +91,13 @@ that survives if a function cannot reference a sequence.
 variable. Satisfies R7 and R8 together: the same deployed code behaves correctly in every
 environment because the region arrives as an argument and the code is looked up at run time.
 
+**D4 — each table has its own sequence, per region.** Confirmed by Nikhil Bansal, answering C8.
+Every region runs its own Zone 2 with its own `EMPLOYEE_SEQ`, `JOB_SEQ` and so on, each starting at
+1. **Consequence**: the region prefix is **load-bearing for integrity**, not merely traceability —
+it is the only thing keeping North America's employee 1 apart from EU's. Measured in
+`explore/r10_concurrency_sim.py` §7: 6,000 of 9,000 keys collide with no prefix at all. This raises
+what is at stake in C3 considerably.
+
 **D3 — simulate in DuckDB first.** Logic, arithmetic and datatype questions get answered locally
 before asking for Snowflake time. See `explore/prefix_schemes.py`. The limitation is explicit:
 DuckDB cannot answer C1 or C2, which are the blocking ones.
@@ -84,6 +109,12 @@ DuckDB cannot answer C1 or C2, which are the blocking ones.
 Ordered by how much they can change the design. C1's remaining test should be run before any
 build. One requirement turns out to be **already guaranteed**, and one turns out **not to work as
 written** (C7).
+
+### Resolved — C8: one sequence per table, per region
+
+**Answered by Nikhil Bansal: each table has its own sequence.** Combined with each region running
+its own Zone 2, every region's `EMPLOYEE_SEQ` starts at 1. Recorded as **D4**. The prefix therefore
+carries **integrity**, not just traceability, which is why C3's scheme choice is not cosmetic.
 
 ### Resolved — R10's parallel safety is largely guaranteed, not something to prove
 

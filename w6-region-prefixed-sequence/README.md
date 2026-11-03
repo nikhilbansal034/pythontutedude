@@ -6,10 +6,10 @@ reusable function takes a region name and a sequence name, resolves the region c
 table, combines it with the sequence's next value, and returns the key already cast to the target
 column's type — so `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status** — requirement being finalised. D1–D3 taken. Snowflake behaviour verified against the
-docs directly: R10 turns out largely guaranteed, C2 resolved into an implementation rule, C7 found
-(R6 does not work as written), C1 down to one short account test. C3–C6 await your decisions.
-Nothing built.
+**Status** — requirement **FROZEN** (2026-11-03). D1–D4 taken, C8 answered: each table has its own
+sequence per region, so the prefix is load-bearing for integrity. Thirteen requirements tracked as
+five groups — seven close on documentation, R3 is the one blocker, C3–C6 are open decisions that do
+not reopen the requirement.
 
 ---
 
@@ -17,6 +17,7 @@ Nothing built.
 
 | Read | For |
 |---|---|
+| [`requirement_deck.html`](requirement_deck.html) | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with what the docs say for each. Opens in a browser, no build step |
 | [`feasibility.md`](feasibility.md) | **Start here for the detail.** All thirteen requirements, one at a time: what each asks, what Snowflake's docs say, how it reads, what can be built, what needs a workaround |
 | [`requirement.md`](requirement.md) | The requirement itself. Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
 | [`explore/prefix_schemes.md`](explore/prefix_schemes.md) | C3 worked through on evidence — concatenation vs fixed-width offset |
@@ -29,6 +30,7 @@ wrong before the docs host was reachable.
 ## Layout
 
 ```
+requirement_deck.html                       THE DECK - 12 slides, frozen requirement
 feasibility.md                              per-requirement analysis and verdicts
 poc/
   01_r3_sequence_in_udf.sql                 THE BLOCKER - run this first

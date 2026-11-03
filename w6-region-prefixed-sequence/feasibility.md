@@ -442,10 +442,11 @@ declares what we think it declares.
 
 ---
 
-### C8 — One shared sequence, or one per region? *(new, and it changes what the prefix is for)*
+### C8 — One shared sequence, or one per region? **ANSWERED: one per table, per region**
 
-The simulation surfaced a question nothing in the transcript settles, and it changes the stakes of
-the C3 decision.
+**Nikhil Bansal confirmed each table has its own sequence**, and each region runs its own Zone 2 —
+so every region's `EMPLOYEE_SEQ` starts at 1. Recorded as **D4** in `requirement.md`. The
+consequence is the important part, and it is settled below.
 
 If all regions draw from **one shared sequence**, the sequence alone already separates every row —
 measured in `explore/r10_concurrency_sim.py` §6, zero duplicate sequence parts across 14,000 keys
@@ -472,7 +473,8 @@ is the sole separator between regions, digit concatenation's failure at a two-di
 stops being a tidiness argument and becomes **the loss of the only thing distinguishing two
 regions' primary keys**. The same decision, with much more riding on it.
 
-**Confirm the topology before settling C3.**
+**Topology confirmed.** The prefix carries integrity. C3 can now be settled on that basis, and
+fixed-width offset is the scheme that holds it.
 
 ## R11 — The mapping accommodates further regions without code change
 
