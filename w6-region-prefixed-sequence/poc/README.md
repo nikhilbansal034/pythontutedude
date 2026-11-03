@@ -10,7 +10,8 @@ schema, numbers every test, and tears down after itself.
 | [`03_r6_return_datatype.sql`](03_r6_return_datatype.sql) | **R6 / C7** — does the function return the target's datatype? | **DONE — satisfied.** [`R6_RESULTS.md`](R6_RESULTS.md) |
 | [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](R10_RESULTS.md) |
 | [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — first attempt | **DEFECTIVE — superseded by 06.** R13 proven, R12 not. [`R12_RESULTS.md`](R12_RESULTS.md) |
-| [`06_r12_independent_region_deployments.sql`](06_r12_independent_region_deployments.sql) | **R12** — three region schemas, prefix genuinely load-bearing | Ready to run |
+| [`06_r12_independent_region_deployments.sql`](06_r12_independent_region_deployments.sql) | **R12** — three region schemas | **HALTED at its gate — superseded by 07.** Refuted the unqualified-sequence premise. [`R12_RESULTS_v2.md`](R12_RESULTS_v2.md) |
+| [`07_r12_qualified_sequences.sql`](07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences, caller-schema independent | Ready to run |
 
 ## Before you start
 
@@ -62,7 +63,14 @@ counts distinct values against row count rather than just checking the statement
 independent and can run in any order — though `04` is the longest and needs three worksheets open
 at once for its concurrent parts.
 
-**An assertion that cannot fail proves nothing — this has now bitten twice.** `04`'s T4.7 passed
+**Always fully qualify a sequence inside a UDF body.** An *unqualified* sequence reference resolves in
+the **caller's current schema** at run time, not the function's — proven in `06` by calling a function
+from a schema with no same-named sequence and getting `invalid identifier`. A table in the same body
+resolves in the function's schema, so the two are asymmetric. This contradicts the *Name resolution*
+page and is worth raising with Snowflake support. Practical effect: an unqualified sequence makes key
+correctness depend on session configuration.
+
+**An assertion that cannot fail proves nothing — this has now bitten three times.** `04`'s T4.7 passed
 while all regions shared one sequence; `05`'s T5.2 passed while three nominally separate sequences
 moved in lockstep. Both reported `PASS` with zero duplicates, and in both cases removing the region
 prefix entirely would have changed nothing. Neither script's guard caught it, because both guards

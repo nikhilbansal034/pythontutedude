@@ -30,12 +30,26 @@ T2.2b takes the registry table out of the picture entirely and still fails, whic
 **the parameter is the blocker, so no amount of table indirection can help.** Useful in one respect —
 the failure is loud and immediate. Nobody can ship this by accident.
 
-## Build-standard decision: use the **unqualified** name
+## ~~Build-standard decision: use the unqualified name~~ — **REVERSED 2026-11-03**
 
-Both forms work (T2.1a and T2.1b), so the choice is made on R8, not on capability. An unqualified
-reference resolves "in the schema containing the function", so identical function text deployed to
-dev, SIT and prod binds its own objects. A fully-qualified body hard-codes database and schema and
-is not portable.
+> **This conclusion was wrong and is superseded. Use the FULLY-QUALIFIED name.**
+> T2.1b could not establish what it was taken to establish: the function, the sequence and the caller
+> were all in `POC_SCHEMA`, so caller-schema and function-schema resolution coincided and the test
+> could not tell them apart. `06`'s run proved, with a prediction test, that an **unqualified sequence
+> resolves in the CALLER'S current schema at run time** while a table in the same body resolves in the
+> function's schema. An unqualified sequence reference therefore does **not** travel with the
+> function — it follows the session. See [`R12_RESULTS_v2.md`](R12_RESULTS_v2.md) finding F19.
+
+Both forms returned 5/5 distinct here, so this test showed only that each *parses and runs*. The
+original reasoning below is retained for the record:
+
+> Both forms work (T2.1a and T2.1b), so the choice is made on R8, not on capability. An unqualified
+> reference resolves "in the schema containing the function", so identical function text deployed to
+> dev, SIT and prod binds its own objects. A fully-qualified body hard-codes database and schema and
+> is not portable.
+
+R8's intent survives as **one template substituted at deploy time**, which is how Q2 already works
+(`$$inout_param_hr_database_name...EMPLOYEE_SEQ`), not as one literal unchanged text.
 
 ## T2.4 — untaken arms DO consume, but the cost is bounded
 
