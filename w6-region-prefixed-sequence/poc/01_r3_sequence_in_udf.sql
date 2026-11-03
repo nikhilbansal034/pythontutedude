@@ -46,8 +46,9 @@ $$
 $$;
 -- EXPECT (a): "Function W6_SEQ_IN_UDF successfully created."  -> go to T1.3
 -- EXPECT (b): a compilation error                             -> R3 IMPOSSIBLE
---             as a SQL UDF. Record the exact error text, then stop and go to
---             03_r3_fallbacks.sql.
+--             as a SQL UDF. Record the exact error text, then stop: the
+--             fallbacks are listed in the decision table at the foot of this
+--             file. (This did NOT happen - see R3_RESULTS.md.)
 -- ------------------------------------------------------------------ PASS/FAIL
 
 -- --------------------------------------------------------------------------
@@ -149,8 +150,10 @@ DROP SEQUENCE IF EXISTS w6_test_seq;
 -- DECISION TABLE - what the result means for the design
 -- ==========================================================================
 -- T1.2 fails                  -> R3 impossible in a SQL UDF.
---                                Go to 03_r3_fallbacks.sql. R2's signature
---                                cannot be kept with NEXTVAL inside a UDF.
+--                                R2's signature cannot be kept with NEXTVAL
+--                                inside a UDF. Fall back to passing the value
+--                                in -- f(region_name, seq_value) -- or to a
+--                                stored procedure via TABLE(proc(...)).
 -- T1.2 passes, T1.3 = (c)      -> Same conclusion as above, but SILENT.
 --                                Treat as a hard failure. Do not build on it.
 -- T1.2 + T1.3 + T1.6 all pass  -> R3 ACHIEVED. The branch-selector design in
