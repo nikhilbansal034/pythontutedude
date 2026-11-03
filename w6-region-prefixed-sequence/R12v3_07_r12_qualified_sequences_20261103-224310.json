@@ -1,0 +1,538 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "R12v3-20261103-224310",
+    "requirement_id": "R12",
+    "work_item": "W6",
+    "script": "SQL/07_r12_qualified_sequences.sql",
+    "script_question": "Cross-region uniqueness with fully-qualified sequences - do three independent per-region deployments issue colliding raw numbers that only the prefix separates?",
+    "supersedes": "SQL/06_r12_independent_region_deployments.sql, which in turn superseded SQL/05_r12_per_region_sequences.sql",
+    "started_at_utc": "2026-11-03T22:43:10Z",
+    "finished_at_utc": "2026-11-03T22:43:10Z",
+    "executed_by": "Cortex Code - sequential statements via sql_execute; T7.3 via three concurrent snow CLI sessions coordinated by a barrier table",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with all previous runs. The script's OWN cleanup block was run at the start, which removed the 06 leftovers.",
+    "headline": "R12 IS PROVEN. The fully-qualified sequence reference fixed what 06 could not do. For the first time across four attempts the sensitivity gate OPENED: the three regions genuinely issued the SAME raw numbers (all 1-500, 1000 collisions), and the prefixed keys were still 30000/30000 unique across three measured-concurrent sessions. T7.4 returned SOUND with 10000 raw values shared by all 3 regions.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "TWO DEVIATIONS from the script as written, both recorded in full below and both forced by Snowflake behaviour rather than chosen: the CREATE FUNCTION ordering at seq 19-23, and a corrected T7.2 verdict at seq 36-45. Neither changes what was tested.",
+      "Three statements failed. Two are genuine findings about CREATE-time name resolution (seq 19, 21). The third is the script's own T7.2 verdict returning a false FAIL (seq 35) - explained at finding F24.",
+      "Two diagnostics not in the script were added (seq 46, 54) to establish a sound T7.2 baseline and to illustrate the collision concretely."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "snowflake_version": "10.39.101"
+  },
+  "deviations_from_script": [
+    {
+      "id": "D1",
+      "where": "SETUP, CREATE FUNCTION statements",
+      "script_as_written": "Line 57 sets USE SCHEMA POC_SCHEMA, then lines 79-117 create all seven functions using qualified function names such as W6V7_NA.regional_key_v7.",
+      "what_happened": "Creating W6V7_NA.regional_key_v7 from POC_SCHEMA FAILED: \"Object 'LM_POC_DB.POC_SCHEMA.REGION_MAP_V7' does not exist or not authorized.\" The unqualified TABLE reference region_map_v7 was resolved against the SESSION'S CURRENT SCHEMA at CREATE time, not against the function's own schema. Creating W6V7_NA.raw_key_unqualified_v7 from POC_SCHEMA likewise FAILED with \"invalid identifier 'EMP_SEQ_V7.NEXTVAL'\".",
+      "deviation_applied": "Each function was created while the session's current schema was set to that function's own schema (USE SCHEMA W6V7_NA / W6V7_EU / W6V7_APAC), which is what script 06 did implicitly.",
+      "why_this_is_faithful": "The script's stated intent at line 65 is that 'the region map stays unqualified, which is the one case the docs get right'. Honouring that requires the function to be created where its map is visible. The function bodies are byte-identical to the script; only the session's current schema at CREATE time differs.",
+      "evidence_retained": "Both failures are recorded verbatim at seq 19 and seq 21 rather than discarded, because they are a genuine refinement of 06's finding F19. See finding F23."
+    },
+    {
+      "id": "D2",
+      "where": "T7.2 verdict",
+      "script_as_written": "Line 180 resets ONLY W6V7_NA's sequence, then the verdict at lines 186-195 flags any non-NA sequence with NEXT_VALUE > 1 as 'FAIL - a foreign sequence advanced'.",
+      "what_happened": "The verdict returned FAIL for both EU and APAC. This is a FALSE FAIL. T7.1 immediately beforehand drew 500 values from each of EU and APAC, legitimately leaving both at 601. Because only NA is reset, the check cannot distinguish leftover state from contamination.",
+      "deviation_applied": "The script's verdict was run and recorded verbatim at seq 35, then a corrected T7.2 was run at seq 36-45: all THREE sequences reset to 1, baseline confirmed, the three cross-schema calls repeated, and a before/after comparison used instead of an absolute threshold.",
+      "why_this_is_faithful": "The script's own note at lines 196-197 states the real criterion: 'what matters is that EU's and APAC's stay at 1'. The corrected test measures exactly that. The property under test is unchanged.",
+      "evidence_retained": "Both the false FAIL and the corrected PASS are recorded. See finding F24."
+    }
+  ],
+  "concurrency_method": {
+    "how_it_was_achieved": "Three independent `snow sql -f` processes, each its own Snowflake session, released together by a barrier table (w6_barrier) polled every 250ms inside a Snowflake Scripting block.",
+    "deliberate_design_choice": "All three sessions ran with current schema POC_SCHEMA rather than their own region's schema. That is not a shortcut - it is the T7.2 property being exercised under load: with the sequence fully qualified, the key must not depend on the caller's schema.",
+    "overlap_evidence": "T7.3b at seq 50. All three windows overlapped for 1092ms against durations of 1207-1984ms.",
+    "runner_script": "runner/run_parallel.ps1 -Phase T73"
+  },
+  "statements": [
+    { "seq": 1, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6_RGN_NA CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["W6_RGN_NA successfully dropped."]], "error": null, "verdict": "PASS" },
+    { "seq": 2, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6_RGN_EU CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["W6_RGN_EU successfully dropped."]], "error": null, "verdict": "PASS" },
+    { "seq": 3, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6_RGN_APAC CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["W6_RGN_APAC successfully dropped."]], "error": null, "verdict": "PASS",
+      "observation": "06's three region schemas removed. Their evidence was already captured in R12v2_06_r12_independent_region_deployments_20261103-220901.json before this destructive step." },
+    { "seq": 4, "test_id": "CLEANUP", "sql": "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_global_keys", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["W6_GLOBAL_KEYS successfully dropped."]], "error": null, "verdict": "PASS" },
+    { "seq": 5, "test_id": "CLEANUP", "sql": "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6_raw_probe", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["W6_RAW_PROBE successfully dropped."]], "error": null, "verdict": "PASS",
+      "observation": "This cleanup block directly addresses 06's finding F20, where a leftover object from the R2 run was silently picked up. The _V7 suffix on every object in this run is the belt to that braces." },
+    { "seq": 6, "test_id": "SETUP", "sql": "CREATE SCHEMA IF NOT EXISTS W6V7_NA", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V7_NA successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 7, "test_id": "SETUP", "sql": "CREATE SCHEMA IF NOT EXISTS W6V7_EU", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V7_EU successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 8, "test_id": "SETUP", "sql": "CREATE SCHEMA IF NOT EXISTS W6V7_APAC", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V7_APAC successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 9, "test_id": "SETUP", "sql": "USE SCHEMA POC_SCHEMA", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 10, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE w6v7_global_keys (\n    K NUMBER(38,0), REGION VARCHAR(50), SESSION_TAG VARCHAR(50)\n)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table W6V7_GLOBAL_KEYS successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 11, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE w6v7_raw_probe (RAW_K NUMBER(38,0), REGION VARCHAR(50))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table W6V7_RAW_PROBE successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 12, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 13, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE W6V7_EU.emp_seq_v7 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 14, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE W6V7_APAC.emp_seq_v7 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V7 successfully created."]], "error": null, "verdict": "PASS",
+      "observation": "All three START 1. Same name in three schemas, which is the production topology under test." },
+    { "seq": 15, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE W6V7_NA.region_map_v7 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 16, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE W6V7_EU.region_map_v7 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 17, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE W6V7_APAC.region_map_v7 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 18, "test_id": "SETUP", "sql": "INSERT INTO W6V7_NA.region_map_v7 VALUES ('North America', 1);\nINSERT INTO W6V7_EU.region_map_v7 VALUES ('EU', 2);\nINSERT INTO W6V7_APAC.region_map_v7 VALUES ('APAC', 3);", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[1],[1],[1]], "error": null, "verdict": "PASS",
+      "observation": "Run as three separate statements, each returning 1. Each map holds ONLY its own region, which later serves as the instrument proving table resolution." },
+    {
+      "seq": 19, "test_id": "SETUP",
+      "purpose": "First attempt at NA's regional key function, issued from POC_SCHEMA exactly as the script orders it.",
+      "sql": "CREATE OR REPLACE FUNCTION W6V7_NA.regional_key_v7(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Sequence FULLY QUALIFIED: unqualified sequences follow the CALLER schema, not the function schema (06 F19).'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v7 m WHERE m.REGION_NAME = region_name)\n         * 1000000000000000 + LM_POC_DB.W6V7_NA.emp_seq_v7.NEXTVAL AS NUMBER(38,0))\n$$",
+      "status": "ERROR", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "error": {
+        "code": null, "sqlstate": null,
+        "message": "SQL compilation error:\nObject 'LM_POC_DB.POC_SCHEMA.REGION_MAP_V7' does not exist or not authorized. Your primary role POC_ROLE or one of your secondary roles must have at least one privilege granted on TABLE LM_POC_DB.POC_SCHEMA.REGION_MAP_V7."
+      },
+      "verdict": "FAILED - GENUINE FINDING",
+      "observation": "The unqualified TABLE reference resolved against POC_SCHEMA, the session's current schema at CREATE time - NOT against W6V7_NA where the function was being created. See finding F23 and deviation D1."
+    },
+    {
+      "seq": 20, "test_id": "SETUP",
+      "purpose": "NA's raw key function, sequence FULLY QUALIFIED, issued from POC_SCHEMA.",
+      "sql": "CREATE OR REPLACE FUNCTION W6V7_NA.raw_key_v7()\nRETURNS NUMBER(38,0) VOLATILE\nAS $$ LM_POC_DB.W6V7_NA.emp_seq_v7.NEXTVAL $$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function RAW_KEY_V7 successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "Created without difficulty from a foreign schema, because its only object reference is fully qualified. The contrast with seq 19 and seq 21 is the whole point of the fix."
+    },
+    {
+      "seq": 21, "test_id": "SETUP",
+      "purpose": "The deliberately unqualified control function, issued from POC_SCHEMA.",
+      "sql": "CREATE OR REPLACE FUNCTION W6V7_NA.raw_key_unqualified_v7()\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'CONTROL ONLY - demonstrates the caller-schema resolution defect. Never ship this form.'\nAS $$ emp_seq_v7.NEXTVAL $$",
+      "status": "ERROR", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "error": { "code": null, "sqlstate": null, "message": "SQL compilation error: error line 1 at position 2\ninvalid identifier 'EMP_SEQ_V7.NEXTVAL'" },
+      "verdict": "FAILED - GENUINE FINDING",
+      "observation": "An unqualified SEQUENCE is ALSO validated against the current schema at CREATE time. POC_SCHEMA has no EMP_SEQ_V7, so the CREATE is refused. This refines 06's F19: unqualified sequences are checked at create time AND re-resolved at run time. See finding F23."
+    },
+    { "seq": 22, "test_id": "SETUP", "sql": "USE SCHEMA W6V7_NA", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS",
+      "observation": "DEVIATION D1 applied from here: each function is created while the session sits in that function's own schema." },
+    { "seq": 23, "test_id": "SETUP", "sql": "CREATE OR REPLACE FUNCTION W6V7_NA.regional_key_v7(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Sequence FULLY QUALIFIED: unqualified sequences follow the CALLER schema, not the function schema (06 F19).'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v7 m WHERE m.REGION_NAME = region_name)\n         * 1000000000000000 + LM_POC_DB.W6V7_NA.emp_seq_v7.NEXTVAL AS NUMBER(38,0))\n$$", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Function REGIONAL_KEY_V7 successfully created."]], "error": null, "verdict": "PASS",
+      "observation": "Byte-identical body to the failed seq 19. Only the session's current schema differs." },
+    { "seq": 24, "test_id": "SETUP", "sql": "CREATE OR REPLACE FUNCTION W6V7_NA.raw_key_unqualified_v7()\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'CONTROL ONLY - demonstrates the caller-schema resolution defect. Never ship this form.'\nAS $$ emp_seq_v7.NEXTVAL $$", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Function RAW_KEY_UNQUALIFIED_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 25, "test_id": "SETUP", "sql": "USE SCHEMA W6V7_EU", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 26, "test_id": "SETUP", "sql": "CREATE OR REPLACE FUNCTION W6V7_EU.regional_key_v7(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Sequence FULLY QUALIFIED.'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v7 m WHERE m.REGION_NAME = region_name)\n         * 1000000000000000 + LM_POC_DB.W6V7_EU.emp_seq_v7.NEXTVAL AS NUMBER(38,0))\n$$", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Function REGIONAL_KEY_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 27, "test_id": "SETUP", "sql": "CREATE OR REPLACE FUNCTION W6V7_EU.raw_key_v7()\nRETURNS NUMBER(38,0) VOLATILE\nAS $$ LM_POC_DB.W6V7_EU.emp_seq_v7.NEXTVAL $$", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Function RAW_KEY_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 28, "test_id": "SETUP", "sql": "USE SCHEMA W6V7_APAC", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 29, "test_id": "SETUP", "sql": "CREATE OR REPLACE FUNCTION W6V7_APAC.regional_key_v7(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Sequence FULLY QUALIFIED.'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v7 m WHERE m.REGION_NAME = region_name)\n         * 1000000000000000 + LM_POC_DB.W6V7_APAC.emp_seq_v7.NEXTVAL AS NUMBER(38,0))\n$$", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Function REGIONAL_KEY_V7 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 30, "test_id": "SETUP", "sql": "CREATE OR REPLACE FUNCTION W6V7_APAC.raw_key_v7()\nRETURNS NUMBER(38,0) VOLATILE\nAS $$ LM_POC_DB.W6V7_APAC.emp_seq_v7.NEXTVAL $$", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Function RAW_KEY_V7 successfully created."]], "error": null, "verdict": "PASS",
+      "observation": "All seven functions now exist: three regional_key_v7, three raw_key_v7, one raw_key_unqualified_v7 control." },
+    { "seq": 31, "test_id": "T7.0", "sql": "USE SCHEMA W6V7_EU", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS",
+      "observation": "Caller is now a FOREIGN schema relative to the NA functions about to be called." },
+    {
+      "seq": 32, "test_id": "T7.0",
+      "sql": "SELECT W6V7_NA.raw_key_v7() AS qualified_called_from_eu, CURRENT_SCHEMA() AS caller_schema",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "QUALIFIED_CALLED_FROM_EU", "type": "NUMBER(38,0)" },
+        { "name": "CALLER_SCHEMA", "type": "VARCHAR" }
+      ],
+      "rows": [[1, "W6V7_EU"]],
+      "error": null,
+      "expectation": "1 (NA's sequence, first draw)",
+      "verdict": "PASS - MATCHES EXPECTATION EXACTLY"
+    },
+    {
+      "seq": 33, "test_id": "T7.0",
+      "sql": "SELECT W6V7_NA.raw_key_unqualified_v7() AS unqualified_called_from_eu, CURRENT_SCHEMA() AS caller_schema",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "UNQUALIFIED_CALLED_FROM_EU", "type": "NUMBER(38,0)" },
+        { "name": "CALLER_SCHEMA", "type": "VARCHAR" }
+      ],
+      "rows": [[1, "W6V7_EU"]],
+      "error": null,
+      "expectation": "a value from EU's sequence, NOT NA's - that is the defect",
+      "verdict": "RECORDED",
+      "observation": "Returned 1 as well, because EU's sequence was also at its start. The returned VALUE cannot distinguish the two cases; only the sequence metadata at seq 34 can, which is why the script reads it."
+    },
+    {
+      "seq": 34, "test_id": "T7.0",
+      "sql": "SELECT SEQUENCE_SCHEMA, SEQUENCE_NAME, NEXT_VALUE\nFROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_NAME = 'EMP_SEQ_V7' ORDER BY SEQUENCE_SCHEMA",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_SCHEMA", "type": "VARCHAR" },
+        { "name": "SEQUENCE_NAME", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6V7_APAC", "EMP_SEQ_V7", "1"],
+        ["W6V7_EU", "EMP_SEQ_V7", "101"],
+        ["W6V7_NA", "EMP_SEQ_V7", "101"]
+      ],
+      "error": null,
+      "verdict": "ASYMMETRY REPRODUCED",
+      "observation": "Both NA and EU advanced to 101; APAC untouched. The QUALIFIED call (seq 32) advanced NA - the function's own sequence. The UNQUALIFIED call (seq 33) advanced EU - the caller's. Two calls, two different sequences, same function schema."
+    },
+    {
+      "seq": 35, "test_id": "T7.0",
+      "sql": "SELECT CASE\n    WHEN (SELECT TO_NUMBER(NEXT_VALUE) FROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\n          WHERE SEQUENCE_SCHEMA='W6V7_NA' AND SEQUENCE_NAME='EMP_SEQ_V7') > 1\n     AND (SELECT TO_NUMBER(NEXT_VALUE) FROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\n          WHERE SEQUENCE_SCHEMA='W6V7_EU' AND SEQUENCE_NAME='EMP_SEQ_V7') > 1\n    THEN 'CONFIRMED - qualified drew NA, unqualified drew EU. Asymmetry reproduced.'\n    ELSE 'DID NOT REPRODUCE - re-check, and say so; 06 F19 may be version-specific.'\nEND AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "VERDICT", "type": "VARCHAR" }],
+      "rows": [["CONFIRMED - qualified drew NA, unqualified drew EU. Asymmetry reproduced."]],
+      "error": null,
+      "expectation": "CONFIRMED",
+      "verdict": "CONFIRMED",
+      "observation": "06's finding F19 is independently reproduced on a clean object set with no leftover names. It is not version-specific or an artefact of the earlier run."
+    },
+    { "seq": 36, "test_id": "T7.1-RESET", "sql": "CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE W6V7_EU.emp_seq_v7 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE W6V7_APAC.emp_seq_v7 START 1 INCREMENT 1;", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V7 successfully created."],["Sequence EMP_SEQ_V7 successfully created."],["Sequence EMP_SEQ_V7 successfully created."]], "error": null, "verdict": "PASS",
+      "observation": "Run as three separate statements. All three back to START 1." },
+    { "seq": 37, "test_id": "T7.1", "sql": "USE SCHEMA POC_SCHEMA;\nTRUNCATE TABLE w6v7_raw_probe;", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."],["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 38, "test_id": "T7.1", "sql": "INSERT INTO w6v7_raw_probe SELECT W6V7_NA.raw_key_v7(), 'North America' FROM TABLE(GENERATOR(ROWCOUNT => 500))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[500]], "error": null, "verdict": "PASS" },
+    { "seq": 39, "test_id": "T7.1", "sql": "INSERT INTO w6v7_raw_probe SELECT W6V7_EU.raw_key_v7(), 'EU' FROM TABLE(GENERATOR(ROWCOUNT => 500))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[500]], "error": null, "verdict": "PASS" },
+    { "seq": 40, "test_id": "T7.1", "sql": "INSERT INTO w6v7_raw_probe SELECT W6V7_APAC.raw_key_v7(), 'APAC' FROM TABLE(GENERATOR(ROWCOUNT => 500))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[500]], "error": null, "verdict": "PASS",
+      "observation": "Three separate statements, one per region, so no single statement references more than one sequence. This avoids 05's finding F14 entirely." },
+    {
+      "seq": 41, "test_id": "T7.1",
+      "sql": "SELECT REGION, COUNT(*) AS n, MIN(RAW_K) AS min_raw, MAX(RAW_K) AS max_raw\nFROM w6v7_raw_probe GROUP BY REGION ORDER BY REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "N", "type": "NUMBER(38,0)" },
+        { "name": "MIN_RAW", "type": "NUMBER(38,0)" },
+        { "name": "MAX_RAW", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["APAC", 500, 1, 500],
+        ["EU", 500, 1, 500],
+        ["North America", 500, 1, 500]
+      ],
+      "error": null,
+      "expectation": "all three 1-500. 06 showed 101-600 / 701-1200 / 1301-1800, disjoint, which was the failure.",
+      "verdict": "EXPECTATION MET EXACTLY - FIRST TIME IN FOUR ATTEMPTS",
+      "observation": "All three regions span IDENTICAL ranges 1-500. Compare 06's disjoint 101-600 / 701-1200 / 1301-1800 and 05's 1-500 / 601-1100 / 1101-1600. The per-region deployments are finally independent."
+    },
+    {
+      "seq": 42, "test_id": "T7.1",
+      "purpose": "THE SENSITIVITY GATE. 05 and 06 both died here.",
+      "sql": "SELECT COUNT(*) AS rows_out, COUNT(DISTINCT RAW_K) AS distinct_raw,\n       COUNT(*) - COUNT(DISTINCT RAW_K) AS collisions,\n       CASE WHEN COUNT(*) - COUNT(DISTINCT RAW_K) > 0\n            THEN 'SENSITIVITY OK - regions collide without a prefix, so the prefix can be tested'\n            ELSE 'STOP - no collision. Do NOT run T7.3; it would be VACUOUS.' END AS verdict\nFROM w6v7_raw_probe",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_RAW", "type": "NUMBER(38,0)" },
+        { "name": "COLLISIONS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1500, 500, 1000, "SENSITIVITY OK - regions collide without a prefix, so the prefix can be tested"]],
+      "error": null,
+      "expectation": "1500 / 500 / 1000 / SENSITIVITY OK",
+      "verdict": "GATE OPEN - EXACT MATCH",
+      "observation": "1500 rows, only 500 distinct, 1000 collisions. The regions genuinely reuse each other's numbers, so the prefix now has something real to do. This is the precondition that makes everything after it meaningful."
+    },
+    { "seq": 43, "test_id": "T7.2", "sql": "CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V7 successfully created."]], "error": null, "verdict": "PASS",
+      "observation": "Script resets ONLY NA here, which is what makes its verdict unreliable. See deviation D2." },
+    { "seq": 44, "test_id": "T7.2", "sql": "USE SCHEMA W6V7_EU;    SELECT W6V7_NA.raw_key_v7() AS from_eu;\nUSE SCHEMA W6V7_APAC;  SELECT W6V7_NA.raw_key_v7() AS from_apac;\nUSE SCHEMA POC_SCHEMA; SELECT W6V7_NA.raw_key_v7() AS from_poc;", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [{ "name": "value", "type": "NUMBER(38,0)" }],
+      "rows": [[1],[101],[2]],
+      "error": null, "verdict": "RECORDED",
+      "observation": "from_eu = 1, from_apac = 101, from_poc = 2. The non-monotonic ordering is block reservation under NOORDER, already recorded as R3 finding F1." },
+    {
+      "seq": 45, "test_id": "T7.2",
+      "purpose": "The script's verdict, run and recorded verbatim.",
+      "sql": "SELECT SEQUENCE_SCHEMA, NEXT_VALUE,\n       CASE WHEN SEQUENCE_SCHEMA = 'W6V7_NA' AND TO_NUMBER(NEXT_VALUE) = 4\n            THEN 'PASS - all three calls drew NA''s own sequence regardless of caller'\n            WHEN SEQUENCE_SCHEMA = 'W6V7_NA'\n            THEN 'CHECK - expected NEXT_VALUE 4 after three calls'\n            WHEN TO_NUMBER(NEXT_VALUE) > 1\n            THEN 'FAIL - a foreign sequence advanced; qualification did not hold'\n            ELSE 'ok - untouched' END AS verdict\nFROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_NAME = 'EMP_SEQ_V7' ORDER BY SEQUENCE_SCHEMA",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_SCHEMA", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6V7_APAC", "601", "FAIL - a foreign sequence advanced; qualification did not hold"],
+        ["W6V7_EU", "601", "FAIL - a foreign sequence advanced; qualification did not hold"],
+        ["W6V7_NA", "201", "CHECK - expected NEXT_VALUE 4 after three calls"]
+      ],
+      "error": null,
+      "verdict": "FALSE FAIL - SCRIPT VERDICT IS UNSOUND HERE",
+      "observation": "EU and APAC read 601 because T7.1 drew 500 from each and the script resets only NA. The 'NEXT_VALUE > 1' test therefore misreads legitimate leftover state as contamination. A corrected measurement follows at seq 46-53. See finding F24."
+    },
+    {
+      "seq": 46, "test_id": "T7.2-CORRECTED",
+      "purpose": "Added. Establishes a clean baseline by resetting ALL THREE sequences, so a before/after comparison is possible.",
+      "sql": "CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE W6V7_EU.emp_seq_v7 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE W6V7_APAC.emp_seq_v7 START 1 INCREMENT 1;\n\nSELECT SEQUENCE_SCHEMA, NEXT_VALUE AS before_value\nFROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_NAME = 'EMP_SEQ_V7' ORDER BY SEQUENCE_SCHEMA",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_SCHEMA", "type": "VARCHAR" },
+        { "name": "BEFORE_VALUE", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6V7_APAC", "1"],
+        ["W6V7_EU", "1"],
+        ["W6V7_NA", "1"]
+      ],
+      "error": null,
+      "verdict": "BASELINE ESTABLISHED - all three at 1"
+    },
+    {
+      "seq": 47, "test_id": "T7.2-CORRECTED",
+      "sql": "USE SCHEMA W6V7_EU;    SELECT W6V7_NA.raw_key_v7() AS from_eu;\nUSE SCHEMA W6V7_APAC;  SELECT W6V7_NA.raw_key_v7() AS from_apac;\nUSE SCHEMA POC_SCHEMA; SELECT W6V7_NA.raw_key_v7() AS from_poc;",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [{ "name": "value", "type": "NUMBER(38,0)" }],
+      "rows": [[1],[101],[2]],
+      "error": null,
+      "verdict": "RECORDED",
+      "observation": "Same function called from three different caller schemas: EU, APAC and POC_SCHEMA."
+    },
+    {
+      "seq": 48, "test_id": "T7.2-CORRECTED",
+      "purpose": "Added. Sound verdict using the criterion the script's own note specifies: EU's and APAC's must stay at 1.",
+      "sql": "SELECT SEQUENCE_SCHEMA, NEXT_VALUE AS after_value,\n       CASE WHEN SEQUENCE_SCHEMA = 'W6V7_NA' AND TO_NUMBER(NEXT_VALUE) > 1\n            THEN 'ADVANCED - correct, this is the function''s own sequence'\n            WHEN SEQUENCE_SCHEMA <> 'W6V7_NA' AND TO_NUMBER(NEXT_VALUE) = 1\n            THEN 'UNTOUCHED - correct, caller schema did not leak'\n            ELSE 'UNEXPECTED - investigate' END AS verdict\nFROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_NAME = 'EMP_SEQ_V7' ORDER BY SEQUENCE_SCHEMA",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_SCHEMA", "type": "VARCHAR" },
+        { "name": "AFTER_VALUE", "type": "VARCHAR" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6V7_APAC", "1", "UNTOUCHED - correct, caller schema did not leak"],
+        ["W6V7_EU", "1", "UNTOUCHED - correct, caller schema did not leak"],
+        ["W6V7_NA", "201", "ADVANCED - correct, this is the function's own sequence"]
+      ],
+      "error": null,
+      "expectation": "W6V7_NA advanced; EU's and APAC's stay at 1 (the script's stated criterion at lines 196-197)",
+      "verdict": "PASS - CALLER-SCHEMA INDEPENDENCE PROVEN",
+      "observation": "Three calls from three different caller schemas, and only NA's sequence moved - 1 to 201 under block reservation. EU and APAC remain exactly at 1. The key no longer depends on session state, which is the property that makes this safe to ship."
+    },
+    { "seq": 49, "test_id": "T7.3-RESET", "sql": "CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE W6V7_EU.emp_seq_v7 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE W6V7_APAC.emp_seq_v7 START 1 INCREMENT 1;\nTRUNCATE TABLE LM_POC_DB.POC_SCHEMA.w6v7_global_keys;", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 4, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V7 successfully created."],["Sequence EMP_SEQ_V7 successfully created."],["Sequence EMP_SEQ_V7 successfully created."],["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 50, "test_id": "T7.3",
+      "purpose": "PREFIXED KEYS, THREE CONCURRENT SESSIONS. 10,000 rows per region.",
+      "execution": "THREE CONCURRENT SESSIONS via runner/run_parallel.ps1 -Phase T73, barrier-synchronised. All three sessions ran with current schema POC_SCHEMA, deliberately exercising T7.2's property under load.",
+      "sql": "-- SESSION A (session 8615786251838074)\nINSERT INTO LM_POC_DB.POC_SCHEMA.w6v7_global_keys (K, REGION, SESSION_TAG)\nSELECT W6V7_NA.regional_key_v7('North America'), 'North America', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 10000));\n\n-- SESSION B (session 8615786251826898)\nINSERT INTO LM_POC_DB.POC_SCHEMA.w6v7_global_keys (K, REGION, SESSION_TAG)\nSELECT W6V7_EU.regional_key_v7('EU'), 'EU', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 10000));\n\n-- SESSION C (session 8615786251838078)\nINSERT INTO LM_POC_DB.POC_SCHEMA.w6v7_global_keys (K, REGION, SESSION_TAG)\nSELECT W6V7_APAC.regional_key_v7('APAC'), 'APAC', CURRENT_SESSION()\nFROM TABLE(GENERATOR(ROWCOUNT => 10000));",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "per_session_result": [
+        { "worksheet": "V7NA", "region": "North America", "session_id": "8615786251838074", "barrier_polls_waited": 57, "returned": "OK session=8615786251838074 waited_polls=57" },
+        { "worksheet": "V7EU", "region": "EU", "session_id": "8615786251826898", "barrier_polls_waited": 35, "returned": "OK session=8615786251826898 waited_polls=35" },
+        { "worksheet": "V7AP", "region": "APAC", "session_id": "8615786251838078", "barrier_polls_waited": 49, "returned": "OK session=8615786251838078 waited_polls=49" }
+      ],
+      "error": null, "verdict": "PASS - all three sessions completed"
+    },
+    {
+      "seq": 51, "test_id": "T7.3a",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       COUNT(DISTINCT SESSION_TAG) AS sessions_involved,\n       CASE WHEN COUNT(DISTINCT SESSION_TAG) < 3 THEN 'INVALID - not three sessions'\n            WHEN COUNT(*) = COUNT(DISTINCT K) THEN 'PASS - pending the T7.4 sensitivity check'\n            ELSE 'FAIL - the prefix did not separate the regions' END AS verdict\nFROM LM_POC_DB.POC_SCHEMA.w6v7_global_keys",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "SESSIONS_INVOLVED", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[30000, 30000, 0, 3, "PASS - pending the T7.4 sensitivity check"]],
+      "error": null,
+      "expectation": "30000 / 30000 / 0 / 3. NOT a pass on its own - T7.4 decides.",
+      "verdict": "PASS - EXACT MATCH, pending T7.4"
+    },
+    {
+      "seq": 52, "test_id": "T7.3b",
+      "purpose": "OVERLAP - mandatory. The script supplies no SQL; this query is carried over from the R10 run.",
+      "sql": "WITH w AS (\n    SELECT TAG, SESSION_ID,\n           MAX(CASE WHEN PHASE = 'INSERT_START' THEN TS END) AS t_start,\n           MAX(CASE WHEN PHASE = 'INSERT_END'   THEN TS END) AS t_end\n    FROM w6_run_log WHERE TAG IN ('V7NA','V7EU','V7AP')\n    GROUP BY TAG, SESSION_ID\n)\nSELECT TAG, SESSION_ID,\n       TO_VARCHAR(t_start,'HH24:MI:SS.FF3') AS insert_start_utc,\n       TO_VARCHAR(t_end,'HH24:MI:SS.FF3')   AS insert_end_utc,\n       DATEDIFF(millisecond, t_start, t_end) AS duration_ms,\n       DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) AS mutual_overlap_ms,\n       CASE WHEN DATEDIFF(millisecond, (SELECT MAX(t_start) FROM w), (SELECT MIN(t_end) FROM w)) > 0\n            THEN 'CONCURRENT - all three windows overlap'\n            ELSE 'NOT CONCURRENT - windows disjoint' END AS verdict\nFROM w ORDER BY TAG",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "TAG", "type": "VARCHAR" },
+        { "name": "SESSION_ID", "type": "VARCHAR" },
+        { "name": "INSERT_START_UTC", "type": "VARCHAR" },
+        { "name": "INSERT_END_UTC", "type": "VARCHAR" },
+        { "name": "DURATION_MS", "type": "NUMBER(38,0)" },
+        { "name": "MUTUAL_OVERLAP_MS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["V7AP", "8615786251838078", "22:42:04.981", "22:42:06.784", 1803, 1092, "CONCURRENT - all three windows overlap"],
+        ["V7EU", "8615786251826898", "22:42:04.866", "22:42:06.073", 1207, 1092, "CONCURRENT - all three windows overlap"],
+        ["V7NA", "8615786251838074", "22:42:04.936", "22:42:06.920", 1984, 1092, "CONCURRENT - all three windows overlap"]
+      ],
+      "error": null,
+      "verdict": "PASS - CONCURRENCY PROVEN",
+      "observation": "All three started within 115ms of each other and overlapped for 1092ms against durations of 1207-1984ms."
+    },
+    {
+      "seq": 53, "test_id": "T7.4",
+      "purpose": "THE TEST THAT DECIDES R12. Was the prefix actually load-bearing?",
+      "sql": "WITH parts AS (\n    SELECT REGION, K % 1000000000000000 AS seq_part FROM LM_POC_DB.POC_SCHEMA.w6v7_global_keys\n),\nshared AS (\n    SELECT seq_part, COUNT(DISTINCT REGION) AS region_count FROM parts GROUP BY seq_part\n)\nSELECT (SELECT COUNT(*) FROM parts)                         AS total_keys,\n       (SELECT COUNT(*) FROM shared WHERE region_count > 1) AS raw_values_shared,\n       (SELECT MAX(region_count) FROM shared)               AS max_regions_per_raw_value,\n       CASE WHEN (SELECT COUNT(*) FROM shared WHERE region_count > 1) = 0\n            THEN 'VACUOUS - no raw value reused; the prefix was NOT load-bearing. R12 still unproven.'\n            ELSE 'SOUND - raw values WERE reused across regions and the prefixed keys are still unique. R12 PROVEN.'\n       END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "RAW_VALUES_SHARED", "type": "NUMBER(38,0)" },
+        { "name": "MAX_REGIONS_PER_RAW_VALUE", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[30000, 10000, 3, "SOUND - raw values WERE reused across regions and the prefixed keys are still unique. R12 PROVEN."]],
+      "error": null,
+      "expectation": "~10,000 shared, max 3",
+      "verdict": "SOUND - R12 PROVEN. EXACT MATCH TO EXPECTATION",
+      "observation": "Every one of the 10,000 raw sequence values was issued in ALL THREE regions, and all 30,000 prefixed keys remain unique. Removing the prefix would have produced 20,000 duplicates. The prefix is demonstrably the thing keeping the regions apart - which is precisely what 04's T4.7, 05's T5.2 and 06 all failed to establish."
+    },
+    {
+      "seq": 54, "test_id": "T7.4-ILLUSTRATION",
+      "purpose": "Added. Shows the collision and its resolution concretely, for the evidence pack.",
+      "sql": "WITH parts AS (\n    SELECT REGION, K, K % 1000000000000000 AS seq_part FROM LM_POC_DB.POC_SCHEMA.w6v7_global_keys\n)\nSELECT seq_part,\n       COUNT(DISTINCT REGION) AS regions_sharing_this_raw_value,\n       LISTAGG(CAST(K AS VARCHAR), ' | ') WITHIN GROUP (ORDER BY K) AS distinct_prefixed_keys\nFROM parts WHERE seq_part IN (1, 2, 5000, 10000)\nGROUP BY seq_part ORDER BY seq_part",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 4,
+      "columns": [
+        { "name": "SEQ_PART", "type": "NUMBER(38,0)" },
+        { "name": "REGIONS_SHARING_THIS_RAW_VALUE", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_PREFIXED_KEYS", "type": "VARCHAR" }
+      ],
+      "rows": [
+        [1, 3, "1000000000000001 | 2000000000000001 | 3000000000000001"],
+        [2, 3, "1000000000000002 | 2000000000000002 | 3000000000000002"],
+        [5000, 3, "1000000000005000 | 2000000000005000 | 3000000000005000"],
+        [10000, 3, "1000000000010000 | 2000000000010000 | 3000000000010000"]
+      ],
+      "error": null,
+      "verdict": "ILLUSTRATION",
+      "observation": "This is D4's intent realised: 'North America's employee 1 and EU's employee 1 both exist'. Raw value 1 was issued in all three regions and became three distinct keys. Same for 2, 5000 and 10000."
+    },
+    {
+      "seq": 55, "test_id": "T7.5",
+      "purpose": "DOES EVERY KEY DECODE TO ITS ISSUING REGION? (R13)",
+      "sql": "WITH codes AS (\n    SELECT 'North America' AS region_name, 1 AS region_code\n    UNION ALL SELECT 'EU', 2 UNION ALL SELECT 'APAC', 3\n)\nSELECT g.REGION, COUNT(*) AS keys_issued,\n       SUM(CASE WHEN FLOOR(g.K / 1000000000000000) = c.region_code THEN 1 ELSE 0 END) AS decode_correct,\n       CASE WHEN COUNT(*) = SUM(CASE WHEN FLOOR(g.K / 1000000000000000) = c.region_code THEN 1 ELSE 0 END)\n            THEN 'PASS' ELSE 'FAIL' END AS verdict\nFROM LM_POC_DB.POC_SCHEMA.w6v7_global_keys g\nJOIN codes c ON c.region_name = g.REGION\nGROUP BY g.REGION ORDER BY g.REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "KEYS_ISSUED", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_CORRECT", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["APAC", 10000, 10000, "PASS"],
+        ["EU", 10000, 10000, "PASS"],
+        ["North America", 10000, 10000, "PASS"]
+      ],
+      "error": null,
+      "expectation": "decode_correct = keys_issued for all three",
+      "verdict": "PASS",
+      "observation": "R13 reconfirmed, and this time under the REAL topology where raw values collide. Stronger than 05's T5.3 and 04's T4.7b, both of which ran without collisions."
+    },
+    {
+      "seq": 56, "test_id": "FINAL-STATE",
+      "purpose": "Added for the record.",
+      "sql": "SELECT SEQUENCE_SCHEMA, SEQUENCE_NAME, NEXT_VALUE, ORDERED\nFROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES\nWHERE SEQUENCE_NAME = 'EMP_SEQ_V7' ORDER BY SEQUENCE_SCHEMA",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "SEQUENCE_SCHEMA", "type": "VARCHAR" },
+        { "name": "SEQUENCE_NAME", "type": "VARCHAR" },
+        { "name": "NEXT_VALUE", "type": "VARCHAR" },
+        { "name": "ORDERED", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["W6V7_APAC", "EMP_SEQ_V7", "13101", "NO"],
+        ["W6V7_EU", "EMP_SEQ_V7", "13101", "NO"],
+        ["W6V7_NA", "EMP_SEQ_V7", "13101", "NO"]
+      ],
+      "error": null,
+      "verdict": "RECORDED",
+      "observation": "All three at 13101 after 10,000 rows each. Identical values here are NOT the lockstep defect of 05 - each sequence was independently consumed by exactly its own region's 10,000 rows plus block reservation, so they coincide by symmetry rather than by sharing. T7.2 and T7.4 both establish independence directly. ORDERED remains NO."
+    },
+    { "seq": 57, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6v7_global_keys", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained with 30000 rows." },
+    { "seq": 58, "test_id": "TEARDOWN", "sql": "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6v7_raw_probe", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; object retained with 1500 rows." },
+    { "seq": 59, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V7_NA CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained." },
+    { "seq": 60, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V7_EU CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained." },
+    { "seq": 61, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V7_APAC CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained." },
+    { "seq": 62, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6_RGN_NA CASCADE;\nDROP SCHEMA IF EXISTS W6_RGN_EU CASCADE;\nDROP SCHEMA IF EXISTS W6_RGN_APAC CASCADE;", "status": "ALREADY_DONE", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "These three were executed at the START of this run as the cleanup block, at seq 1-3." }
+  ],
+  "summary": {
+    "statements_total": 62,
+    "statements_executed": 56,
+    "statements_skipped": 5,
+    "statements_already_done": 1,
+    "statements_succeeded": 53,
+    "statements_errored": 3,
+    "errors_note": "Two errors (seq 19, 21) are genuine findings about CREATE-time resolution. The third 'error' is not an exception but the script's own T7.2 verdict returning a false FAIL (seq 45), counted here as a logical failure rather than a SQL error.",
+    "statements_added_as_diagnostics": [46, 47, 48, 54, 56],
+    "deviations_applied": ["D1", "D2"],
+    "tests_passed": ["T7.0", "T7.1", "T7.2 (corrected)", "T7.3", "T7.3b", "T7.4", "T7.5"],
+    "tests_failed": [],
+    "sensitivity_gate_opened": true,
+    "concurrency_proven": true,
+    "r12_proven": true,
+    "r13_proven": true
+  },
+  "decision_table_resolution": {
+    "source": "SQL/07_r12_qualified_sequences.sql - WHAT THIS CLOSES",
+    "matched_rules": [
+      "T7.0 CONFIRMED -> the asymmetry is real and pinned as a regression. Build standard: ALWAYS fully qualify sequences inside a UDF body.",
+      "T7.1 collides AND T7.4 SOUND AND T7.3 shows 0 duplicates -> R12 PROVEN under the real topology.",
+      "T7.2 passes -> the key no longer depends on session state, which is the property that makes this safe to ship.",
+      "T7.5 passes -> R13 reconfirmed."
+    ],
+    "r12_verdict": "PROVEN - closes R12",
+    "r13_verdict": "PROVEN - reconfirmed under the real colliding topology, which is stronger than the earlier confirmations",
+    "r8_verdict": "RESOLVED WITH A CONDITION. Identical function text CAN be deployed per region, but ONLY if the sequence is fully qualified. The qualified form means the text is no longer literally identical across regions - each carries its own schema name. Production already does this via orchestrator substitution (Q2 line 50), so the design is consistent with what is deployed today.",
+    "build_standard_decisions": [
+      "ALWAYS fully qualify the SEQUENCE inside a UDF body. An unqualified sequence follows the caller's current schema and will silently draw the wrong one, or fail with invalid identifier.",
+      "Create each function while the session's current schema is that function's own schema, so unqualified TABLE references bind locally. Alternatively qualify the table too - see finding F23.",
+      "Adopt T7.0 as a standing regression test. It is cheap and catches the asymmetry returning.",
+      "Adopt T7.1 and T7.4 as mandatory preconditions for any future cross-region uniqueness claim. Three earlier packs produced vacuous passes without them."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F23",
+      "severity": "REFINES-F19",
+      "title": "Unqualified identifiers in a UDF body are validated at CREATE time against the caller's schema; tables then BIND, sequences RE-RESOLVE at run time",
+      "evidence": "Seq 19: creating a function in W6V7_NA from POC_SCHEMA failed because the unqualified TABLE region_map_v7 was looked up as LM_POC_DB.POC_SCHEMA.REGION_MAP_V7. Seq 21: the unqualified SEQUENCE emp_seq_v7 likewise failed at CREATE from POC_SCHEMA with invalid identifier. Seq 23 and 24: both succeeded unchanged once the session's current schema was the function's own schema. 06's seq 31-33 had already shown that after creation, a table keeps pointing at the bound object while a sequence follows the caller.",
+      "interpretation": "A single rule explains all observations. Unqualified names are resolved against the session's current schema at CREATE time, which is why creation fails if they are absent there. Tables are then permanently bound to the object resolved. Sequences are not bound - the identifier is re-resolved on every invocation against whatever the caller's current schema is.",
+      "implication": "This is a cleaner and more useful statement than 06's F19, which described the post-creation behaviour as 'table resolves to the function's schema'. It only appeared that way because 06 created each function while sitting in its own schema. The practical rule for the build standard is twofold: qualify the sequence always, and create the function in its own schema (or qualify the table too) so the table binds where intended.",
+      "status": "Open - recommend this supersede F19's wording in the design documentation."
+    },
+    {
+      "id": "F24",
+      "severity": "SCRIPT-DEFECT",
+      "title": "T7.2's verdict produces a false FAIL because it resets only one of the three sequences",
+      "evidence": "Seq 43 resets only W6V7_NA, per script line 180. Seq 45 then flags EU and APAC as 'FAIL - a foreign sequence advanced' on the basis of NEXT_VALUE > 1. Both read 601, which is exactly where T7.1's 500-row draws left them. The corrected test at seq 46-48, with all three reset to 1, shows EU and APAC remaining at 1 while NA advances to 201.",
+      "interpretation": "The verdict uses an absolute threshold where a before/after comparison is required. It cannot distinguish legitimate leftover state from caller-schema leakage.",
+      "implication": "Low risk to the conclusion, because the script's own note at lines 196-197 states the correct criterion and the corrected test applies it. But a reader seeing only the script's output would conclude qualification had failed, when the opposite is true. Recommend the script either reset all three sequences before T7.2 or capture a before snapshot and compare.",
+      "status": "Open - minor script correction."
+    },
+    {
+      "id": "F25",
+      "severity": "POSITIVE - CLOSES R12",
+      "title": "With a fully-qualified sequence, the region prefix is demonstrably load-bearing and cross-region uniqueness holds under concurrency",
+      "evidence": "T7.1 (seq 41-42): all three regions drew raw values 1-500, giving 1500 rows with only 500 distinct and 1000 collisions. T7.3a (seq 51): 30000 rows, 30000 distinct keys, 0 duplicates, 3 sessions. T7.3b (seq 52): all three insert windows overlapped for 1092ms. T7.4 (seq 53): 10000 raw values each shared by all 3 regions, max_regions_per_raw_value = 3, verdict SOUND. T7.4 illustration (seq 54): raw value 1 became 1000000000000001, 2000000000000001 and 3000000000000001.",
+      "interpretation": "For the first time the precondition and the postcondition are both satisfied. Without the prefix the 30,000 keys would have contained 20,000 duplicates; with it there are none. The prefix is doing the work, not the sequences.",
+      "implication": "R12 is closed. R13 is reconfirmed on the same data, and more strongly than before because the earlier confirmations ran without collisions. Taken with R10's result, the design's uniqueness properties now hold under both the shared-sequence and independent-per-region topologies.",
+      "status": "Closed - R12 PROVEN."
+    },
+    {
+      "id": "F26",
+      "severity": "PROCESS",
+      "title": "The _V7 naming and the opening cleanup block worked - 06's F20 trap did not recur",
+      "evidence": "Seq 1-5 dropped 06's schemas and the two leftover tables before anything was created. Every object in this run carries a _V7 suffix. T7.1 produced the expected collisions on the first attempt rather than plausible-looking numbers from a stranger object.",
+      "interpretation": "06's near-miss, where a leftover POC_SCHEMA.W6_EMPLOYEE_SEQ from the R2 run was silently consumed, was prevented by design rather than by luck.",
+      "implication": "Retain both practices for future packs: an explicit cleanup block at the top, and run-scoped object names. Together they remove the class of error that made 06's failure quiet rather than loud.",
+      "status": "Closed - recommendation confirmed by outcome."
+    }
+  ],
+  "objects_left_in_place": {
+    "note": "Three new schemas were added to LM_POC_DB. The three schemas from the 06 run were dropped by this run's own cleanup block.",
+    "new_schemas": [
+      { "name": "LM_POC_DB.W6V7_NA", "contents": "SEQUENCE EMP_SEQ_V7 (NEXT_VALUE 13101), TABLE REGION_MAP_V7 (1 row), FUNCTION REGIONAL_KEY_V7(VARCHAR), FUNCTION RAW_KEY_V7(), FUNCTION RAW_KEY_UNQUALIFIED_V7() [control - never ship]" },
+      { "name": "LM_POC_DB.W6V7_EU", "contents": "SEQUENCE EMP_SEQ_V7 (NEXT_VALUE 13101), TABLE REGION_MAP_V7 (1 row), FUNCTION REGIONAL_KEY_V7(VARCHAR), FUNCTION RAW_KEY_V7()" },
+      { "name": "LM_POC_DB.W6V7_APAC", "contents": "SEQUENCE EMP_SEQ_V7 (NEXT_VALUE 13101), TABLE REGION_MAP_V7 (1 row), FUNCTION REGIONAL_KEY_V7(VARCHAR), FUNCTION RAW_KEY_V7()" }
+    ],
+    "objects_in_POC_SCHEMA": [
+      { "type": "TABLE", "name": "W6V7_GLOBAL_KEYS", "note": "30000 rows, 3 regions, 0 duplicate keys." },
+      { "type": "TABLE", "name": "W6V7_RAW_PROBE", "note": "1500 rows showing the 1000 raw collisions." }
+    ],
+    "dropped_by_this_run": [
+      "LM_POC_DB.W6_RGN_NA (cascade)",
+      "LM_POC_DB.W6_RGN_EU (cascade)",
+      "LM_POC_DB.W6_RGN_APAC (cascade)",
+      "LM_POC_DB.POC_SCHEMA.W6_GLOBAL_KEYS",
+      "LM_POC_DB.POC_SCHEMA.W6_RAW_PROBE"
+    ],
+    "cleanup_sql": [
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6v7_global_keys",
+      "DROP TABLE IF EXISTS LM_POC_DB.POC_SCHEMA.w6v7_raw_probe",
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V7_NA CASCADE",
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V7_EU CASCADE",
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V7_APAC CASCADE"
+    ]
+  }
+}
