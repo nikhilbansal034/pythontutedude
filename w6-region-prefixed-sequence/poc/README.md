@@ -15,7 +15,8 @@ schema, numbers every test, and tears down after itself.
 | [`08_r11_c3_region_growth.sql`](08_r11_c3_region_growth.sql) | **R11 + C3** | **DONE — R11 proven, C3 settled.** [`R11_C3_RESULTS.md`](R11_C3_RESULTS.md) |
 | [`09_c6_legacy_key_coexistence.sql`](09_c6_legacy_key_coexistence.sql) | **C6** | **DONE — leave them; backfill is harmful.** [`C6_RESULTS.md`](C6_RESULTS.md) |
 | [`10_c5_region_name_provenance.sql`](10_c5_region_name_provenance.sql) | **C5** | **DONE — informed, not decided.** [`C5_RESULTS.md`](C5_RESULTS.md) |
-| [`11_c4_q1_vs_q2_placement.sql`](11_c4_q1_vs_q2_placement.sql) | **C4** | **DONE — quantified; Nidwika's call.** [`C4_RESULTS.md`](C4_RESULTS.md) |
+| [`11_c4_q1_vs_q2_placement.sql`](11_c4_q1_vs_q2_placement.sql) | **C4** | **CLOSED by Nidwika — Q2 is the right place.** [`C4_RESULTS.md`](C4_RESULTS.md) |
+| [`12_q3_variable_target_datatype.sql`](12_q3_variable_target_datatype.sql) | **Q3 / R6 reopened** — target type varies and can be VARCHAR | Ready to run |
 
 ### What these four can and cannot settle
 
