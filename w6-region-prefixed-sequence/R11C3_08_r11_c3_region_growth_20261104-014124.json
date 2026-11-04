@@ -1,0 +1,422 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "R11C3-20261104-014124",
+    "requirement_id": "R11 + C3",
+    "work_item": "W6",
+    "script": "SQL/08_r11_c3_region_growth.sql",
+    "script_question": "Does the design survive more regions, and which prefix scheme should be used?",
+    "why_coupled": "While every region code is a single digit, digit concatenation and fixed-width offset are indistinguishable. At a two-digit code they diverge, because concat(1,11) and concat(11,1) are both 111. So R11 (can regions grow?) decides whether C3 is cosmetic or load-bearing.",
+    "started_at_utc": "2026-11-04T01:41:24Z",
+    "finished_at_utc": "2026-11-04T01:41:24Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call). Single session - no concurrency needed, this is arithmetic and configuration.",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with all previous runs. The script's own opening cleanup block WAS run.",
+    "headline": "R11 PROVEN and C3 SETTLED BY DATA. A fourth region was added as a pure data change with the function provably unaltered. At twelve regions with two-digit codes, fixed-width offset held at 4800/4800/0 duplicates while digit concatenation produced 198 DUPLICATE PRIMARY KEYS. Concatenation also fails to decode 1200 of 4800 keys. C3 should be fixed-width offset, width 15.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "No deviations from the script. Every statement ran as written, in order.",
+      "Zero errors. The 198 duplicates at T8.4 are the intended result of a test designed to fail, not an incident.",
+      "One script artefact noted at seq 29: the largest_key_digits column is unreliable for widths >= 15 because POWER() returns a float that formats in scientific notation. The two correctness columns beside it are unaffected. See finding F29."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "W6V8",
+    "snowflake_version": "10.39.101"
+  },
+  "lessons_carried_from_earlier_packs": [
+    "Sequences FULLY QUALIFIED in every reference (R12 v3 findings F19/F23).",
+    "Functions created while the session is in their own schema (F23).",
+    "Run-scoped _V8 names and an opening cleanup block (F26).",
+    "Sensitivity gates before any 'no duplicates' claim (F22). Two gates fired in this run, at T8.2.",
+    "Before/after comparisons rather than absolute thresholds (F24) - the T8.1 CREATED vs LAST_ALTERED check is exactly this.",
+    "One statement per sequence, so no statement references two sequences (05 finding F14)."
+  ],
+  "statements": [
+    { "seq": 1, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6V8 CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Drop statement executed successfully (W6V8 already dropped)."]], "error": null, "verdict": "PASS", "observation": "Schema did not pre-exist. The cleanup block is retained regardless, per finding F26." },
+    { "seq": 2, "test_id": "SETUP", "sql": "CREATE SCHEMA W6V8", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V8 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 3, "test_id": "SETUP", "sql": "USE SCHEMA W6V8", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 4, "test_id": "SETUP",
+      "purpose": "Twelve per-region sequences, each START 1 - the production topology (D4). Issued as twelve separate statements.",
+      "sql": "CREATE OR REPLACE SEQUENCE seq_r01_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r02_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r03_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r04_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r05_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r06_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r07_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r08_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r09_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r10_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r11_v8 START 1 INCREMENT 1;\nCREATE OR REPLACE SEQUENCE seq_r12_v8 START 1 INCREMENT 1;",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 12,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [
+        ["Sequence SEQ_R01_V8 successfully created."],
+        ["Sequence SEQ_R02_V8 successfully created."],
+        ["Sequence SEQ_R03_V8 successfully created."],
+        ["Sequence SEQ_R04_V8 successfully created."],
+        ["Sequence SEQ_R05_V8 successfully created."],
+        ["Sequence SEQ_R06_V8 successfully created."],
+        ["Sequence SEQ_R07_V8 successfully created."],
+        ["Sequence SEQ_R08_V8 successfully created."],
+        ["Sequence SEQ_R09_V8 successfully created."],
+        ["Sequence SEQ_R10_V8 successfully created."],
+        ["Sequence SEQ_R11_V8 successfully created."],
+        ["Sequence SEQ_R12_V8 successfully created."]
+      ],
+      "error": null, "verdict": "PASS",
+      "observation": "All twelve created up front so the same objects serve both T8.1 (four regions) and T8.2 (twelve)."
+    },
+    { "seq": 5, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE region_map_v8 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V8 successfully created."]], "error": null, "verdict": "PASS", "observation": "THE MAPPING TABLE - the only thing R11 says may change." },
+    { "seq": 6, "test_id": "SETUP", "sql": "INSERT INTO region_map_v8 VALUES\n    ('North America', 1), ('EU', 2), ('APAC', 3)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3]], "error": null, "verdict": "PASS", "observation": "Starts at the three regions every earlier pack used." },
+    { "seq": 7, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE keys_v8 (\n    K NUMBER(38,0), RAW_K NUMBER(38,0), REGION VARCHAR(100), SCHEME VARCHAR(20)\n)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table KEYS_V8 successfully created."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 8, "test_id": "SETUP",
+      "purpose": "The region-code lookup. NOT touched again anywhere in this script - if R11 holds, adding regions never requires editing it.",
+      "sql": "CREATE OR REPLACE FUNCTION region_code_v8(region_name VARCHAR)\nRETURNS NUMBER(9,0)\nVOLATILE\nCOMMENT = 'R11: adding a region must be an INSERT into region_map_v8, never a change here.'\nAS $$\n    (SELECT m.REGION_CODE FROM region_map_v8 m WHERE m.REGION_NAME = region_name)\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function REGION_CODE_V8 successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "Created while the session's current schema is W6V8, so the unqualified region_map_v8 reference binds locally - applying finding F23."
+    },
+    {
+      "seq": 9, "test_id": "T8.1",
+      "sql": "SELECT COUNT(*) AS regions_before FROM region_map_v8",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "REGIONS_BEFORE", "type": "NUMBER(38,0)" }],
+      "rows": [[3]],
+      "error": null, "expectation": "3", "verdict": "RECORDED - baseline established"
+    },
+    {
+      "seq": 10, "test_id": "T8.1",
+      "purpose": "The ONLY change made to add a fourth region.",
+      "sql": "INSERT INTO region_map_v8 VALUES ('LATAM', 4)",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[1]],
+      "error": null, "verdict": "PASS",
+      "observation": "No DDL. No function change. One row."
+    },
+    {
+      "seq": 11, "test_id": "T8.1",
+      "sql": "SELECT 'LATAM' AS region, region_code_v8('LATAM') AS resolved_code,\n       CASE WHEN region_code_v8('LATAM') = 4\n            THEN 'PASS - a new region resolved with NO function change'\n            WHEN region_code_v8('LATAM') IS NULL\n            THEN 'FAIL - the new region did not resolve'\n            ELSE 'FAIL - wrong code' END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "REGION", "type": "VARCHAR" },
+        { "name": "RESOLVED_CODE", "type": "NUMBER(9,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["LATAM", 4, "PASS - a new region resolved with NO function change"]],
+      "error": null, "expectation": "4 / PASS. This is R11.",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 12, "test_id": "T8.1",
+      "purpose": "Prove the function really was untouched since creation - a before/after check rather than an assertion.",
+      "sql": "SELECT FUNCTION_NAME, CREATED, LAST_ALTERED,\n       CASE WHEN CREATED = LAST_ALTERED\n            THEN 'PASS - function never altered; the region arrived as data'\n            ELSE 'CHECK - function was altered during this run' END AS verdict\nFROM INFORMATION_SCHEMA.FUNCTIONS\nWHERE FUNCTION_SCHEMA = 'W6V8' AND FUNCTION_NAME = 'REGION_CODE_V8'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "FUNCTION_NAME", "type": "VARCHAR" },
+        { "name": "CREATED", "type": "TIMESTAMP_LTZ" },
+        { "name": "LAST_ALTERED", "type": "TIMESTAMP_LTZ" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["REGION_CODE_V8", "2026-11-03 17:36:31.346 -0800", "2026-11-03 17:36:31.346 -0800", "PASS - function never altered; the region arrived as data"]],
+      "error": null,
+      "expectation": "CREATED = LAST_ALTERED, PASS",
+      "verdict": "PASS - R11 PROVEN",
+      "observation": "Timestamps identical to the millisecond. This is the objective half of R11: it is not enough that the new region resolved, the code must also be provably unchanged."
+    },
+    {
+      "seq": 13, "test_id": "T8.2",
+      "purpose": "Grow to twelve regions. Codes 10, 11 and 12 are the ones that matter.",
+      "sql": "INSERT INTO region_map_v8 VALUES\n    ('UK', 5), ('MEA', 6), ('ANZ', 7), ('Japan', 8), ('India', 9),\n    ('Nordics', 10), ('Benelux', 11), ('Iberia', 12)",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[8]],
+      "error": null, "verdict": "PASS",
+      "observation": "Again pure data. Eight regions added with no code change of any kind."
+    },
+    {
+      "seq": 14, "test_id": "T8.2",
+      "purpose": "SENSITIVITY GATE 1 - without two-digit codes T8.4 cannot fail and proves nothing.",
+      "sql": "SELECT COUNT(*) AS regions_now,\n       SUM(CASE WHEN REGION_CODE >= 10 THEN 1 ELSE 0 END) AS two_digit_codes,\n       CASE WHEN COUNT(*) = 12 AND SUM(CASE WHEN REGION_CODE >= 10 THEN 1 ELSE 0 END) = 3\n            THEN 'SENSITIVITY OK - two-digit codes present, so C3 can be discriminated'\n            ELSE 'STOP - without two-digit codes T8.4 cannot fail and proves nothing'\n       END AS verdict\nFROM region_map_v8",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "REGIONS_NOW", "type": "NUMBER(38,0)" },
+        { "name": "TWO_DIGIT_CODES", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[12, 3, "SENSITIVITY OK - two-digit codes present, so C3 can be discriminated"]],
+      "error": null,
+      "expectation": "12 / 3 / SENSITIVITY OK",
+      "verdict": "GATE OPEN - exact match"
+    },
+    { "seq": 15, "test_id": "T8.2", "sql": "TRUNCATE TABLE keys_v8", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 16, "test_id": "T8.2",
+      "purpose": "Draw 400 raw values from each of the twelve per-region sequences. ONE STATEMENT PER REGION, so no statement references two sequences - avoiding 05's finding F14 entirely.",
+      "sql": "INSERT INTO keys_v8 (RAW_K, REGION, SCHEME) SELECT LM_POC_DB.W6V8.seq_r01_v8.NEXTVAL, 'North America', 'raw' FROM TABLE(GENERATOR(ROWCOUNT => 400));\n-- ... one such statement for each of the twelve regions, sequences FULLY QUALIFIED ...\nINSERT INTO keys_v8 (RAW_K, REGION, SCHEME) SELECT LM_POC_DB.W6V8.seq_r12_v8.NEXTVAL, 'Iberia', 'raw' FROM TABLE(GENERATOR(ROWCOUNT => 400));",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 12,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[400],[400],[400],[400],[400],[400],[400],[400],[400],[400],[400],[400]],
+      "error": null, "verdict": "PASS",
+      "observation": "4800 rows total, 400 per region. Every sequence reference fully qualified per finding F23."
+    },
+    {
+      "seq": 17, "test_id": "T8.2",
+      "purpose": "SENSITIVITY GATE 2 - the regions must genuinely reuse each other's raw numbers, or T8.3 and T8.4 are both vacuous.",
+      "sql": "SELECT COUNT(*) AS rows_out, COUNT(DISTINCT RAW_K) AS distinct_raw,\n       COUNT(*) - COUNT(DISTINCT RAW_K) AS collisions,\n       CASE WHEN COUNT(*) - COUNT(DISTINCT RAW_K) > 0\n            THEN 'SENSITIVITY OK - raw values collide, so the prefix has real work to do'\n            ELSE 'STOP - no collision; T8.3 and T8.4 would both be vacuous' END AS verdict\nFROM keys_v8 WHERE SCHEME = 'raw'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_OUT", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_RAW", "type": "NUMBER(38,0)" },
+        { "name": "COLLISIONS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[4800, 400, 4400, "SENSITIVITY OK - raw values collide, so the prefix has real work to do"]],
+      "error": null,
+      "expectation": "4800 / 400 / 4400 / SENSITIVITY OK",
+      "verdict": "GATE OPEN - exact match",
+      "observation": "All twelve regions drew raw values 1-400, so only 400 are distinct and 4400 collide. Twelve-way collision on every value."
+    },
+    {
+      "seq": 18, "test_id": "T8.3",
+      "purpose": "C3 CANDIDATE A - fixed-width offset at twelve regions.",
+      "sql": "INSERT INTO keys_v8 (K, RAW_K, REGION, SCHEME)\nSELECT CAST(m.REGION_CODE AS NUMBER(38,0)) * 1000000000000000 + r.RAW_K,\n       r.RAW_K, r.REGION, 'offset'\nFROM keys_v8 r JOIN region_map_v8 m ON m.REGION_NAME = r.REGION\nWHERE r.SCHEME = 'raw'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[4800]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 19, "test_id": "T8.3",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       MIN(LENGTH(CAST(K AS VARCHAR))) AS min_width,\n       MAX(LENGTH(CAST(K AS VARCHAR))) AS max_width,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT K)\n            THEN 'PASS - offset survives twelve regions including two-digit codes'\n            ELSE 'FAIL - offset collided' END AS verdict\nFROM keys_v8 WHERE SCHEME = 'offset'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "MIN_WIDTH", "type": "NUMBER(38,0)" },
+        { "name": "MAX_WIDTH", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[4800, 4800, 0, 16, 17, "PASS - offset survives twelve regions including two-digit codes"]],
+      "error": null,
+      "expectation": "4800 / 4800 / 0 duplicates. Widths 16-17 (two-digit codes add one).",
+      "verdict": "PASS - exact match",
+      "observation": "Zero duplicates despite 4400 raw collisions. Width is 16 for single-digit codes and 17 for codes 10-12, which is positional and therefore still decodable."
+    },
+    {
+      "seq": 20, "test_id": "T8.4",
+      "purpose": "C3 CANDIDATE B - digit concatenation at twelve regions. EXPECTED TO COLLIDE. This is the decisive C3 evidence and could not be run until R11's two-digit codes existed.",
+      "sql": "INSERT INTO keys_v8 (K, RAW_K, REGION, SCHEME)\nSELECT CAST(CAST(m.REGION_CODE AS VARCHAR) || CAST(r.RAW_K AS VARCHAR) AS NUMBER(38,0)),\n       r.RAW_K, r.REGION, 'concat'\nFROM keys_v8 r JOIN region_map_v8 m ON m.REGION_NAME = r.REGION\nWHERE r.SCHEME = 'raw'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[4800]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 21, "test_id": "T8.4",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       MIN(LENGTH(CAST(K AS VARCHAR))) AS min_width,\n       MAX(LENGTH(CAST(K AS VARCHAR))) AS max_width,\n       CASE WHEN COUNT(*) > COUNT(DISTINCT K)\n            THEN 'CONFIRMED - concatenation COLLIDES once region codes reach two digits'\n            ELSE 'UNEXPECTED - no collision; re-check that codes 10-12 were used' END AS verdict\nFROM keys_v8 WHERE SCHEME = 'concat'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "MIN_WIDTH", "type": "NUMBER(38,0)" },
+        { "name": "MAX_WIDTH", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[4800, 4602, 198, 2, 5, "CONFIRMED - concatenation COLLIDES once region codes reach two digits"]],
+      "error": null,
+      "expectation": "4800 total, fewer distinct, duplicates > 0, widths varying",
+      "verdict": "CONFIRMED - CONCATENATION FAILS",
+      "observation": "198 duplicate primary keys from the same 4800 rows that the offset scheme handled with zero. Widths range 2 to 5 digits against the offset scheme's uniform 16-17. This is the C3 decision, settled by data rather than argument."
+    },
+    {
+      "seq": 22, "test_id": "T8.4",
+      "purpose": "Name the actual colliding pairs - the slide-worthy output.",
+      "sql": "SELECT K AS colliding_key,\n       COUNT(*) AS times_issued,\n       LISTAGG(REGION || ' raw=' || RAW_K, '  |  ') WITHIN GROUP (ORDER BY REGION) AS issued_to\nFROM keys_v8 WHERE SCHEME = 'concat'\nGROUP BY K HAVING COUNT(*) > 1\nORDER BY K LIMIT 10",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 10,
+      "columns": [
+        { "name": "COLLIDING_KEY", "type": "NUMBER(38,0)" },
+        { "name": "TIMES_ISSUED", "type": "NUMBER(38,0)" },
+        { "name": "ISSUED_TO", "type": "VARCHAR" }
+      ],
+      "rows": [
+        [111, 2, "Benelux raw=1  |  North America raw=11"],
+        [112, 2, "Benelux raw=2  |  North America raw=12"],
+        [113, 2, "Benelux raw=3  |  North America raw=13"],
+        [114, 2, "Benelux raw=4  |  North America raw=14"],
+        [115, 2, "Benelux raw=5  |  North America raw=15"],
+        [116, 2, "Benelux raw=6  |  North America raw=16"],
+        [117, 2, "Benelux raw=7  |  North America raw=17"],
+        [118, 2, "Benelux raw=8  |  North America raw=18"],
+        [119, 2, "Benelux raw=9  |  North America raw=19"],
+        [121, 2, "Iberia raw=1  |  North America raw=21"]
+      ],
+      "error": null,
+      "expectation": "e.g. key 1101 issued to 'North America raw=101' and 'Benelux raw=1'",
+      "verdict": "RECORDED - exactly the predicted failure mode",
+      "observation": "Key 111 was issued to BOTH Benelux employee 1 AND North America employee 11. Two different employees in two different regions sharing one primary key. Key 121 collides between Iberia (code 12) and North America (code 1). The mechanism is precisely concat(11,1) = concat(1,11)."
+    },
+    {
+      "seq": 23, "test_id": "T8.5",
+      "purpose": "C3 decode correctness at two-digit codes - R13 under growth. Offset decodes by division; concatenation has no correct decode because nothing marks where the region code ends.",
+      "sql": "SELECT 'offset' AS scheme, COUNT(*) AS keys_tested,\n       SUM(CASE WHEN FLOOR(k.K / 1000000000000000) = m.REGION_CODE THEN 1 ELSE 0 END) AS decode_correct,\n       CASE WHEN COUNT(*) = SUM(CASE WHEN FLOOR(k.K / 1000000000000000) = m.REGION_CODE THEN 1 ELSE 0 END)\n            THEN 'PASS - every key decodes, two-digit codes included'\n            ELSE 'FAIL' END AS verdict\nFROM keys_v8 k JOIN region_map_v8 m ON m.REGION_NAME = k.REGION\nWHERE k.SCHEME = 'offset'\nUNION ALL\nSELECT 'concat', COUNT(*),\n       SUM(CASE WHEN TO_NUMBER(LEFT(CAST(k.K AS VARCHAR), 1)) = m.REGION_CODE THEN 1 ELSE 0 END),\n       CASE WHEN COUNT(*) = SUM(CASE WHEN TO_NUMBER(LEFT(CAST(k.K AS VARCHAR), 1)) = m.REGION_CODE THEN 1 ELSE 0 END)\n            THEN 'PASS' ELSE 'FAIL - first-character decode is wrong for two-digit codes' END\nFROM keys_v8 k JOIN region_map_v8 m ON m.REGION_NAME = k.REGION\nWHERE k.SCHEME = 'concat'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "SCHEME", "type": "VARCHAR" },
+        { "name": "KEYS_TESTED", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_CORRECT", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["offset", 4800, 4800, "PASS - every key decodes, two-digit codes included"],
+        ["concat", 4800, 3600, "FAIL - first-character decode is wrong for two-digit codes"]
+      ],
+      "error": null,
+      "expectation": "offset PASS; concat FAIL for every key whose region code is 10-12",
+      "verdict": "PASS for offset, FAIL for concat - exact match",
+      "observation": "Offset: 4800 of 4800. Concat: 3600 of 4800 - exactly the 1200 keys belonging to the three two-digit regions (3 regions x 400 rows) misdecode. R13 therefore only holds under the offset scheme once codes reach two digits."
+    },
+    {
+      "seq": 24, "test_id": "T8.6",
+      "purpose": "C3 field width - headroom, and where it breaks. The width must be fixed once and never changed, so this records the ceiling.",
+      "sql": "WITH widths AS (\n    SELECT 12 AS w UNION ALL SELECT 15 UNION ALL SELECT 18 UNION ALL SELECT 19\n),\ncodes AS (SELECT 9 AS max_code UNION ALL SELECT 99 UNION ALL SELECT 999)\nSELECT w.w                                         AS field_width_digits,\n       c.max_code                                  AS max_region_code,\n       POWER(10, w.w) - 1                          AS keys_per_region,\n       LENGTH(CAST(CAST(c.max_code AS NUMBER(38,0)) * POWER(10, w.w) AS VARCHAR)) AS largest_key_digits,\n       CASE WHEN c.max_code * POWER(10, w.w) < POWER(10, 38)\n            THEN 'fits NUMBER(38,0)' ELSE 'OVERFLOWS NUMBER(38,0)' END AS number_38_check,\n       CASE WHEN POWER(10, w.w) < 9223372036854775807\n            THEN 'sequence half fits 64-bit' ELSE 'EXCEEDS the 64-bit sequence ceiling' END AS seq_64bit_check\nFROM widths w CROSS JOIN codes c ORDER BY w.w, c.max_code",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 12,
+      "columns": [
+        { "name": "FIELD_WIDTH_DIGITS", "type": "NUMBER(38,0)" },
+        { "name": "MAX_REGION_CODE", "type": "NUMBER(38,0)" },
+        { "name": "KEYS_PER_REGION", "type": "FLOAT" },
+        { "name": "LARGEST_KEY_DIGITS", "type": "NUMBER(38,0)" },
+        { "name": "NUMBER_38_CHECK", "type": "VARCHAR" },
+        { "name": "SEQ_64BIT_CHECK", "type": "VARCHAR" }
+      ],
+      "rows": [
+        [12, 9, 999999999999, 13, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [12, 99, 999999999999, 14, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [12, 999, 999999999999, 15, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [15, 9, 999999999999999, 5, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [15, 99, 999999999999999, 7, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [15, 999, 999999999999999, 8, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [18, 9, "1e+18", 5, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [18, 99, "1e+18", 7, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [18, 999, "1e+18", 8, "fits NUMBER(38,0)", "sequence half fits 64-bit"],
+        [19, 9, "1e+19", 5, "fits NUMBER(38,0)", "EXCEEDS the 64-bit sequence ceiling"],
+        [19, 99, "1e+19", 7, "fits NUMBER(38,0)", "EXCEEDS the 64-bit sequence ceiling"],
+        [19, 999, "1e+19", 8, "fits NUMBER(38,0)", "EXCEEDS the 64-bit sequence ceiling"]
+      ],
+      "error": null,
+      "expectation": "every row fits NUMBER(38,0). Width 19 EXCEEDS the 64-bit sequence ceiling (9.22e18), which is the real constraint - not NUMBER(38,0).",
+      "verdict": "RECORDED - expectation confirmed",
+      "observation": "NUMBER(38,0) is never the binding constraint; every width from 12 to 19 fits it. The 64-bit SEQUENCE ceiling is what bites, and it bites at width 19. CAVEAT: the largest_key_digits column is unreliable for widths >= 15 - see finding F29."
+    },
+    {
+      "seq": 25, "test_id": "T8.6",
+      "purpose": "Does a downstream 64-bit consumer survive the chosen width?",
+      "sql": "SELECT 1000000000000000 * 12 + 400                 AS sample_key_width15,\n       9223372036854775807                          AS bigint_max,\n       CASE WHEN 1000000000000000 * 12 + 400 < 9223372036854775807\n            THEN 'PASS - a 15-digit field with 2-digit codes still fits a signed 64-bit consumer'\n            ELSE 'FAIL - would overflow a Java long / BIGINT downstream' END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "SAMPLE_KEY_WIDTH15", "type": "NUMBER(38,0)" },
+        { "name": "BIGINT_MAX", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[12000000000000400, 9223372036854775807, "PASS - a 15-digit field with 2-digit codes still fits a signed 64-bit consumer"]],
+      "error": null,
+      "expectation": "PASS. At width 18 with a 2-digit code this FAILS, which is why 15 is recommended over 18.",
+      "verdict": "PASS",
+      "observation": "A width-15 key for region 12 is 12,000,000,000,000,400 against a signed 64-bit maximum of 9,223,372,036,854,775,807 - roughly 1.3% of the ceiling. Comfortable margin. See finding F30 for why 18 is not safe despite passing the sequence check at seq 24."
+    },
+    { "seq": 26, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V8 CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained with all evidence tables." }
+  ],
+  "summary": {
+    "statements_total": 26,
+    "statements_executed": 25,
+    "statements_skipped": 1,
+    "statements_succeeded": 25,
+    "statements_errored": 0,
+    "deviations_applied": [],
+    "sensitivity_gates_opened": 2,
+    "tests_passed": ["T8.1", "T8.2", "T8.3", "T8.5 (offset)", "T8.6"],
+    "tests_confirmed_as_failures_by_design": ["T8.4", "T8.5 (concat)"],
+    "tests_failed_unexpectedly": [],
+    "r11_proven": true,
+    "c3_settled": true,
+    "c3_recommendation": "fixed-width offset, field width 15"
+  },
+  "decision_table_resolution": {
+    "source": "SQL/08_r11_c3_region_growth.sql - WHAT THIS CLOSES",
+    "matched_rules": [
+      "T8.1 PASS + function unaltered -> R11 PROVEN. A new region is a data change.",
+      "T8.2 SENSITIVITY OK -> two-digit codes present, so T8.4 can fail.",
+      "T8.3 0 duplicates -> offset survives growth.",
+      "T8.4 duplicates > 0 -> concatenation does NOT. This is the C3 decision, settled by data.",
+      "T8.5 offset PASS, concat FAIL -> R13 only holds under offset once codes reach two digits.",
+      "T8.6 -> pins the field width. The binding constraint is the 64-bit SEQUENCE ceiling and any downstream 64-bit consumer, NOT NUMBER(38,0)."
+    ],
+    "r11_verdict": "PROVEN - adding a region is an INSERT into the mapping table, with the function provably unaltered",
+    "c3_verdict": "SETTLED - fixed-width offset. Digit concatenation is eliminated on uniqueness AND on decodability.",
+    "c3_field_width_recommendation": "15 digits",
+    "r13_verdict": "Holds under offset at twelve regions. Does NOT hold under concatenation once codes reach two digits.",
+    "build_standard_decisions": [
+      "Use the FIXED-WIDTH OFFSET scheme: region_code * 10^15 + nextval.",
+      "Pin the field width at 15 and NEVER change it. Changing it renumbers every key ever issued.",
+      "Reject digit concatenation. It produced 198 duplicate primary keys at twelve regions and misdecoded 1200 of 4800 keys.",
+      "Adding a region is a mapping-table INSERT. No function change, ever. The CREATED = LAST_ALTERED check at T8.1 is a cheap release gate for this."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F27",
+      "severity": "SETTLES-C3",
+      "title": "Digit concatenation produces duplicate primary keys at twelve regions; fixed-width offset does not",
+      "evidence": "Identical 4800-row input. T8.3 (offset): 4800 distinct, 0 duplicates, widths 16-17. T8.4 (concat): 4602 distinct, 198 DUPLICATES, widths 2-5. Named collisions at seq 22: key 111 issued to both 'Benelux raw=1' and 'North America raw=11'; key 121 to both 'Iberia raw=1' and 'North America raw=21'.",
+      "interpretation": "Concatenation has no delimiter, so concat(11,1) and concat(1,11) are the same number. The failure appears the moment any region code reaches two digits and is invisible before that. All three earlier packs used only codes 1-3, which is why this could not be detected until R11's growth test existed.",
+      "implication": "C3 is decided on measured data, not preference. Concatenation is unsafe for a primary key. The offset scheme's variable width (16 for single-digit codes, 17 for two-digit) is positional and therefore harmless, which is the opposite of concatenation's variable width.",
+      "status": "Closed - C3 settled in favour of fixed-width offset."
+    },
+    {
+      "id": "F28",
+      "severity": "SETTLES-R11",
+      "title": "R11 is proven objectively: a new region resolved with the function's CREATED equal to its LAST_ALTERED",
+      "evidence": "T8.1: regions_before = 3, one INSERT added LATAM as code 4, region_code_v8('LATAM') returned 4. INFORMATION_SCHEMA.FUNCTIONS showed CREATED = LAST_ALTERED = 2026-11-03 17:36:31.346 -0800. T8.2 then added eight more regions, again with no code change.",
+      "interpretation": "R11 was the only requirement with no evidence behind it, and the obvious test - 'the new region resolved' - is not sufficient on its own, because it would also pass if someone had quietly edited the function. Pairing it with the timestamp check makes the claim objective.",
+      "implication": "Growth from 3 to 12 regions required twelve rows of data and zero lines of code. The CREATED = LAST_ALTERED query is worth lifting into a release check, in the same way R10's T4.6 volatility query was.",
+      "status": "Closed - R11 PROVEN."
+    },
+    {
+      "id": "F29",
+      "severity": "SCRIPT-DEFECT",
+      "title": "T8.6's largest_key_digits column is unreliable for field widths of 15 or more",
+      "evidence": "Seq 24 reports largest_key_digits of 13, 14 and 15 for width 12 - correct - but 5, 7 and 8 for widths 15, 18 and 19, which is plainly wrong for numbers of that magnitude. The keys_per_region column shows the cause: it returns '1e+18' and '1e+19' as text.",
+      "interpretation": "POWER() returns a FLOAT. Multiplying by it yields a float, and CAST(... AS VARCHAR) then formats in scientific notation, so LENGTH counts the characters of '9e+15' rather than the digits of the integer.",
+      "implication": "No impact on the conclusion - the two columns that matter, number_38_check and seq_64bit_check, use comparisons rather than string length and are correct. But the digit counts should not be quoted. Recommend the script compute the width arithmetically, for example FLOOR(LOG(10, value)) + 1 on a NUMBER, or build the multiplier as a literal rather than via POWER().",
+      "status": "Open - minor script correction."
+    },
+    {
+      "id": "F30",
+      "severity": "DESIGN-RELEVANT",
+      "title": "The binding constraint on field width is the downstream 64-bit consumer, not NUMBER(38,0) and not the sequence ceiling",
+      "evidence": "Seq 24: every width from 12 to 19 'fits NUMBER(38,0)'; only width 19 'EXCEEDS the 64-bit sequence ceiling'. Seq 25: width 15 with region code 12 gives 12,000,000,000,000,400, comfortably under the signed 64-bit maximum of 9,223,372,036,854,775,807.",
+      "interpretation": "Three separate ceilings apply and they bite in a non-obvious order. NUMBER(38,0) never binds. The 64-bit sequence ceiling binds at width 19. But a downstream consumer holding the WHOLE key in a signed 64-bit integer binds earlier still: at width 18 with a two-digit region code, the key is of order 1.2e19, which exceeds 9.22e18 and would overflow a Java long or a BIGINT column.",
+      "implication": "Supports width 15 over width 18 specifically, even though both pass the checks at seq 24. This is the quantitative basis for the recommendation, and it connects to the existing open item about downstream consumers of EMPLOYEE_ID capping at 64 bits. Worth confirming with the team which downstream systems hold the key and in what type, because that choice - not Snowflake - sets the ceiling.",
+      "status": "Open - recommend confirming downstream consumer types before pinning the width."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.W6V8",
+    "objects": [
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V8", "note": "Created by this run." },
+      { "type": "SEQUENCE", "name": "SEQ_R01_V8 through SEQ_R12_V8", "note": "Twelve per-region sequences, each consumed 400 values." },
+      { "type": "TABLE", "name": "REGION_MAP_V8", "note": "12 rows, codes 1-12 including three two-digit codes." },
+      { "type": "TABLE", "name": "KEYS_V8", "note": "14400 rows: 4800 raw, 4800 offset, 4800 concat." },
+      { "type": "FUNCTION", "name": "REGION_CODE_V8(VARCHAR)", "note": "Never altered after creation - the R11 evidence." }
+    ],
+    "cleanup_sql": [
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V8 CASCADE"
+    ]
+  }
+}
