@@ -14,7 +14,12 @@ Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` i
 | **Decided by measurement** | **C3** → fixed-width offset, width 15 · **C6** → leave legacy keys alone |
 | **Informed, not decided** | **C5** (IDMC choice) · **C4** (question for Nidwika) |
 
-**All 13 requirements are closed.** Nothing further is blocked on a test.
+**All 13 requirements are closed against the original scope.** One run remains: Nidwika's Q3
+established that the **target column datatype varies and can be `VARCHAR`**, which reopens R6 for
+non-numeric key columns. See [`NIDWIKA_RESPONSES.md`](NIDWIKA_RESPONSES.md) and `poc/12`.
+
+**C4 and C5 are now closed by her answers** — the key stays in Q2, and the region name comes from
+IDMC with one mapping table.
 
 Two companion documents carry the detail:
 [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) — every alternative tried, its measured outcome,

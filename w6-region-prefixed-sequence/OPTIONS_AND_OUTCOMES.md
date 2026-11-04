@@ -3,6 +3,11 @@
 Built for the deck. For each requirement: what it asked, what Snowflake's documentation says, every
 option we actually tested, the measured outcome of each, and the final position.
 
+> **Read [`SCHEMES_EXPLAINED.md`](SCHEMES_EXPLAINED.md) first.** Nidwika's feedback was that the
+> duplicate counts here are quoted without the rationale behind them, and she is right. That
+> document explains what each scheme *is* and *why* one breaks; this one records the options and
+> outcomes. **The deck should lead with the mechanism and use these numbers as confirmation.**
+
 Nine Snowflake runs, 2026-11-03/04. Evidence: the `*.json` run logs in this folder and
 `poc/R*_RESULTS.md`. Where an option was *rejected*, the measurement that rejected it is quoted —
 those are the slides worth building.
