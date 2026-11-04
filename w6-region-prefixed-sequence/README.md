@@ -17,7 +17,9 @@ not reopen the requirement.
 
 | Read | For |
 |---|---|
-| [`STATUS.md`](STATUS.md) | **Where each of the 13 requirements stands** — proven, pending, or broken, and why the pending ones matter |
+| [`STATUS.md`](STATUS.md) | **Where each of the 13 requirements stands.** All 13 now closed |
+| [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) | **Every alternative tried, its measured outcome, and what the docs say** — per requirement. Built for the deck |
+| [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md) | The seven clarifications needed to conclude the POC |
 | [`requirement_deck.html`](requirement_deck.html) | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with what the docs say for each. Opens in a browser, no build step |
 | [`feasibility.md`](feasibility.md) | **Start here for the detail.** All thirteen requirements, one at a time: what each asks, what Snowflake's docs say, how it reads, what can be built, what needs a workaround |
 | [`requirement.md`](requirement.md) | The requirement itself. Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |

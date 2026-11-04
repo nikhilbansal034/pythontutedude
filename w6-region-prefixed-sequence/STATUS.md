@@ -1,6 +1,6 @@
 # W6 — where each of the 13 requirements stands
 
-As at 2026-11-03, after **six** Snowflake runs (R3, R2, R6, R10, R12 ×3).
+As at 2026-11-04, after **nine** Snowflake runs (R3, R2, R6, R10, R12 ×3, R11/C3, C6, C5, C4).
 Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` is the spec;
 `feasibility.md` is the per-requirement analysis against documentation; this file is the rollup.
 
@@ -8,13 +8,18 @@ Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` i
 
 | | |
 |---|---|
-| **Proven in Snowflake** | R1, R2, R3, R4, R5, R6, R7, R10, **R12**, R13 |
+| **Proven in Snowflake** | R1, R2, R3, R4, R5, R6, R7, R10, **R11**, R12, R13 |
 | **Resolved, with a condition** | **R8** — works, but only with a fully-qualified sequence |
-| **Settled without a test** | R9 — true by reading Q2; needs Nidwika's confirmation only |
-| **Never tested** | **R11** — the only requirement with no evidence behind it |
+| **Closed as already satisfied** | **R9** — pending one confirmation from Nidwika |
+| **Decided by measurement** | **C3** → fixed-width offset, width 15 · **C6** → leave legacy keys alone |
+| **Informed, not decided** | **C5** (IDMC choice) · **C4** (question for Nidwika) |
 
-**12 of 13 are closed.** R12 — the requirement the whole design exists to deliver — was proven on the
-fourth attempt, and it is the first time the test could have failed.
+**All 13 requirements are closed.** Nothing further is blocked on a test.
+
+Two companion documents carry the detail:
+[`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) — every alternative tried, its measured outcome,
+and what the docs say, per requirement. Built for the deck.
+[`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md) — the seven things we need from her.
 
 ---
 
@@ -32,7 +37,7 @@ fourth attempt, and it is the first time the test could have failed.
 | **R8** | One code base, unchanged across environments | **RESOLVED, with a condition** | Works **only with a fully-qualified sequence**. R12 v3 T7.2: three calls from three different caller schemas, and only the function's own sequence advanced. The text is then not *literally* identical per region — which is exactly how Q2 already deploys, via `$$inout_param_*` substitution |
 | **R9** | Region applied Zone 1 → Zone 2, not later | **SETTLED, no test needed** | Q2 line 50 already mints the key inside the Zone 1 → Zone 2 journey. Nothing to relocate. Needs only C4 — Nidwika confirming Q2 was meant, not Q1 |
 | **R10** | Correct when called concurrently by multiple tables | **PROVEN** | R10 T4.2 — 60,000 keys, 3 concurrent sessions with **measured overlap**, 0 duplicates. Invocation bounded to [1.0, 1.655]/row. Conditions attached (below) |
-| **R11** | New regions without a code change | **NEVER TESTED** | Every run used exactly North America, EU, APAC. No run has ever added a fourth region. Logically it is an `INSERT`, but that is an assumption, not a result |
+| **R11** | New regions without a code change | **PROVEN** | Grew 3 → 12 regions with **zero lines of code**; the function's `CREATED` equals its `LAST_ALTERED` to the millisecond. Adding a **table**, by contrast, does edit the function's `CASE` |
 | **R12** | Every key unique across regions, for all time | **PROVEN** | R12 v3. All three regions drew raw `1–500` (**1000 collisions**, so the prefix had real work to do); 30,000 prefixed keys, 3 measured-concurrent sessions, **0 duplicates**; 10,000 raw values each issued in **all three** regions. Without the prefix: 20,000 duplicates |
 | **R13** | Region recoverable from the key without a join | **PROVEN (strongest form)** | R12 v3 T7.5 — 10,000 × 3, zero misattribution, **while the raw values collide**. The earlier confirmations ran on non-colliding data |
 
@@ -76,23 +81,43 @@ schemas, only the function's own sequence moved.
 R8 is met — as **one template substituted at deploy time**, not one literal text. Q2 already works
 that way, so nothing new is introduced; it just needs saying rather than assuming.
 
-### R11 — untested, and coupled to the C3 decision
+### R11 — proven, and it settled C3 with it
 
-§2 says the mapping must accommodate further regions without code change. Every run used the same
-three. Nobody has added a fourth.
+Growing from three regions to twelve took **twelve rows of data and zero lines of code**. The
+objective half is that `CREATED = LAST_ALTERED` on the function, to the millisecond.
 
-It matters more than it looks because **R11 and C3 are coupled**:
+Because that run introduced **two-digit region codes** for the first time, it also discriminated the
+two prefix schemes, which had been indistinguishable at three single-digit codes:
 
-- while region codes stay single-digit (1–9), digit concatenation and fixed-width offset behave
-  identically
-- at a **two-digit** region code, concatenation collides — `concat(1,11)` and `concat(11,1)` are both
-  `111`
+| | Digit concatenation | Fixed-width offset |
+|---|---|---|
+| Duplicate primary keys at 12 regions | **198** | **0** |
+| Keys decoding correctly | 3,600 / 4,800 | **4,800 / 4,800** |
 
-So "will there ever be a tenth region?" is not an idle question: it decides whether the prefix scheme
-choice is cosmetic or load-bearing. Testing R11 is cheap (insert a row, draw keys) and it is the only
-requirement with **no evidence at all** behind it.
+```
+key 111  ->  Benelux employee 1  |  North America employee 11
+```
 
----
+**C3 is therefore decided by data: fixed-width offset, width 15.**
+
+One consequence to carry: adding a **region** is a data change, but adding a **table** edits the
+function's `CASE` arms. Still one place, but someone owns it — see Q6 in
+[`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md).
+
+## What is left to conclude the POC
+
+**Nothing is blocked on a test.** What remains is decisions and packaging:
+
+| | Owner |
+|---|---|
+| Confirm C4 (Q1 vs Q2), and that R12/R13 are genuine requirements | **Nidwika** |
+| Name the downstream consumers of `EMPLOYEE_ID` and their datatypes — this pins the field width permanently | **Nidwika / team** |
+| Choose the C5 provenance mechanism, and adopt the two controls | **Nidwika / IDMC** |
+| Ratify C3, C6 and "region code 0 is never allocated" | **team** |
+| Decide whether the release checks become standing gates | **team** |
+| Rebuild the deck from `OPTIONS_AND_OUTCOMES.md` | us, on request |
+| Clean up the leftover POC objects in `LM_POC_DB` | us |
+| Raise the sequence name-resolution discrepancy with Snowflake support | us |
 
 ## Conditions attached to the things that *are* proven
 
