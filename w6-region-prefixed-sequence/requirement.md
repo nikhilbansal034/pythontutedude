@@ -5,7 +5,23 @@ requirements are grouped into five tracking groups (below).
 
 **R2, R3, R6, R10 and R13 are PROVEN in Snowflake** (2026-11-03) — see `poc/R*_RESULTS.md`.
 
-**R12 remains open after three attempts**, and the third was the most informative:
+**ALL 13 REQUIREMENTS ARE CLOSED** (2026-11-04, nine Snowflake runs). See
+[`STATUS.md`](STATUS.md) for the rollup, [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) for
+every alternative tried and its outcome, and [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md)
+for what remains. **C3 and C6 are decided by measurement**: fixed-width offset at width 15, and
+leave legacy keys alone. **C4 and C5 are informed but not decided** — both are Nidwika's call.
+
+**R11 is PROVEN** (2026-11-04): 3 → 12 regions, zero lines of code, function `CREATED` =
+`LAST_ALTERED`. The same run settled C3, because two-digit region codes finally discriminated the
+two schemes — concatenation produced 198 duplicate primary keys where offset produced none.
+
+**R12 is PROVEN** (2026-11-03, fourth attempt — `poc/R12_RESULTS_v3.md`). All three regions issued
+raw values `1–500` with 1000 collisions, so the prefix had real work to do; the 30,000 prefixed keys
+were unique across three measured-concurrent sessions, and 10,000 raw values were each issued in all
+three regions. Without the prefix there would have been 20,000 duplicates. **R8 is resolved with a
+condition**: the sequence must be fully qualified. **R11 is now the only untested requirement.**
+
+The three earlier attempts, kept because the path matters:
 
 - `poc/04` T4.7 — vacuous: one sequence shared by all regions.
 - `poc/05` T5.2 — vacuous: three per-region sequences moved in lockstep, because one function body

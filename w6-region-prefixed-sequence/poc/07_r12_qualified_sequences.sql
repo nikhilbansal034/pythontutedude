@@ -29,6 +29,16 @@
 --   T7.4  SENSITIVITY - was the prefix actually load-bearing?
 --   T7.5  Does every key decode to its issuing region?           (R13)
 --
+-- RUN 2026-11-03: ALL TESTS PASSED. R12 PROVEN. See R12_RESULTS_v3.md.
+--
+-- CREATE-TIME RULE (run finding F23, learned the hard way at seq 19/21):
+-- unqualified names are resolved against the SESSION'S CURRENT SCHEMA at
+-- CREATE time. Tables then BIND to what was resolved; sequences do NOT bind and
+-- are re-resolved per call. So you must USE SCHEMA <the function's own schema>
+-- before each CREATE FUNCTION below, or the unqualified region_map_v7 is looked
+-- up in the wrong schema and the CREATE fails - or worse, silently binds to a
+-- same-named table that happens to be there.
+--
 -- NOTE ON NAMES: every object is suffixed _V7 so a leftover from an earlier
 -- pack cannot be picked up by accident. 06's T6.1 only produced plausible
 -- numbers because R2's leftover POC_SCHEMA.W6_EMPLOYEE_SEQ happened to exist.
@@ -76,6 +86,7 @@ INSERT INTO W6V7_EU.region_map_v7   VALUES ('EU', 2);
 INSERT INTO W6V7_APAC.region_map_v7 VALUES ('APAC', 3);
 
 -- NORTH AMERICA
+USE SCHEMA W6V7_NA;   -- REQUIRED before CREATE: see the CREATE-TIME RULE above
 CREATE OR REPLACE FUNCTION W6V7_NA.regional_key_v7(region_name VARCHAR)
 RETURNS NUMBER(38,0) VOLATILE
 COMMENT = 'Sequence FULLY QUALIFIED: unqualified sequences follow the CALLER schema, not the function schema (06 F19).'
@@ -93,6 +104,7 @@ COMMENT = 'CONTROL ONLY - demonstrates the caller-schema resolution defect. Neve
 AS $$ emp_seq_v7.NEXTVAL $$;
 
 -- EU
+USE SCHEMA W6V7_EU;   -- REQUIRED before CREATE: see the CREATE-TIME RULE above
 CREATE OR REPLACE FUNCTION W6V7_EU.regional_key_v7(region_name VARCHAR)
 RETURNS NUMBER(38,0) VOLATILE
 COMMENT = 'Sequence FULLY QUALIFIED.'
@@ -105,6 +117,7 @@ RETURNS NUMBER(38,0) VOLATILE
 AS $$ LM_POC_DB.W6V7_EU.emp_seq_v7.NEXTVAL $$;
 
 -- APAC
+USE SCHEMA W6V7_APAC;   -- REQUIRED before CREATE: see the CREATE-TIME RULE above
 CREATE OR REPLACE FUNCTION W6V7_APAC.regional_key_v7(region_name VARCHAR)
 RETURNS NUMBER(38,0) VOLATILE
 COMMENT = 'Sequence FULLY QUALIFIED.'
@@ -177,24 +190,32 @@ FROM w6v7_raw_probe;
 -- ==========================================================================
 -- Same function, three different caller schemas, must always draw its own.
 -- --------------------------------------------------------------------------
-CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7 START 1 INCREMENT 1;
+-- CORRECTED 2026-11-03 (run finding F24): reset ALL THREE, not just NA.
+-- The original reset only NA, so T7.1's legitimate draws left EU and APAC at
+-- 601 and the NEXT_VALUE > 1 verdict misread that as caller-schema leakage -
+-- a false FAIL. An absolute threshold where a before/after comparison is needed.
+CREATE OR REPLACE SEQUENCE W6V7_NA.emp_seq_v7   START 1 INCREMENT 1;
+CREATE OR REPLACE SEQUENCE W6V7_EU.emp_seq_v7   START 1 INCREMENT 1;
+CREATE OR REPLACE SEQUENCE W6V7_APAC.emp_seq_v7 START 1 INCREMENT 1;
 
 USE SCHEMA W6V7_EU;    SELECT W6V7_NA.raw_key_v7() AS from_eu;
 USE SCHEMA W6V7_APAC;  SELECT W6V7_NA.raw_key_v7() AS from_apac;
 USE SCHEMA POC_SCHEMA; SELECT W6V7_NA.raw_key_v7() AS from_poc;
 
-SELECT SEQUENCE_SCHEMA, NEXT_VALUE,
-       CASE WHEN SEQUENCE_SCHEMA = 'W6V7_NA' AND TO_NUMBER(NEXT_VALUE) = 4
-            THEN 'PASS - all three calls drew NA''s own sequence regardless of caller'
+SELECT SEQUENCE_SCHEMA, NEXT_VALUE AS after_value,
+       CASE WHEN SEQUENCE_SCHEMA = 'W6V7_NA' AND TO_NUMBER(NEXT_VALUE) > 1
+            THEN 'ADVANCED - correct, this is the function''s own sequence'
             WHEN SEQUENCE_SCHEMA = 'W6V7_NA'
-            THEN 'CHECK - expected NEXT_VALUE 4 after three calls'
-            WHEN TO_NUMBER(NEXT_VALUE) > 1
-            THEN 'FAIL - a foreign sequence advanced; qualification did not hold'
-            ELSE 'ok - untouched' END AS verdict
+            THEN 'FAIL - the function''s own sequence did NOT advance'
+            WHEN TO_NUMBER(NEXT_VALUE) = 1
+            THEN 'UNTOUCHED - correct, caller schema did not leak'
+            ELSE 'FAIL - a foreign sequence advanced; qualification did not hold'
+       END AS verdict
 FROM LM_POC_DB.INFORMATION_SCHEMA.SEQUENCES
 WHERE SEQUENCE_NAME = 'EMP_SEQ_V7' ORDER BY SEQUENCE_SCHEMA;
--- EXPECT: W6V7_NA at 4 (allowing for block reservation, it may read higher -
--- what matters is that EU's and APAC's stay at 1). ------------------ PASS/FAIL
+-- EXPECT: W6V7_NA ADVANCED (201 under block reservation); EU and APAC both
+-- exactly 1 and UNTOUCHED. Do NOT test NA for an exact value - block
+-- reservation makes it 201, not 4. --------------------------------- PASS/FAIL
 
 -- ==========================================================================
 -- T7.3  PREFIXED KEYS, THREE CONCURRENT SESSIONS

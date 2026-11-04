@@ -11,7 +11,24 @@ schema, numbers every test, and tears down after itself.
 | [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](R10_RESULTS.md) |
 | [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — first attempt | **DEFECTIVE — superseded by 06.** R13 proven, R12 not. [`R12_RESULTS.md`](R12_RESULTS.md) |
 | [`06_r12_independent_region_deployments.sql`](06_r12_independent_region_deployments.sql) | **R12** — three region schemas | **HALTED at its gate — superseded by 07.** Refuted the unqualified-sequence premise. [`R12_RESULTS_v2.md`](R12_RESULTS_v2.md) |
-| [`07_r12_qualified_sequences.sql`](07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences, caller-schema independent | Ready to run |
+| [`07_r12_qualified_sequences.sql`](07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences | **DONE — R12 PROVEN.** [`R12_RESULTS_v3.md`](R12_RESULTS_v3.md) |
+| [`08_r11_c3_region_growth.sql`](08_r11_c3_region_growth.sql) | **R11 + C3** | **DONE — R11 proven, C3 settled.** [`R11_C3_RESULTS.md`](R11_C3_RESULTS.md) |
+| [`09_c6_legacy_key_coexistence.sql`](09_c6_legacy_key_coexistence.sql) | **C6** | **DONE — leave them; backfill is harmful.** [`C6_RESULTS.md`](C6_RESULTS.md) |
+| [`10_c5_region_name_provenance.sql`](10_c5_region_name_provenance.sql) | **C5** | **DONE — informed, not decided.** [`C5_RESULTS.md`](C5_RESULTS.md) |
+| [`11_c4_q1_vs_q2_placement.sql`](11_c4_q1_vs_q2_placement.sql) | **C4** | **DONE — quantified; Nidwika's call.** [`C4_RESULTS.md`](C4_RESULTS.md) |
+
+### What these four can and cannot settle
+
+**`08` and `09` are real validations** — R11, C3 and C6 are decided by what comes back.
+
+**`10` cannot choose C5's mechanism** — that is an IDMC decision. It tests all three candidates and,
+more usefully, characterises what happens when the region name is *wrong*: a typo returns NULL
+silently, and a valid name for the wrong region returns a plausible, wrong, undetectable key.
+
+**`11` cannot settle C4** — that is a question for Nidwika. It quantifies the trade so the question
+can be asked precisely.
+
+`08` and `09` can run in any order. `10` and `11` are independent of both. None needs concurrency.
 
 ## Before you start
 
@@ -62,6 +79,11 @@ counts distinct values against row count rather than just checking the statement
 `01` ran first because everything else presupposed it. With R3 proven, the remaining three are
 independent and can run in any order — though `04` is the longest and needs three worksheets open
 at once for its concurrent parts.
+
+**Create each function while the session is in that function's own schema.** Unqualified names are
+resolved against the *current* schema at **CREATE** time. Tables then bind permanently to what was
+resolved; sequences do not bind and re-resolve per call. Creating a function from the wrong schema
+either fails, or — if a same-named table happens to be there — binds to it silently.
 
 **Always fully qualify a sequence inside a UDF body.** An *unqualified* sequence reference resolves in
 the **caller's current schema** at run time, not the function's — proven in `06` by calling a function
