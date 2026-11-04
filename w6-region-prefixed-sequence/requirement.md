@@ -5,7 +5,13 @@ requirements are grouped into five tracking groups (below).
 
 **R2, R3, R6, R10 and R13 are PROVEN in Snowflake** (2026-11-03) — see `poc/R*_RESULTS.md`.
 
-**R12 remains open after three attempts**, and the third was the most informative:
+**R12 is PROVEN** (2026-11-03, fourth attempt — `poc/R12_RESULTS_v3.md`). All three regions issued
+raw values `1–500` with 1000 collisions, so the prefix had real work to do; the 30,000 prefixed keys
+were unique across three measured-concurrent sessions, and 10,000 raw values were each issued in all
+three regions. Without the prefix there would have been 20,000 duplicates. **R8 is resolved with a
+condition**: the sequence must be fully qualified. **R11 is now the only untested requirement.**
+
+The three earlier attempts, kept because the path matters:
 
 - `poc/04` T4.7 — vacuous: one sequence shared by all regions.
 - `poc/05` T5.2 — vacuous: three per-region sequences moved in lockstep, because one function body

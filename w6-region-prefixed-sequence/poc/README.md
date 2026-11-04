@@ -11,7 +11,7 @@ schema, numbers every test, and tears down after itself.
 | [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](R10_RESULTS.md) |
 | [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — first attempt | **DEFECTIVE — superseded by 06.** R13 proven, R12 not. [`R12_RESULTS.md`](R12_RESULTS.md) |
 | [`06_r12_independent_region_deployments.sql`](06_r12_independent_region_deployments.sql) | **R12** — three region schemas | **HALTED at its gate — superseded by 07.** Refuted the unqualified-sequence premise. [`R12_RESULTS_v2.md`](R12_RESULTS_v2.md) |
-| [`07_r12_qualified_sequences.sql`](07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences, caller-schema independent | Ready to run |
+| [`07_r12_qualified_sequences.sql`](07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences | **DONE — R12 PROVEN.** [`R12_RESULTS_v3.md`](R12_RESULTS_v3.md) |
 
 ## Before you start
 
@@ -62,6 +62,11 @@ counts distinct values against row count rather than just checking the statement
 `01` ran first because everything else presupposed it. With R3 proven, the remaining three are
 independent and can run in any order — though `04` is the longest and needs three worksheets open
 at once for its concurrent parts.
+
+**Create each function while the session is in that function's own schema.** Unqualified names are
+resolved against the *current* schema at **CREATE** time. Tables then bind permanently to what was
+resolved; sequences do not bind and re-resolve per call. Creating a function from the wrong schema
+either fails, or — if a same-named table happens to be there — binds to it silently.
 
 **Always fully qualify a sequence inside a UDF body.** An *unqualified* sequence reference resolves in
 the **caller's current schema** at run time, not the function's — proven in `06` by calling a function
