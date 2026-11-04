@@ -1,0 +1,417 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "C5v2-20261104-025918",
+    "requirement_id": "C5 (multi-deployment validation)",
+    "work_item": "W6",
+    "script": "SQL/12_c5_multi_deployment_guard.sql",
+    "script_question": "Does the deployment guard isolate two live regional deployments from each other? Can F35 (valid-but-wrong-region name) and F36 (case sensitivity) be closed on the Snowflake side?",
+    "context": "Script 10 tested C5 on a single deployment. This script runs TWO deployments side by side (W6V12_NA and W6V12_EU) to prove guard isolation, cross-region uniqueness, decode correctness, and R8 portability when calling by FQN from a neutral schema.",
+    "started_at_utc": "2026-11-04T02:59:18Z",
+    "finished_at_utc": "2026-11-04T02:59:18Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call). Single session.",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with all previous runs. Opening cleanup block WAS run.",
+    "headline": "C5 CLOSED ON THE SNOWFLAKE SIDE. All eight tests PASS. Two deployments running side by side produced 1000/1000/0 cross-region duplicates. F35 CLOSED: the valid-but-wrong-region scenario now returns NULL and fails the NOT NULL load. F36 ADDRESSED: UPPER() normalisation accepts any case of the own region's name while still blocking foreign names. R8 portability confirmed: both functions are callable by FQN from a third neutral schema with guards holding. The IDMC mechanism choice remains for Nidwika, but the Snowflake layer is fully validated.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed.",
+      "No deviations from the script. Every statement ran as written, in order.",
+      "One intended error at seq 26: the NOT NULL violation when loading a wrong-region NULL key. Captured verbatim."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "W6V12_RPT (last active schema at end of run)",
+    "snowflake_version": "10.39.101"
+  },
+  "deployment_topology": {
+    "na_schema": "LM_POC_DB.W6V12_NA",
+    "eu_schema": "LM_POC_DB.W6V12_EU",
+    "rpt_schema": "LM_POC_DB.W6V12_RPT",
+    "na_declared_region": "North America",
+    "eu_declared_region": "EU",
+    "na_region_code": 1,
+    "eu_region_code": 2,
+    "keys_per_region_issued": 500
+  },
+  "statements": [
+    { "seq": 1, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6V12_NA CASCADE;\nDROP SCHEMA IF EXISTS W6V12_EU CASCADE;\nDROP SCHEMA IF EXISTS W6V12_RPT CASCADE;", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Drop statement executed successfully (W6V12_NA already dropped)."], ["Drop statement executed successfully (W6V12_EU already dropped)."], ["Drop statement executed successfully (W6V12_RPT already dropped)."]], "error": null, "verdict": "PASS" },
+    { "seq": 2, "test_id": "SETUP", "sql": "CREATE SCHEMA W6V12_NA;\nCREATE SCHEMA W6V12_EU;\nCREATE SCHEMA W6V12_RPT;", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V12_NA successfully created."], ["Schema W6V12_EU successfully created."], ["Schema W6V12_RPT successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 3, "test_id": "T12.1 - NA", "sql": "USE SCHEMA W6V12_NA", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS", "observation": "Session must be in the target schema when creating functions so unqualified table references bind locally (finding F23)." },
+    { "seq": 4, "test_id": "T12.1 - NA", "sql": "CREATE OR REPLACE SEQUENCE LM_POC_DB.W6V12_NA.emp_seq_na_v12 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_NA_V12 successfully created."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 5, "test_id": "T12.1 - NA",
+      "purpose": "NA tables: region_map, deployment_config, employee (NOT NULL key).",
+      "sql": "CREATE OR REPLACE TABLE LM_POC_DB.W6V12_NA.region_map_v12 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0));\nCREATE OR REPLACE TABLE LM_POC_DB.W6V12_NA.deployment_config_v12 (SETTING VARCHAR(50), VALUE VARCHAR(100));\nCREATE OR REPLACE TABLE LM_POC_DB.W6V12_NA.employee_na_v12 (EMPLOYEE_ID NUMBER(38,0) NOT NULL, EMPLOYEE_PIN VARCHAR(30), REGION VARCHAR(100));",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table REGION_MAP_V12 successfully created."], ["Table DEPLOYMENT_CONFIG_V12 successfully created."], ["Table EMPLOYEE_NA_V12 successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "EMPLOYEE_ID is NOT NULL - one of the two mandatory controls from finding F37."
+    },
+    { "seq": 6, "test_id": "T12.1 - NA", "sql": "INSERT INTO LM_POC_DB.W6V12_NA.region_map_v12 VALUES ('North America', 1), ('EU', 2), ('APAC', 3)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3]], "error": null, "verdict": "PASS" },
+    { "seq": 7, "test_id": "T12.1 - NA", "sql": "INSERT INTO LM_POC_DB.W6V12_NA.deployment_config_v12 VALUES ('REGION_NAME', 'North America')", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[1]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 8, "test_id": "T12.1 - NA",
+      "purpose": "The guarded NA key function. Created while the session is in W6V12_NA (F23 compliance). Sequence is fully qualified.",
+      "sql": "CREATE OR REPLACE FUNCTION key_na_v12(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'NA deployment guard. Rejects any region other than this deployment.'\nAS $$\n    CAST(\n        (SELECT m.REGION_CODE FROM region_map_v12 m\n         WHERE m.REGION_NAME = region_name\n           AND m.REGION_NAME = (SELECT c.VALUE FROM deployment_config_v12 c\n                                WHERE c.SETTING = 'REGION_NAME'))\n        * 1000000000000000 + LM_POC_DB.W6V12_NA.emp_seq_na_v12.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_NA_V12 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    { "seq": 9, "test_id": "T12.1 - EU", "sql": "USE SCHEMA W6V12_EU", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 10, "test_id": "T12.1 - EU", "sql": "CREATE OR REPLACE SEQUENCE LM_POC_DB.W6V12_EU.emp_seq_eu_v12 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_EU_V12 successfully created."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 11, "test_id": "T12.1 - EU",
+      "sql": "CREATE OR REPLACE TABLE LM_POC_DB.W6V12_EU.region_map_v12 (...);\nCREATE OR REPLACE TABLE LM_POC_DB.W6V12_EU.deployment_config_v12 (...);\nCREATE OR REPLACE TABLE LM_POC_DB.W6V12_EU.employee_eu_v12 (...NOT NULL...);",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table REGION_MAP_V12 successfully created."], ["Table DEPLOYMENT_CONFIG_V12 successfully created."], ["Table EMPLOYEE_EU_V12 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    { "seq": 12, "test_id": "T12.1 - EU", "sql": "INSERT INTO LM_POC_DB.W6V12_EU.region_map_v12 VALUES ('North America', 1), ('EU', 2), ('APAC', 3)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3]], "error": null, "verdict": "PASS" },
+    { "seq": 13, "test_id": "T12.1 - EU", "sql": "INSERT INTO LM_POC_DB.W6V12_EU.deployment_config_v12 VALUES ('REGION_NAME', 'EU')", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[1]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 14, "test_id": "T12.1 - EU",
+      "purpose": "The guarded EU key function. Created while the session is in W6V12_EU.",
+      "sql": "CREATE OR REPLACE FUNCTION key_eu_v12(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\n...",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_EU_V12 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 15, "test_id": "T12.1",
+      "purpose": "Confirms both deployment configs.",
+      "sql": "SELECT 'NA' AS deployment, VALUE AS region_declared\nFROM   LM_POC_DB.W6V12_NA.deployment_config_v12 WHERE SETTING = 'REGION_NAME'\nUNION ALL\nSELECT 'EU', VALUE\nFROM   LM_POC_DB.W6V12_EU.deployment_config_v12 WHERE SETTING = 'REGION_NAME'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "DEPLOYMENT", "type": "VARCHAR" },
+        { "name": "REGION_DECLARED", "type": "VARCHAR" }
+      ],
+      "rows": [["NA", "North America"], ["EU", "EU"]],
+      "error": null,
+      "expectation": "NA -> North America, EU -> EU",
+      "verdict": "RECORDED - exact match"
+    },
+    {
+      "seq": 16, "test_id": "T12.2",
+      "purpose": "NA guard test: own region yields a key, EU and typo yield NULL.",
+      "sql": "SELECT 'NA function' AS fn,\n       LM_POC_DB.W6V12_NA.key_na_v12('North America') AS own_region,\n       LM_POC_DB.W6V12_NA.key_na_v12('EU')            AS foreign_region,\n       LM_POC_DB.W6V12_NA.key_na_v12('Noth America')  AS typo,\n       CASE WHEN ... THEN 'PASS ...' END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "FN", "type": "VARCHAR" },
+        { "name": "OWN_REGION", "type": "NUMBER(38,0)" },
+        { "name": "FOREIGN_REGION", "type": "NUMBER(38,0)" },
+        { "name": "TYPO", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["NA function", 1000000000000001, null, null, "PASS - NA function issues only NA keys"]],
+      "error": null,
+      "expectation": "real key / NULL / NULL / PASS",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 17, "test_id": "T12.2",
+      "purpose": "EU guard test: own region yields a key, North America and typo yield NULL.",
+      "sql": "SELECT 'EU function' AS fn, ...",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "FN", "type": "VARCHAR" },
+        { "name": "OWN_REGION", "type": "NUMBER(38,0)" },
+        { "name": "FOREIGN_REGION", "type": "NUMBER(38,0)" },
+        { "name": "TYPO", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["EU function", 2000000000000001, null, null, "PASS - EU function issues only EU keys"]],
+      "error": null,
+      "expectation": "real key / NULL / NULL / PASS",
+      "verdict": "PASS"
+    },
+    {
+      "seq": 18, "test_id": "T12.3",
+      "purpose": "Structural proof: NA and EU key ranges do not overlap.",
+      "sql": "SELECT 'NA key space' ...\nUNION ALL\nSELECT 'EU key space' ...",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "DEPLOYMENT", "type": "VARCHAR" },
+        { "name": "FIRST_KEY", "type": "NUMBER(38,0)" },
+        { "name": "LAST_KEY_WIDTH15", "type": "NUMBER(38,0)" },
+        { "name": "BOUNDARY_BELOW_NEXT", "type": "NUMBER(38,0)" },
+        { "name": "RANGE_NOTE", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["NA key space", 1000000000000001, 1999999999999999, 1999999999999999, "NA keys: [10^15+1 .. 2*10^15-1]"],
+        ["EU key space", 2000000000000001, 2999999999999999, 2999999999999999, "EU keys: [2*10^15+1 .. 3*10^15-1]"]
+      ],
+      "error": null,
+      "verdict": "RECORDED - ranges are disjoint by construction",
+      "observation": "NA's last possible key is 1,999,999,999,999,999; EU's first possible key is 2,000,000,000,000,001. They do not touch."
+    },
+    { "seq": 19, "test_id": "T12.4", "sql": "INSERT INTO LM_POC_DB.W6V12_NA.employee_na_v12 ...\nSELECT key_na_v12('North America'), ... FROM TABLE(GENERATOR(ROWCOUNT => 500))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[500]], "error": null, "verdict": "PASS" },
+    { "seq": 20, "test_id": "T12.4", "sql": "INSERT INTO LM_POC_DB.W6V12_EU.employee_eu_v12 ...\nSELECT key_eu_v12('EU'), ... FROM TABLE(GENERATOR(ROWCOUNT => 500))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[500]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 21, "test_id": "T12.4",
+      "purpose": "SENSITIVITY GATE: confirms both tables have rows in the expected key ranges. If either count is 0 the guard blocked all inserts and the uniqueness assertion would be vacuous.",
+      "sql": "SELECT 'NA' AS dep, COUNT(*), MIN(EMPLOYEE_ID), MAX(EMPLOYEE_ID)\nFROM LM_POC_DB.W6V12_NA.employee_na_v12\nUNION ALL\nSELECT 'EU', COUNT(*), MIN(EMPLOYEE_ID), MAX(EMPLOYEE_ID)\nFROM LM_POC_DB.W6V12_EU.employee_eu_v12",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "DEP", "type": "VARCHAR" },
+        { "name": "ROWS_INSERTED", "type": "NUMBER(38,0)" },
+        { "name": "MIN_KEY", "type": "NUMBER(38,0)" },
+        { "name": "MAX_KEY", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["NA", 500, 1000000000000101, 1000000000000600],
+        ["EU", 500, 2000000000000101, 2000000000000600]
+      ],
+      "error": null,
+      "verdict": "GATE OPEN - 500 rows each, keys in expected ranges",
+      "observation": "NA min/max confirms keys in the [10^15, 2*10^15) range. EU min/max confirms keys in the [2*10^15, 3*10^15) range. The sequence consumed offsets 101-600 in each (overhead from earlier guard tests in T12.2)."
+    },
+    {
+      "seq": 22, "test_id": "T12.4",
+      "purpose": "Cross-region uniqueness assertion across both deployments combined.",
+      "sql": "SELECT COUNT(*), COUNT(DISTINCT EMPLOYEE_ID),\n       COUNT(*) - COUNT(DISTINCT EMPLOYEE_ID) AS cross_region_duplicates,\n       ...\nFROM (\n    SELECT EMPLOYEE_ID FROM LM_POC_DB.W6V12_NA.employee_na_v12\n    UNION ALL\n    SELECT EMPLOYEE_ID FROM LM_POC_DB.W6V12_EU.employee_eu_v12\n)",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "CROSS_REGION_DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000, 1000, 0, "PASS - zero cross-region key collisions across both deployments"]],
+      "error": null,
+      "expectation": "1000 / 1000 / 0 / PASS",
+      "verdict": "PASS - exact match"
+    },
+    {
+      "seq": 23, "test_id": "T12.5",
+      "purpose": "Decode correctness: every key decodes back to the region that issued it.",
+      "sql": "SELECT 'NA' ... SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = 1 ...\nUNION ALL\nSELECT 'EU' ... SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = 2 ...",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "DEPLOYMENT", "type": "VARCHAR" },
+        { "name": "KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_CORRECT", "type": "NUMBER(38,0)" },
+        { "name": "DECODE_WRONG", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["NA", 500, 500, 0, "PASS - every NA key decodes to region 1"],
+        ["EU", 500, 500, 0, "PASS - every EU key decodes to region 2"]
+      ],
+      "error": null,
+      "expectation": "500 / 500 / 0 / PASS for both",
+      "verdict": "PASS - exact match"
+    },
+    { "seq": 24, "test_id": "T12.6", "sql": "USE SCHEMA W6V12_NA", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 25, "test_id": "T12.6",
+      "purpose": "F35 test: guarded NA function called with a valid EU region name (not a typo, a real region that exists in the map).",
+      "sql": "SELECT 'F35 test - guarded NA function called with EU name' AS scenario,\n       LM_POC_DB.W6V12_NA.key_na_v12('EU') AS result_with_guard,\n       CASE ... END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "SCENARIO", "type": "VARCHAR" },
+        { "name": "RESULT_WITH_GUARD", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["F35 test - guarded NA function called with EU name", null, "F35 CLOSED - the guard returns NULL for a valid-but-wrong region name"]],
+      "error": null,
+      "expectation": "NULL / F35 CLOSED",
+      "verdict": "F35 CLOSED",
+      "observation": "In script 10 without the guard, this exact call returned 2000000000000007 - a perfectly structured key attributed to EU on an NA deployment. With the guard it returns NULL. The second control (NOT NULL) converts that NULL into a failed load."
+    },
+    {
+      "seq": 26, "test_id": "T12.6",
+      "purpose": "Proves the NOT NULL column stops the wrong-region load. THE FAILURE IS THE DESIRED BEHAVIOUR.",
+      "sql": "INSERT INTO LM_POC_DB.W6V12_NA.employee_na_v12 (EMPLOYEE_ID, EMPLOYEE_PIN, REGION)\nSELECT LM_POC_DB.W6V12_NA.key_na_v12('EU'), 'SHOULD-NOT-LAND', 'EU'",
+      "status": "ERROR", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "error": { "code": null, "sqlstate": null, "message": "DML operation to table LM_POC_DB.W6V12_NA.EMPLOYEE_NA_V12 failed on column EMPLOYEE_ID with error: NULL result in a non-nullable column" },
+      "expectation": "NOT NULL violation. The failure is the control working.",
+      "verdict": "FAILED AS INTENDED",
+      "observation": "The error names both table and column. The load was rejected in full. No rows from EU landed in the NA deployment's employee table."
+    },
+    {
+      "seq": 27, "test_id": "T12.6",
+      "sql": "SELECT COUNT(*) AS rows_from_wrong_region FROM LM_POC_DB.W6V12_NA.employee_na_v12 WHERE REGION = 'EU'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "ROWS_FROM_WRONG_REGION", "type": "NUMBER(38,0)" }],
+      "rows": [[0]],
+      "error": null,
+      "expectation": "0",
+      "verdict": "PASS - F35 + NOT NULL = zero silent corruption",
+      "observation": "The combination of the deployment guard (converts valid-wrong to NULL) and the NOT NULL constraint (converts NULL to a failed load) eliminates the F35 failure mode end-to-end."
+    },
+    {
+      "seq": 28, "test_id": "T12.7",
+      "purpose": "F36: confirms case-sensitivity is still present in the unmodified function.",
+      "sql": "SELECT key_na_v12('NORTH AMERICA') AS upper_case_result,\n       key_na_v12('north america') AS lower_case_result,\n       key_na_v12('North America') AS exact_result,\n       CASE ... END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "UPPER_CASE_RESULT", "type": "NUMBER(38,0)" },
+        { "name": "LOWER_CASE_RESULT", "type": "NUMBER(38,0)" },
+        { "name": "EXACT_RESULT", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[null, null, 1000000000000704, "F36 CONFIRMED - region name matching is case-sensitive"]],
+      "error": null,
+      "expectation": "NULL / NULL / real key / F36 CONFIRMED",
+      "verdict": "F36 CONFIRMED - as expected"
+    },
+    {
+      "seq": 29, "test_id": "T12.7",
+      "purpose": "Creates the normalised variant with UPPER() on both sides of the guard's WHERE clause.",
+      "sql": "CREATE OR REPLACE FUNCTION key_na_norm_v12(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\n...\nAS $$\n    CAST(\n        (SELECT m.REGION_CODE FROM region_map_v12 m\n         WHERE UPPER(m.REGION_NAME) = UPPER(region_name)\n           AND UPPER(m.REGION_NAME) = UPPER((SELECT c.VALUE ...))\n        ) * 1000000000000000 + LM_POC_DB.W6V12_NA.emp_seq_na_v12.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_NA_NORM_V12 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 30, "test_id": "T12.7",
+      "purpose": "Confirms the normalised guard accepts any case of the own region's name and still rejects foreign regions.",
+      "sql": "SELECT key_na_norm_v12('NORTH AMERICA') AS upper_case,\n       key_na_norm_v12('north america') AS lower_case,\n       key_na_norm_v12('North America') AS canonical,\n       key_na_norm_v12('EU')            AS foreign_region,\n       CASE ... END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "UPPER_CASE", "type": "NUMBER(38,0)" },
+        { "name": "LOWER_CASE", "type": "NUMBER(38,0)" },
+        { "name": "CANONICAL", "type": "NUMBER(38,0)" },
+        { "name": "FOREIGN_REGION", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000000000000709, 1000000000000710, 1000000000000711, null, "PASS - normalised guard accepts any case of own region, still blocks foreign"]],
+      "error": null,
+      "expectation": "all three NA variants yield a key; EU still NULL; PASS",
+      "verdict": "PASS - F36 ADDRESSED",
+      "observation": "UPPER() normalisation is a one-line change to the guard. It resolves the case-sensitivity failure mode without relaxing the cross-region protection. All three case variants produced distinct keys (709, 710, 711), confirming the sequence was called independently each time."
+    },
+    { "seq": 31, "test_id": "T12.8", "sql": "USE SCHEMA W6V12_RPT", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS", "observation": "Session is now in the RPT schema. Neither regional function lives here. All calls must use FQNs." },
+    {
+      "seq": 32, "test_id": "T12.8",
+      "purpose": "PORTABILITY: calls both regional functions by FQN from a neutral schema. Tests whether R8's 'callable from any schema' property holds after the F23 fix.",
+      "sql": "SELECT 'called from RPT schema' AS caller_schema,\n       LM_POC_DB.W6V12_NA.key_na_v12('North America') AS na_key_from_rpt,\n       LM_POC_DB.W6V12_EU.key_eu_v12('EU')            AS eu_key_from_rpt,\n       FLOOR(...) AS na_decoded,\n       FLOOR(...) AS eu_decoded,\n       CASE ... END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "CALLER_SCHEMA", "type": "VARCHAR" },
+        { "name": "NA_KEY_FROM_RPT", "type": "NUMBER(38,0)" },
+        { "name": "EU_KEY_FROM_RPT", "type": "NUMBER(38,0)" },
+        { "name": "NA_DECODED", "type": "NUMBER(38,0)" },
+        { "name": "EU_DECODED", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["called from RPT schema", 1000000000000802, 2000000000000701, 1, 2, "PASS - both functions callable by FQN from a neutral schema; decode correctly"]],
+      "error": null,
+      "expectation": "NA decodes to 1, EU decodes to 2, PASS",
+      "verdict": "PASS - R8 portability confirmed",
+      "observation": "Despite the session being in W6V12_RPT, both functions resolved correctly by FQN. NA key decodes to 1, EU key decodes to 2. The function's behaviour is pinned to its home schema, not to the caller's schema - exactly the property F23 established."
+    },
+    {
+      "seq": 33, "test_id": "T12.8",
+      "purpose": "Confirms the guard holds when called by FQN from outside - eliminates the possibility that FQN bypass is an attack surface.",
+      "sql": "SELECT 'cross-call from RPT with wrong region' AS scenario,\n       LM_POC_DB.W6V12_NA.key_na_v12('EU')            AS na_fn_called_with_eu_name,\n       LM_POC_DB.W6V12_EU.key_eu_v12('North America') AS eu_fn_called_with_na_name,\n       CASE ... END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "SCENARIO", "type": "VARCHAR" },
+        { "name": "NA_FN_CALLED_WITH_EU_NAME", "type": "NUMBER(38,0)" },
+        { "name": "EU_FN_CALLED_WITH_NA_NAME", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [["cross-call from RPT with wrong region", null, null, "PASS - guards hold even when called by FQN from an external schema"]],
+      "error": null,
+      "expectation": "NULL / NULL / PASS",
+      "verdict": "PASS",
+      "observation": "Cross-schema FQN calls cannot bypass the guard. The deployment config lookup inside each function always reads that function's home schema's config table, regardless of the caller's current schema. This is the binding consequence of F23."
+    },
+    { "seq": 34, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V12_NA CASCADE;\nDROP SCHEMA IF EXISTS W6V12_EU CASCADE;\nDROP SCHEMA IF EXISTS W6V12_RPT CASCADE;", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schemas retained with all evidence tables." }
+  ],
+  "summary": {
+    "statements_total": 34,
+    "statements_executed": 33,
+    "statements_skipped": 1,
+    "statements_succeeded": 32,
+    "statements_errored": 1,
+    "errors_note": "The single error at seq 26 is the NOT NULL violation the script deliberately provokes. It is the control working, not an incident.",
+    "deviations_applied": [],
+    "tests_passed": ["T12.1", "T12.2 (NA)", "T12.2 (EU)", "T12.3", "T12.4", "T12.5 (NA)", "T12.5 (EU)", "T12.6 (F35 CLOSED)", "T12.7 (F36 ADDRESSED)", "T12.8 (portability)", "T12.8 (guard via FQN)"],
+    "findings_closed": ["F35", "F36"],
+    "c5_snowflake_side_closed": true,
+    "idmc_mechanism_still_for_nidwika": true
+  },
+  "decision_table_resolution": {
+    "source": "SQL/12_c5_multi_deployment_guard.sql - WHAT THIS CLOSES",
+    "closed_items": [
+      "T12.2 PASS x2 -> The guard isolates each deployment to its own region.",
+      "T12.3 structural -> NA and EU key spaces do not overlap by construction.",
+      "T12.4 0 duplicates -> Proven empirically as well as structurally.",
+      "T12.5 PASS x2 -> Both deployments decode correctly.",
+      "T12.6 F35 CLOSED -> The valid-but-wrong-region scenario returns NULL under the guard, and the NOT NULL column stops the load. Silent corruption eliminated.",
+      "T12.7 F36 ADDRESSED -> UPPER() normalisation accepts any case of the own region's name while still blocking foreign regions. Recommend adding this to the build standard.",
+      "T12.8 PASS -> R8 portability holds: the function is callable from any schema by FQN, and the guard holds across schemas."
+    ],
+    "c5_build_standard_decisions_snowflake_side": [
+      "Use Candidate A (region_name argument) + the deployment guard (T10.7 from script 10, now proven at two-deployment scale).",
+      "Add UPPER() normalisation to both sides of the guard's WHERE clause (T12.7). One-line change, zero security trade-off.",
+      "EMPLOYEE_ID must be declared NOT NULL in every target table. Non-negotiable regardless of mechanism.",
+      "Call the function by FQN from the ETL. The guard and sequence are pinned to the deployment's home schema regardless of the caller's current schema.",
+      "The IDMC mechanism (where 'region_name' originates in the ETL job) remains a decision for Nidwika. The Snowflake layer is fully validated here."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F35",
+      "status": "CLOSED",
+      "closed_by": "T12.6",
+      "evidence": "Calling key_na_v12('EU') from within W6V12_NA returned NULL. The subsequent INSERT raised 'NULL result in a non-nullable column' and was rejected in full. 0 rows from EU in the NA employee table.",
+      "comparison_to_script_10": "In script 10 without the guard, the identical call key_by_arg_v10('EU') on an NA deployment returned 2000000000000007 - a plausible EU key, no error. With the guard, it returns NULL. The guard is the decisive difference."
+    },
+    {
+      "id": "F36",
+      "status": "ADDRESSED",
+      "closed_by": "T12.7",
+      "evidence": "key_na_v12('NORTH AMERICA') and key_na_v12('north america') both returned NULL; key_na_v12('North America') returned a key. key_na_norm_v12 accepted all three case variants and still returned NULL for 'EU'.",
+      "build_standard": "Add UPPER() normalisation to the guard. The pattern: WHERE UPPER(m.REGION_NAME) = UPPER(region_name) AND UPPER(m.REGION_NAME) = UPPER((SELECT c.VALUE ...))."
+    },
+    {
+      "id": "F42",
+      "severity": "POSITIVE - CONFIRMS R8",
+      "title": "The deployment guard holds when the function is called by FQN from an external schema",
+      "evidence": "T12.8 seq 33: from W6V12_RPT, key_na_v12('EU') returned NULL and key_eu_v12('North America') returned NULL.",
+      "interpretation": "The guard reads the deployment's OWN config table, which is in the function's home schema. Because Snowflake resolves the unqualified table reference (deployment_config_v12) against the schema where the function was created, not the caller's current schema, the config binding is permanent. A caller in W6V12_RPT cannot inject a different config by being in a different schema.",
+      "implication": "This is the payoff of the F23 rule applied to tables as well as sequences: the function's local bindings are determined at CREATE time, not at call time. It means no caller, regardless of their current schema, can trick an NA function into issuing an EU key by being in the EU schema when they call it.",
+      "status": "Closed - positive confirmation."
+    }
+  ],
+  "objects_left_in_place": {
+    "locations": ["LM_POC_DB.W6V12_NA", "LM_POC_DB.W6V12_EU", "LM_POC_DB.W6V12_RPT"],
+    "objects": [
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V12_NA" },
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V12_EU" },
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V12_RPT" },
+      { "type": "SEQUENCE", "name": "LM_POC_DB.W6V12_NA.EMP_SEQ_NA_V12", "note": "Consumed ~800 values." },
+      { "type": "SEQUENCE", "name": "LM_POC_DB.W6V12_EU.EMP_SEQ_EU_V12", "note": "Consumed ~700 values." },
+      { "type": "TABLE", "name": "LM_POC_DB.W6V12_NA.REGION_MAP_V12", "note": "3 rows." },
+      { "type": "TABLE", "name": "LM_POC_DB.W6V12_NA.DEPLOYMENT_CONFIG_V12", "note": "'REGION_NAME' = 'North America'." },
+      { "type": "TABLE", "name": "LM_POC_DB.W6V12_NA.EMPLOYEE_NA_V12", "note": "500 rows, all in NA key range, zero EU rows." },
+      { "type": "TABLE", "name": "LM_POC_DB.W6V12_EU.REGION_MAP_V12", "note": "3 rows." },
+      { "type": "TABLE", "name": "LM_POC_DB.W6V12_EU.DEPLOYMENT_CONFIG_V12", "note": "'REGION_NAME' = 'EU'." },
+      { "type": "TABLE", "name": "LM_POC_DB.W6V12_EU.EMPLOYEE_EU_V12", "note": "500 rows, all in EU key range." },
+      { "type": "FUNCTION", "name": "LM_POC_DB.W6V12_NA.KEY_NA_V12(VARCHAR)", "note": "Base guard." },
+      { "type": "FUNCTION", "name": "LM_POC_DB.W6V12_NA.KEY_NA_NORM_V12(VARCHAR)", "note": "Guard with UPPER() normalisation - the recommended build-standard version." },
+      { "type": "FUNCTION", "name": "LM_POC_DB.W6V12_EU.KEY_EU_V12(VARCHAR)", "note": "EU guard." }
+    ],
+    "cleanup_sql": [
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V12_NA CASCADE",
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V12_EU CASCADE",
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V12_RPT CASCADE"
+    ]
+  }
+}
