@@ -198,7 +198,7 @@ If yes, A's variable width is a defect regardless of region count.
 ## 6. What is untested
 
 The call-site-cast mechanics in §3 come from documentation and from the R6 run's finding that
-declared length is ignored. `poc/12_q3_variable_target_datatype.sql` tests them directly — one
+declared length is ignored. `poc/scripts/12_q3_variable_target_datatype.sql` tests them directly — one
 function per base type vs. cast at the call site, the VARCHAR target length, the lexical sort trap
 in 3(a), and the round trip in 3(c). It has not been run. Everything in §4 is proven, having come
 straight out of the C5 two-deployment run.

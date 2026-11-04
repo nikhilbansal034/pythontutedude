@@ -1,24 +1,36 @@
 # W6 POC pack
 
-Four scripts, run in order. Each is self-contained: it creates what it needs in a scratch
-schema, numbers every test, and tears down after itself.
+Twelve scripts, numbered in the order they were run. Each is self-contained: it creates what it
+needs in a scratch schema, numbers every test, and tears down after itself.
+
+```
+scripts/    the SQL, numbered 01..12
+results/    one record per run - what it established, and what it could not
+evidence/   the raw captured output, unedited
+```
+
+A script, its results record and its evidence file share a number and a requirement id:
+`scripts/07_r12_qualified_sequences.sql` runs to `results/R12_RESULTS_v3.md` on the evidence in
+`evidence/R12v3_07_r12_qualified_sequences_*.json`. **Nothing in `evidence/` is ever edited** — a
+correction goes in the results record, naming what it corrects.
 
 | Script | Requirement | Status |
 |---|---|---|
-| [`01_r3_sequence_in_udf.sql`](01_r3_sequence_in_udf.sql) | **R3** — may a UDF body read a sequence? | **DONE — passed 2026-11-03.** [`R3_RESULTS.md`](R3_RESULTS.md) |
-| [`02_r2_sequence_name_binding.sql`](02_r2_sequence_name_binding.sql) | **R2** — can the sequence be chosen by a run-time name? | **DONE — satisfied.** [`R2_RESULTS.md`](R2_RESULTS.md) |
-| [`03_r6_return_datatype.sql`](03_r6_return_datatype.sql) | **R6 / C7** — does the function return the target's datatype? | **DONE — satisfied.** [`R6_RESULTS.md`](R6_RESULTS.md) |
-| [`04_r10_concurrency.sql`](04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](R10_RESULTS.md) |
-| [`05_r12_per_region_sequences.sql`](05_r12_per_region_sequences.sql) | **R12/R13** — first attempt | **DEFECTIVE — superseded by 06.** R13 proven, R12 not. [`R12_RESULTS.md`](R12_RESULTS.md) |
-| [`06_r12_independent_region_deployments.sql`](06_r12_independent_region_deployments.sql) | **R12** — three region schemas | **HALTED at its gate — superseded by 07.** Refuted the unqualified-sequence premise. [`R12_RESULTS_v2.md`](R12_RESULTS_v2.md) |
-| [`07_r12_qualified_sequences.sql`](07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences | **DONE — R12 PROVEN.** [`R12_RESULTS_v3.md`](R12_RESULTS_v3.md) |
-| [`08_r11_c3_region_growth.sql`](08_r11_c3_region_growth.sql) | **R11 + C3** | **DONE — R11 proven, C3 settled.** [`R11_C3_RESULTS.md`](R11_C3_RESULTS.md) |
-| [`09_c6_legacy_key_coexistence.sql`](09_c6_legacy_key_coexistence.sql) | **C6** | **DONE — leave them; backfill is harmful.** [`C6_RESULTS.md`](C6_RESULTS.md) |
-| [`10_c5_region_name_provenance.sql`](10_c5_region_name_provenance.sql) | **C5** | **DONE — informed, not decided.** [`C5_RESULTS.md`](C5_RESULTS.md) |
-| [`11_c4_q1_vs_q2_placement.sql`](11_c4_q1_vs_q2_placement.sql) | **C4** | **CLOSED by Nidwika — Q2 is the right place.** [`C4_RESULTS.md`](C4_RESULTS.md) |
-| [`12_q3_variable_target_datatype.sql`](12_q3_variable_target_datatype.sql) | **Q3 / R6 reopened** — target type varies and can be VARCHAR | Ready to run |
+| [`01_r3_sequence_in_udf.sql`](scripts/01_r3_sequence_in_udf.sql) | **R3** — may a UDF body read a sequence? | **DONE — passed 2026-11-03.** [`R3_RESULTS.md`](results/R3_RESULTS.md) |
+| [`02_r2_sequence_name_binding.sql`](scripts/02_r2_sequence_name_binding.sql) | **R2** — can the sequence be chosen by a run-time name? | **DONE — satisfied.** [`R2_RESULTS.md`](results/R2_RESULTS.md) |
+| [`03_r6_return_datatype.sql`](scripts/03_r6_return_datatype.sql) | **R6 / C7** — does the function return the target's datatype? | **DONE — satisfied.** [`R6_RESULTS.md`](results/R6_RESULTS.md) |
+| [`04_r10_concurrency.sql`](scripts/04_r10_concurrency.sql) | **R10** — concurrency and volatility | **DONE — validated.** [`R10_RESULTS.md`](results/R10_RESULTS.md) |
+| [`05_r12_per_region_sequences.sql`](scripts/05_r12_per_region_sequences.sql) | **R12/R13** — first attempt | **DEFECTIVE — superseded by 06.** R13 proven, R12 not. [`R12_RESULTS.md`](results/R12_RESULTS.md) |
+| [`06_r12_independent_region_deployments.sql`](scripts/06_r12_independent_region_deployments.sql) | **R12** — three region schemas | **HALTED at its gate — superseded by 07.** Refuted the unqualified-sequence premise. [`R12_RESULTS_v2.md`](results/R12_RESULTS_v2.md) |
+| [`07_r12_qualified_sequences.sql`](scripts/07_r12_qualified_sequences.sql) | **R12** — fully-qualified sequences | **DONE — R12 PROVEN.** [`R12_RESULTS_v3.md`](results/R12_RESULTS_v3.md) |
+| [`08_r11_c3_region_growth.sql`](scripts/08_r11_c3_region_growth.sql) | **R11 + C3** | **DONE — R11 proven, C3 settled.** [`R11_C3_RESULTS.md`](results/R11_C3_RESULTS.md) |
+| [`09_c6_legacy_key_coexistence.sql`](scripts/09_c6_legacy_key_coexistence.sql) | **C6** | **DONE — leave them; backfill is harmful.** [`C6_RESULTS.md`](results/C6_RESULTS.md) |
+| [`10_c5_region_name_provenance.sql`](scripts/10_c5_region_name_provenance.sql) | **C5** | **DONE — informed, not decided.** [`C5_RESULTS.md`](results/C5_RESULTS.md) |
+| [`11_c4_q1_vs_q2_placement.sql`](scripts/11_c4_q1_vs_q2_placement.sql) | **C4** | **CLOSED by Nidwika — Q2 is the right place.** [`C4_RESULTS.md`](results/C4_RESULTS.md) |
+| [`12_q3_variable_target_datatype.sql`](scripts/12_q3_variable_target_datatype.sql) | **Q3 / R6 reopened** — target type varies and can be VARCHAR | **Ready to run — the last outstanding test** |
+| *(run separately)* | **C5 v2** — two live deployments side by side | **DONE — C5 closed on the Snowflake side.** [`C5_RESULTS_v2.md`](results/C5_RESULTS_v2.md) |
 
-### What these four can and cannot settle
+### What these can and cannot settle
 
 **`08` and `09` are real validations** — R11, C3 and C6 are decided by what comes back.
 

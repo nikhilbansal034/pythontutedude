@@ -3,11 +3,11 @@
 **Status**: **FROZEN** as of 2026-11-03. Decisions D1–D4 taken; C8 answered. The thirteen
 requirements are grouped into five tracking groups (below).
 
-**R2, R3, R6, R10 and R13 are PROVEN in Snowflake** (2026-11-03) — see `poc/R*_RESULTS.md`.
+**R2, R3, R6, R10 and R13 are PROVEN in Snowflake** (2026-11-03) — see `poc/results/R*_RESULTS.md`.
 
 **ALL 13 REQUIREMENTS ARE CLOSED** (2026-11-04, nine Snowflake runs). See
-[`STATUS.md`](STATUS.md) for the rollup, [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) for
-every alternative tried and its outcome, and [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md)
+[`STATUS.md`](STATUS.md) for the rollup, [`OPTIONS_AND_OUTCOMES.md`](analysis/OPTIONS_AND_OUTCOMES.md) for
+every alternative tried and its outcome, and [`QUESTIONS_FOR_NIDWIKA.md`](clarifications/QUESTIONS_FOR_NIDWIKA.md)
 for what remains. **C3 and C6 are decided**: C3 by **D5** — Scheme B, fixed-width offset at width 15 — and
 leave legacy keys alone. **C4 and C5 are informed but not decided** — both are Nidwika's call.
 
@@ -15,7 +15,7 @@ leave legacy keys alone. **C4 and C5 are informed but not decided** — both are
 `LAST_ALTERED`. The same run settled C3, because two-digit region codes finally discriminated the
 two schemes — concatenation produced 198 duplicate primary keys where offset produced none.
 
-**R12 is PROVEN** (2026-11-03, fourth attempt — `poc/R12_RESULTS_v3.md`). All three regions issued
+**R12 is PROVEN** (2026-11-03, fourth attempt — `poc/results/R12_RESULTS_v3.md`). All three regions issued
 raw values `1–500` with 1000 collisions, so the prefix had real work to do; the 30,000 prefixed keys
 were unique across three measured-concurrent sessions, and 10,000 raw values were each issued in all
 three regions. Without the prefix there would have been 20,000 duplicates. **R8 is resolved with a
@@ -23,27 +23,27 @@ condition**: the sequence must be fully qualified. **R11 is now the only unteste
 
 The three earlier attempts, kept because the path matters:
 
-- `poc/04` T4.7 — vacuous: one sequence shared by all regions.
-- `poc/05` T5.2 — vacuous: three per-region sequences moved in lockstep, because one function body
+- `poc/scripts/04` T4.7 — vacuous: one sequence shared by all regions.
+- `poc/scripts/05` T5.2 — vacuous: three per-region sequences moved in lockstep, because one function body
   named all three (R2's F4 at function scope).
-- `poc/06` T6.1 — **halted at its own sensitivity gate**, and in doing so refuted a design assumption:
+- `poc/scripts/06` T6.1 — **halted at its own sensitivity gate**, and in doing so refuted a design assumption:
   an **unqualified SEQUENCE inside a UDF body resolves in the CALLER'S current schema**, while a table
   in the same body resolves in the function's schema. This contradicts Snowflake's *Name resolution*
   page ("All unqualified objects in a view or UDF definition will be resolved in the view's or UDF's
   schema only") and **reverses R8's build-standard decision**: the sequence reference must be **fully
-  qualified**. See `poc/R12_RESULTS_v2.md`.
+  qualified**. See `poc/results/R12_RESULTS_v2.md`.
 
-`poc/07_r12_qualified_sequences.sql` fully qualifies the sequence, adds a regression test for the
+`poc/scripts/07_r12_qualified_sequences.sql` fully qualifies the sequence, adds a regression test for the
 asymmetry (T7.0) and a caller-schema-independence test (T7.2), and keeps the sensitivity gates.
 
 **R3 is PROVEN and G2 is CLOSED** — tested in Snowflake on 2026-11-03, all six tests passed. A SQL
 UDF body *may* contain `seq.NEXTVAL`, it returns one distinct value per row, and it works inside a
-`MERGE` projection. Results and the NOORDER finding: [`poc/R3_RESULTS.md`](poc/R3_RESULTS.md);
-evidence: [`R3_evidence.docx`](R3_evidence.docx). The blocker is gone — eight of thirteen
+`MERGE` projection. Results and the NOORDER finding: [`poc/results/R3_RESULTS.md`](poc/results/R3_RESULTS.md);
+evidence: [`R3_evidence.docx`](poc/evidence/R3_evidence.docx). The blocker is gone — eight of thirteen
 requirements now close, and C3–C6 remain open decisions that do not reopen the requirement.
 
 **Deck**: [`requirement_deck.html`](requirement_deck.html) — 11 slides, rebuilt 2026-11-04
-mechanism-first, with the Scheme A vs Scheme B head-to-head on slide 6. **Per-requirement analysis**: [`feasibility.md`](feasibility.md).
+mechanism-first, with the Scheme A vs Scheme B head-to-head on slide 6. **Per-requirement analysis**: [`feasibility.md`](analysis/feasibility.md).
 
 **Baseline**: `sources/requirement_region_prefixed_sequence.txt` — the transcript summary of the
 *[Internal] TD MOD — US/USI Daily Connect*. Where this document and the transcript disagree, the
@@ -110,7 +110,7 @@ at group level rather than as thirteen separate threads.
 | **G1** | Function interface & contract | R1, R2, R6 | **CLOSED — proven 2026-11-03** (branch selector + body cast) | Closed |
 | **G2** | Sequence access | R3 | One short Snowflake test | **CLOSED — proven 2026-11-03** |
 | **G3** | Region configuration | R4, R7, R8, R11 | R4/R7/R11 closed; **R8 needs re-confirming** — unqualified sequences follow the caller, so the body must be fully qualified | Open |
-| **G4** | Key composition & integrity | R5, R12, R13 | R13 proven; **R12 still open** — `poc/06`; plus decision C3 | Open |
+| **G4** | Key composition & integrity | R5, R12, R13 | R13 proven; **R12 still open** — `poc/scripts/06`; plus decision C3 | Open |
 | **G5** | Placement & concurrency | R9, R10 | **CLOSED — 90,000 keys, 0 duplicates, measured overlap** | Closed |
 
 G2 stood alone because nothing else could be built until it was answered. **It now is**: R3 passed
@@ -182,7 +182,7 @@ Three caveats the same page attaches, all worth recording:
 > **RESOLVED 2026-11-03 — YES.** The one untested unknown below (may a SQL UDF body contain
 > `seq.NEXTVAL`?) was tested in Snowflake and **passed**: the function created, returned 100
 > distinct keys for 100 rows with zero duplicates, and worked inside a `MERGE` projection. See
-> [`poc/R3_RESULTS.md`](poc/R3_RESULTS.md). The analysis below stands as written; only its final
+> [`poc/results/R3_RESULTS.md`](poc/results/R3_RESULTS.md). The analysis below stands as written; only its final
 > open question is now answered, in the affirmative.
 
 **Resolved, except for one test.** Snowflake's docs were read directly (see §9), and the answer is

@@ -1,7 +1,7 @@
 # W6 — where each of the 13 requirements stands
 
 As at 2026-11-04, after **ten** Snowflake runs (R3, R2, R6, R10, R12 ×3, R11/C3, C6, C5 ×2, C4).
-Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` is the spec;
+Sources: `poc/results/R*_RESULTS.md` and the run logs in this folder. `requirement.md` is the spec;
 `feasibility.md` is the per-requirement analysis against documentation; this file is the rollup.
 
 ## Summary
@@ -16,23 +16,23 @@ Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` i
 
 **All 13 requirements are closed against the original scope.** One run remains: Nidwika's Q3
 established that the **target column datatype varies and can be `VARCHAR`**, which reopens R6 for
-non-numeric key columns. See [`NIDWIKA_RESPONSES.md`](NIDWIKA_RESPONSES.md) and `poc/12`.
+non-numeric key columns. See [`NIDWIKA_RESPONSES.md`](clarifications/NIDWIKA_RESPONSES.md) and `poc/scripts/12`.
 
 **C4 and C5 are now closed by her answers** — the key stays in Q2, and the region name comes from
 IDMC with one mapping table. The **C5 v2 run** (2026-11-04) then proved the deployment guard at
-two-deployment scale and closed F35 and F36 — see [`poc/C5_RESULTS_v2.md`](poc/C5_RESULTS_v2.md).
+two-deployment scale and closed F35 and F36 — see [`poc/results/C5_RESULTS_v2.md`](poc/results/C5_RESULTS_v2.md).
 
 **The scheme is decided — D5, Scheme B, fixed-width offset, sequence field 15.** The assumption
 that region codes never exceed 9 rescues R12 and R13 for digit concatenation but **not C6**, and a
 `VARCHAR` target adds a lexical ordering problem that fixed width does not have — so the assumption
 does not change the answer. The head-to-head is in
-[`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) and on slide 6 of the deck;
-[`SCHEME_A_AND_VARCHAR.md`](SCHEME_A_AND_VARCHAR.md) has the VARCHAR detail.
+[`OPTIONS_AND_OUTCOMES.md`](analysis/OPTIONS_AND_OUTCOMES.md) and on slide 6 of the deck;
+[`SCHEME_A_AND_VARCHAR.md`](analysis/SCHEME_A_AND_VARCHAR.md) has the VARCHAR detail.
 
 Two companion documents carry the detail:
-[`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) — every alternative tried, its measured outcome,
+[`OPTIONS_AND_OUTCOMES.md`](analysis/OPTIONS_AND_OUTCOMES.md) — every alternative tried, its measured outcome,
 and what the docs say, per requirement. Built for the deck.
-[`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md) — the seven things we need from her.
+[`QUESTIONS_FOR_NIDWIKA.md`](clarifications/QUESTIONS_FOR_NIDWIKA.md) — the seven things we need from her.
 
 ---
 
@@ -115,7 +115,7 @@ key 111  ->  Benelux employee 1  |  North America employee 11
 
 One consequence to carry: adding a **region** is a data change, but adding a **table** edits the
 function's `CASE` arms. Still one place, but someone owns it — see Q6 in
-[`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md).
+[`QUESTIONS_FOR_NIDWIKA.md`](clarifications/QUESTIONS_FOR_NIDWIKA.md).
 
 ## What is left to conclude the POC
 

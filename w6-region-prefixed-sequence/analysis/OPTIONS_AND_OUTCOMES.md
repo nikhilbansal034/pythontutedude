@@ -9,7 +9,7 @@ option we actually tested, the measured outcome of each, and the final position.
 > outcomes. **The deck should lead with the mechanism and use these numbers as confirmation.**
 
 Nine Snowflake runs, 2026-11-03/04. Evidence: the `*.json` run logs in this folder and
-`poc/R*_RESULTS.md`. Where an option was *rejected*, the measurement that rejected it is quoted —
+`poc/results/R*_RESULTS.md`. Where an option was *rejected*, the measurement that rejected it is quoted —
 those are the slides worth building.
 
 ---

@@ -121,7 +121,7 @@ There is a catch that cuts the other way, and it bears on R8. A fully-qualified 
 the database and schema**, so the same function text is not portable across environments. An
 *unqualified* reference resolves "in the schema containing the function", so identical text
 deployed to dev, SIT and prod each binds its own objects. **Prefer unqualified inside the
-function.** Test `T2.1` vs `T2.1b` in `poc/02_r2_sequence_name_binding.sql` settles it either way.
+function.** Test `T2.1` vs `T2.1b` in `poc/scripts/02_r2_sequence_name_binding.sql` settles it either way.
 
 **(b) Can a second mapping table hold the full sequence name, so new entries are data not code?**
 
@@ -179,8 +179,8 @@ UDFs" — does **not** settle it, because consuming a sequence is neither DDL no
 (`LM_POC_DB.POC_SCHEMA`). All six tests passed: the function created, 10 rows gave 10 distinct
 values, 100 rows gave 100 distinct values with zero duplicates spanning exactly `201`–`300`, and the
 `MERGE` form mirroring Q2 line 50 inserted 3 rows with 3 distinct IDs. **The silent-failure case did
-not occur.** Evidence: [`R3_evidence.docx`](R3_evidence.docx); write-up:
-[`poc/R3_RESULTS.md`](poc/R3_RESULTS.md).
+not occur.** Evidence: [`R3_evidence.docx`](../poc/evidence/R3_evidence.docx); write-up:
+[`poc/results/R3_RESULTS.md`](../poc/results/R3_RESULTS.md).
 
 Two things came out of the run beyond the pass itself:
 
@@ -210,7 +210,7 @@ this false positive, deliberately, so nobody later mistakes it for evidence.
 
 What DuckDB *can* corroborate is the deeper rule — that the sequence must be fixed at compile time
 — which it enforces in its own words, and which is what settles R2(b) above. For R3 itself the
-only instrument is `poc/01_r3_sequence_in_udf.sql`.
+only instrument is `poc/scripts/01_r3_sequence_in_udf.sql`.
 
 **The test** — this is the whole of the blocking unknown:
 
@@ -442,7 +442,7 @@ every key decodes to its issuing region   PASS (all 3 regions)
 It also makes the gap behaviour visible — each region's keys are scattered across the shared
 range, with thousands of gaps, which is **correct** and must not be read as missing rows.
 
-*What the simulation cannot touch*, and what `poc/04_r10_concurrency.sql` exists for: Snowflake's
+*What the simulation cannot touch*, and what `poc/scripts/04_r10_concurrency.sql` exists for: Snowflake's
 own guarantee holding **through the function wrapper**, invocation counts per row, and the
 `IMMUTABLE`/`MEMOIZABLE` folding tests — which have no DuckDB equivalent and are the real hazard.
 That pack runs three concurrent sessions over 30,000 keys, then 15,000 across three concurrent
