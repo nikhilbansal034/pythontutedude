@@ -1,0 +1,383 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "C6-20261104-014923",
+    "requirement_id": "C6",
+    "work_item": "W6",
+    "script": "SQL/09_c6_legacy_key_coexistence.sql",
+    "script_question": "What happens to keys that already exist? Leave them, giving two key formats in one table, or backfill?",
+    "scope_note": "The script explicitly does NOT make the decision - it measures the consequences of each option so the decision is made on evidence.",
+    "started_at_utc": "2026-11-04T01:49:23Z",
+    "finished_at_utc": "2026-11-04T01:49:23Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call). Single session.",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with all previous runs. The script's own opening cleanup block WAS run.",
+    "headline": "C6 ANSWERED: under the recommended offset scheme, LEAVE THEM is safe and BACKFILL is actively harmful. Coexistence passed cleanly (11000/11000/0, legacy keys all decode to the non-existent region 0, one magnitude test separates the eras with zero misclassification). Backfill FAILED with 3000 duplicates - and failed EARLIER and WORSE than the script predicted, colliding with keys ALREADY ISSUED rather than only with future ones.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "ONE DEVIATION (D1): the T9.5 CREATE TABLE AS was rejected by Snowflake and rewritten with an equivalent JOIN. The original failure is recorded verbatim at seq 15.",
+      "ONE diagnostic not in the script was added at seq 18, to identify which eras the backfill duplicates came from. It is what established that backfill collides with already-issued keys.",
+      "T9.5's primary assertion returned FAIL where the script expected PASS. This is a real finding, not an execution error - see finding F31."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "W6V9",
+    "snowflake_version": "10.39.101"
+  },
+  "deviations_from_script": [
+    {
+      "id": "D1",
+      "where": "T9.5, CREATE OR REPLACE TABLE backfill_probe_v9 AS ...",
+      "script_as_written": "Uses a correlated scalar subquery inside a CASE expression: (SELECT m.REGION_CODE FROM region_map_v9 m WHERE m.REGION_NAME = employee_v9.REGION).",
+      "what_happened": "Snowflake refused it: \"SQL compilation error: Unsupported subquery type cannot be evaluated at line 4, position 18.\"",
+      "deviation_applied": "Rewritten with a LEFT JOIN to region_map_v9, which is semantically identical for this data because every region in employee_v9 exists in the map.",
+      "why_this_is_faithful": "Same output columns, same arithmetic, same rows. Only the join mechanism differs. The LEFT JOIN is used rather than an inner join so that an unmapped region would surface as NULL rather than silently dropping the row.",
+      "evidence_retained": "The original failure is recorded verbatim at seq 15. See finding F33."
+    }
+  ],
+  "statements": [
+    { "seq": 1, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6V9 CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Drop statement executed successfully (W6V9 already dropped)."]], "error": null, "verdict": "PASS" },
+    { "seq": 2, "test_id": "SETUP", "sql": "CREATE SCHEMA W6V9", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V9 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 3, "test_id": "SETUP", "sql": "USE SCHEMA W6V9", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 4, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE emp_seq_v9 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V9 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 5, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE region_map_v9 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V9 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 6, "test_id": "SETUP", "sql": "INSERT INTO region_map_v9 VALUES ('North America', 1), ('EU', 2), ('APAC', 3)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3]], "error": null, "verdict": "PASS" },
+    { "seq": 7, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE employee_v9 (\n    EMPLOYEE_ID NUMBER(38,0), EMPLOYEE_PIN VARCHAR(30), REGION VARCHAR(100), ERA VARCHAR(10)\n)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table EMPLOYEE_V9 successfully created."]], "error": null, "verdict": "PASS", "observation": "The target as it would look mid-migration. The ERA column is ground truth, used later to score the classification rule." },
+    {
+      "seq": 8, "test_id": "SETUP",
+      "purpose": "5,000 legacy rows with unprefixed keys 1..5000, as a single region's Zone 2 would have issued them before this change.",
+      "sql": "INSERT INTO employee_v9 (EMPLOYEE_ID, EMPLOYEE_PIN, REGION, ERA)\nSELECT ROW_NUMBER() OVER (ORDER BY 1), 'LEGACY-' || ROW_NUMBER() OVER (ORDER BY 1),\n       'North America', 'legacy'\nFROM TABLE(GENERATOR(ROWCOUNT => 5000))",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[5000]], "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 9, "test_id": "SETUP",
+      "sql": "SELECT COUNT(*) AS legacy_rows, MIN(EMPLOYEE_ID) AS min_key, MAX(EMPLOYEE_ID) AS max_key\nFROM employee_v9 WHERE ERA = 'legacy'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "LEGACY_ROWS", "type": "NUMBER(38,0)" },
+        { "name": "MIN_KEY", "type": "NUMBER(38,0)" },
+        { "name": "MAX_KEY", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [[5000, 1, 5000]],
+      "error": null, "expectation": "5000 / 1 / 5000", "verdict": "RECORDED - exact match"
+    },
+    {
+      "seq": 10, "test_id": "T9.1",
+      "purpose": "SENSITIVITY - is there any overlap to worry about? Establish this BEFORE testing coexistence, so a 'no collision' result is not vacuous.",
+      "sql": "SELECT (SELECT MAX(EMPLOYEE_ID) FROM employee_v9 WHERE ERA = 'legacy') AS max_legacy_key,\n       1 * 1000000000000000 + 1                                        AS smallest_offset_key,\n       CAST('1' || '1' AS NUMBER(38,0))                                AS smallest_concat_key,\n       CASE WHEN (SELECT MAX(EMPLOYEE_ID) FROM employee_v9 WHERE ERA='legacy') < 1000000000000000\n            THEN 'OFFSET: legacy range is strictly below the new key space - no overlap possible'\n            ELSE 'OFFSET: ranges overlap - collision is possible' END AS offset_verdict,\n       CASE WHEN CAST('1' || '1' AS NUMBER(38,0)) <= (SELECT MAX(EMPLOYEE_ID) FROM employee_v9 WHERE ERA='legacy')\n            THEN 'CONCAT: new keys land INSIDE the legacy range - collision is possible'\n            ELSE 'CONCAT: no overlap' END AS concat_verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "MAX_LEGACY_KEY", "type": "NUMBER(38,0)" },
+        { "name": "SMALLEST_OFFSET_KEY", "type": "NUMBER(38,0)" },
+        { "name": "SMALLEST_CONCAT_KEY", "type": "NUMBER(38,0)" },
+        { "name": "OFFSET_VERDICT", "type": "VARCHAR" },
+        { "name": "CONCAT_VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[5000, 1000000000000001, 11, "OFFSET: legacy range is strictly below the new key space - no overlap possible", "CONCAT: new keys land INSIDE the legacy range - collision is possible"]],
+      "error": null,
+      "expectation": "offset keys start at 10^15, far above legacy 5000 -> structurally safe. Concat keys start at 11 -> INSIDE the legacy range. This asymmetry is the heart of C6.",
+      "verdict": "RECORDED - the asymmetry is confirmed",
+      "observation": "Offset's smallest possible key is 1,000,000,000,000,001 against a legacy maximum of 5,000 - eleven orders of magnitude of separation. Concatenation's smallest possible key is 11, which is itself a legacy key. C6's answer therefore depends entirely on C3."
+    },
+    {
+      "seq": 11, "test_id": "T9.2",
+      "sql": "CREATE OR REPLACE FUNCTION key_offset_v9(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'VOLATILE required. Sequence fully qualified per R12 v3 F19.'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v9 m WHERE m.REGION_NAME = region_name)\n         * 1000000000000000 + LM_POC_DB.W6V9.emp_seq_v9.NEXTVAL AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_OFFSET_V9 successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "Created from within W6V9 so the unqualified table binds locally, and with the sequence fully qualified - both per finding F23."
+    },
+    { "seq": 12, "test_id": "T9.2", "sql": "INSERT INTO employee_v9 (EMPLOYEE_ID, EMPLOYEE_PIN, REGION, ERA)\nSELECT key_offset_v9('North America'), 'NEW-NA-' || SEQ4(), 'North America', 'prefixed'\nFROM TABLE(GENERATOR(ROWCOUNT => 3000))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3000]], "error": null, "verdict": "PASS" },
+    { "seq": 13, "test_id": "T9.2", "sql": "INSERT INTO employee_v9 (EMPLOYEE_ID, EMPLOYEE_PIN, REGION, ERA)\nSELECT key_offset_v9('EU'), 'NEW-EU-' || SEQ4(), 'EU', 'prefixed'\nFROM TABLE(GENERATOR(ROWCOUNT => 3000))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3000]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 14, "test_id": "T9.2",
+      "purpose": "OPTION 'LEAVE THEM' - coexistence under the OFFSET scheme.",
+      "sql": "SELECT COUNT(*) AS total_rows, COUNT(DISTINCT EMPLOYEE_ID) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT EMPLOYEE_ID) AS duplicates,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT EMPLOYEE_ID)\n            THEN 'PASS - legacy and prefixed keys coexist with no collision'\n            ELSE 'FAIL - a prefixed key collided with a legacy key' END AS verdict\nFROM employee_v9",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL_ROWS", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[11000, 11000, 0, "PASS - legacy and prefixed keys coexist with no collision"]],
+      "error": null,
+      "expectation": "11000 / 11000 / 0 / PASS",
+      "verdict": "PASS - exact match"
+    },
+    {
+      "seq": 15, "test_id": "T9.3",
+      "purpose": "OPTION 'LEAVE THEM' - does decode misattribute a legacy key? Apply R13's division rule to a LEGACY key and see what comes back.",
+      "sql": "SELECT ERA,\n       COUNT(*) AS rows_checked,\n       MIN(FLOOR(EMPLOYEE_ID / 1000000000000000)) AS min_decoded_code,\n       MAX(FLOOR(EMPLOYEE_ID / 1000000000000000)) AS max_decoded_code,\n       SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = 0 THEN 1 ELSE 0 END) AS decoded_as_zero,\n       CASE WHEN ERA = 'legacy'\n                 AND SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = 0 THEN 1 ELSE 0 END) = COUNT(*)\n            THEN 'SAFE - every legacy key decodes to 0, which is not a valid region. Detectable.'\n            WHEN ERA = 'legacy'\n            THEN 'DANGEROUS - some legacy keys decode to a REAL region code'\n            ELSE 'prefixed rows - decode handled by T9.4' END AS verdict\nFROM employee_v9 GROUP BY ERA ORDER BY ERA",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "ERA", "type": "VARCHAR" },
+        { "name": "ROWS_CHECKED", "type": "NUMBER(38,0)" },
+        { "name": "MIN_DECODED_CODE", "type": "NUMBER(38,0)" },
+        { "name": "MAX_DECODED_CODE", "type": "NUMBER(38,0)" },
+        { "name": "DECODED_AS_ZERO", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["legacy", 5000, 0, 0, 5000, "SAFE - every legacy key decodes to 0, which is not a valid region. Detectable."],
+        ["prefixed", 6000, 1, 2, 0, "prefixed rows - decode handled by T9.4"]
+      ],
+      "error": null,
+      "expectation": "legacy rows all decode to 0. Region 0 does not exist in the mapping, so a legacy key is self-identifying rather than silently misattributed.",
+      "verdict": "PASS - SAFE",
+      "observation": "All 5000 legacy keys decode to region 0 and no legacy key decodes to a real region. Prefixed rows decode to 1 and 2 as expected. A legacy key is therefore self-identifying: the decode returns an impossible region rather than a plausible wrong one, which is the difference between a detectable and a silent fault."
+    },
+    {
+      "seq": 16, "test_id": "T9.4",
+      "purpose": "OPTION 'LEAVE THEM' - can the two formats be told apart reliably? A single predicate must classify every row correctly, scored against the ERA ground truth.",
+      "sql": "SELECT COUNT(*) AS total,\n       SUM(CASE WHEN EMPLOYEE_ID >= 1000000000000000 THEN 1 ELSE 0 END) AS classified_prefixed,\n       SUM(CASE WHEN EMPLOYEE_ID <  1000000000000000 THEN 1 ELSE 0 END) AS classified_legacy,\n       SUM(CASE WHEN (EMPLOYEE_ID >= 1000000000000000) <> (ERA = 'prefixed') THEN 1 ELSE 0 END) AS misclassified,\n       CASE WHEN SUM(CASE WHEN (EMPLOYEE_ID >= 1000000000000000) <> (ERA = 'prefixed') THEN 1 ELSE 0 END) = 0\n            THEN 'PASS - a single magnitude test separates the two eras perfectly'\n            ELSE 'FAIL - the eras cannot be separated by magnitude' END AS verdict\nFROM employee_v9",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "CLASSIFIED_PREFIXED", "type": "NUMBER(38,0)" },
+        { "name": "CLASSIFIED_LEGACY", "type": "NUMBER(38,0)" },
+        { "name": "MISCLASSIFIED", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[11000, 6000, 5000, 0, "PASS - a single magnitude test separates the two eras perfectly"]],
+      "error": null,
+      "expectation": "11000 / 6000 / 5000 / 0 misclassified / PASS",
+      "verdict": "PASS - exact match",
+      "observation": "Zero misclassifications across 11,000 rows. Reporting gets a clean rule: EMPLOYEE_ID >= 10^15 means prefixed. Note this predicate needs no reference to the ERA column, so it works on the real target where no such column exists."
+    },
+    {
+      "seq": 17, "test_id": "T9.5",
+      "purpose": "OPTION 'BACKFILL' - first attempt, exactly as the script writes it.",
+      "sql": "CREATE OR REPLACE TABLE backfill_probe_v9 AS\nSELECT EMPLOYEE_ID AS old_key,\n       CASE WHEN ERA = 'legacy'\n            THEN (SELECT m.REGION_CODE FROM region_map_v9 m WHERE m.REGION_NAME = employee_v9.REGION)\n                 * 1000000000000000 + EMPLOYEE_ID\n            ELSE EMPLOYEE_ID END AS new_key,\n       REGION, ERA\nFROM employee_v9",
+      "status": "ERROR", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "error": { "code": null, "sqlstate": null, "message": "SQL compilation error:\nUnsupported subquery type cannot be evaluated at line 4, position 18" },
+      "verdict": "FAILED - SCRIPT DEFECT",
+      "observation": "Snowflake does not support a correlated scalar subquery in this position inside a CASE within CREATE TABLE AS. Rewritten as a JOIN at seq 18. See deviation D1 and finding F33."
+    },
+    {
+      "seq": 18, "test_id": "T9.5-CORRECTED",
+      "purpose": "Same intent, expressed with a LEFT JOIN.",
+      "sql": "CREATE OR REPLACE TABLE backfill_probe_v9 AS\nSELECT e.EMPLOYEE_ID AS old_key,\n       CASE WHEN e.ERA = 'legacy'\n            THEN m.REGION_CODE * 1000000000000000 + e.EMPLOYEE_ID\n            ELSE e.EMPLOYEE_ID END AS new_key,\n       e.REGION, e.ERA\nFROM employee_v9 e\nLEFT JOIN region_map_v9 m ON m.REGION_NAME = e.REGION",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table BACKFILL_PROBE_V9 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 19, "test_id": "T9.5",
+      "sql": "SELECT COUNT(*) AS rows_after_backfill,\n       COUNT(DISTINCT new_key) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT new_key) AS duplicates,\n       CASE WHEN COUNT(*) = COUNT(DISTINCT new_key)\n            THEN 'PASS - backfill is collision-free; migrating is viable'\n            ELSE 'FAIL - backfilling would create duplicate primary keys' END AS verdict\nFROM backfill_probe_v9",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_AFTER_BACKFILL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[11000, 8000, 3000, "FAIL - backfilling would create duplicate primary keys"]],
+      "error": null,
+      "expectation": "11000 / 11000 / 0 / PASS... BUT SEE THE NEXT QUERY",
+      "verdict": "FAIL - AND EARLIER THAN THE SCRIPT PREDICTED",
+      "observation": "The script expected this to pass and for the problem to surface only in the forward-looking check that follows. It failed here instead, with 3000 duplicates. See finding F31."
+    },
+    {
+      "seq": 20, "test_id": "T9.5-DIAGNOSTIC",
+      "purpose": "Added, not in the script. Identifies which eras the backfill duplicates come from.",
+      "sql": "SELECT new_key,\n       COUNT(*) AS times_claimed,\n       LISTAGG(ERA || ' old=' || old_key, '  |  ') WITHIN GROUP (ORDER BY ERA) AS claimed_by\nFROM backfill_probe_v9\nGROUP BY new_key HAVING COUNT(*) > 1\nORDER BY new_key LIMIT 5",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 5,
+      "columns": [
+        { "name": "NEW_KEY", "type": "NUMBER(38,0)" },
+        { "name": "TIMES_CLAIMED", "type": "NUMBER(38,0)" },
+        { "name": "CLAIMED_BY", "type": "VARCHAR" }
+      ],
+      "rows": [
+        [1000000000000001, 2, "legacy old=1  |  prefixed old=1000000000000001"],
+        [1000000000000002, 2, "legacy old=2  |  prefixed old=1000000000000002"],
+        [1000000000000003, 2, "legacy old=3  |  prefixed old=1000000000000003"],
+        [1000000000000004, 2, "legacy old=4  |  prefixed old=1000000000000004"],
+        [1000000000000005, 2, "legacy old=5  |  prefixed old=1000000000000005"]
+      ],
+      "error": null,
+      "verdict": "ROOT CAUSE IDENTIFIED",
+      "observation": "Legacy key 1 backfills to 1000000000000001, which a PREFIXED row already holds. The collision is with keys ALREADY ISSUED, not with future ones. Exactly 3000 duplicates because 3000 North America prefixed keys were issued from sequence values 1-3000, overlapping the backfilled legacy range 1-5000."
+    },
+    {
+      "seq": 21, "test_id": "T9.5",
+      "purpose": "The script's forward-looking catch: do backfilled keys occupy slots the live sequence will reach later?",
+      "sql": "SELECT COUNT(*) AS overlapping_slots,\n       CASE WHEN COUNT(*) > 0\n            THEN 'WARNING - backfilled keys occupy slots the live sequence will reach later'\n            ELSE 'SAFE - no overlap between backfilled range and future sequence values' END AS verdict\nFROM (\n    SELECT b.new_key FROM backfill_probe_v9 b WHERE b.ERA = 'legacy'\n    INTERSECT\n    SELECT 1 * 1000000000000000 + s.n\n    FROM (SELECT SEQ4() + 1 AS n FROM TABLE(GENERATOR(ROWCOUNT => 20000))) s\n)",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "OVERLAPPING_SLOTS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[5000, "WARNING - backfilled keys occupy slots the live sequence will reach later"]],
+      "error": null,
+      "expectation": "a large number. Legacy keys 1..5000 become 1000000000000001..1000000000000005000, which the LIVE sequence will also produce as it counts up.",
+      "verdict": "WARNING CONFIRMED - all 5000 slots overlap",
+      "observation": "Every one of the 5000 backfilled keys sits in the range the live sequence will issue. Taken with seq 19 and 20, backfill is unsafe in BOTH directions: against keys already issued and against keys yet to be issued."
+    },
+    {
+      "seq": 22, "test_id": "T9.5",
+      "purpose": "The fix, if backfill is chosen - recorded as a constraint, not executed.",
+      "sql": "SELECT (SELECT MAX(EMPLOYEE_ID) FROM employee_v9 WHERE ERA = 'legacy') AS legacy_max,\n       'ALTER SEQUENCE emp_seq_v9 SET START = <legacy_max + margin>, then recreate' AS required_step,\n       'Without this, newly issued keys WILL collide with backfilled ones' AS why",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "LEGACY_MAX", "type": "NUMBER(38,0)" },
+        { "name": "REQUIRED_STEP", "type": "VARCHAR" },
+        { "name": "WHY", "type": "VARCHAR" }
+      ],
+      "rows": [[5000, "ALTER SEQUENCE emp_seq_v9 SET START = <legacy_max + margin>, then recreate", "Without this, newly issued keys WILL collide with backfilled ones"]],
+      "error": null,
+      "verdict": "CONSTRAINT RECORDED",
+      "observation": "Necessary but NOT sufficient. Advancing the sequence protects FUTURE keys only. It cannot undo the collision with the 3000 keys already issued, which would need the backfill to be done before any prefixed key is issued, or those rows re-keyed. See finding F31."
+    },
+    {
+      "seq": 23, "test_id": "T9.6",
+      "purpose": "The same questions under digit concatenation, for the C3 comparison.",
+      "sql": "CREATE OR REPLACE TABLE concat_probe_v9 (K NUMBER(38,0), ERA VARCHAR(10));\nINSERT INTO concat_probe_v9\nSELECT EMPLOYEE_ID, 'legacy' FROM employee_v9 WHERE ERA = 'legacy';\nINSERT INTO concat_probe_v9\nSELECT CAST('1' || CAST(SEQ4() + 1 AS VARCHAR) AS NUMBER(38,0)), 'prefixed'\nFROM TABLE(GENERATOR(ROWCOUNT => 3000));",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [{ "name": "status_or_rows", "type": "VARCHAR" }],
+      "rows": [["Table CONCAT_PROBE_V9 successfully created."],[5000],[3000]],
+      "error": null, "verdict": "PASS",
+      "observation": "Run as three separate statements. 5000 legacy keys plus 3000 concatenation keys for region 1."
+    },
+    {
+      "seq": 24, "test_id": "T9.6",
+      "sql": "SELECT COUNT(*) AS total, COUNT(DISTINCT K) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT K) AS duplicates,\n       CASE WHEN COUNT(*) > COUNT(DISTINCT K)\n            THEN 'CONFIRMED - under concatenation, new keys COLLIDE with legacy keys'\n            ELSE 'no collision in this sample - widen the range and retry' END AS verdict\nFROM concat_probe_v9",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TOTAL", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[8000, 7001, 999, "CONFIRMED - under concatenation, new keys COLLIDE with legacy keys"]],
+      "error": null,
+      "expectation": "duplicates > 0. Concat key for region 1, raw 1 is 11 - which is also a legacy key.",
+      "verdict": "CONFIRMED",
+      "observation": "999 collisions between the legacy era and the concatenation era. The colliding band is concatenation keys 11 through 1999 inclusive, all of which are also legacy keys 11-1999."
+    },
+    {
+      "seq": 25, "test_id": "T9.6",
+      "sql": "SELECT K AS colliding_key, COUNT(*) AS times_used,\n       LISTAGG(DISTINCT ERA, ' + ') AS eras\nFROM concat_probe_v9 GROUP BY K HAVING COUNT(*) > 1 ORDER BY K LIMIT 10",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 10,
+      "columns": [
+        { "name": "COLLIDING_KEY", "type": "NUMBER(38,0)" },
+        { "name": "TIMES_USED", "type": "NUMBER(38,0)" },
+        { "name": "ERAS", "type": "VARCHAR" }
+      ],
+      "rows": [
+        [11, 2, "legacy + prefixed"],
+        [12, 2, "legacy + prefixed"],
+        [13, 2, "legacy + prefixed"],
+        [14, 2, "legacy + prefixed"],
+        [15, 2, "legacy + prefixed"],
+        [16, 2, "legacy + prefixed"],
+        [17, 2, "legacy + prefixed"],
+        [18, 2, "legacy + prefixed"],
+        [19, 2, "legacy + prefixed"],
+        [110, 2, "legacy + prefixed"]
+      ],
+      "error": null,
+      "expectation": "keys appearing as both 'legacy' and 'prefixed'",
+      "verdict": "RECORDED",
+      "observation": "Every listed key is claimed by both eras. Key 11 is simultaneously legacy employee 11 and region-1 employee 1. Under concatenation the two eras are not merely hard to separate - they are genuinely indistinguishable, because the same integer has two legitimate meanings."
+    },
+    { "seq": 26, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V9 CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained with all evidence tables." }
+  ],
+  "summary": {
+    "statements_total": 26,
+    "statements_executed": 25,
+    "statements_skipped": 1,
+    "statements_succeeded": 24,
+    "statements_errored": 1,
+    "errors_note": "The single error at seq 17 is a script defect (unsupported correlated subquery), corrected at seq 18. Not a data finding.",
+    "statements_added_as_diagnostics": [20],
+    "deviations_applied": ["D1"],
+    "tests_passed": ["T9.2", "T9.3", "T9.4"],
+    "tests_that_failed_and_should_have": ["T9.6"],
+    "tests_that_failed_unexpectedly": ["T9.5 - failed earlier and more severely than the script predicted"],
+    "c6_answered": true,
+    "c6_recommendation": "LEAVE THEM - do not backfill"
+  },
+  "decision_table_resolution": {
+    "source": "SQL/09_c6_legacy_key_coexistence.sql - WHAT THIS DECIDES FOR C6",
+    "matched_rules": [
+      "Under FIXED-WIDTH OFFSET: T9.2 PASS + T9.3 all-zero + T9.4 zero misclassified -> 'LEAVE THEM' is SAFE. Legacy keys sit strictly below 10^15, decode to region 0 which does not exist, and one magnitude test separates the eras. No backfill needed.",
+      "Under DIGIT CONCATENATION: T9.6 shows new keys land INSIDE the legacy range and collide. Neither option is clean."
+    ],
+    "rule_that_came_out_stronger_than_written": "T9.5 was expected to show backfill 'possible but NOT free'. It is in fact NOT POSSIBLE as a drop-in, because it collides with keys already issued and not merely with future ones. Advancing the sequence does not fix that half.",
+    "c6_verdict": "LEAVE THEM. Do not backfill.",
+    "c6_rationale": "Under the offset scheme recommended by C3, coexistence is structurally safe: eleven orders of magnitude separate the eras, legacy keys decode to an impossible region rather than a wrong one, and a single predicate classifies every row with zero error. Backfill, by contrast, produced 3000 duplicate primary keys against already-issued keys plus 5000 future collisions. The cheapest option is also the correct one.",
+    "dependency": "C6's answer depends on C3. If concatenation were chosen instead, coexistence would be unsafe (999 collisions) AND backfill mandatory - so C3's resolution in favour of offset is what makes C6 easy.",
+    "build_standard_decisions": [
+      "Leave existing unprefixed keys in place. Do not backfill.",
+      "Give reporting the rule: EMPLOYEE_ID >= 10^15 means a prefixed, region-bearing key; below that means legacy. Verified with zero misclassification over 11,000 rows.",
+      "Treat a decoded region of 0 as 'legacy, no region encoded' rather than as an error. Region 0 must never be allocated in the mapping table.",
+      "If backfill is ever revisited, it must happen BEFORE any prefixed key is issued, and the sequence must be advanced past the legacy maximum first. Both conditions, not either."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F31",
+      "severity": "DESIGN-RELEVANT",
+      "title": "Backfill is unsafe in both directions, and fails earlier than the script anticipated",
+      "evidence": "T9.5 at seq 19: 11000 rows, 8000 distinct, 3000 DUPLICATES - the script expected 0. Seq 20 shows why: legacy key 1 backfills to 1000000000000001, which a prefixed row already holds. Seq 21: all 5000 backfilled keys also sit in the range the live sequence will later issue.",
+      "interpretation": "Backfilling legacy key N for region R produces R * 10^15 + N, which is exactly the key the sequence produces at value N. So backfilled keys collide with every prefixed key already issued from a sequence value below the legacy maximum, AND with every one yet to be issued in that band. The 3000 figure is precisely the 3000 North America prefixed rows drawn from sequence values 1-3000, overlapping the backfilled range 1-5000.",
+      "implication": "The script's remedy - advance the sequence past the legacy maximum - addresses only the future half. It cannot repair the collision with already-issued keys. A viable backfill would therefore require either doing it before any prefixed key exists, or re-keying the already-prefixed rows as well, which is a materially larger change than 'migrate the old rows'. This strengthens the case for LEAVE THEM considerably.",
+      "status": "Open - recommend putting this to the team as the reason backfill is being declined, rather than merely 'not needed'."
+    },
+    {
+      "id": "F32",
+      "severity": "POSITIVE - ANSWERS C6",
+      "title": "Under the offset scheme, legacy keys are self-identifying and perfectly separable",
+      "evidence": "T9.1: legacy maximum 5,000 versus smallest possible offset key 1,000,000,000,000,001. T9.2: 11000/11000/0 duplicates. T9.3: all 5000 legacy keys decode to region 0; zero decode to a real region. T9.4: 11000 rows classified by a single magnitude predicate with 0 misclassifications.",
+      "interpretation": "The three properties needed for safe coexistence all hold. The ranges cannot overlap structurally, not merely by luck. A legacy key subjected to the R13 decode returns 0 - an impossible region - so the fault mode is a detectable absence rather than a plausible wrong answer. And the classification rule needs no extra column.",
+      "implication": "C6 can be answered with 'change nothing', which is the cheapest option available. One caveat for the build standard: region code 0 must never be allocated, or legacy keys would start decoding to a real region and the self-identifying property would be lost.",
+      "status": "Closed - C6 answered."
+    },
+    {
+      "id": "F33",
+      "severity": "SCRIPT-DEFECT",
+      "title": "T9.5's correlated subquery inside CASE is not supported by Snowflake",
+      "evidence": "Seq 17: \"SQL compilation error: Unsupported subquery type cannot be evaluated at line 4, position 18\" on a CREATE TABLE AS containing (SELECT m.REGION_CODE FROM region_map_v9 m WHERE m.REGION_NAME = employee_v9.REGION) inside a CASE.",
+      "interpretation": "Snowflake can evaluate a correlated scalar subquery in some positions but not in a CASE branch within this CREATE TABLE AS. The equivalent LEFT JOIN at seq 18 works.",
+      "implication": "Script correction only; no effect on the conclusion. Worth noting more generally for the build standard, since the same pattern appears inside UDF bodies elsewhere in this pack where it DOES work - so the restriction is positional rather than a blanket prohibition.",
+      "status": "Open - minor script correction."
+    },
+    {
+      "id": "F34",
+      "severity": "CONFIRMATORY",
+      "title": "Under concatenation the two key eras are indistinguishable, not merely colliding",
+      "evidence": "T9.6: 8000 rows, 7001 distinct, 999 duplicates. Seq 25: keys 11 through 110 and beyond each claimed by both 'legacy' and 'prefixed'.",
+      "interpretation": "Key 11 is simultaneously legacy employee 11 and region-1 employee 1. There is no predicate that can separate them, because the same integer has two legitimate meanings - unlike the offset scheme where magnitude settles it.",
+      "implication": "Reinforces F27 from the 08 run from a different direction. Concatenation fails on region growth (198 duplicates at twelve regions) AND on legacy coexistence (999 collisions). The two failures are independent, so eliminating concatenation does not rest on a single test.",
+      "status": "Closed - adds to the C3 case."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.W6V9",
+    "objects": [
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V9", "note": "Created by this run." },
+      { "type": "SEQUENCE", "name": "EMP_SEQ_V9", "note": "Consumed 6000 values across two regions." },
+      { "type": "TABLE", "name": "REGION_MAP_V9", "note": "3 rows." },
+      { "type": "TABLE", "name": "EMPLOYEE_V9", "note": "11000 rows: 5000 legacy, 6000 prefixed. Zero duplicate keys." },
+      { "type": "TABLE", "name": "BACKFILL_PROBE_V9", "note": "11000 rows showing the 3000 backfill collisions." },
+      { "type": "TABLE", "name": "CONCAT_PROBE_V9", "note": "8000 rows showing the 999 legacy-versus-concat collisions." },
+      { "type": "FUNCTION", "name": "KEY_OFFSET_V9(VARCHAR)", "note": "Offset key function, sequence fully qualified." }
+    ],
+    "cleanup_sql": [
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V9 CASCADE"
+    ]
+  }
+}

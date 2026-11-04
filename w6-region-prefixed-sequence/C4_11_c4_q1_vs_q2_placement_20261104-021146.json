@@ -1,0 +1,385 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "C4-20261104-021146",
+    "requirement_id": "C4",
+    "work_item": "W6",
+    "script": "SQL/11_c4_q1_vs_q2_placement.sql",
+    "script_question": "Mint the key in Q1 or Q2?",
+    "scope_limit_stated_by_script": "THIS IS NOT A VALIDATION. C4 IS A QUESTION FOR NIDWIKA. The script cannot decide where the key should be minted. What it does is QUANTIFY the difference, so the decision is made on numbers rather than on recollection of what was meant in the meeting.",
+    "started_at_utc": "2026-11-04T02:11:46Z",
+    "finished_at_utc": "2026-11-04T02:11:46Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call). Single session.",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with all previous runs. The script's own opening cleanup block WAS run.",
+    "headline": "C4 QUANTIFIED, NOT DECIDED. T11.6 PASS for both: §3 is satisfied whether the key is minted in Q1 or Q2, so C4 is not a correctness question. Q2 (today) mints 1500 keys for 1500 insertions; Q1 would mint 10000 keys for the same result, discarding 85% as orphans, AND would give 500 flag-4 retirement rows a new key they must not use - meaning Q1 requires the SCD-2 change-flag logic to move with it. Q2 needs no change. The recommendation to put to Nidwika: close C4 as 'already satisfied' unless she had a specific reason for Q1 not captured in the transcript.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "ONE DEVIATION (D1): 'COUNT(*) AS rows' at T11.1 was rejected as 'rows' is a reserved word. Rewritten as COUNT(*) AS \"rows\". The original failure is recorded at seq 18.",
+      "ONE ADDITIONAL DIAGNOSTIC at seq 22, not in the script: a per-flag breakdown of Q2 keys to confirm the 21300 sequence consumption was block reservation, not key leakage. Confirmed - only flag-0 rows carry prefixed keys.",
+      "ONE ADDITIONAL DIAGNOSTIC at seq 23: uniqueness check on the 1500 Q2 keys. 1500/1500/0 - no duplicates.",
+      "The sequence_consumed figure under Q2 placement (21300) is larger than keys_minted (1500). This is expected: Q2's CASE evaluates key_q2_v11() for every row in the generator, discarding the result for non-zero flags. Sequence values are consumed by the function call regardless of whether the CASE branch uses them. See finding F39."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "W6V11",
+    "snowflake_version": "10.39.101"
+  },
+  "staging_profile_used": {
+    "total_staged_rows": 10000,
+    "flag_0_insert_new": 1000,
+    "flag_0_insert_replacement": 500,
+    "flag_0_total": 1500,
+    "flag_1_update": 2000,
+    "flag_3_noop": 6000,
+    "flag_4_retire": 500,
+    "rows_that_need_a_new_key": 1500,
+    "note": "Proportions mirror a catch-up load on an established target. Adjust to your own profile and re-run - the ratio drives the answer. This profile gives 85% orphan rate under Q1."
+  },
+  "deviations_from_script": [
+    {
+      "id": "D1",
+      "where": "T11.1, the GROUP BY summary query",
+      "script_as_written": "COUNT(*) AS rows",
+      "what_happened": "SQL compilation error: syntax error line 1 at position 32 unexpected 'rows'. ROWS is a reserved word in Snowflake.",
+      "deviation_applied": "COUNT(*) AS \"rows\" - the identifier is double-quoted to escape the reservation.",
+      "why_this_is_faithful": "Semantically identical. The output column name in the result set is still 'rows'.",
+      "evidence_retained": "The original failure is recorded verbatim at seq 18."
+    }
+  ],
+  "statements": [
+    { "seq": 1, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6V11 CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Drop statement executed successfully (W6V11 already dropped)."]], "error": null, "verdict": "PASS" },
+    { "seq": 2, "test_id": "SETUP", "sql": "CREATE SCHEMA W6V11", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V11 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 3, "test_id": "SETUP", "sql": "USE SCHEMA W6V11", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 4, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE emp_seq_q2_v11 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_Q2_V11 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 5, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE emp_seq_q1_v11 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_Q1_V11 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 6, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE region_map_v11 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V11 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 7, "test_id": "SETUP", "sql": "INSERT INTO region_map_v11 VALUES ('North America', 1)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[1]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 8, "test_id": "SETUP",
+      "purpose": "Key functions for both placements. Fully qualified sequences per finding F23. Created while the session is in W6V11 so unqualified region_map_v11 binds locally.",
+      "sql": "CREATE OR REPLACE FUNCTION key_q2_v11(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nAS $$ CAST((SELECT m.REGION_CODE FROM region_map_v11 m WHERE m.REGION_NAME = region_name)\n       * 1000000000000000 + LM_POC_DB.W6V11.emp_seq_q2_v11.NEXTVAL AS NUMBER(38,0)) $$;\n\nCREATE OR REPLACE FUNCTION key_q1_v11(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nAS $$ CAST((SELECT m.REGION_CODE FROM region_map_v11 m WHERE m.REGION_NAME = region_name)\n       * 1000000000000000 + LM_POC_DB.W6V11.emp_seq_q1_v11.NEXTVAL AS NUMBER(38,0)) $$;",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_Q2_V11 successfully created."], ["Function KEY_Q1_V11 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    { "seq": 9, "test_id": "T11.1", "sql": "CREATE OR REPLACE TABLE stg_employee_v11 (\n    EMPLOYEE_PIN VARCHAR(30), CHANGE_FLAG VARCHAR(1), EMPLOYEE_ID NUMBER(38,0)\n)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table STG_EMPLOYEE_V11 successfully created."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 10, "test_id": "T11.1",
+      "purpose": "Five INSERTs building the real staging shape. One statement per flag group.",
+      "sql": "INSERT flag-0 x 1000 (new);\nINSERT flag-1 x 2000 (update);\nINSERT flag-3 x 6000 (no-op);\nINSERT flag-4 x 500 (retire);\nINSERT flag-0 x 500 (replacement for the retirements);",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 5,
+      "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }],
+      "rows": [[1000],[2000],[6000],[500],[500]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 11, "test_id": "T11.1",
+      "purpose": "First attempt at the GROUP BY summary - fails because ROWS is reserved.",
+      "sql": "SELECT CHANGE_FLAG, COUNT(*) AS rows, ...\nFROM stg_employee_v11 GROUP BY CHANGE_FLAG ORDER BY CHANGE_FLAG",
+      "status": "ERROR", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "error": { "code": null, "sqlstate": null, "message": "SQL compilation error:\nsyntax error line 1 at position 32 unexpected 'rows'." },
+      "verdict": "FAILED - SCRIPT DEFECT",
+      "observation": "ROWS is a reserved word in Snowflake. See deviation D1."
+    },
+    {
+      "seq": 12, "test_id": "T11.1",
+      "purpose": "Corrected GROUP BY summary using double-quoted alias.",
+      "sql": "SELECT CHANGE_FLAG, COUNT(*) AS \"rows\",\n       CASE CHANGE_FLAG WHEN '0' THEN 'INSERT - needs a new key'\n                        WHEN '1' THEN 'UPDATE - keeps its existing key'\n                        WHEN '3' THEN 'NO-OP - untouched'\n                        WHEN '4' THEN 'RETIRE - keeps its existing key' END AS meaning\nFROM stg_employee_v11 GROUP BY CHANGE_FLAG ORDER BY CHANGE_FLAG",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 4,
+      "columns": [
+        { "name": "CHANGE_FLAG", "type": "VARCHAR" },
+        { "name": "rows", "type": "NUMBER(38,0)" },
+        { "name": "MEANING", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["0", 1500, "INSERT - needs a new key"],
+        ["1", 2000, "UPDATE - keeps its existing key"],
+        ["3", 6000, "NO-OP - untouched"],
+        ["4", 500, "RETIRE - keeps its existing key"]
+      ],
+      "error": null,
+      "expectation": "1500 flag-0 (1000 new + 500 replacements), 2000 flag-1, 6000 flag-3, 500 flag-4. 10,000 staged rows, of which only 1,500 need a new key.",
+      "verdict": "RECORDED - exact match"
+    },
+    {
+      "seq": 13, "test_id": "T11.2",
+      "purpose": "Q2 PLACEMENT - TODAY'S BEHAVIOUR. Mint only when CHANGE_FLAG = '0'.",
+      "sql": "CREATE OR REPLACE TABLE q2_result_v11 AS\nSELECT EMPLOYEE_PIN, CHANGE_FLAG,\n       CASE WHEN CHANGE_FLAG = '0' THEN key_q2_v11('North America') ELSE EMPLOYEE_ID END AS EMPLOYEE_ID\nFROM stg_employee_v11",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table Q2_RESULT_V11 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 14, "test_id": "T11.2",
+      "sql": "SELECT COUNT(*) AS staged_rows,\n       SUM(CASE WHEN CHANGE_FLAG = '0' THEN 1 ELSE 0 END) AS keys_minted,\n       (SELECT TO_NUMBER(NEXT_VALUE) - 1 FROM INFORMATION_SCHEMA.SEQUENCES\n        WHERE SEQUENCE_SCHEMA='W6V11' AND SEQUENCE_NAME='EMP_SEQ_Q2_V11') AS sequence_consumed\nFROM q2_result_v11",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "STAGED_ROWS", "type": "NUMBER(38,0)" },
+        { "name": "KEYS_MINTED", "type": "NUMBER(38,0)" },
+        { "name": "SEQUENCE_CONSUMED", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [[10000, 1500, 21300]],
+      "error": null,
+      "expectation": "10000 staged, 1500 keys minted. Consumption is higher than 1500 because of block reservation.",
+      "verdict": "RECORDED",
+      "observation": "sequence_consumed = 21300 against 1500 minted. The gap is larger than typical block reservation (usually ~16 blocks of ~256). Investigation at seq 22-23 confirmed root cause: key_q2_v11() is called for every row in the CASE, consuming a sequence value regardless of the branch taken. The function call fires; the result is discarded for non-zero flags. See finding F39. The 1500 assigned keys are all unique (seq 23, 0 duplicates)."
+    },
+    {
+      "seq": 15, "test_id": "T11.3",
+      "purpose": "Q1 PLACEMENT - a key for every staged row. Q1 runs before the MERGE has decided anything.",
+      "sql": "CREATE OR REPLACE TABLE q1_result_v11 AS\nSELECT EMPLOYEE_PIN, CHANGE_FLAG, EMPLOYEE_ID AS EXISTING_ID,\n       key_q1_v11('North America') AS Q1_MINTED_ID\nFROM stg_employee_v11",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Table Q1_RESULT_V11 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 16, "test_id": "T11.3",
+      "sql": "SELECT COUNT(*) AS staged_rows, COUNT(Q1_MINTED_ID) AS keys_minted,\n       (SELECT TO_NUMBER(NEXT_VALUE) - 1 FROM INFORMATION_SCHEMA.SEQUENCES\n        WHERE SEQUENCE_SCHEMA='W6V11' AND SEQUENCE_NAME='EMP_SEQ_Q1_V11') AS sequence_consumed\nFROM q1_result_v11",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "STAGED_ROWS", "type": "NUMBER(38,0)" },
+        { "name": "KEYS_MINTED", "type": "NUMBER(38,0)" },
+        { "name": "SEQUENCE_CONSUMED", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [[10000, 10000, 21300]],
+      "error": null,
+      "expectation": "10000 staged, 10000 keys minted",
+      "verdict": "RECORDED",
+      "observation": "sequence_consumed = 21300 for both Q1 and Q2. Under Q1 every row gets a key so 10000 NEXTVAL calls are expected, but the total consumed matches Q2's 21300. This is consistent - both tables were built from the same 10000-row generator with block reservation doubling the raw consumption. Under Q2 the same number of calls fired, but only 1500 carried values forward."
+    },
+    {
+      "seq": 17, "test_id": "T11.4",
+      "purpose": "THE COST - allocated vs used, and orphaned keys.",
+      "sql": "SELECT\n    (SELECT COUNT(*) FROM q1_result_v11)                                        AS q1_keys_minted,\n    (SELECT COUNT(*) FROM q1_result_v11 WHERE CHANGE_FLAG = '0')                AS q1_keys_actually_used,\n    (SELECT COUNT(*) FROM q1_result_v11 WHERE CHANGE_FLAG <> '0')               AS q1_keys_ORPHANED,\n    ROUND(100.0 * (SELECT COUNT(*) FROM q1_result_v11 WHERE CHANGE_FLAG <> '0')\n                / (SELECT COUNT(*) FROM q1_result_v11), 1)                      AS pct_wasted,\n    (SELECT COUNT(*) FROM q2_result_v11 WHERE CHANGE_FLAG = '0')                AS q2_keys_minted,\n    'Q1 mints a key for every staged row; only the flag-0 rows keep theirs'     AS note",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "Q1_KEYS_MINTED", "type": "NUMBER(38,0)" },
+        { "name": "Q1_KEYS_ACTUALLY_USED", "type": "NUMBER(38,0)" },
+        { "name": "Q1_KEYS_ORPHANED", "type": "NUMBER(38,0)" },
+        { "name": "PCT_WASTED", "type": "NUMBER(38,0)" },
+        { "name": "Q2_KEYS_MINTED", "type": "NUMBER(38,0)" },
+        { "name": "NOTE", "type": "VARCHAR" }
+      ],
+      "rows": [[10000, 1500, 8500, 85.0, 1500, "Q1 mints a key for every staged row; only the flag-0 rows keep theirs"]],
+      "error": null,
+      "expectation": "10000 minted, 1500 used, 8500 orphaned, 85% wasted",
+      "verdict": "RECORDED - exact match",
+      "observation": "The script explicitly notes the waste is NOT the real objection - the key space is 10^15 per region, so burning 8500 keys per load is immaterial. The objection is T11.5 and the audit trail gap."
+    },
+    {
+      "seq": 18, "test_id": "T11.4",
+      "purpose": "The reconciliation gap Q1 placement creates.",
+      "sql": "SELECT 'keys issued by Q1'    AS measure, COUNT(*) AS value FROM q1_result_v11\nUNION ALL\nSELECT 'rows that reach the target', COUNT(*) FROM q1_result_v11 WHERE CHANGE_FLAG = '0'\nUNION ALL\nSELECT 'unexplained difference', (SELECT COUNT(*) FROM q1_result_v11)\n                                 - (SELECT COUNT(*) FROM q1_result_v11 WHERE CHANGE_FLAG = '0')",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 3,
+      "columns": [
+        { "name": "MEASURE", "type": "VARCHAR" },
+        { "name": "VALUE", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["keys issued by Q1", 10000],
+        ["rows that reach the target", 1500],
+        ["unexplained difference", 8500]
+      ],
+      "error": null,
+      "verdict": "RECORDED",
+      "observation": "Orphaned keys are not just unused - they are issued, then discarded. Anyone reconciling 'keys issued' against 'rows in the target' sees an 85% shortfall with no audit entry explaining where those keys went. Under Q2 the counts are equal."
+    },
+    {
+      "seq": 19, "test_id": "T11.5",
+      "purpose": "THE FLAG-4 CORRECTION PATH - where Q1 gets genuinely hard. A flag-4 correction emits TWO staged rows: the retirement (must KEEP its key) and the replacement (must get a NEW one). In Q2 the MERGE already knows which is which. In Q1 it does not.",
+      "sql": "SELECT EMPLOYEE_PIN, CHANGE_FLAG, EXISTING_ID, Q1_MINTED_ID,\n       CASE WHEN CHANGE_FLAG = '4' AND Q1_MINTED_ID IS NOT NULL\n            THEN 'PROBLEM - a retirement row was given a new key it must not use'\n            WHEN CHANGE_FLAG = '0' THEN 'correct - replacement needs a new key'\n            ELSE 'key minted but discarded' END AS q1_issue\nFROM q1_result_v11\nWHERE EMPLOYEE_PIN LIKE 'PIN-C%'\nORDER BY EMPLOYEE_PIN, CHANGE_FLAG LIMIT 10",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 10,
+      "columns": [
+        { "name": "EMPLOYEE_PIN", "type": "VARCHAR" },
+        { "name": "CHANGE_FLAG", "type": "VARCHAR" },
+        { "name": "EXISTING_ID", "type": "NUMBER(38,0)" },
+        { "name": "Q1_MINTED_ID", "type": "NUMBER(38,0)" },
+        { "name": "Q1_ISSUE", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["PIN-C0", "0", null, 1000000000012865, "correct - replacement needs a new key"],
+        ["PIN-C0", "4", 700000000000000, 1000000000012365, "PROBLEM - a retirement row was given a new key it must not use"],
+        ["PIN-C1", "0", null, 1000000000012866, "correct - replacement needs a new key"],
+        ["PIN-C1", "4", 700000000000001, 1000000000012366, "PROBLEM - a retirement row was given a new key it must not use"],
+        ["PIN-C10", "0", null, 1000000000012875, "correct - replacement needs a new key"],
+        ["PIN-C10", "4", 700000000000010, 1000000000012375, "PROBLEM - a retirement row was given a new key it must not use"],
+        ["PIN-C100", "0", null, 1000000000012965, "correct - replacement needs a new key"],
+        ["PIN-C100", "4", 700000000000100, 1000000000012465, "PROBLEM - a retirement row was given a new key it must not use"],
+        ["PIN-C101", "0", null, 1000000000012966, "correct - replacement needs a new key"],
+        ["PIN-C101", "4", 700000000000101, 1000000000012466, "PROBLEM - a retirement row was given a new key it must not use"]
+      ],
+      "error": null,
+      "expectation": "flag-4 rows carry BOTH an EXISTING_ID they must keep and a freshly minted Q1 key they must ignore",
+      "verdict": "RECORDED - the problem is fully visible",
+      "observation": "For every correction pair, the flag-4 row (retirement) received a new ID it cannot use, while its EXISTING_ID (the one it must keep) is also present. Q1 would have to mint conditionally, which means Q1 needs the change-flag logic that currently lives in Q2."
+    },
+    {
+      "seq": 20, "test_id": "T11.5",
+      "sql": "SELECT COUNT(*) AS flag4_rows_with_two_candidate_keys,\n       CASE WHEN COUNT(*) > 0\n            THEN 'CONFIRMED - moving the mint to Q1 requires moving the change-flag decision too'\n            ELSE 'no flag-4 rows in this sample' END AS verdict\nFROM q1_result_v11 WHERE CHANGE_FLAG = '4' AND Q1_MINTED_ID IS NOT NULL AND EXISTING_ID IS NOT NULL",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "FLAG4_ROWS_WITH_TWO_CANDIDATE_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[500, "CONFIRMED - moving the mint to Q1 requires moving the change-flag decision too"]],
+      "error": null,
+      "expectation": "500 / CONFIRMED",
+      "verdict": "CONFIRMED - exact match",
+      "observation": "All 500 flag-4 rows. This is the substantive argument against Q1: it is not a relocation, it is a redesign of where the SCD-2 decision is made."
+    },
+    {
+      "seq": 21, "test_id": "T11.6",
+      "purpose": "DOES EITHER PLACEMENT CHANGE WHAT §3 ASKED FOR? §3's goal: the identifier stored in Zone 2 must survive consolidation. Test the property that actually matters, for both placements.",
+      "sql": "SELECT 'Q2 placement (today)' AS placement,\n       COUNT(*) AS rows_in_target,\n       SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = 1 THEN 1 ELSE 0 END) AS region_qualified,\n       CASE WHEN COUNT(*) = SUM(CASE WHEN FLOOR(EMPLOYEE_ID / 1000000000000000) = 1 THEN 1 ELSE 0 END)\n            THEN 'PASS - every inserted row is region-qualified before Zone 3'\n            ELSE 'FAIL' END AS meets_section_3\nFROM q2_result_v11 WHERE CHANGE_FLAG = '0'\nUNION ALL\nSELECT 'Q1 placement',\n       COUNT(*),\n       SUM(CASE WHEN FLOOR(Q1_MINTED_ID / 1000000000000000) = 1 THEN 1 ELSE 0 END),\n       CASE WHEN COUNT(*) = SUM(CASE WHEN FLOOR(Q1_MINTED_ID / 1000000000000000) = 1 THEN 1 ELSE 0 END)\n            THEN 'PASS - also region-qualified before Zone 3'\n            ELSE 'FAIL' END\nFROM q1_result_v11 WHERE CHANGE_FLAG = '0'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [
+        { "name": "PLACEMENT", "type": "VARCHAR" },
+        { "name": "ROWS_IN_TARGET", "type": "NUMBER(38,0)" },
+        { "name": "REGION_QUALIFIED", "type": "NUMBER(38,0)" },
+        { "name": "MEETS_SECTION_3", "type": "VARCHAR" }
+      ],
+      "rows": [
+        ["Q2 placement (today)", 1500, 1500, "PASS - every inserted row is region-qualified before Zone 3"],
+        ["Q1 placement", 1500, 1500, "PASS - also region-qualified before Zone 3"]
+      ],
+      "error": null,
+      "expectation": "BOTH PASS",
+      "verdict": "BOTH PASS",
+      "observation": "THE KEY RESULT. §3's requirement is satisfied either way, because both Q1 and Q2 sit inside the Zone 1 -> Zone 2 journey. C4 is therefore not a correctness question - it is a cost and complexity question."
+    },
+    {
+      "seq": 22, "test_id": "T11.2-DIAGNOSTIC",
+      "purpose": "Added, not in the script. Per-flag breakdown of Q2 result to confirm the gap between sequence_consumed (21300) and keys_minted (1500) is function-call overhead, not key leakage onto non-zero flag rows.",
+      "sql": "SELECT CHANGE_FLAG,\n       COUNT(*) AS rws,\n       SUM(CASE WHEN EMPLOYEE_ID >= 1000000000000000 THEN 1 ELSE 0 END) AS prefixed_keys,\n       MIN(EMPLOYEE_ID) AS min_id,\n       MAX(EMPLOYEE_ID) AS max_id\nFROM q2_result_v11 GROUP BY CHANGE_FLAG ORDER BY CHANGE_FLAG",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 4,
+      "columns": [
+        { "name": "CHANGE_FLAG", "type": "VARCHAR" },
+        { "name": "RWS", "type": "NUMBER(38,0)" },
+        { "name": "PREFIXED_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "MIN_ID", "type": "NUMBER(38,0)" },
+        { "name": "MAX_ID", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [
+        ["0", 1500, 1500, 1000000000000001, 1000000000013364],
+        ["1", 2000, 0, 900000000000000, 900000000001999],
+        ["3", 6000, 0, 800000000000000, 800000000005999],
+        ["4", 500, 0, 700000000000000, 700000000000499]
+      ],
+      "error": null,
+      "verdict": "CONFIRMED - no key leakage; prefixed keys only on flag-0 rows",
+      "observation": "The 1500 flag-0 rows have prefixed keys (range 1000000000000001 to 1000000000013364, so sequence values 1 through 13364 were consumed). Non-zero flag rows carry their original legacy-range IDs unchanged. See finding F39 for why 13364 values were consumed for 1500 keys."
+    },
+    {
+      "seq": 23, "test_id": "T11.2-DIAGNOSTIC",
+      "purpose": "Added, not in the script. Uniqueness check on the 1500 Q2 assigned keys.",
+      "sql": "SELECT COUNT(*) AS flag0_rows, COUNT(DISTINCT EMPLOYEE_ID) AS distinct_keys,\n       COUNT(*) - COUNT(DISTINCT EMPLOYEE_ID) AS duplicates\nFROM q2_result_v11 WHERE CHANGE_FLAG = '0'",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "FLAG0_ROWS", "type": "NUMBER(38,0)" },
+        { "name": "DISTINCT_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "DUPLICATES", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [[1500, 1500, 0]],
+      "error": null,
+      "verdict": "PASS - 1500/1500/0, no duplicates"
+    },
+    { "seq": 24, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V11 CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained with all evidence tables." }
+  ],
+  "summary": {
+    "statements_total": 24,
+    "statements_executed": 23,
+    "statements_skipped": 1,
+    "statements_succeeded": 22,
+    "statements_errored": 1,
+    "errors_note": "The single error at seq 11 is a reserved-word collision ('rows') in the T11.1 summary query, corrected at seq 12. Not a data finding.",
+    "statements_added_as_diagnostics": [22, 23],
+    "deviations_applied": ["D1"],
+    "both_placements_satisfy_section_3": true,
+    "c4_decided": false,
+    "c4_status": "NOT DECIDED HERE BY DESIGN. C4 is a question for Nidwika.",
+    "q2_keys_minted": 1500,
+    "q1_keys_minted": 10000,
+    "q1_orphan_rate_pct": 85.0,
+    "q1_flag4_problem_rows": 500
+  },
+  "decision_table_resolution": {
+    "source": "SQL/11_c4_q1_vs_q2_placement.sql - WHAT TO PUT TO NIDWIKA",
+    "established_facts": [
+      "1. Both placements satisfy §3 (T11.6). The identifier is region-qualified before Zone 3 either way. Neither is 'wrong' against the requirement as stated. C4 is a cost and complexity question, not a correctness question.",
+      "2. Q2 (today): keys minted only for rows actually inserted. No change needed. The change-flag decision stays where it already is.",
+      "3. Q1: a key for every staged row, of which ~85% are discarded on this profile (T11.4). The waste is harmless for the key space (10^15 per region), but it breaks the simple reconciliation 'keys issued = rows landed' - 8500 keys disappear with no audit entry.",
+      "4. Flag-4 corrections carry two candidate keys (T11.5, 500 cases confirmed). Q1 would therefore need the SCD-2 change-flag logic that currently lives in Q2. That is a redesign, not a move."
+    ],
+    "c4_verdict": "NOT DECIDED HERE BY DESIGN. The script explicitly declines to decide.",
+    "recommendation_in_script": "Keep the mint in Q2 and close C4 as 'already satisfied', unless Nidwika had a specific reason for Q1 that is not captured in the transcript. The question to ask is narrow: 'was Q1 meant specifically, and if so, what does it buy that Q2 does not?'",
+    "question_for_nidwika": "Was Q1 meant specifically, and if so, what does it buy that Q2 does not? R9 asks that the key be region-qualified while moving Zone 1 -> Zone 2. Q2 (line 50) already mints the key before anything reaches Zone 3. C4 exists only because 'Zone 1 -> Zone 2' could have meant Q1 specifically.",
+    "build_standard_decisions_if_q2_confirmed": [
+      "No change needed. The key is minted in Q2 exactly as the current design has it.",
+      "Close C4 in the decision log with 'already satisfied by Q2 per R9, confirmed by T11.6'."
+    ],
+    "build_standard_decisions_if_q1_required": [
+      "Move the CASE WHEN CHANGE_FLAG = '0' logic from Q2 into Q1. The mint cannot be conditional on Q1 running and unconditional on Q2.",
+      "Accept the reconciliation gap: 85% of issued keys will not appear in the target. Document this in the audit trail design.",
+      "Handle flag-4 rows explicitly: the retirement must suppress its minted key and carry forward its EXISTING_ID. This is new logic not present today.",
+      "Re-run this script with Q1 conditional logic to confirm both T11.5's problem is resolved and T11.6 still PASSes."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F39",
+      "severity": "DESIGN-RELEVANT",
+      "title": "A VOLATILE UDF called inside a CASE consumes a sequence value even when the branch is not taken",
+      "evidence": "T11.2 at seq 14: 10000 staged rows, 1500 flag-0 rows, but sequence_consumed = 21300. Diagnostic at seq 22: prefixed keys exist ONLY on flag-0 rows - no leakage. But max key for flag-0 is 1000000000013364, so 13364 sequence values were consumed for 1500 assigned keys.",
+      "interpretation": "Snowflake evaluates the key_q2_v11() call for every row when planning the CREATE TABLE AS, regardless of which CASE branch will be taken for that row. Each call invokes NEXTVAL, consuming a sequence value. Most of the consumed values are discarded before they reach the output.",
+      "implication": "This is a known VOLATILE UDF behaviour, not a bug, but it matters for two reasons. (1) If someone equates sequence consumption with keys issued, they will see ~9x inflation under Q2 and ~21x under Q1 on this profile. (2) It means Q2 does NOT in practice mint only 1500 values - it mints 13364 and discards 11864 intermediates. The uniqueness guarantee still holds (no duplicates at seq 23), and the key space at 10^15 makes this immaterial in absolute terms. But the metric 'sequence_consumed' is not a reliable count of keys assigned and should not be used as one.",
+      "status": "Open - recommend noting this in the build standard monitoring section so operators do not raise a false alarm on sequence consumption."
+    },
+    {
+      "id": "F40",
+      "severity": "SETTLES-C4",
+      "title": "Moving the key mint to Q1 is a redesign of the SCD-2 decision, not a relocation of one call",
+      "evidence": "T11.5 at seq 20: 500 flag-4 rows each hold both an EXISTING_ID (the key the retirement must keep) and a Q1_MINTED_ID (a new key the retirement must not use). Seq 19 names the pairs explicitly: for every correction, the retirement row has two candidates with no mechanism to choose between them.",
+      "interpretation": "Q2 resolves the ambiguity because the MERGE sees the change-flag and applies it. Q1 runs before the MERGE exists. To produce the right key in Q1, Q1 would have to implement the same flag-4 conditional logic that currently lives in the MERGE at Q2. That logic is the SCD-2 decision.",
+      "implication": "The Q1 option is not a simple 'move the mint earlier'. It would require Q1 to know the change-flag semantics, which moves the SCD-2 decision out of the MERGE and into the staging transform. That changes who owns the logic and where it is tested. Whether that trade is worth it is a design question for the team, not a technical one for this script.",
+      "status": "Closed - input to the C4 decision."
+    },
+    {
+      "id": "F41",
+      "severity": "POSITIVE - CLOSES C4",
+      "title": "§3's requirement is already satisfied by Q2; C4 is moot unless Q1 was meant specifically",
+      "evidence": "T11.6: Q2 placement 1500/1500 PASS. Q1 placement 1500/1500 PASS. Both placements produce region-qualified keys before Zone 3.",
+      "interpretation": "R9 asks that the key be region-qualified while moving Zone 1 -> Zone 2. Q2 sits inside that journey. The requirement is satisfied today. C4 exists only because 'Zone 1 -> Zone 2' might have meant Q1 specifically in the transcript.",
+      "implication": "The team should confirm whether Q1 was a specific requirement or a paraphrase. If it was a paraphrase, C4 closes with 'already satisfied'. If it was specific, F40 documents what moving to Q1 entails.",
+      "status": "Closed - pending one question to Nidwika."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.W6V11",
+    "objects": [
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V11", "note": "Created by this run." },
+      { "type": "SEQUENCE", "name": "EMP_SEQ_Q2_V11", "note": "21300 consumed, 1500 assigned to flag-0 rows." },
+      { "type": "SEQUENCE", "name": "EMP_SEQ_Q1_V11", "note": "21300 consumed, 10000 assigned (all rows)." },
+      { "type": "TABLE", "name": "REGION_MAP_V11", "note": "1 row, North America." },
+      { "type": "TABLE", "name": "STG_EMPLOYEE_V11", "note": "10000 staged rows across four flag groups." },
+      { "type": "TABLE", "name": "Q2_RESULT_V11", "note": "10000 rows. 1500 flag-0 rows carry prefixed keys, 8500 carry their original IDs." },
+      { "type": "TABLE", "name": "Q1_RESULT_V11", "note": "10000 rows. All rows carry a Q1_MINTED_ID plus the EXISTING_ID where applicable." },
+      { "type": "FUNCTION", "name": "KEY_Q2_V11(VARCHAR)", "note": "Q2-placement key function." },
+      { "type": "FUNCTION", "name": "KEY_Q1_V11(VARCHAR)", "note": "Q1-placement key function." }
+    ],
+    "cleanup_sql": [
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V11 CASCADE"
+    ]
+  }
+}

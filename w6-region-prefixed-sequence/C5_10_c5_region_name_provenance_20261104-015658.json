@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "run": {
+    "run_id": "C5-20261104-015658",
+    "requirement_id": "C5",
+    "work_item": "W6",
+    "script": "SQL/10_c5_region_name_provenance.sql",
+    "script_question": "Where does the region name come from, and what happens if it is wrong?",
+    "scope_limit_stated_by_script": "Which mechanism the ETL should use is an ORCHESTRATOR decision (IDMC), not a Snowflake one. This script cannot choose. What it does is test each candidate inside Snowflake and, above all, characterise THE FAILURE MODE when the region name is wrong or missing.",
+    "started_at_utc": "2026-11-04T01:56:58Z",
+    "finished_at_utc": "2026-11-04T01:56:58Z",
+    "executed_by": "Cortex Code (sql_execute, one statement per call). Single session.",
+    "capture_mode": "verbatim",
+    "teardown_executed": false,
+    "teardown_skip_reason": "Teardown intentionally not run, consistent with all previous runs. The script's own opening cleanup block WAS run.",
+    "headline": "C5's failure mode is characterised and it is worse than a typo. All three provenance candidates work in Snowflake, so the choice is about where a mistake can be made, not capability. A WRONG region name raises NO error - it returns NULL, which loads silently into a nullable key column (10 rows, 10 NULL keys, no error). And the worst case is not the typo at all: a VALID name for the WRONG region produces a plausible, wrong, undetectable key. Two cheap controls close both holes: NOT NULL on the key column, and a per-deployment guard.",
+    "notes_on_completeness": [
+      "query_id and elapsed_ms are null for every statement: no QUERY_HISTORY lookup was performed. No values were inferred or fabricated.",
+      "No deviations. Every statement ran as written, in order.",
+      "One error at seq 20 is the NOT NULL violation the script explicitly wants to provoke. Its text is captured verbatim because the failure IS the desired behaviour.",
+      "This script does not resolve C5 - by its own design it informs the decision rather than making it. The verdict section reflects that."
+    ]
+  },
+  "session": {
+    "organization": "PN56976",
+    "account_name": "DELOITTENA",
+    "region": "AWS_US_EAST_1",
+    "user": "NIKHILBANSAL5",
+    "role": "POC_ROLE",
+    "warehouse": "EATON_MARKLOGIC_POC_WH",
+    "database": "LM_POC_DB",
+    "schema": "W6V10",
+    "snowflake_version": "10.39.101"
+  },
+  "statements": [
+    { "seq": 1, "test_id": "CLEANUP", "sql": "DROP SCHEMA IF EXISTS W6V10 CASCADE", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Drop statement executed successfully (W6V10 already dropped)."]], "error": null, "verdict": "PASS" },
+    { "seq": 2, "test_id": "SETUP", "sql": "CREATE SCHEMA W6V10", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Schema W6V10 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 3, "test_id": "SETUP", "sql": "USE SCHEMA W6V10", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Statement executed successfully."]], "error": null, "verdict": "PASS" },
+    { "seq": 4, "test_id": "SETUP", "sql": "CREATE OR REPLACE SEQUENCE emp_seq_v10 START 1 INCREMENT 1", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Sequence EMP_SEQ_V10 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 5, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE region_map_v10 (REGION_NAME VARCHAR(100), REGION_CODE NUMBER(9,0))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table REGION_MAP_V10 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 6, "test_id": "SETUP", "sql": "INSERT INTO region_map_v10 VALUES ('North America', 1), ('EU', 2), ('APAC', 3)", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[3]], "error": null, "verdict": "PASS" },
+    { "seq": 7, "test_id": "SETUP", "sql": "CREATE OR REPLACE TABLE deployment_config_v10 (SETTING VARCHAR(50), VALUE VARCHAR(100))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table DEPLOYMENT_CONFIG_V10 successfully created."]], "error": null, "verdict": "PASS", "observation": "One-row deployment config - Candidate C's mechanism, and later the guard's reference point." },
+    { "seq": 8, "test_id": "SETUP", "sql": "INSERT INTO deployment_config_v10 VALUES ('REGION_NAME', 'North America')", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "number of rows inserted", "type": "NUMBER(38,0)" }], "rows": [[1]], "error": null, "verdict": "PASS", "observation": "This deployment is declared to be North America. Everything after this treats that as ground truth." },
+    {
+      "seq": 9, "test_id": "T10.1",
+      "purpose": "CANDIDATE A - region name as a literal argument. What every test so far assumed.",
+      "sql": "CREATE OR REPLACE FUNCTION key_by_arg_v10(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Candidate A. Sequence fully qualified per R12 v3 F19.'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v10 m WHERE m.REGION_NAME = region_name)\n         * 1000000000000000 + LM_POC_DB.W6V10.emp_seq_v10.NEXTVAL AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_BY_ARG_V10 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 10, "test_id": "T10.1",
+      "sql": "SELECT key_by_arg_v10('North America') AS k,\n       FLOOR(key_by_arg_v10('North America') / 1000000000000000) AS decoded_region,\n       'PASS - works, but the name must come from somewhere' AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "K", "type": "NUMBER(38,0)" },
+        { "name": "DECODED_REGION", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000000000000001, 1, "PASS - works, but the name must come from somewhere"]],
+      "error": null,
+      "expectation": "a 10^15-scale key decoding to 1",
+      "verdict": "PASS",
+      "observation": "Works, but this is the MECHANISM not the PROVENANCE. It pushes the question one level up to whoever writes the call site - which is precisely what C5 is asking about."
+    },
+    {
+      "seq": 11, "test_id": "T10.2",
+      "purpose": "CANDIDATE B - region derived from the deployment itself. No parameter, nothing for a caller to get wrong.",
+      "sql": "CREATE OR REPLACE TABLE schema_region_map_v10 (SCHEMA_NAME VARCHAR(100), REGION_NAME VARCHAR(100));\nINSERT INTO schema_region_map_v10 VALUES ('W6V10', 'North America');",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 2,
+      "columns": [{ "name": "status_or_rows", "type": "VARCHAR" }],
+      "rows": [["Table SCHEMA_REGION_MAP_V10 successfully created."],[1]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 12, "test_id": "T10.2",
+      "sql": "CREATE OR REPLACE FUNCTION key_by_deployment_v10()\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Candidate B. Region implied by the deployment - no argument to get wrong.'\nAS $$\n    CAST((SELECT m.REGION_CODE\n          FROM region_map_v10 m\n          JOIN schema_region_map_v10 s ON s.REGION_NAME = m.REGION_NAME\n          WHERE s.SCHEMA_NAME = 'W6V10')\n         * 1000000000000000 + LM_POC_DB.W6V10.emp_seq_v10.NEXTVAL AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_BY_DEPLOYMENT_V10 successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "Note the schema name is a LITERAL in the body, not CURRENT_SCHEMA(). That is deliberate - it means the function text differs per region, which is the trade-off recorded below."
+    },
+    {
+      "seq": 13, "test_id": "T10.2",
+      "sql": "SELECT key_by_deployment_v10() AS k,\n       FLOOR(key_by_deployment_v10() / 1000000000000000) AS decoded_region,\n       'PASS - no caller input, so no caller can get it wrong' AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "K", "type": "NUMBER(38,0)" },
+        { "name": "DECODED_REGION", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000000000000101, 1, "PASS - no caller input, so no caller can get it wrong"]],
+      "error": null,
+      "expectation": "decodes to 1",
+      "verdict": "PASS",
+      "observation": "TRADE-OFF recorded by the script: this removes the failure mode entirely, but the function text now differs per region, and R2's agreed signature takes region_name. Needs Nidwika's agreement before adoption."
+    },
+    {
+      "seq": 14, "test_id": "T10.3",
+      "purpose": "CANDIDATE C - read from a one-row config table. Identical function text everywhere; only the config row differs.",
+      "sql": "CREATE OR REPLACE FUNCTION key_by_config_v10()\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Candidate C. One config row per deployment; identical function text everywhere.'\nAS $$\n    CAST((SELECT m.REGION_CODE FROM region_map_v10 m\n          WHERE m.REGION_NAME = (SELECT c.VALUE FROM deployment_config_v10 c\n                                 WHERE c.SETTING = 'REGION_NAME'))\n         * 1000000000000000 + LM_POC_DB.W6V10.emp_seq_v10.NEXTVAL AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_BY_CONFIG_V10 successfully created."]],
+      "error": null, "verdict": "PASS",
+      "observation": "A nested scalar subquery inside the WHERE clause is accepted here, in contrast to the 09 run where a correlated subquery inside CASE in a CREATE TABLE AS was refused. The restriction noted in 09's finding F33 is positional, not general."
+    },
+    {
+      "seq": 15, "test_id": "T10.3",
+      "sql": "SELECT key_by_config_v10() AS k,\n       FLOOR(key_by_config_v10() / 1000000000000000) AS decoded_region,\n       'PASS - identical function text in every region; only the config row differs' AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "K", "type": "NUMBER(38,0)" },
+        { "name": "DECODED_REGION", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000000000000201, 1, "PASS - identical function text in every region; only the config row differs"]],
+      "error": null,
+      "expectation": "decodes to 1. This is the closest thing to R8's original promise.",
+      "verdict": "PASS",
+      "observation": "Candidate C is the only one of the three that both takes no caller input AND keeps the function text identical across regions. That combination is what R8 originally promised."
+    },
+    {
+      "seq": 16, "test_id": "T10.4",
+      "purpose": "FAILURE MODE - an unknown region name. A typo, a renamed region, a job pointed at the wrong value.",
+      "sql": "SELECT key_by_arg_v10('Noth America')  AS typo_key,\n       key_by_arg_v10('NORTH AMERICA') AS wrong_case_key,\n       key_by_arg_v10('LATAM')         AS unmapped_key",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "TYPO_KEY", "type": "NUMBER(38,0)" },
+        { "name": "WRONG_CASE_KEY", "type": "NUMBER(38,0)" },
+        { "name": "UNMAPPED_KEY", "type": "NUMBER(38,0)" }
+      ],
+      "rows": [[null, null, null]],
+      "error": null,
+      "expectation": "all three NULL, because the lookup finds no row. A NULL SURROGATE KEY IS THE DANGER - it does not raise an error here.",
+      "verdict": "RECORDED - all three NULL, no error raised",
+      "observation": "Three distinct ways of getting the name wrong, three NULLs, zero errors. Note WRONG_CASE_KEY is also NULL: the mapping lookup is CASE-SENSITIVE, so 'NORTH AMERICA' does not match 'North America'. That is an additional, easily-made mistake worth flagging. See finding F36."
+    },
+    { "seq": 17, "test_id": "T10.4", "sql": "CREATE OR REPLACE TABLE target_nullable_v10 (EMPLOYEE_ID NUMBER(38,0), PIN VARCHAR(30))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table TARGET_NULLABLE_V10 successfully created."]], "error": null, "verdict": "PASS" },
+    { "seq": 18, "test_id": "T10.4", "sql": "CREATE OR REPLACE TABLE target_notnull_v10 (EMPLOYEE_ID NUMBER(38,0) NOT NULL, PIN VARCHAR(30))", "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1, "columns": [{ "name": "status", "type": "VARCHAR" }], "rows": [["Table TARGET_NOTNULL_V10 successfully created."]], "error": null, "verdict": "PASS" },
+    {
+      "seq": 19, "test_id": "T10.4",
+      "sql": "INSERT INTO target_nullable_v10\nSELECT key_by_arg_v10('Noth America'), 'PIN-' || SEQ4() FROM TABLE(GENERATOR(ROWCOUNT => 10));\n\nSELECT COUNT(*) AS rows_inserted,\n       SUM(CASE WHEN EMPLOYEE_ID IS NULL THEN 1 ELSE 0 END) AS null_keys,\n       CASE WHEN SUM(CASE WHEN EMPLOYEE_ID IS NULL THEN 1 ELSE 0 END) > 0\n            THEN 'DANGEROUS - rows loaded with NULL surrogate keys and NO error raised'\n            ELSE 'rows carry real keys' END AS verdict\nFROM target_nullable_v10",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_INSERTED", "type": "NUMBER(38,0)" },
+        { "name": "NULL_KEYS", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[10, 10, "DANGEROUS - rows loaded with NULL surrogate keys and NO error raised"]],
+      "error": null,
+      "expectation": "10 rows, 10 NULL keys, DANGEROUS",
+      "verdict": "DANGEROUS - CONFIRMED",
+      "observation": "The INSERT reported 10 rows inserted and raised nothing. A nullable key column turns a configuration mistake into silent data damage - ten employee records with no identity."
+    },
+    {
+      "seq": 20, "test_id": "T10.4",
+      "purpose": "The same load against a NOT NULL column. THE FAILURE IS THE DESIRED BEHAVIOUR.",
+      "sql": "INSERT INTO target_notnull_v10\nSELECT key_by_arg_v10('Noth America'), 'PIN-' || SEQ4() FROM TABLE(GENERATOR(ROWCOUNT => 10))",
+      "status": "ERROR", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null,
+      "error": { "code": null, "sqlstate": null, "message": "DML operation to table TARGET_NOTNULL_V10 failed on column EMPLOYEE_ID with error: NULL result in a non-nullable column" },
+      "expectation": "THIS STATEMENT FAILS with a NOT NULL violation. The failure is the desired behaviour. Record the exact error text.",
+      "verdict": "FAILED AS INTENDED - this is the control working",
+      "observation": "Exact error text captured. The message names both the table and the column, so an operator sees immediately what went wrong. Contrast seq 19, which reported success."
+    },
+    {
+      "seq": 21, "test_id": "T10.4",
+      "sql": "SELECT COUNT(*) AS rows_in_notnull_target,\n       CASE WHEN COUNT(*) = 0\n            THEN 'PASS - NOT NULL on the key column converts silent corruption into a loud failure'\n            ELSE 'CHECK - rows got in; the column may not be NOT NULL' END AS verdict\nFROM target_notnull_v10",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "ROWS_IN_NOTNULL_TARGET", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[0, "PASS - NOT NULL on the key column converts silent corruption into a loud failure"]],
+      "error": null,
+      "verdict": "PASS",
+      "observation": "Zero rows. The whole statement rolled back rather than loading the good rows and skipping the bad - there were no good rows here, but the all-or-nothing behaviour matters for partial-failure cases."
+    },
+    {
+      "seq": 22, "test_id": "T10.5",
+      "purpose": "FAILURE MODE - a NULL region name.",
+      "sql": "SELECT key_by_arg_v10(NULL) AS null_input_key,\n       CASE WHEN key_by_arg_v10(NULL) IS NULL\n            THEN 'NULL in, NULL out - same silent failure as T10.4'\n            ELSE 'unexpected - a non-null key from a null region' END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "NULL_INPUT_KEY", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[null, "NULL in, NULL out - same silent failure as T10.4"]],
+      "error": null,
+      "expectation": "NULL",
+      "verdict": "RECORDED",
+      "observation": "An omitted or unset orchestrator parameter behaves identically to a typo. Both are caught by the same NOT NULL control."
+    },
+    {
+      "seq": 23, "test_id": "T10.6",
+      "purpose": "DOES A BAD REGION NAME CORRUPT, OR MERELY FAIL? The worst case is not NULL - it is a VALID-LOOKING key carrying the WRONG region.",
+      "sql": "SELECT 'EU name, NA deployment' AS scenario,\n       key_by_arg_v10('EU') AS k,\n       FLOOR(key_by_arg_v10('EU') / 1000000000000000) AS decoded_region,\n       'The function obeys the ARGUMENT, not the deployment. A wrong-but-valid '\n       || 'name produces a wrong-but-valid key, and nothing detects it.' AS implication",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "SCENARIO", "type": "VARCHAR" },
+        { "name": "K", "type": "NUMBER(38,0)" },
+        { "name": "DECODED_REGION", "type": "NUMBER(38,0)" },
+        { "name": "IMPLICATION", "type": "VARCHAR" }
+      ],
+      "rows": [["EU name, NA deployment", 2000000000000007, 2, "The function obeys the ARGUMENT, not the deployment. A wrong-but-valid name produces a wrong-but-valid key, and nothing detects it."]],
+      "error": null,
+      "expectation": "decodes to 2 (EU) even though this deployment is North America",
+      "verdict": "RECORDED - THIS IS THE REAL C5 RISK",
+      "observation": "The key 2000000000000007 is structurally perfect, passes every uniqueness and decode test in the entire pack, and is wrong. No NOT NULL constraint catches it, because it is not NULL. This is the finding that makes C5 a design question rather than a configuration detail. See finding F35."
+    },
+    {
+      "seq": 24, "test_id": "T10.7",
+      "purpose": "A GUARD THAT MAKES BOTH FAILURE MODES LOUD. Candidate A plus a deployment check.",
+      "sql": "CREATE OR REPLACE FUNCTION key_guarded_v10(region_name VARCHAR)\nRETURNS NUMBER(38,0) VOLATILE\nCOMMENT = 'Candidate A with a deployment guard. Rejects a name this deployment may not issue.'\nAS $$\n    CAST(\n        (SELECT m.REGION_CODE FROM region_map_v10 m\n         WHERE m.REGION_NAME = region_name\n           AND m.REGION_NAME = (SELECT c.VALUE FROM deployment_config_v10 c\n                                WHERE c.SETTING = 'REGION_NAME'))\n        * 1000000000000000 + LM_POC_DB.W6V10.emp_seq_v10.NEXTVAL\n    AS NUMBER(38,0))\n$$",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [{ "name": "status", "type": "VARCHAR" }],
+      "rows": [["Function KEY_GUARDED_V10 successfully created."]],
+      "error": null, "verdict": "PASS"
+    },
+    {
+      "seq": 25, "test_id": "T10.7",
+      "sql": "SELECT key_guarded_v10('North America') AS correct_region,\n       key_guarded_v10('EU')            AS wrong_region,\n       key_guarded_v10('Noth America')  AS typo,\n       CASE WHEN key_guarded_v10('North America') IS NOT NULL\n             AND key_guarded_v10('EU') IS NULL\n             AND key_guarded_v10('Noth America') IS NULL\n            THEN 'PASS - only this deployment''s own region yields a key; everything else is NULL'\n            ELSE 'FAIL - the guard did not work' END AS verdict",
+      "status": "SUCCESS", "query_id": null, "elapsed_ms": null, "rowcount": 1,
+      "columns": [
+        { "name": "CORRECT_REGION", "type": "NUMBER(38,0)" },
+        { "name": "WRONG_REGION", "type": "NUMBER(38,0)" },
+        { "name": "TYPO", "type": "NUMBER(38,0)" },
+        { "name": "VERDICT", "type": "VARCHAR" }
+      ],
+      "rows": [[1000000000000311, null, null, "PASS - only this deployment's own region yields a key; everything else is NULL"]],
+      "error": null,
+      "expectation": "a real key for North America, NULL for both wrong inputs",
+      "verdict": "PASS",
+      "observation": "The guard converts T10.6's silent-corruption case into T10.4's NULL case, which the NOT NULL column then converts into a failed load. The two controls compose: guard turns 'wrong' into 'nothing', NOT NULL turns 'nothing' into 'stop'."
+    },
+    { "seq": 26, "test_id": "TEARDOWN", "sql": "DROP SCHEMA IF EXISTS W6V10 CASCADE", "status": "SKIPPED", "query_id": null, "elapsed_ms": null, "rowcount": null, "columns": null, "rows": null, "error": null, "skip_reason": "Teardown intentionally not run; schema retained with all evidence tables." }
+  ],
+  "summary": {
+    "statements_total": 26,
+    "statements_executed": 25,
+    "statements_skipped": 1,
+    "statements_succeeded": 24,
+    "statements_errored": 1,
+    "errors_note": "The single error at seq 20 is the NOT NULL violation the script deliberately provokes. It is the control working, not an incident.",
+    "deviations_applied": [],
+    "candidates_that_work": ["A - literal argument", "B - derived from deployment", "C - config row"],
+    "tests_passed": ["T10.1", "T10.2", "T10.3", "T10.7"],
+    "failure_modes_characterised": ["T10.4 unknown name", "T10.4 wrong case", "T10.5 NULL name", "T10.6 valid name for wrong region"],
+    "c5_decided": false,
+    "c5_status": "INFORMED, NOT DECIDED - mechanism choice is an IDMC/orchestrator decision outside this script's scope"
+  },
+  "decision_table_resolution": {
+    "source": "SQL/10_c5_region_name_provenance.sql - WHAT THIS ESTABLISHES FOR C5",
+    "established_facts": [
+      "1. All three candidates work in Snowflake (T10.1-T10.3). The choice is about where the mistake can be made, not about capability.",
+      "2. A wrong region name does NOT raise an error. It returns NULL (T10.4, T10.5), and against a nullable key column that loads silently - 10 rows, 10 NULL keys, no error.",
+      "3. The worst case is NOT the typo. A VALID name for the WRONG region gives a plausible, wrong, undetectable key (T10.6). No amount of care at the call site rules this out by itself.",
+      "4. Two cheap controls remove both failure modes and should be adopted whichever mechanism is chosen: (a) EMPLOYEE_ID NOT NULL in the target, (b) the function verifies the requested region against a per-deployment config row."
+    ],
+    "c5_verdict": "NOT DECIDED HERE BY DESIGN. The script explicitly declines to choose the mechanism, because that is an orchestrator (IDMC) decision for Nidwika and the team.",
+    "recommendation_to_put_to_the_team": "Candidate C (config row) or Candidate A plus the T10.7 guard. Candidate B is the safest but changes R2's agreed signature, so it needs Nidwika's agreement before it is considered.",
+    "build_standard_decisions": [
+      "EMPLOYEE_ID must be declared NOT NULL in the target. This is non-negotiable regardless of which provenance mechanism is chosen - it is the only thing standing between a misconfigured job and ten thousand identity-less rows.",
+      "Adopt the T10.7 deployment guard. A function that can only issue its own deployment's region cannot be pointed at the wrong one.",
+      "Region names in the mapping table are matched CASE-SENSITIVELY. Either normalise on the way in or document the exact expected strings - see finding F36."
+    ]
+  },
+  "findings": [
+    {
+      "id": "F35",
+      "severity": "CRITICAL - DESIGN RISK",
+      "title": "A valid region name for the wrong region produces a structurally perfect, undetectably wrong key",
+      "evidence": "T10.6 at seq 23: calling key_by_arg_v10('EU') on a deployment whose config declares it to be North America returned 2000000000000007, which decodes cleanly to region 2 (EU).",
+      "interpretation": "The function obeys its argument, not its deployment. The resulting key is unique, correctly typed, correctly structured, and passes every test in this entire evidence pack - R3 uniqueness, R12 cross-region uniqueness, R13 decodability. It is simply attributed to the wrong region. Unlike a typo, there is no signal of any kind.",
+      "implication": "This is the real C5 risk and it is qualitatively different from the one the open question was framed around. A typo yields NULL and is catchable with a NOT NULL constraint. A valid-but-wrong name yields data that looks right forever. The traceability goal that motivated this whole change - being able to trace a record back by its region-bearing key - is defeated precisely in the case where it would matter. Mitigation exists and is cheap (T10.7's guard), but it must be a deliberate decision rather than left to call-site discipline.",
+      "status": "Open - recommend raising this explicitly with the team as the main C5 input, ahead of the mechanism choice."
+    },
+    {
+      "id": "F36",
+      "severity": "DESIGN-RELEVANT",
+      "title": "Region-name matching is case-sensitive, adding a third easily-made failure mode",
+      "evidence": "T10.4 at seq 16: key_by_arg_v10('NORTH AMERICA') returned NULL, exactly as the deliberate typo 'Noth America' did. Only the exact string 'North America' resolves.",
+      "interpretation": "The mapping lookup is a plain equality comparison on VARCHAR, which Snowflake evaluates case-sensitively by default. An orchestrator that upper-cases its parameters, or a hand-typed value, fails silently in the same way as a misspelling.",
+      "implication": "Worth deciding deliberately rather than inheriting. Options: normalise with UPPER() on both sides inside the function, store a normalised key column in the mapping table, or document the exact expected strings as part of the orchestrator contract. The NOT NULL control catches this too, so it is a robustness improvement rather than a correctness gap - but it is the kind of thing that fails in production at 2am rather than in testing.",
+      "status": "Open - recommend a decision on name normalisation."
+    },
+    {
+      "id": "F37",
+      "severity": "POSITIVE",
+      "title": "Two cheap, composable controls close both failure modes",
+      "evidence": "T10.4 seq 19 versus seq 20: the identical bad load reported success against a nullable column and failed with 'NULL result in a non-nullable column' against a NOT NULL one, with zero rows landing (seq 21). T10.7 seq 25: the guarded function returned a real key for the deployment's own region and NULL for both a wrong-but-valid region and a typo.",
+      "interpretation": "The controls compose in sequence. The deployment guard converts the silent-corruption case (F35) into the NULL case. The NOT NULL constraint converts the NULL case into a failed load. Together they turn every known C5 failure mode into a loud, immediate stop.",
+      "implication": "No new mechanism, no performance cost, no change to R2's signature. Both should be adopted regardless of which provenance candidate the team picks, which means the C5 mechanism decision can proceed without blocking on this.",
+      "status": "Closed - recommendation ready."
+    },
+    {
+      "id": "F38",
+      "severity": "INFORMATIONAL",
+      "title": "Candidate C uniquely satisfies both halves of R8's original promise",
+      "evidence": "T10.1: Candidate A takes caller input, so the function text is identical everywhere but a caller can be wrong. T10.2: Candidate B takes no input but embeds the schema name as a literal, so the function text differs per region. T10.3: Candidate C takes no input AND keeps identical text, reading the region from a one-row config table.",
+      "interpretation": "R8 asked for one code base across environments with the region supplied externally. Only Candidate C delivers both properties simultaneously. Candidate B achieves safety by sacrificing text identity; Candidate A achieves identity by exposing a failure surface.",
+      "implication": "Strengthens the case for Candidate C in the recommendation, with the caveat that it changes R2's agreed signature from f(region_name, sequence_name) to f(sequence_name) - the same signature concern that applies to Candidate B, and therefore equally a matter for Nidwika. Candidate A plus the T10.7 guard is the option that preserves the agreed signature.",
+      "status": "Open - input to the team's mechanism decision."
+    }
+  ],
+  "objects_left_in_place": {
+    "location": "LM_POC_DB.W6V10",
+    "objects": [
+      { "type": "SCHEMA", "name": "LM_POC_DB.W6V10", "note": "Created by this run." },
+      { "type": "SEQUENCE", "name": "EMP_SEQ_V10", "note": "Consumed across the candidate and failure-mode tests." },
+      { "type": "TABLE", "name": "REGION_MAP_V10", "note": "3 rows." },
+      { "type": "TABLE", "name": "DEPLOYMENT_CONFIG_V10", "note": "1 row declaring this deployment as North America." },
+      { "type": "TABLE", "name": "SCHEMA_REGION_MAP_V10", "note": "1 row mapping W6V10 to North America." },
+      { "type": "TABLE", "name": "TARGET_NULLABLE_V10", "note": "10 rows, ALL with NULL EMPLOYEE_ID - the silent-corruption evidence." },
+      { "type": "TABLE", "name": "TARGET_NOTNULL_V10", "note": "EMPTY - the load correctly failed." },
+      { "type": "FUNCTION", "name": "KEY_BY_ARG_V10(VARCHAR)", "note": "Candidate A." },
+      { "type": "FUNCTION", "name": "KEY_BY_DEPLOYMENT_V10()", "note": "Candidate B." },
+      { "type": "FUNCTION", "name": "KEY_BY_CONFIG_V10()", "note": "Candidate C." },
+      { "type": "FUNCTION", "name": "KEY_GUARDED_V10(VARCHAR)", "note": "Candidate A plus the deployment guard - the recommended shape if A is chosen." }
+    ],
+    "cleanup_sql": [
+      "DROP SCHEMA IF EXISTS LM_POC_DB.W6V10 CASCADE"
+    ]
+  }
+}
