@@ -1,6 +1,6 @@
 # W6 — where each of the 13 requirements stands
 
-As at 2026-11-04, after **nine** Snowflake runs (R3, R2, R6, R10, R12 ×3, R11/C3, C6, C5, C4).
+As at 2026-11-04, after **ten** Snowflake runs (R3, R2, R6, R10, R12 ×3, R11/C3, C6, C5 ×2, C4).
 Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` is the spec;
 `feasibility.md` is the per-requirement analysis against documentation; this file is the rollup.
 
@@ -12,14 +12,20 @@ Sources: `poc/R*_RESULTS.md` and the run logs in this folder. `requirement.md` i
 | **Resolved, with a condition** | **R8** — works, but only with a fully-qualified sequence |
 | **Closed as already satisfied** | **R9** — pending one confirmation from Nidwika |
 | **Decided by measurement** | **C3** → fixed-width offset, width 15 · **C6** → leave legacy keys alone |
-| **Informed, not decided** | **C5** (IDMC choice) · **C4** (question for Nidwika) |
+| **Informed, not decided** | **C5** — Snowflake side now **closed** by the two-deployment run; only the IDMC mechanism remains · **C4** (answered) |
 
 **All 13 requirements are closed against the original scope.** One run remains: Nidwika's Q3
 established that the **target column datatype varies and can be `VARCHAR`**, which reopens R6 for
 non-numeric key columns. See [`NIDWIKA_RESPONSES.md`](NIDWIKA_RESPONSES.md) and `poc/12`.
 
 **C4 and C5 are now closed by her answers** — the key stays in Q2, and the region name comes from
-IDMC with one mapping table.
+IDMC with one mapping table. The **C5 v2 run** (2026-11-04) then proved the deployment guard at
+two-deployment scale and closed F35 and F36 — see [`poc/C5_RESULTS_v2.md`](poc/C5_RESULTS_v2.md).
+
+**Scheme choice under single-digit region codes** — the assumption that region codes never exceed 9
+rescues R12 and R13 for digit concatenation but **not C6**, and a `VARCHAR` target adds a lexical
+ordering problem that fixed width does not have. See
+[`SCHEME_A_AND_VARCHAR.md`](SCHEME_A_AND_VARCHAR.md).
 
 Two companion documents carry the detail:
 [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) — every alternative tried, its measured outcome,
@@ -117,7 +123,8 @@ function's `CASE` arms. Still one place, but someone owns it — see Q6 in
 |---|---|
 | Confirm C4 (Q1 vs Q2), and that R12/R13 are genuine requirements | **Nidwika** |
 | Name the downstream consumers of `EMPLOYEE_ID` and their datatypes — this pins the field width permanently | **Nidwika / team** |
-| Choose the C5 provenance mechanism, and adopt the two controls | **Nidwika / IDMC** |
+| Choose the C5 **IDMC** provenance mechanism (the Snowflake side is proven) | **Nidwika / IDMC** |
+| Confirm the scheme under single-digit region codes, and whether anything orders/ranges on the key | **Nidwika / team** |
 | Ratify C3, C6 and "region code 0 is never allocated" | **team** |
 | Decide whether the release checks become standing gates | **team** |
 | Rebuild the deck from `OPTIONS_AND_OUTCOMES.md` | us, on request |
