@@ -20,6 +20,7 @@ not reopen the requirement.
 | [`STATUS.md`](STATUS.md) | **Where each of the 13 requirements stands.** All 13 now closed |
 | [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) | **Every alternative tried, its measured outcome, and what the docs say** — per requirement. Built for the deck |
 | [`SCHEMES_EXPLAINED.md`](SCHEMES_EXPLAINED.md) | **How the prefix schemes work, mechanism first.** Written after Nidwika asked for rationale rather than duplicate counts. **Start here for the deck** |
+| [`SCHEME_A_AND_VARCHAR.md`](SCHEME_A_AND_VARCHAR.md) | **Scheme A under single-digit region codes, and how a `VARCHAR` target is handled.** What the assumption rescues, what it does not, and the one-expression recommendation |
 | [`NIDWIKA_RESPONSES.md`](NIDWIKA_RESPONSES.md) | Her answers, what they settle, and what Q3 reopened |
 | [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md) | The original seven clarifications |
 | [`requirement_deck.html`](requirement_deck.html) | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with what the docs say for each. Opens in a browser, no build step |
