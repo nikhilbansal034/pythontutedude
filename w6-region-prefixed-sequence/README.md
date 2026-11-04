@@ -6,7 +6,8 @@ reusable function takes a region name and a sequence name, resolves the region c
 table, combines it with the sequence's next value, and returns the key already cast to the target
 column's type — so `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status** — requirement **FROZEN** (2026-11-03). D1–D4 taken, C8 answered: each table has its own
+**Status** — requirement **FROZEN** (2026-11-03). **Scheme decided (D5, 2026-11-04): fixed-width
+offset, `region_code * 10^15 + seq.NEXTVAL`.** D1–D4 taken, C8 answered: each table has its own
 sequence per region, so the prefix is load-bearing for integrity. Thirteen requirements tracked as
 five groups — seven close on documentation, R3 is the one blocker, C3–C6 are open decisions that do
 not reopen the requirement.
@@ -20,10 +21,10 @@ not reopen the requirement.
 | [`STATUS.md`](STATUS.md) | **Where each of the 13 requirements stands.** All 13 now closed |
 | [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) | **Every alternative tried, its measured outcome, and what the docs say** — per requirement. Built for the deck |
 | [`SCHEMES_EXPLAINED.md`](SCHEMES_EXPLAINED.md) | **How the prefix schemes work, mechanism first.** Written after Nidwika asked for rationale rather than duplicate counts. **Start here for the deck** |
-| [`SCHEME_A_AND_VARCHAR.md`](SCHEME_A_AND_VARCHAR.md) | **Scheme A under single-digit region codes, and how a `VARCHAR` target is handled.** What the assumption rescues, what it does not, and the one-expression recommendation |
+| [`SCHEME_A_AND_VARCHAR.md`](SCHEME_A_AND_VARCHAR.md) | **Scheme A under single-digit region codes, and how a `VARCHAR` target is handled.** What the assumption rescues, what it does not, and why it did not change the decision |
 | [`NIDWIKA_RESPONSES.md`](NIDWIKA_RESPONSES.md) | Her answers, what they settle, and what Q3 reopened |
 | [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md) | The original seven clarifications |
-| [`requirement_deck.html`](requirement_deck.html) | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with what the docs say for each. Opens in a browser, no build step |
+| [`requirement_deck.html`](requirement_deck.html) | **The deck.** 11 slides, rebuilt 4 Nov mechanism-first: how a key is built, Scheme A and Scheme B each worked through, the head-to-head on slide 6, then the evidence and the build standard. Opens in a browser, no build step |
 | [`feasibility.md`](feasibility.md) | **Start here for the detail.** All thirteen requirements, one at a time: what each asks, what Snowflake's docs say, how it reads, what can be built, what needs a workaround |
 | [`requirement.md`](requirement.md) | The requirement itself. Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
 | [`explore/prefix_schemes.md`](explore/prefix_schemes.md) | C3 worked through on evidence — concatenation vs fixed-width offset |
@@ -37,7 +38,7 @@ wrong before the docs host was reachable.
 
 ```
 poc/README.md                               POC pack: run order, how to capture
-requirement_deck.html                       THE DECK - 12 slides, frozen requirement
+requirement_deck.html                       THE DECK - 11 slides, mechanism-first, A vs B
 feasibility.md                              per-requirement analysis and verdicts
 poc/
   01_r3_sequence_in_udf.sql                 R3 - DONE, passed 3 Nov

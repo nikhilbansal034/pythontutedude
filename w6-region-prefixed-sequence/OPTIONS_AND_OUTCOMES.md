@@ -21,7 +21,8 @@ those are the slides worth building.
 | **Closed** | R1, R2, R3, R4, R5, R6, R7, R8, R10, R11, R12, R13 — **12 of 13** |
 | **Closed as already satisfied** | R9, pending one confirmation from Nidwika |
 | **Decided by data** | C3 → fixed-width offset, width 15 · C6 → leave legacy keys alone |
-| **Informed, not decided** | C5 (mechanism is an IDMC choice) · C4 (question for Nidwika) |
+| **Informed, not decided** | C5 (IDMC mechanism only — the Snowflake side is closed) |
+| **Decided 4 Nov** | **D5 — Scheme B, fixed-width offset, sequence field 15.** See "The scheme decision" below |
 
 ---
 
@@ -349,3 +350,73 @@ decoding to a real region and lose their self-identifying property.
 8. **`NOT NULL` on the key column.**
 9. **Region code 0 must never be allocated.**
 10. Field width **15**, pinned and never changed.
+
+
+---
+
+## The scheme decision — D5, taken 2026-11-04
+
+**Chosen: Scheme B — fixed-width offset.** `region_code * 10^15 + seq.NEXTVAL`.
+
+Three candidates were carried. They differ in one property only: **whether the region field has a
+fixed width.** Everything below follows from that, and `SCHEMES_EXPLAINED.md` works each one
+through step by step.
+
+| Property a surrogate key needs | A. Digit concatenation | B. Fixed-width offset | C. Zero-padded text |
+|---|---|---|---|
+| **Unique across regions (R12)** | conditional — only while codes stay one digit | **by construction** | by construction |
+| **Decodes to its region (R13)** | conditional — `LEFT(key,1)` breaks at two digits | **by construction** — `FLOOR(key/10^15)` | by construction — `LEFT(key,2)` |
+| **Coexists with legacy keys (C6)** | **fails** — first key minted is `11`, 999 collisions | **passes** — smallest key is 10^15+1 | passes |
+| **Orders by issue order in a VARCHAR column** | **fails** — `"110" < "19"` | **passes** — constant width | passes |
+| **Survives a new region (R11)** | **fails silently** — no error raised | **non-event** | non-event |
+| **Round-trips through `NUMBER`** | passes | **passes** | **fails** — loses the pad |
+| **Enforced, not merely intended** | **fails** — needs codes ≤ 9 and a `START` floor, neither enforceable (`CHECK` is ignored) | **passes** | passes |
+
+### Where A lacks, and what B does instead
+
+**1. A's uniqueness is a property of the current data, not of the construction.** `"11"||"1"` and
+`"1"||"11"` are both `111`. Nothing inside a key marks where the region ends, so the two parts can
+only be separated if one has a known constant length — and under concatenation neither does. B
+reserves 15 digit positions for the sequence, so the boundary is fixed by arithmetic.
+
+**2. A fails two tests that have nothing to do with region count.** This is the part the
+"codes will never exceed 9" assumption does not rescue:
+
+- **C6.** A's first key is region 1, sequence 1 → `"11"` → **11**, which is already an existing
+  `EMPLOYEE_ID`. Measured: 999 collisions with rows already in the table, in a **one-region** run.
+  Fixable with a sequence `START` floor — but that fix is a hand-built minimum width, which is the
+  property A is defined by not having.
+- **Ordering in a `VARCHAR` column.** A's width varies with the value, so lexical order stops
+  agreeing with issue order. `MAX(key)` is not the newest key and `WHERE key > :last_max` silently
+  skips rows. B's width is constant, so the two orders agree.
+
+**3. A's failure mode on a tenth region is silent.** New keys collide with region 1's, the insert
+succeeds, no error is raised, and the damage sits in a primary key where it cannot afterwards be
+told apart. Under B a tenth region is a non-event.
+
+**4. A needs two permanent constraints that nothing enforces.** Snowflake accepts `CHECK` and does
+not enforce it, so "region code ≤ 9" has to live in the UDF guard or in the map's load process, and
+the `START` floor in a deployment convention. B needs neither.
+
+### What A wins, stated fairly
+
+A produces no leading zeros, so it round-trips through `NUMBER` losslessly. That is a real
+advantage over **C**, which loses the pad. It is **not** an advantage over B, which has no leading
+zeros either — so choosing B gives up nothing A offered.
+
+### How B serves a non-numeric target
+
+Q3 established the target column type varies. B handles it by casting the same expression at the
+call site, beside the 27 casts Q2 already performs:
+
+```sql
+CAST(key_b(:region) AS NUMBER(38,0))   -- numeric target
+CAST(key_b(:region) AS VARCHAR(20))    -- text target
+```
+
+The cast cannot move inside the function: the return type is declared and cannot be a parameter
+(`IDENTIFIER()` takes a literal, session variable or bind, never an argument), and a declared
+`VARCHAR(n)` length is accepted and then ignored, so the width is enforced by the target column.
+
+**Open, and it does not change D5:** whether anything orders, ranges or watermarks on the surrogate
+key. A yes confirms the fourth row above as a live defect rather than a latent one.

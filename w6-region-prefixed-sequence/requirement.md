@@ -8,7 +8,7 @@ requirements are grouped into five tracking groups (below).
 **ALL 13 REQUIREMENTS ARE CLOSED** (2026-11-04, nine Snowflake runs). See
 [`STATUS.md`](STATUS.md) for the rollup, [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) for
 every alternative tried and its outcome, and [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md)
-for what remains. **C3 and C6 are decided by measurement**: fixed-width offset at width 15, and
+for what remains. **C3 and C6 are decided**: C3 by **D5** — Scheme B, fixed-width offset at width 15 — and
 leave legacy keys alone. **C4 and C5 are informed but not decided** — both are Nidwika's call.
 
 **R11 is PROVEN** (2026-11-04): 3 → 12 regions, zero lines of code, function `CREATED` =
@@ -42,8 +42,8 @@ UDF body *may* contain `seq.NEXTVAL`, it returns one distinct value per row, and
 evidence: [`R3_evidence.docx`](R3_evidence.docx). The blocker is gone — eight of thirteen
 requirements now close, and C3–C6 remain open decisions that do not reopen the requirement.
 
-**Deck**: [`requirement_deck.html`](requirement_deck.html) — 12 slides, the frozen requirement as
-presented. **Per-requirement analysis**: [`feasibility.md`](feasibility.md).
+**Deck**: [`requirement_deck.html`](requirement_deck.html) — 11 slides, rebuilt 2026-11-04
+mechanism-first, with the Scheme A vs Scheme B head-to-head on slide 6. **Per-requirement analysis**: [`feasibility.md`](feasibility.md).
 
 **Baseline**: `sources/requirement_region_prefixed_sequence.txt` — the transcript summary of the
 *[Internal] TD MOD — US/USI Daily Connect*. Where this document and the transcript disagree, the
@@ -271,14 +271,29 @@ different route. It must never be set on this function.
 `w3-scd-effective-date-split/poc_v2/scenarios/S14.sql`; "each occurrence of a sequence generates a
 set of distinct values" confirms it.
 
-### C3 — Which prefix scheme, and what datatype? *(R5, R6, R12, R13)*
+### C3 — Which prefix scheme, and what datatype? *(R5, R6, R12, R13)* — **DECIDED**
 
-Two candidates, explored with worked numbers in `explore/prefix_schemes.md`. On the evidence
-there, **fixed-width offset is the stronger option** and digit concatenation has a latent
-duplicate-key defect. Needs your decision, not mine.
+**Decision D5, taken 2026-11-04: Scheme B — fixed-width offset, sequence field width 15.**
 
-If fixed-width offset is chosen, the sequence field width must be **fixed once and never
-changed** — changing it renumbers every key ever issued. Pin it in this document.
+```
+key = region_code * 10^15 + seq.NEXTVAL
+```
+
+Three candidates were carried: **A** digit concatenation (variable-width region field), **B**
+fixed-width offset (numeric), **C** zero-padded concatenation (text, fixed width). The reasoning is
+in `SCHEMES_EXPLAINED.md`; the head-to-head is slide 6 of the deck. In short:
+
+- **A** satisfies R12 and R13 only while every region code stays one digit, and fails C6
+  (legacy-key coexistence) and lexical ordering **regardless** of region count. It also needs two
+  permanent constraints — codes ≤ 9, and a sequence `START` floor — that nothing in Snowflake
+  enforces, because `CHECK` is accepted and ignored.
+- **C** is correct — it is B's principle expressed as text — but a padded key does not survive a
+  round trip through `NUMBER`: the leading zero is lost and `LEFT(key, 2)` then decodes wrongly.
+- **B** satisfies all six properties by construction, needs no added control, and serves a
+  `VARCHAR` target by casting the same expression at the call site.
+
+The sequence field width is **fixed at 15 and must never change** — changing it renumbers every key
+ever issued. It is pinned here.
 
 **Confirmed constraint on the sequence half.** *Using Sequences*: "A sequence value can represent a
 64-bit two's complement integer (-2^63 to 2^63 - 1). If the internal representation of a

@@ -1,5 +1,9 @@
 # Scheme A under single-digit regions, and what a VARCHAR target means
 
+> **Outcome:** after this analysis the decision taken was **Scheme B — fixed-width offset**
+> (`D5`, 2026-11-04). §5 is the recommendation that was adopted. The rest of the document is kept
+> because it is the record of *why* the single-digit assumption did not change the answer.
+
 Answering two things: **does the "regions will never exceed 9" assumption rescue Scheme A**, and
 **how does a VARCHAR target column get handled**. Taking them in that order, because the second
 answer depends on the first.
