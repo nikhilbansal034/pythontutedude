@@ -2,14 +2,27 @@
 
 Make Zone 2 surrogate keys region-qualified **at the moment they are created**, moving
 Zone 1 → Zone 2, so the identifier never has to change during later global consolidation. A
-reusable function takes a region name and a sequence name, resolves the region code from a mapping
-table, combines it with the sequence's next value, and returns the key already cast to the target
-column's type — so `nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
+reusable function takes the region name, resolves its code from a mapping table, combines it with
+the sequence's next value, and the call site casts to the target column's type — so
+`nextval → prefix → cast` is not reimplemented in every DTTL/ETL.
 
-**Status** — requirement **FROZEN** (2026-11-03). D1–D4 taken, C8 answered: each table has its own
-sequence per region, so the prefix is load-bearing for integrity. Thirteen requirements tracked as
-five groups — seven close on documentation, R3 is the one blocker, C3–C6 are open decisions that do
-not reopen the requirement.
+**Status.** Requirement **frozen** 2026-11-03. All **13 requirements closed** against the original
+scope after **ten Snowflake runs**. Decisions D1–D5 taken, C1–C8 answered.
+
+**The scheme is decided — D5, 2026-11-04: Scheme B, fixed-width offset.**
+
+```
+key = region_code * 10^15 + seq.NEXTVAL
+```
+
+The sequence field is fixed at 15 digits and must never change. Digit concatenation was rejected:
+it satisfies uniqueness and decode only while every region code stays one digit, and it fails
+legacy-key coexistence and lexical ordering regardless of region count. Slide 6 of the deck and the
+head-to-head in `analysis/OPTIONS_AND_OUTCOMES.md` carry the argument.
+
+**Still open** — none of it changes D5: `poc/scripts/12` has not been run (Q3, variable target
+datatype); whether anything orders, ranges or watermarks on the surrogate key; whether R13 is a
+requirement or a convenience; and the IDMC provenance mechanism, which is not a Snowflake question.
 
 ---
 
@@ -17,16 +30,15 @@ not reopen the requirement.
 
 | Read | For |
 |---|---|
-| [`STATUS.md`](STATUS.md) | **Where each of the 13 requirements stands.** All 13 now closed |
-| [`OPTIONS_AND_OUTCOMES.md`](OPTIONS_AND_OUTCOMES.md) | **Every alternative tried, its measured outcome, and what the docs say** — per requirement. Built for the deck |
-| [`SCHEMES_EXPLAINED.md`](SCHEMES_EXPLAINED.md) | **How the prefix schemes work, mechanism first.** Written after Nidwika asked for rationale rather than duplicate counts. **Start here for the deck** |
-| [`SCHEME_A_AND_VARCHAR.md`](SCHEME_A_AND_VARCHAR.md) | **Scheme A under single-digit region codes, and how a `VARCHAR` target is handled.** What the assumption rescues, what it does not, and the one-expression recommendation |
-| [`NIDWIKA_RESPONSES.md`](NIDWIKA_RESPONSES.md) | Her answers, what they settle, and what Q3 reopened |
-| [`QUESTIONS_FOR_NIDWIKA.md`](QUESTIONS_FOR_NIDWIKA.md) | The original seven clarifications |
-| [`requirement_deck.html`](requirement_deck.html) | **The deck.** 12 slides, the frozen requirement — 13 requirements in 5 tracking groups, with what the docs say for each. Opens in a browser, no build step |
-| [`feasibility.md`](feasibility.md) | **Start here for the detail.** All thirteen requirements, one at a time: what each asks, what Snowflake's docs say, how it reads, what can be built, what needs a workaround |
-| [`requirement.md`](requirement.md) | The requirement itself. Scope, R1–R13, decisions D1–D3, open questions C1–C7, acceptance criteria |
-| [`explore/prefix_schemes.md`](explore/prefix_schemes.md) | C3 worked through on evidence — concatenation vs fixed-width offset |
+| [`STATUS.md`](STATUS.md) | **Where each of the 13 requirements stands.** All 13 closed against the original scope |
+| [`requirement.md`](requirement.md) | The requirement itself — scope, R1–R13, decisions D1–D5, open questions C1–C8, acceptance criteria, and §9's source register |
+| [`requirement_deck.html`](requirement_deck.html) | **The deck.** 11 slides, mechanism-first: how a key is built, each scheme worked through, the A-vs-B head-to-head on slide 6, then the evidence and the build standard. Opens in a browser, no build step |
+| [`analysis/SCHEMES_EXPLAINED.md`](analysis/SCHEMES_EXPLAINED.md) | **How the prefix schemes work, mechanism first.** Written after Nidwika asked for rationale rather than duplicate counts |
+| [`analysis/OPTIONS_AND_OUTCOMES.md`](analysis/OPTIONS_AND_OUTCOMES.md) | **Every alternative tried, its measured outcome, and what the docs say** — per requirement, plus the D5 head-to-head |
+| [`analysis/SCHEME_A_AND_VARCHAR.md`](analysis/SCHEME_A_AND_VARCHAR.md) | Scheme A under single-digit region codes, and how a `VARCHAR` target is handled — why the assumption did not change the decision |
+| [`analysis/feasibility.md`](analysis/feasibility.md) | **The detail.** All thirteen requirements one at a time: what each asks, what the docs say, how it reads, what can be built, what needs a workaround |
+| [`poc/README.md`](poc/README.md) | The POC pack — run order, what each script proves, how evidence is captured |
+| [`clarifications/`](clarifications/) | The seven questions put to Nidwika, and her answers |
 | [`sources/`](sources/) | The raw inputs. `requirement_region_prefixed_sequence.txt` is the baseline and wins over everything derived from it |
 
 Snowflake behaviour cited below was read **directly** from the documentation; `requirement.md` §9
@@ -35,27 +47,47 @@ wrong before the docs host was reachable.
 
 ## Layout
 
+Four kinds of thing, kept apart: what was **asked for** (root), what was **reasoned**
+(`analysis/`), what was **run** (`poc/`), and what it all **came from** (`sources/`,
+`clarifications/`).
+
 ```
-poc/README.md                               POC pack: run order, how to capture
-requirement_deck.html                       THE DECK - 12 slides, frozen requirement
-feasibility.md                              per-requirement analysis and verdicts
-poc/
-  01_r3_sequence_in_udf.sql                 R3 - DONE, passed 3 Nov
-  02_r2_sequence_name_binding.sql           R2 - qualified names, registry, branch selector
-  03_r6_return_datatype.sql                 R6 - declared type ignored, cast in body
-  04_r10_concurrency.sql                    R10 - concurrency and volatility
-  R3_RESULTS.md                             R3 evidence record
-requirement.md                              scope, R1-R13, D1-D3, C1-C7, acceptance
-explore/
-  prefix_schemes.md                         C3 answered with worked numbers
-  prefix_schemes.py                         the runnable DuckDB demonstration
-  r2_sequence_name_binding.py               R2: why a registry lookup cannot work in a UDF
-  r10_concurrency_sim.py                    R10: 14k keys, 7 parallel workers, 0 collisions
-sources/
-  requirement_region_prefixed_sequence.txt  THE BASELINE - transcript summary
-  employee_q1_zone1_to_staging.txt          Q1: Zone 1 -> STG_EMPLOYEE, leaves the key NULL
-  employee_q2_staging_to_zone2_target.txt   Q2: staging -> Zone 2. Line 50 mints the key
+README.md                                   this file
+STATUS.md                                   THE ROLLUP - where each of the 13 requirements stands
+requirement.md                              scope, R1-R13, D1-D5, C1-C8, acceptance, source register
+requirement_deck.html                       THE DECK - 11 slides, mechanism-first, A vs B
+
+analysis/                                   reasoning, not runs
+  feasibility.md                              per-requirement analysis against the documentation
+  SCHEMES_EXPLAINED.md                        how each scheme works, mechanism before numbers
+  SCHEME_A_AND_VARCHAR.md                     single-digit regions, and VARCHAR targets
+  OPTIONS_AND_OUTCOMES.md                     every alternative tried, and what it measured
+
+poc/                                        everything executed against Snowflake
+  README.md                                   run order, what each script proves, capture format
+  scripts/   01..12                           the SQL, numbered in the order they were run
+  results/   *_RESULTS.md                     one record per run: what it established, and its limits
+  evidence/  *.json, R3_evidence.docx         the raw captured output, unedited
+
+explore/                                    DuckDB, before Snowflake
+  prefix_schemes.md / .py                     C3 worked through with numbers
+  r2_sequence_name_binding.py                 why a registry lookup cannot work inside a UDF
+  r10_concurrency_sim.py                      14k keys, 7 parallel workers, 0 collisions
+
+clarifications/                             the human loop
+  QUESTIONS_FOR_NIDWIKA.md                    the seven questions, with why each one matters
+  NIDWIKA_RESPONSES.md                        her answers, what each settles and what it reopened
+
+sources/                                    the inputs, unmodified
+  requirement_region_prefixed_sequence.txt    THE BASELINE - transcript summary
+  employee_q1_zone1_to_staging.txt            Q1: Zone 1 -> STG_EMPLOYEE, leaves the key NULL
+  employee_q2_staging_to_zone2_target.txt     Q2: staging -> Zone 2. Line 50 mints the key
 ```
+
+**Naming.** A script, its results record and its evidence file share a number and a requirement id,
+so `poc/scripts/07_r12_qualified_sequences.sql` runs to `poc/results/R12_RESULTS_v3.md` on the
+evidence in `poc/evidence/R12v3_07_r12_qualified_sequences_*.json`. Nothing in `evidence/` is ever
+edited — a correction goes in the results record, naming what it corrects.
 
 The two queries are the W3-shaped two-query historical load for `EMPLOYEE` (SCD Type 2, 38 target
 columns, business key `EMPLOYEE_PIN + ROW_EFFECTIVE_DATETIME`). They are the concrete example the

@@ -7,6 +7,12 @@ number without a mechanism cannot be argued with or trusted.
 This document explains what each scheme *is*, how it works step by step, and **why** one of them
 breaks. The measurements come at the end, as confirmation of something already reasoned through.
 
+**Decision, taken 2026-11-04: Scheme B — fixed-width offset, sequence field width 15 (`D5`).**
+§5 is the principle it rests on; §6 is the one derived requirement still worth confirming; the
+head-to-head that drove the choice is slide 6 of `requirement_deck.html`, and
+`SCHEME_A_AND_VARCHAR.md` covers why the "region codes never exceed 9" assumption does not change
+the answer.
+
 ---
 
 ## 1. What the prefix is for

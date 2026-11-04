@@ -65,7 +65,7 @@ The first is one query and catches a failure that is otherwise invisible. **Reco
 **Accepted. The criticism is correct.** We led with evidence and omitted the mechanism, which makes
 the numbers unarguable rather than persuasive — and the deck repeated the same mistake.
 
-[`SCHEMES_EXPLAINED.md`](SCHEMES_EXPLAINED.md) is the answer: what each scheme **is**, worked through
+[`SCHEMES_EXPLAINED.md`](../analysis/SCHEMES_EXPLAINED.md) is the answer: what each scheme **is**, worked through
 step by step, **why** one breaks, and the measurements only at the end as confirmation.
 
 The short version of what was missing:
@@ -122,7 +122,7 @@ region 11, sequence 1   ->  "11" || "000000000000001"  ->  "11000000000000001"
 Padding is what plain concatenation was missing, so a text key is perfectly safe **provided it is
 padded**.
 
-**What needs testing** — `poc/12_q3_variable_target_datatype.sql`, written and ready:
+**What needs testing** — `poc/scripts/12_q3_variable_target_datatype.sql`, written and ready:
 
 | | |
 |---|---|
@@ -178,7 +178,7 @@ only flagging that someone owns the step.
 | | |
 |---|---|
 | **Closed by her answers** | C4 (Q2 placement), C5 (IDMC + mapping table), release checks |
-| **Needs one more run** | **Q3** — `poc/12`, variable target datatype |
+| **Needs one more run** | **Q3** — `poc/scripts/12`, variable target datatype |
 | **Needs her decision** | **R13** — is region-from-key-without-a-join a requirement, or a convenience? |
 | **Awaiting ratification** | C3 and C6, now that the rationale is written up |
 | **Flagged, not blocking** | "mostly called in Q2" — confirm no table mints elsewhere |

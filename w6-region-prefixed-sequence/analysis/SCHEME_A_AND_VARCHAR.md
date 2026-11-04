@@ -1,5 +1,9 @@
 # Scheme A under single-digit regions, and what a VARCHAR target means
 
+> **Outcome:** after this analysis the decision taken was **Scheme B — fixed-width offset**
+> (`D5`, 2026-11-04). §5 is the recommendation that was adopted. The rest of the document is kept
+> because it is the record of *why* the single-digit assumption did not change the answer.
+
 Answering two things: **does the "regions will never exceed 9" assumption rescue Scheme A**, and
 **how does a VARCHAR target column get handled**. Taking them in that order, because the second
 answer depends on the first.
@@ -194,7 +198,7 @@ If yes, A's variable width is a defect regardless of region count.
 ## 6. What is untested
 
 The call-site-cast mechanics in §3 come from documentation and from the R6 run's finding that
-declared length is ignored. `poc/12_q3_variable_target_datatype.sql` tests them directly — one
+declared length is ignored. `poc/scripts/12_q3_variable_target_datatype.sql` tests them directly — one
 function per base type vs. cast at the call site, the VARCHAR target length, the lexical sort trap
 in 3(a), and the round trip in 3(c). It has not been run. Everything in §4 is proven, having come
 straight out of the C5 two-deployment run.
